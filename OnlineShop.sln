@@ -25,6 +25,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShop.Tests", "tests\OnlineShop.Tests\OnlineShop.Tests.csproj", "{1F86D683-D52F-4DB9-81C7-CB8DF07A5641}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Downloads\C4 - System Context - Online Clothing Store-v2.drawio = ..\..\..\Downloads\C4 - System Context - Online Clothing Store-v2.drawio
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,5 +114,8 @@ Global
 		{953D89DF-FDD2-4C1A-6A43-6326114B13B5} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{BCB53899-6575-4384-9341-655AAE429CD6} = {953D89DF-FDD2-4C1A-6A43-6326114B13B5}
 		{1F86D683-D52F-4DB9-81C7-CB8DF07A5641} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {07326472-F50D-4A89-A327-A59BA3B9667A}
 	EndGlobalSection
 EndGlobal
