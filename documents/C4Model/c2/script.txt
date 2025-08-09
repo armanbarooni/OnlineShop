@@ -1,0 +1,22 @@
+@startuml C2_Containers
+!include <C4/C4_Container>
+
+title C2 - Container Diagram
+
+System_Boundary(s1,"Online Shop") {
+    Container(apiGateway, "API Gateway / BFF", ".NET 8 / Go", "Handles client requests, routes to services")
+    ContainerDb(localDB, "Local Database", "PostgreSQL 15", "Stores all shop & synced accounting data")
+    Container(messageQueue, "Message Queue", "RabbitMQ", "Event & command handling, async processing")
+    Container(syncWorker, "Mahak Sync Worker", ".NET 8 / Go", "Performs batch sync with Mahak API")
+    Container(objStorage, "Object Storage", "MinIO/S3", "Stores images, attachments")
+    Container(mahakApiAdapter, "Mahak API Adapter", ".NET/Go", "Translates internal sync calls into Mahak API calls")
+    Container(frontend, "Frontend", "React/Vue", "Web UI for customers & admins")
+}
+
+Rel(frontend, apiGateway, "HTTP/HTTPS requests")
+Rel(apiGateway, localDB, "Read/Write data")
+Rel(syncWorker, mahakApiAdapter, "Pull/Push data")
+Rel(syncWorker, localDB, "Insert/Update records")
+Rel(syncWorker, messageQueue, "Publish/Consume messages")
+
+@enduml

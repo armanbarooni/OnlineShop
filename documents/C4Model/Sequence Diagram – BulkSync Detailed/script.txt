@@ -1,0 +1,14 @@
+@startuml BulkSync_Simple
+title BulkSync - Simple Flow
+
+actor Scheduler
+participant "Mahak API" as Mahak
+participant Queue
+participant "Local DB" as DB
+
+Scheduler -> Mahak : Request bulk data
+Mahak --> Scheduler : Paged data response
+Scheduler -> Queue : Publish fetched batch
+Queue -> DB : Consume & save data
+
+@enduml

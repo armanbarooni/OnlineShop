@@ -1,0 +1,29 @@
+@startuml BulkSync_Detailed
+title BulkSync - Detailed Flow
+
+actor Scheduler
+participant "Mahak API" as Mahak
+participant "Mahak Sync Worker" as Worker
+participant Exchange
+participant "Retry Queue" as RetryQ
+participant "DLQ" as DLQ
+participant "Local DB" as DB
+
+Scheduler -> Mahak : GetAllData(RowVersion)
+Mahak --> Scheduler : Data + Deleted flags (paged)
+Scheduler -> Exchange : Publish batch message
+
+Exchange -> Worker : Deliver batch message
+Worker -> DB : UPSERT with conflict resolution
+Worker -> DB : Soft Delete if 'deleted = true'
+Worker -> Exchange : Ack/Nack message
+
+alt Timeout or Rate Limit
+  Worker -> RetryQ : Requeue message
+end
+
+alt Permanent failure
+  Worker -> DLQ : Send to dead letter
+end
+
+@enduml

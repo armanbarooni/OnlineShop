@@ -1,0 +1,119 @@
+@startuml C4_Architecture_All
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+'// ----------------------------------------------------
+'// C1 – System Context
+LAYOUT_WITH_LEGEND()
+Person(customer, "Customer", "Browses and orders from shop")
+Person(admin, "System Admin", "Manages catalog and configurations")
+System_Boundary(shop, "Online Shop System (Hybrid Architecture)") {
+    System(shopSys, "Online Shop", "Main hybrid e-commerce platform")
+}
+System_Ext(payment, "Payment Gateway", "Processes online payments")
+System_Ext(sms, "SMS Service", "Sends OTP and notifications")
+System_Ext(mahak, "Mahak Accounting System", "Financial and inventory management")
+
+Rel(customer, shopSys, "Browse/Order")
+Rel(admin, shopSys, "Manage products & settings")
+Rel(shopSys, payment, "Send payment requests / receive confirmations")
+Rel(shopSys, sms, "Send OTP & notifications")
+Rel(shopSys, mahak, "Sync data via API")
+@enduml
+
+
+@startuml C2_Containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+LAYOUT_WITH_LEGEND()
+
+System_Boundary(shop, "Online Shop System") {
+  Container(api, "API Gateway / BFF", "Node.js/.NET", "Handles API calls and routes")
+  Container(db, "Local Database", "PostgreSQL 15", "Stores shop data, same schema as Mahak")
+  Container(queue, "Message Queue", "RabbitMQ", "Event-driven communication, Exchange, Retry Queue, DLQ")
+  Container(syncWorker, "Mahak Sync Worker", ".NET 8 / Go", "Syncs data between Mahak API and Local DB")
+  Container(storage, "Object Storage", "MinIO / S3", "Stores media and documents")
+  Container(adapter, "Mahak API Adapter", "Service", "Handles Mahak API integration")
+  Container(frontend, "Frontend WebApp/Mobile", "React/Vue/Flutter", "User interface")
+}
+
+Rel(api, db, "Query/Update data")
+Rel(api, queue, "Publish events")
+Rel(syncWorker, mahak, "Pull/Push data via API")
+Rel(syncWorker, db, "Upsert data")
+Rel(syncWorker, queue, "Consume/Publish sync events")
+Rel(storage, api, "Store/Fetch files")
+Rel(adapter, mahak, "Call Mahak API methods")
+Rel(frontend, api, "HTTP/REST calls")
+@enduml
+
+
+@startuml C3_MahakSyncWorker_Components
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+LAYOUT_WITH_LEGEND()
+
+Container_Boundary(syncWorker, "Mahak Sync Worker") {
+  Component(rowVersion, "RowVersion Tracker", "Tracks max RowVersion per entity")
+  Component(fetcher, "Bulk Fetcher/Saver", "Fetches data with paging")
+  Component(upsert, "Upsert Engine", "Conflict resolution strategies")
+  Component(deleteHandler, "Logical Delete Handler", "Processes logical deletes")
+  Component(retryMgr, "Retry & Error Manager", "DLQ handling, retries with backoff")
+  Component(transformer, "Data Transformer", "Maps Mahak format to DB schema")
+}
+
+Rel(rowVersion, fetcher, "Send last RowVersion")
+Rel(fetcher, transformer, "Transform raw data")
+Rel(transformer, upsert, "Insert/Update records")
+Rel(upsert, deleteHandler, "Handle deletes")
+Rel(deleteHandler, retryMgr, "Push failed ops to retry/DLQ")
+@enduml
+
+
+@startuml C4_Code_Implementation
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+LAYOUT_WITH_LEGEND()
+
+System_Boundary(impl, "Implementation Details") {
+  Component(dotnet, ".NET 8 / Go", "Backend services & worker")
+  Component(pg, "PostgreSQL 15", "Database")
+  Component(rabbit, "RabbitMQ", "Messaging with DLQ, Retry Queue, Exchanges")
+  Component(jwt, "JWT Auth", "Auth with Mahak API")
+  Component(s3, "MinIO/S3", "Object storage for media")
+  Component(k8s, "Kubernetes", "Scaling & deployment")
+}
+@enduml
+
+
+@startuml BulkSync_Simple
+actor Scheduler
+rectangle "Mahak API" as mahak
+queue "RabbitMQ" as mq
+rectangle "Local DB" as db
+
+Scheduler -> mahak: GetAllDataV2(RowVersion)
+mahak -> mq: Publish bulk data events
+mq -> db: Worker consumes & upserts data
+@enduml
+
+
+@startuml BulkSync_Detailed
+actor Scheduler
+rectangle "Mahak API" as mahak
+queue "RabbitMQ Exchange" as exchange
+queue "Retry Queue" as retry
+queue "DLQ" as dlq
+rectangle "Sync Worker" as worker
+rectangle "Local DB" as db
+
+Scheduler -> mahak: Authenticate (JWT)
+Scheduler -> mahak: GetAllDataV2(RowVersion per entity)
+mahak --> Scheduler: Paged response
+Scheduler -> exchange: Publish event per page
+exchange -> worker: Deliver message
+worker -> worker: Transform & Map
+worker -> db: Upsert / Logical delete
+worker -> exchange: Ack/Nack
+worker -> retry: Retry delayed (on transient error)
+retry -> worker: Reprocess message
+worker -> dlq: Send to DLQ after max retries
+@enduml

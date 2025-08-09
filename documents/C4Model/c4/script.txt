@@ -1,0 +1,13 @@
+@startuml C4_Code_Implementation
+!include <C4/C4_Component>
+
+title C4 - Implementation / Tech Stack
+
+Component(dotnetGo, ".NET 8 / Go Services", "Backend services and workers")
+Component(postgres, "PostgreSQL 15", "Relational DB")
+Component(rabbit, "RabbitMQ", "Message broker")
+Component(jwt, "JWT Auth", "Authentication system")
+Component(minio, "MinIO/S3", "Object storage")
+Component(k8s, "Kubernetes", "Container orchestration")
+
+@enduml

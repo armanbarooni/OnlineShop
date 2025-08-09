@@ -1,0 +1,28 @@
+@startuml C1_SystemContext
+' --- C4 Context Base ---
+!include <C4/C4_Context>
+
+LAYOUT_WITH_LEGEND()
+
+title C1 - System Context - Online Shop + Mahak Integration
+
+' سیستم اصلی
+System_Boundary(s1,"Online Shop (Hybrid Architecture)") {
+    System(system, "Online Shop", "Hybrid Microservices + Monolith Core")
+}
+
+' بازیگران خارجی
+Person(customer, "Customer", "Registers, browses, orders")
+Person(admin, "Admin", "Manages products & orders")
+System_Ext(payment, "Payment Gateway", "Handles online payments")
+System_Ext(sms, "SMS Service Provider", "Sends OTP, notifications")
+System_Ext(mahak, "Mahak Accounting System", "Stores & manages accounting data")
+
+' روابط
+Rel(customer, system, "Register/Login, Browse/Order")
+Rel(admin, system, "Product & Order Management")
+Rel(system, payment, "Payment requests & confirmations")
+Rel(system, sms, "Send OTP/Notifications")
+Rel(system, mahak, "Sync products, invoices, payments")
+
+@enduml

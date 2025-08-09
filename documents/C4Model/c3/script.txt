@@ -1,0 +1,19 @@
+@startuml C3_MahakSyncWorker_Components
+!include <C4/C4_Component>
+
+title C3 - Mahak Sync Worker Components
+
+Component(rowTracker, "RowVersion Tracker", "Tracks last sync version for each entity")
+Component(bulkFetcher, "Bulk Fetcher/Saver", "Fetch & store in pages")
+Component(upsertEngine, "Upsert Engine", "Insert/update with conflict resolution")
+Component(deleteHandler, "Logical Delete Handler", "Handles soft deletions")
+Component(retryManager, "Retry & Error Manager", "Retry & Dead Letter Queue handling")
+Component(transformer, "Data Transformer", "Map Mahak API data into local model")
+
+Rel(rowTracker, bulkFetcher, "Provides last rowVersion")
+Rel(bulkFetcher, upsertEngine, "Passes fetched data")
+Rel(upsertEngine, deleteHandler, "Marks deleted if needed")
+Rel(upsertEngine, transformer, "Transforms raw data")
+Rel(retryManager, bulkFetcher, "Retries failed fetches")
+
+@enduml
