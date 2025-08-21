@@ -7,29 +7,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{8B290487-4C16-E85E-E807-F579CBE9FC4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShop.Domain", "src\Domain\OnlineShop.Domain.csproj", "{11590F57-4B3B-4DD6-AA5C-471BB1CAEC18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineShop.Domain", "src\Domain\OnlineShop.Domain.csproj", "{11590F57-4B3B-4DD6-AA5C-471BB1CAEC18}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{22BAF98C-8415-17C4-B26A-D537657BC863}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShop.Application", "src\Application\OnlineShop.Application.csproj", "{17F8FA0C-EC12-425B-AEFE-FAB11B0B0712}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineShop.Application", "src\Application\OnlineShop.Application.csproj", "{17F8FA0C-EC12-425B-AEFE-FAB11B0B0712}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{9048EB7F-3875-A59E-E36B-5BD4C6F2A282}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShop.Infrastructure", "src\Infrastructure\OnlineShop.Infrastructure.csproj", "{13BA3CC6-FFAF-4DF4-8461-1D68BCE66E10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineShop.Infrastructure", "src\Infrastructure\OnlineShop.Infrastructure.csproj", "{13BA3CC6-FFAF-4DF4-8461-1D68BCE66E10}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebAPI", "WebAPI", "{953D89DF-FDD2-4C1A-6A43-6326114B13B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShop.WebAPI", "src\WebAPI\OnlineShop.WebAPI.csproj", "{BCB53899-6575-4384-9341-655AAE429CD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineShop.WebAPI", "src\WebAPI\OnlineShop.WebAPI.csproj", "{BCB53899-6575-4384-9341-655AAE429CD6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShop.Tests", "tests\OnlineShop.Tests\OnlineShop.Tests.csproj", "{1F86D683-D52F-4DB9-81C7-CB8DF07A5641}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\..\Downloads\C4 - System Context - Online Clothing Store-v2.drawio = ..\..\..\Downloads\C4 - System Context - Online Clothing Store-v2.drawio
-		test.cs = test.cs
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineShop.Tests", "tests\OnlineShop.Tests\OnlineShop.Tests.csproj", "{1F86D683-D52F-4DB9-81C7-CB8DF07A5641}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
