@@ -35,12 +35,12 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateUnitCommand command, CancellationToken cancellationToken = default)
-        {
-            var result = await _mediator.Send(command, cancellationToken);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> Create([FromBody] CreateUnitCommand command, CancellationToken cancellationToken = default)
+        //{
+        //    var result = await _mediator.Send(command, cancellationToken);
+        //    return result.IsSuccess ? Ok(result) : BadRequest(result);
+        //}
 
         ///// <summary>
         ///// ویرایش واحد
