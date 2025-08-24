@@ -34,5 +34,9 @@ public class UnitRepository : IUnitRepository
     {
         _context.Units.Remove(unit);
         await _context.SaveChangesAsync(cancellationToken);
-    } 
+    }
+    public async Task<bool> ExistsByNameAsync(string name)
+    {
+        return await _context.Units.AnyAsync(u => u.Name == name);
+    }
 }

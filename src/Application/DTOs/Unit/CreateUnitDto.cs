@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace OnlineShop.Application.DTOs.Unit
 {
-    public record CreateUnitDto(string Name, string Symbol);
+    public record CreateUnitDto(string Name, string Comment);
 
 }
