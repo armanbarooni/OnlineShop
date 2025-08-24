@@ -8,7 +8,7 @@ namespace OnlineShop.Domain.Common
 {
     public abstract class BaseEntity
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public int? MahakId { get; set; }
         public long? MahakClientId { get; set; }
         public long RowVersion { get; set; }

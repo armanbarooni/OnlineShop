@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
-using OnlineShop.Application.Contracts.Units;
-
+using OnlineShop.Application.DTOs.Unit;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OnlineShop.Application.Mapping;

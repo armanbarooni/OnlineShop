@@ -1,8 +1,8 @@
-﻿namespace OnlineShop.Application.Interfaces.Repositories;
+﻿namespace OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 
 public interface IUnitRepository
 {
-    Task<Unit?> GetByIdAsync(int id, CancellationToken cancellationToken);
+    Task<Unit?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     Task<List<Unit>> GetAllAsync(CancellationToken cancellationToken);
     Task AddAsync(Unit unit, CancellationToken cancellationToken);
     Task UpdateAsync(Unit unit, CancellationToken cancellationToken);

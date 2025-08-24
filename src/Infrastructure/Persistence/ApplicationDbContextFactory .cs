@@ -12,7 +12,7 @@ namespace OnlineShop.Infrastructure
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
 
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5433;Database=OnlineShop;Username=postgres;Password=1234");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=OnlineShop;Username=postgres;Password=1234");
 
             return new ApplicationDbContext(optionsBuilder.Options);
         }

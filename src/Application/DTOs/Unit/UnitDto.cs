@@ -4,14 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineShop.Application.Contracts.Units
+namespace OnlineShop.Application.DTOs.Unit
 {
-    public record UnitDetailsDto
+    public record UnitDto
     {
         public int Id { get; init; }
         public string Name { get; init; } = default!;
         public string Symbol { get; init; } = default!;
-        public bool Deleted { get; init; }
-        public long RowVersion { get; init; }
     }
 }

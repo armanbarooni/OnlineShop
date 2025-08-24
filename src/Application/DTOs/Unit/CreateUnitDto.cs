@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineShop.Application.Features.Features.Queries.GetById
+namespace OnlineShop.Application.DTOs.Unit
 {
-    internal class GetByIdQuery
-    {
-    }
+    public record CreateUnitDto(string Name, string Symbol);
+
 }

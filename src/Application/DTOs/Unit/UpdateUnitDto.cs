@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineShop.Application.Contracts.Units
+namespace OnlineShop.Application.DTOs.Unit
 {
-    public record CreateUnitDto(string Name, string Symbol);
+    public record UpdateUnitDto(int Id, string Name, string Symbol);
 
 }

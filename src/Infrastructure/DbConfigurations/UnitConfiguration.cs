@@ -12,7 +12,7 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             builder.HasKey(u => u.Id);
 
             builder.Property(u => u.Id)
-                   .ValueGeneratedOnAdd();
+                   .ValueGeneratedNever();
 
             builder.Property(u => u.Name)
                    .IsRequired()
