@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using OnlineShop.Domain.Entites;
 
 
 namespace OnlineShop.Infrastructure.DbConfigurations
@@ -21,8 +22,6 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             builder.Property(u => u.Comment)
                    .HasMaxLength(500);
 
-            builder.Property(u => u.UnitTIN)
-                   .HasMaxLength(50);
 
             builder.Property(u => u.RowVersion)
                    .IsConcurrencyToken();

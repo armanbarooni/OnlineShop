@@ -19,11 +19,12 @@ namespace OnlineShop.Application.Features.Unit.Queries.GetById
 
         public async Task<Result<UnitDetailsDto>> Handle(GetUnitByIdQuery request, CancellationToken cancellationToken)
         {
+ 
             var unit = await _unitRepository.GetByIdAsync(request.Id, cancellationToken);
             if (unit == null)
                 throw new NotFoundException(nameof(Unit), request.Id);
-
-            return _mapper.Map<Result<UnitDetailsDto>>(unit);
+            var res = _mapper.Map<UnitDetailsDto>(unit);
+            return Result<UnitDetailsDto>.Success(res);
         }
 
 

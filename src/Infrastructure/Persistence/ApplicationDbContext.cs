@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineShop.Domain.Common;
+using OnlineShop.Domain.Entites;
 
 namespace OnlineShop.Infrastructure.Persistence
 {

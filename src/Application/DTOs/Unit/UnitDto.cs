@@ -10,6 +10,6 @@ namespace OnlineShop.Application.DTOs.Unit
     {
         public int Id { get; init; }
         public string Name { get; init; } = default!;
-        public string Symbol { get; init; } = default!;
+        public string Comment { get; init; } = default!;
     }
 }

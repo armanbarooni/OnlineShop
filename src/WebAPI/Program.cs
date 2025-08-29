@@ -1,16 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Infrastructure.Persistence;
 using OnlineShop.Infrastructure;
+using OnlineShop.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddInfrastructureServices(builder.Configuration);
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -29,9 +31,11 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
 }
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.MapControllers();
 
 
 app.Run();

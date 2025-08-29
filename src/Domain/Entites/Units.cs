@@ -1,46 +1,68 @@
 ﻿using OnlineShop.Domain.Common;
 
-public class Unit : BaseEntity
+namespace OnlineShop.Domain.Entites
 {
-    public int UnitCode { get; private set; }
-    public string Name { get; private set; }
-    public string Comment { get; private set; }
-    public string UnitTIN { get; private set; }
-
-    protected Unit() { }
-
-    private Unit(int unitCode, string name, string unitTIN, long mahakClientId, int mahakId, string comment)
+    public class Unit : BaseEntity
     {
-        SetName(name);
-        SetComment(comment);
-        UnitCode = unitCode;
-        UnitTIN = unitTIN?.Trim();
-        MahakClientId = mahakClientId;
-        MahakId = mahakId;
-        Deleted = false;
-    }
+        public int? UnitCode { get;  set; }
+        public string Name { get;  set; }
+        public string Comment { get;  set; }
 
-    public static Unit Create(int unitCode, string name, string unitTIN, long mahakClientId, int mahakId, string comment)
-        => new(unitCode, name, unitTIN, mahakClientId, mahakId, comment);
+        protected Unit() { }
 
-    public void SetName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("نام واحد نباید خالی باشد");
-        Name = name.Trim();
-        UpdatedAt = DateTime.UtcNow;
-    }
+        private Unit(int unitCode, string name, long mahakClientId, int mahakId, string comment)
+        {
+            SetName(name);
+            SetComment(comment);
+            UnitCode = unitCode;
+            MahakClientId = mahakClientId;
+            MahakId = mahakId;
+            Deleted = false;
+        }
 
-    public void SetComment(string comment)
-    {
-        Comment = comment?.Trim();
-        UpdatedAt = DateTime.UtcNow;
-    }
+        public static Unit Create(int unitCode, string name,  long mahakClientId, int mahakId, string comment)
+            => new(unitCode, name, mahakClientId, mahakId, comment);
 
-    public void MarkAsDeleted()
-    {
-        if (Deleted) return;
-        Deleted = true;
-        UpdatedAt = DateTime.UtcNow;
+        public void SetName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("نام واحد نباید خالی باشد");
+            Name = name.Trim();
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetComment(string comment)
+        {
+            Comment = comment?.Trim();
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void MarkAsDeleted()
+        {
+            if (Deleted) return;
+            Deleted = true;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void Update(string name, string comment , int? updateAt)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "نام واحد نمی‌تواند خالی باشد.");
+
+            Name = name;
+            Comment = comment;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = updateAt ?? 1;
+        }
+
+        public void Delete(int? updateAt)
+        {
+            if (Deleted)
+                throw new InvalidOperationException("این واحد قبلاً حذف شده است.");
+
+            Deleted = true;
+            UpdatedAt = DateTime.UtcNow;
+            UpdatedBy = updateAt ?? 1;
+        }
     }
 }

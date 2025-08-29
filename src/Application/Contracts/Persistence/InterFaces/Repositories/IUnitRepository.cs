@@ -1,4 +1,6 @@
-﻿namespace OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+﻿using OnlineShop.Domain.Entites;
+
+namespace OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 
 public interface IUnitRepository 
 {
@@ -7,5 +9,5 @@ public interface IUnitRepository
     Task AddAsync(Unit unit, CancellationToken cancellationToken);
     Task UpdateAsync(Unit unit, CancellationToken cancellationToken);
     Task DeleteAsync(Unit unit, CancellationToken cancellationToken);
-    Task<bool> ExistsByNameAsync(string name);
+    Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken);
 }

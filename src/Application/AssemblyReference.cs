@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineShop.Application.DTOs.Unit
+namespace OnlineShop.Application
 {
-    public record UpdateUnitDto(Guid Id, string Name, string Comment);
-
+    public static class AssemblyReference { }
 }

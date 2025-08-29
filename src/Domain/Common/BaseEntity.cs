@@ -14,7 +14,7 @@ namespace OnlineShop.Domain.Common
         public long RowVersion { get; set; }
         public bool Deleted { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public int CreatedBy { get; set; }
+        public int CreatedBy { get; set; } = 1;
         public DateTime? UpdatedAt { get; set; }
         public int? UpdatedBy { get; set; }
     }
