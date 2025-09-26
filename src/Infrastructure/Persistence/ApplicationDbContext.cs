@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineShop.Domain.Common;
 using OnlineShop.Domain.Entites;
+using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Infrastructure.Persistence
 {
@@ -10,6 +11,7 @@ namespace OnlineShop.Infrastructure.Persistence
             : base(options) { }
 
         public DbSet<Unit> Units { get; set; }
+        public DbSet<Product> Products { get; internal set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
