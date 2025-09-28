@@ -35,7 +35,7 @@ namespace OnlineShop.Domain.Entities
 
         public void SetDescription(string description)
         {
-            Description = description?.Trim();
+            Description = description;
             UpdatedAt = DateTime.UtcNow;
         }
 

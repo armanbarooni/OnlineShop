@@ -1,5 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Domain.Entites;
 using OnlineShop.Infrastructure.Persistence;
@@ -17,7 +16,7 @@ public class UnitRepository : IUnitRepository
         => _context.Units.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id && !u.Deleted, cancellationToken);
 
     public Task<List<Unit>> GetAllAsync(CancellationToken cancellationToken = default)
-        => _context.Units.AsNoTracking().Where(u=> !u.Deleted).ToListAsync(cancellationToken);
+        => _context.Units.AsNoTracking().Where(u => !u.Deleted).ToListAsync(cancellationToken);
 
     public async Task AddAsync(Unit unit, CancellationToken cancellationToken = default)
     {
@@ -38,6 +37,6 @@ public class UnitRepository : IUnitRepository
     }
     public async Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken)
     {
-        return await _context.Units.AnyAsync(u => u.Name == name && !u.Deleted,cancellationToken);
+        return await _context.Units.AnyAsync(u => u.Name == name && !u.Deleted, cancellationToken);
     }
 }

@@ -4,9 +4,9 @@ namespace OnlineShop.Domain.Entites
 {
     public class Unit : BaseEntity
     {
-        public int? UnitCode { get;  set; }
-        public string Name { get;  set; }
-        public string Comment { get;  set; }
+        public int? UnitCode { get; set; }
+        public string Name { get; set; }
+        public string Comment { get; set; }
 
         protected Unit() { }
 
@@ -20,7 +20,7 @@ namespace OnlineShop.Domain.Entites
             Deleted = false;
         }
 
-        public static Unit Create(int unitCode, string name,  long mahakClientId, int mahakId, string comment)
+        public static Unit Create(int unitCode, string name, long mahakClientId, int mahakId, string comment)
             => new(unitCode, name, mahakClientId, mahakId, comment);
 
         public void SetName(string name)
@@ -33,7 +33,7 @@ namespace OnlineShop.Domain.Entites
 
         public void SetComment(string comment)
         {
-            Comment = comment?.Trim();
+            Comment = comment;
             UpdatedAt = DateTime.UtcNow;
         }
 
@@ -44,7 +44,7 @@ namespace OnlineShop.Domain.Entites
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Update(string name, string comment , int? updateAt)
+        public void Update(string name, string comment, int? updateAt)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name), "نام واحد نمی‌تواند خالی باشد.");

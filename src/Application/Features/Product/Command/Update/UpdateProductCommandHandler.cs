@@ -21,12 +21,12 @@ namespace OnlineShop.Application.Features.Product.Command.Update
 
         public async Task<Result<ProductDto>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
-            var product = await _repository.GetByIdAsync(request.Product.Id);
+            var product = await _repository.GetByIdAsync(request.Product.Id,cancellationToken);
             if (product == null)
                 return Result<ProductDto>.Failure("Product not found");
 
-            product.Update(request.Product.Name, request.Product.Description, request.Product.Price, request.Product.StockQuantity);
-            await _repository.UpdateAsync(product);
+            product.Update(request.Product.Name, request.Product.Description, request.Product.Price, request.Product.StockQuantity,null);
+            await _repository.UpdateAsync(product,cancellationToken);
             return Result<ProductDto>.Success(_mapper.Map<ProductDto>(product));
         }
     }

@@ -22,7 +22,7 @@ namespace OnlineShop.Application.Features.Unit.Command.Update
 
         public async Task<Result<bool>> Handle(UpdateUnitCommand request, CancellationToken cancellationToken)
         {
-  
+
             if (request.UnitDto == null)
                 return Result<bool>.Failure("درخواست نمی‌تواند خالی باشد.");
 
@@ -32,7 +32,7 @@ namespace OnlineShop.Application.Features.Unit.Command.Update
             if (string.IsNullOrWhiteSpace(request.UnitDto.Name))
                 return Result<bool>.Failure("نام واحد نمی‌تواند خالی باشد.");
 
-            var entity = await _unitRepository.GetByIdAsync(request.UnitDto.Id,cancellationToken);
+            var entity = await _unitRepository.GetByIdAsync(request.UnitDto.Id, cancellationToken);
             if (entity == null)
                 return Result<bool>.Failure("واحد مورد نظر پیدا نشد.");
 
@@ -41,7 +41,7 @@ namespace OnlineShop.Application.Features.Unit.Command.Update
                 return Result<bool>.Failure("واحدی با این نام قبلاً ثبت شده است.");
 
 
-            entity.Update(request.UnitDto.Name, request.UnitDto.Comment,null);
+            entity.Update(request.UnitDto.Name, request.UnitDto.Comment, null);
             await _unitRepository.UpdateAsync(entity, cancellationToken);
 
             return Result<bool>.Success(true);

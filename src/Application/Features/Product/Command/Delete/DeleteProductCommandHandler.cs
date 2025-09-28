@@ -6,23 +6,16 @@ using System.Threading.Tasks;
 
 namespace OnlineShop.Application.Features.Product.Command.Delete
 {
-    public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand, Result<string>>
+    public class DeleteProductCommandHandler(IProductRepository repository) : IRequestHandler<DeleteProductCommand, Result<string>>
     {
-        private readonly IProductRepository _repository;
-
-        public DeleteProductCommandHandler(IProductRepository repository)
-        {
-            _repository = repository;
-        }
-
         public async Task<Result<string>> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            var product = await _repository.GetByIdAsync(request.Id);
+            var product = await repository.GetByIdAsync(request.Id, cancellationToken);
             if (product == null)
                 return Result<string>.Failure("Product not found");
 
-            product.Delete();
-            await _repository.UpdateAsync(product);
+            product.Delete(null);
+            await repository.UpdateAsync(product, cancellationToken);
             return Result<string>.Success("Product deleted successfully");
         }
     }

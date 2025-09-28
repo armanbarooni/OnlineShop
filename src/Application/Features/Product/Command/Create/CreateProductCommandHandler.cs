@@ -9,22 +9,13 @@ using System.Threading.Tasks;
 
 namespace OnlineShop.Application.Features.Product.Command.Create
 {
-    public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Result<ProductDto>>
+    public class CreateProductCommandHandler(IProductRepository repository, IMapper mapper) : IRequestHandler<CreateProductCommand, Result<ProductDto>>
     {
-        private readonly IProductRepository _repository;
-        private readonly IMapper _mapper;
-
-        public CreateProductCommandHandler(IProductRepository repository, IMapper mapper)
-        {
-            _repository = repository;
-            _mapper = mapper;
-        }
-
         public async Task<Result<ProductDto>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            var product = _mapper.Map<Product>(request.Product);
-            await _repository.AddAsync(product);
-            return Result<ProductDto>.Success(_mapper.Map<ProductDto>(product));
+            var product = mapper.Map<Domain.Entities.Product>(request.Product);
+            await repository.AddAsync(product, cancellationToken);
+            return Result<ProductDto>.Success(mapper.Map<ProductDto>(product));
         }
     }
 }

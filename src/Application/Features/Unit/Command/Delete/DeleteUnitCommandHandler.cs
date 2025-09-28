@@ -7,15 +7,8 @@ using System.Threading.Tasks;
 
 namespace OnlineShop.Application.Features.Unit.Command.Delete
 {
-    public class DeleteUnitCommandHandler : IRequestHandler<DeleteUnitCommand, Result<bool>>
+    public class DeleteUnitCommandHandler(IUnitRepository unitRepository) : IRequestHandler<DeleteUnitCommand, Result<bool>>
     {
-        private readonly IUnitRepository _unitRepository;
-
-        public DeleteUnitCommandHandler(IUnitRepository unitRepository)
-        {
-            _unitRepository = unitRepository;
-        }
-
         public async Task<Result<bool>> Handle(DeleteUnitCommand request, CancellationToken cancellationToken)
         {
 
@@ -23,13 +16,13 @@ namespace OnlineShop.Application.Features.Unit.Command.Delete
                 return Result<bool>.Failure("شناسه واحد معتبر نیست.");
 
 
-            var entity = await _unitRepository.GetByIdAsync(request.Id,cancellationToken);
+            var entity = await unitRepository.GetByIdAsync(request.Id, cancellationToken);
             if (entity == null)
                 return Result<bool>.Failure("واحد مورد نظر پیدا نشد.");
 
             entity.Delete(null);
 
-            await _unitRepository.UpdateAsync(entity, cancellationToken);
+            await unitRepository.UpdateAsync(entity, cancellationToken);
 
             return Result<bool>.Success(true);
         }

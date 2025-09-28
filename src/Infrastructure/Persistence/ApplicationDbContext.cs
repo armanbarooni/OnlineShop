@@ -5,11 +5,8 @@ using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Infrastructure.Persistence
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
-
         public DbSet<Unit> Units { get; set; }
         public DbSet<Product> Products { get; internal set; }
 
@@ -17,7 +14,7 @@ namespace OnlineShop.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
- 
+
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
 
