@@ -8,7 +8,7 @@ namespace OnlineShop.Application.DTOs.Unit
 {
     public class UnitDto
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; } = default!;
         public string Comment { get; set; } = default!;
     }
