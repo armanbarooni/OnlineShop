@@ -9,6 +9,7 @@ namespace OnlineShop.Infrastructure.Persistence
     {
         public DbSet<Unit> Units { get; set; }
         public DbSet<Product> Products { get; internal set; }
+        public DbSet<ProductCategory> ProductCategories { get; set; }  
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

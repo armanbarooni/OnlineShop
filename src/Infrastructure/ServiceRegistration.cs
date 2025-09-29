@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OnlineShop.Infrastructure.Persistence;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Infrastructure.Persistence;
+using OnlineShop.Infrastructure.Persistence.Repositories;
 
 namespace OnlineShop.Infrastructure;
 
@@ -24,6 +25,9 @@ public static class ServiceRegistration
             options.UseNpgsql(connectionString));
 
         services.AddScoped<IUnitRepository, UnitRepository>();
+        services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+
 
         return services;
     }
