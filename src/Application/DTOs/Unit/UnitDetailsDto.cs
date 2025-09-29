@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OnlineShop.Application.DTOs.Unit
 {
-    public record UnitDetailsDto
+    public class UnitDetailsDto
     {
         public Guid Id { get; init; }
         public string Name { get; init; } = default!;

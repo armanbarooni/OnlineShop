@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace OnlineShop.Application.DTOs.Unit
 {
-    public record UpdateUnitDto(Guid Id, string Name, string Comment);
-
+    public class UpdateUnitDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Comment { get; set; }
+    }
 }

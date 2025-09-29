@@ -30,8 +30,8 @@ namespace OnlineShop.Application.Features.Unit.Command.Create
             var exists = await _unitRepository.ExistsByNameAsync(request.UnitDto.Name,cancellationToken);
             if (exists)
                 return Result<Guid>.Failure("واحدی با این نام قبلاً ثبت شده است.");
-            CreateUnitDto entity = new(request.UnitDto.Name, request.UnitDto.Comment);
-            var result = _mapper.Map<Domain.Entites.Unit>(entity);
+
+            var result = _mapper.Map<Domain.Entites.Unit>(request.UnitDto);
             await _unitRepository.AddAsync(result,cancellationToken);
             return Result<Guid>.Success(result.Id);
         }

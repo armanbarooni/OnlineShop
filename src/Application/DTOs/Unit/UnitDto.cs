@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace OnlineShop.Application.DTOs.Unit
 {
-    public record UnitDto
+    public class UnitDto
     {
-        public int Id { get; init; }
-        public string Name { get; init; } = default!;
-        public string Comment { get; init; } = default!;
+        public int Id { get; set; }
+        public string Name { get; set; } = default!;
+        public string Comment { get; set; } = default!;
     }
 }

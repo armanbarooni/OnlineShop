@@ -1,11 +1,12 @@
-﻿using OnlineShop.Application.Common.Models;
+﻿using MediatR;
+using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Application.DTOs.ProductCategory;
-using OnlineShop.Application.Exceptions;
 
 namespace OnlineShop.Application.Features.ProductCategory.Command.Update
 {
     public class UpdateProductCategoryCommandHandler
+        : IRequestHandler<UpdateProductCategoryCommand, Result<ProductCategoryDto>>
     {
         private readonly IProductCategoryRepository _repository;
 
@@ -14,13 +15,22 @@ namespace OnlineShop.Application.Features.ProductCategory.Command.Update
             _repository = repository;
         }
 
-        public async Task<Result<ProductCategoryDto>> Handle(UpdateProductCategoryCommand command, CancellationToken cancellationToken)
+        public async Task<Result<ProductCategoryDto>> Handle(
+            UpdateProductCategoryCommand request,
+            CancellationToken cancellationToken)
         {
-            var productCategory = await _repository.GetByIdAsync(command.Id, cancellationToken);
-            if (productCategory == null)
-                throw new NotFoundException($"ProductCategory with ID {command.Id} not found.");
+            var productCategory = await _repository.GetByIdAsync(request.Id, cancellationToken);
 
-            productCategory.Update(command.Dto.Name, command.Dto.Description, null);
+            if (productCategory == null)
+                return Result<ProductCategoryDto>.Failure($"ProductCategory with Id {request.Id} not found");
+
+            // فقط فیلدهایی که در UpdateProductCategoryDto هستن رو update می‌کنیم
+            productCategory.Update(
+                request.Dto.Name,
+                request.Dto.Description,
+                null
+            );
+
             await _repository.UpdateAsync(productCategory, cancellationToken);
             await _repository.SaveChangesAsync(cancellationToken);
 

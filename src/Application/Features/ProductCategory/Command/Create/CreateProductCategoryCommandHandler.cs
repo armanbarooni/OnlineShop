@@ -1,11 +1,12 @@
-﻿using OnlineShop.Application.Common.Models;
+﻿using MediatR;
+using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Application.DTOs.ProductCategory;
-using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Application.Features.ProductCategory.Command.Create
 {
     public class CreateProductCategoryCommandHandler
+        : IRequestHandler<CreateProductCategoryCommand, Result<ProductCategoryDto>>
     {
         private readonly IProductCategoryRepository _repository;
 
@@ -14,13 +15,15 @@ namespace OnlineShop.Application.Features.ProductCategory.Command.Create
             _repository = repository;
         }
 
-        public async Task<Result<ProductCategoryDto>> Handle(CreateProductCategoryCommand command, CancellationToken cancellationToken)
+        public async Task<Result<ProductCategoryDto>> Handle(
+            CreateProductCategoryCommand request,
+            CancellationToken cancellationToken)
         {
             var productCategory = Domain.Entities.ProductCategory.Create(
-                command.Dto.Name,
-                command.Dto.Description,
-                command.Dto.MahakClientId,
-                command.Dto.MahakId
+                request.Dto.Name,
+                request.Dto.Description,
+                request.Dto.MahakClientId,
+                request.Dto.MahakId
             );
 
             await _repository.AddAsync(productCategory, cancellationToken);

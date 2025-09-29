@@ -1,11 +1,12 @@
-﻿using OnlineShop.Application.Common.Models;
+﻿using MediatR;
+using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Application.DTOs.ProductCategory;
-using OnlineShop.Application.Exceptions;
 
 namespace OnlineShop.Application.Features.ProductCategory.Queries.GetById
 {
     public class GetProductCategoryByIdQueryHandler
+        : IRequestHandler<GetProductCategoryByIdQuery, Result<ProductCategoryDto>>
     {
         private readonly IProductCategoryRepository _repository;
 
@@ -14,24 +15,25 @@ namespace OnlineShop.Application.Features.ProductCategory.Queries.GetById
             _repository = repository;
         }
 
-        public async Task<Result<ProductCategoryDetailsDto>> Handle(GetProductCategoryByIdQuery query, CancellationToken cancellationToken)
+        public async Task<Result<ProductCategoryDto>> Handle(
+            GetProductCategoryByIdQuery request,
+            CancellationToken cancellationToken)
         {
-            var productCategory = await _repository.GetByIdAsync(query.Id, cancellationToken);
-            if (productCategory == null)
-                throw new NotFoundException($"ProductCategory with ID {query.Id} not found.");
+            var category = await _repository.GetByIdAsync(request.Id, cancellationToken);
 
-            var dto = new ProductCategoryDetailsDto
+            if (category == null)
+                return Result<ProductCategoryDto>.Failure($"ProductCategory with Id {request.Id} not found");
+
+            var dto = new ProductCategoryDto
             {
-                Id = productCategory.Id,
-                Name = productCategory.Name,
-                Description = productCategory.Description,
-                MahakId = productCategory.MahakId,
-                MahakClientId = productCategory.MahakClientId,
-                CreatedAt = productCategory.CreatedAt,
-                UpdatedAt = productCategory.UpdatedAt
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description,
+                MahakId = category.MahakId,
+                MahakClientId = category.MahakClientId
             };
 
-            return Result<ProductCategoryDetailsDto>.Success(dto);
+            return Result<ProductCategoryDto>.Success(dto);
         }
     }
 }

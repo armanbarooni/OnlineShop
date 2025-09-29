@@ -1,10 +1,11 @@
-﻿using OnlineShop.Application.Common.Models;
+﻿using MediatR;
+using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
-using OnlineShop.Application.Exceptions;
 
 namespace OnlineShop.Application.Features.ProductCategory.Command.Delete
 {
     public class DeleteProductCategoryCommandHandler
+        : IRequestHandler<DeleteProductCategoryCommand, Result<bool>>
     {
         private readonly IProductCategoryRepository _repository;
 
@@ -13,14 +14,16 @@ namespace OnlineShop.Application.Features.ProductCategory.Command.Delete
             _repository = repository;
         }
 
-        public async Task<Result<bool>> Handle(DeleteProductCategoryCommand command, CancellationToken cancellationToken)
+        public async Task<Result<bool>> Handle(
+            DeleteProductCategoryCommand request,
+            CancellationToken cancellationToken)
         {
-            var productCategory = await _repository.GetByIdAsync(command.Id, cancellationToken);
-            if (productCategory == null)
-                throw new NotFoundException($"ProductCategory with ID {command.Id} not found.");
+            var productCategory = await _repository.GetByIdAsync(request.Id, cancellationToken);
 
-            productCategory.Delete(null);
-            await _repository.UpdateAsync(productCategory, cancellationToken);
+            if (productCategory == null)
+                return Result<bool>.Failure($"ProductCategory with Id {request.Id} not found");
+
+            await _repository.DeleteAsync(productCategory, cancellationToken);
             await _repository.SaveChangesAsync(cancellationToken);
 
             return Result<bool>.Success(true);

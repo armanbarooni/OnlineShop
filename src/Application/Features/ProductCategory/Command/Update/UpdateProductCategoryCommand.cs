@@ -1,6 +1,9 @@
-﻿using OnlineShop.Application.DTOs.ProductCategory;
+﻿using MediatR;
+using OnlineShop.Application.Common.Models;
+using OnlineShop.Application.DTOs.ProductCategory;
 
 namespace OnlineShop.Application.Features.ProductCategory.Command.Update
 {
-    public record UpdateProductCategoryCommand(Guid Id, UpdateProductCategoryDto Dto);
+    public record UpdateProductCategoryCommand(Guid Id, UpdateProductCategoryDto Dto)
+        : IRequest<Result<ProductCategoryDto>>;
 }

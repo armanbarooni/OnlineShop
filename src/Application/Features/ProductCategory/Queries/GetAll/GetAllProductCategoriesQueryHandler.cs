@@ -1,10 +1,12 @@
-﻿using OnlineShop.Application.Common.Models;
+﻿using MediatR;
+using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Application.DTOs.ProductCategory;
 
 namespace OnlineShop.Application.Features.ProductCategory.Queries.GetAll
 {
     public class GetAllProductCategoriesQueryHandler
+        : IRequestHandler<GetAllProductCategoriesQuery, Result<List<ProductCategoryDto>>>
     {
         private readonly IProductCategoryRepository _repository;
 
@@ -13,19 +15,22 @@ namespace OnlineShop.Application.Features.ProductCategory.Queries.GetAll
             _repository = repository;
         }
 
-        public async Task<Result<IEnumerable<ProductCategoryDto>>> Handle(GetAllProductCategoriesQuery query, CancellationToken cancellationToken)
+        public async Task<Result<List<ProductCategoryDto>>> Handle(
+            GetAllProductCategoriesQuery request,
+            CancellationToken cancellationToken)
         {
-            var productCategories = await _repository.GetAllAsync(cancellationToken);
-            var dtos = productCategories.Select(pc => new ProductCategoryDto
-            {
-                Id = pc.Id,
-                Name = pc.Name,
-                Description = pc.Description,
-                MahakId = pc.MahakId,
-                MahakClientId = pc.MahakClientId
-            });
+            var categories = await _repository.GetAllAsync(cancellationToken);
 
-            return Result<IEnumerable<ProductCategoryDto>>.Success(dtos);
+            var dtos = categories.Select(c => new ProductCategoryDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                MahakId = c.MahakId,
+                MahakClientId = c.MahakClientId
+            }).ToList();
+
+            return Result<List<ProductCategoryDto>>.Success(dtos);
         }
     }
 }
