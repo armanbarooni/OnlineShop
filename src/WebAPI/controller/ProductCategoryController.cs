@@ -11,14 +11,9 @@ namespace OnlineShop.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProductCategoryController : ControllerBase
+    public class ProductCategoryController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public ProductCategoryController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        private readonly IMediator _mediator = mediator;
 
         [HttpGet]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
@@ -42,9 +37,7 @@ namespace OnlineShop.WebAPI.Controllers
             var command = new CreateProductCategoryCommand(dto);
             var result = await _mediator.Send(command, cancellationToken);
 
-            return result.IsSuccess
-                ? CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, result)
-                : BadRequest(result);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
         [HttpPut("{id}")]

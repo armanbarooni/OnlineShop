@@ -5,15 +5,10 @@ using OnlineShop.Application.DTOs.ProductCategory;
 
 namespace OnlineShop.Application.Features.ProductCategory.Command.Create
 {
-    public class CreateProductCategoryCommandHandler
-        : IRequestHandler<CreateProductCategoryCommand, Result<ProductCategoryDto>>
+    public class CreateProductCategoryCommandHandler(IProductCategoryRepository repository)
+                : IRequestHandler<CreateProductCategoryCommand, Result<ProductCategoryDto>>
     {
-        private readonly IProductCategoryRepository _repository;
-
-        public CreateProductCategoryCommandHandler(IProductCategoryRepository repository)
-        {
-            _repository = repository;
-        }
+        private readonly IProductCategoryRepository _repository = repository;
 
         public async Task<Result<ProductCategoryDto>> Handle(
             CreateProductCategoryCommand request,

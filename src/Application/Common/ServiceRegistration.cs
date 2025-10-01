@@ -1,14 +1,19 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using OnlineShop.Application;
 
-public static class ServiceRegistration
+namespace OnlineShop.Application.Common
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static class ServiceRegistration
     {
-        services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssembly(typeof(AssemblyReference).Assembly)
-        );
-        services.AddAutoMapper(cfg => { }, typeof(AssemblyReference).Assembly);
-        return services;
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+        {
+            services.AddMediatR(cfg =>
+                cfg.RegisterServicesFromAssembly(typeof(AssemblyReference).Assembly)
+            );
+
+            services.AddAutoMapper(typeof(AssemblyReference).Assembly);
+
+            return services;
+        }
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using OnlineShop.Infrastructure.Persistence;
 using OnlineShop.Infrastructure;
 using OnlineShop.API.Middleware;
+using OnlineShop.Application.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 

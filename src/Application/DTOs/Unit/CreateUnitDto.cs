@@ -8,7 +8,7 @@ namespace OnlineShop.Application.DTOs.Unit
 {
     public class CreateUnitDto
     {
-        public string Name { get; set; }
-        public string Comment { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Comment { get; set; } = string.Empty;
     }
 }

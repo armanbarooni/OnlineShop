@@ -9,8 +9,8 @@ namespace OnlineShop.Application.DTOs.Unit
     public class UnitDetailsDto
     {
         public Guid Id { get; init; }
-        public string Name { get; init; } = default!;
-        public string Comment { get; init; } = default!;
+        public string Name { get; init; } = null!;
+        public string Comment { get; init; } = null!;
         public bool Deleted { get; init; }
         public long RowVersion { get; init; }
     }

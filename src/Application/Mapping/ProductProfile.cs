@@ -9,6 +9,7 @@ namespace OnlineShop.Application.Mapping
         public ProductProfile()
         {
             CreateMap<Product, ProductDto>();
+            CreateMap<Product, ProductDetailsDto>();
             CreateMap<CreateProductDto, Product>();
             CreateMap<UpdateProductDto, Product>();
         }
