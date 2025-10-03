@@ -5,7 +5,7 @@ using AutoMapper;
 using OnlineShop.Application.Features.Unit.Command.Create;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Application.DTOs.Unit;
-using OnlineShop.Domain.Entites;
+using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Application.Tests.Features.Unit.Commands
 {
@@ -40,7 +40,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             var unitId = Guid.NewGuid();
 
             // تغییر: از factory method استفاده می‌کنیم
-            var unitEntity = Domain.Entites.Unit.Create(
+            var unitEntity = Domain.Entities.Unit.Create(
                 unitCode: 1,
                 name: "Kilogram",
                 mahakClientId: 123,
@@ -49,16 +49,16 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             );
 
             // Id را manually ست می‌کنیم (از reflection استفاده می‌کنیم)
-            var idProperty = typeof(Domain.Entites.Unit).GetProperty("Id");
+            var idProperty = typeof(Domain.Entities.Unit).GetProperty("Id");
             idProperty?.SetValue(unitEntity, unitId);
 
             _mockRepository.Setup(r => r.ExistsByNameAsync(createDto.Name, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
-            _mockMapper.Setup(m => m.Map<Domain.Entites.Unit>(createDto))
+            _mockMapper.Setup(m => m.Map<Domain.Entities.Unit>(createDto))
                 .Returns(unitEntity);
 
-            _mockRepository.Setup(r => r.AddAsync(It.IsAny<Domain.Entites.Unit>(), It.IsAny<CancellationToken>()))
+            _mockRepository.Setup(r => r.AddAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
             // Act
@@ -69,7 +69,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Data.Should().NotBe(Guid.Empty);
 
             _mockRepository.Verify(r => r.ExistsByNameAsync(createDto.Name, It.IsAny<CancellationToken>()), Times.Once);
-            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entites.Unit>(), It.IsAny<CancellationToken>()), Times.Once);
+            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entites.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]

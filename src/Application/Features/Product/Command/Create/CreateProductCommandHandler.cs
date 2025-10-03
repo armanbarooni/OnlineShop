@@ -13,7 +13,14 @@ namespace OnlineShop.Application.Features.Product.Command.Create
     {
         public async Task<Result<ProductDto>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            var product = mapper.Map<Domain.Entities.Product>(request.Product);
+
+            var product = Domain.Entities.Product.Create(
+                request.Product.Name,
+                request.Product.Description,
+                request.Product.Price,
+                request.Product.StockQuantity            
+            );
+
             await repository.AddAsync(product, cancellationToken);
             return Result<ProductDto>.Success(mapper.Map<ProductDto>(product));
         }

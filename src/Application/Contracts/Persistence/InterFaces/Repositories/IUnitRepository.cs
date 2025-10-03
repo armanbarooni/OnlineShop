@@ -1,4 +1,4 @@
-﻿using OnlineShop.Domain.Entites;
+﻿using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 

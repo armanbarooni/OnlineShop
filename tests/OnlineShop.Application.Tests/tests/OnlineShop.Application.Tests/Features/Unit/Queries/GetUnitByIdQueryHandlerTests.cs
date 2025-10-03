@@ -5,7 +5,7 @@ using AutoMapper;
 using OnlineShop.Application.Features.Unit.Queries.GetById;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Application.DTOs.Unit;
-using OnlineShop.Domain.Entites;
+using OnlineShop.Domain.Entities;
 using OnlineShop.Application.Exceptions;
 
 namespace OnlineShop.Application.Tests.Features.Unit.Queries
@@ -28,7 +28,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Queries
         {
             // Arrange
             var unitId = Guid.NewGuid();
-            var unit = Domain.Entites.Unit.Create(1, "Kilogram", 123, 1, "Weight unit");
+            var unit = Domain.Entities.Unit.Create(1, "Kilogram", 123, 1, "Weight unit");
 
             var unitDetailsDto = new UnitDetailsDto
             {
@@ -65,7 +65,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Queries
             var unitId = Guid.NewGuid();
 
             _mockRepository.Setup(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Domain.Entites.Unit)null);
+                .ReturnsAsync((Domain.Entities.Unit)null);
 
             var query = new GetUnitByIdQuery { Id = unitId };
 
@@ -74,7 +74,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Queries
                 await _handler.Handle(query, CancellationToken.None));
 
             _mockRepository.Verify(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()), Times.Once);
-            _mockMapper.Verify(m => m.Map<UnitDetailsDto>(It.IsAny<Domain.Entites.Unit>()), Times.Never);
+            _mockMapper.Verify(m => m.Map<UnitDetailsDto>(It.IsAny<Domain.Entities.Unit>()), Times.Never);
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Queries
             var emptyGuid = Guid.Empty;
 
             _mockRepository.Setup(r => r.GetByIdAsync(emptyGuid, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Domain.Entites.Unit)null);
+                .ReturnsAsync((Domain.Entities.Unit)null);
 
             var query = new GetUnitByIdQuery { Id = emptyGuid };
 

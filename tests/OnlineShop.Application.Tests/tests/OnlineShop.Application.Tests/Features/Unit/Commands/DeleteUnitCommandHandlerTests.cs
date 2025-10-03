@@ -3,7 +3,7 @@ using Moq;
 using FluentAssertions;
 using OnlineShop.Application.Features.Unit.Command.Delete;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
-using OnlineShop.Domain.Entites;
+using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Application.Tests.Features.Unit.Commands
 {
@@ -23,12 +23,12 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
         {
             // Arrange
             var unitId = Guid.NewGuid();
-            var unit = Domain.Entites.Unit.Create(1, "Kilogram", 123, 1, "Weight unit");
+            var unit = Domain.Entities.Unit.Create(1, "Kilogram", 123, 1, "Weight unit");
 
             _mockRepository.Setup(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(unit);
 
-            _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Domain.Entites.Unit>(), It.IsAny<CancellationToken>()))
+            _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
             var command = new DeleteUnitCommand { Id = unitId };
@@ -41,7 +41,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Data.Should().BeTrue();
 
             _mockRepository.Verify(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()), Times.Once);
-            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entites.Unit>(), It.IsAny<CancellationToken>()), Times.Once);
+            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             var unitId = Guid.NewGuid();
 
             _mockRepository.Setup(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Domain.Entites.Unit)null);
+                .ReturnsAsync((Domain.Entities.Unit)null);
 
             var command = new DeleteUnitCommand { Id = unitId };
 
@@ -63,7 +63,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.ErrorMessage.Should().Contain("واحد مورد نظر پیدا نشد.");
 
             _mockRepository.Verify(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()), Times.Once);
-            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entites.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.ErrorMessage.Should().Contain("شناسه واحد معتبر نیست.");
 
             _mockRepository.Verify(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
-            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entites.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }

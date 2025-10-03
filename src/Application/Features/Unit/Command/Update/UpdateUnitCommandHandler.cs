@@ -2,7 +2,7 @@
 using MediatR;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
-using OnlineShop.Domain.Entites;
+using OnlineShop.Domain.Entities;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using OnlineShop.Domain.Entites;
+using OnlineShop.Domain.Entities;
 
 
 namespace OnlineShop.Infrastructure.DbConfigurations

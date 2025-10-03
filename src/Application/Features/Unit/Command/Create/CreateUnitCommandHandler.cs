@@ -5,7 +5,7 @@ using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Persistence;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Application.DTOs.Unit;
-using OnlineShop.Domain.Entites;
+using OnlineShop.Domain.Entities;
 using System.Xml.Linq;
 
 
@@ -30,8 +30,8 @@ namespace OnlineShop.Application.Features.Unit.Command.Create
             var exists = await _unitRepository.ExistsByNameAsync(request.UnitDto.Name,cancellationToken);
             if (exists)
                 return Result<Guid>.Failure("واحدی با این نام قبلاً ثبت شده است.");
-
-            var result = _mapper.Map<Domain.Entites.Unit>(request.UnitDto);
+            var unit = Domain.Entities.Unit.Create(0, request.UnitDto.Name, null, null, request.UnitDto.Comment);
+            var result = _mapper.Map<Domain.Entities.Unit>(unit);
             await _unitRepository.AddAsync(result,cancellationToken);
             return Result<Guid>.Success(result.Id);
         }

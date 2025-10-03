@@ -1,6 +1,6 @@
 ﻿using OnlineShop.Domain.Common;
 
-namespace OnlineShop.Domain.Entites
+namespace OnlineShop.Domain.Entities
 {
     public class Unit : BaseEntity
     {
@@ -10,7 +10,7 @@ namespace OnlineShop.Domain.Entites
 
         protected Unit() { }
 
-        private Unit(int unitCode, string name, long mahakClientId, int mahakId, string comment)
+        private Unit(int unitCode, string name, long? mahakClientId, int? mahakId, string comment)
         {
             SetName(name);
             SetComment(comment);
@@ -20,7 +20,7 @@ namespace OnlineShop.Domain.Entites
             Deleted = false;
         }
 
-        public static Unit Create(int unitCode, string name, long mahakClientId, int mahakId, string comment)
+        public static Unit Create(int unitCode, string name, long? mahakClientId, int? mahakId, string comment)
             => new(unitCode, name, mahakClientId, mahakId, comment);
 
         public void SetName(string name)

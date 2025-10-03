@@ -11,7 +11,7 @@ namespace OnlineShop.Domain.Entities
 
         protected Product() { }
 
-        private Product(string name, string description, decimal price, int stockQuantity, long mahakClientId, int mahakId)
+        private Product(string name, string description, decimal price, int stockQuantity, long? mahakClientId, int? mahakId = null)
         {
             SetName(name);
             SetDescription(description);
@@ -22,7 +22,7 @@ namespace OnlineShop.Domain.Entities
             Deleted = false;
         }
 
-        public static Product Create(string name, string description, decimal price, int stockQuantity, long mahakClientId, int mahakId)
+        public static Product Create(string name, string description, decimal price, int stockQuantity, long? mahakClientId=null, int? mahakId=null)
             => new(name, description, price, stockQuantity, mahakClientId, mahakId);
 
         public void SetName(string name)
