@@ -25,7 +25,7 @@ namespace OnlineShop.WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            var result = await _mediator.Send(new GetProductCategoryByIdQuery(id), cancellationToken);
+            var result = await _mediator.Send(new GetProductCategoryByIdQuery { Id=id }, cancellationToken);
             return result.IsSuccess ? Ok(result) : NotFound(result);
         }
 
@@ -46,7 +46,8 @@ namespace OnlineShop.WebAPI.Controllers
             [FromBody] UpdateProductCategoryDto dto,
             CancellationToken cancellationToken = default)
         {
-            var command = new UpdateProductCategoryCommand { Id = id, Dto= dto };
+            dto.Id = id;
+            var command = new UpdateProductCategoryCommand {   Dto= dto };
 
             var result = await _mediator.Send(command, cancellationToken);
 

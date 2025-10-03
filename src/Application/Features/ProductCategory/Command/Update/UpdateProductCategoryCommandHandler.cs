@@ -19,10 +19,10 @@ namespace OnlineShop.Application.Features.ProductCategory.Command.Update
             UpdateProductCategoryCommand request,
             CancellationToken cancellationToken)
         {
-            var productCategory = await _repository.GetByIdAsync(request.Id, cancellationToken);
+            var productCategory = await _repository.GetByIdAsync(request.Dto.Id, cancellationToken);
 
             if (productCategory == null)
-                return Result<ProductCategoryDto>.Failure($"ProductCategory with Id {request.Id} not found");
+                return Result<ProductCategoryDto>.Failure($"ProductCategory with Id {request.Dto.Id} not found");
 
             productCategory.Update(
                 request.Dto.Name,
