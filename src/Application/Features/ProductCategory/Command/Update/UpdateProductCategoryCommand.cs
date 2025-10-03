@@ -4,6 +4,9 @@ using OnlineShop.Application.DTOs.ProductCategory;
 
 namespace OnlineShop.Application.Features.ProductCategory.Command.Update
 {
-    public record UpdateProductCategoryCommand(Guid Id, UpdateProductCategoryDto Dto)
-        : IRequest<Result<ProductCategoryDto>>;
+    public class UpdateProductCategoryCommand : IRequest<Result<ProductCategoryDto>>
+    {
+        public Guid Id { get; set; }
+        public UpdateProductCategoryDto? Dto { get; set; }
+    }
 }

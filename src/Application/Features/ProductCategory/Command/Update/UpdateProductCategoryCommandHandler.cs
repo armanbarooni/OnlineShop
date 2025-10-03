@@ -24,7 +24,6 @@ namespace OnlineShop.Application.Features.ProductCategory.Command.Update
             if (productCategory == null)
                 return Result<ProductCategoryDto>.Failure($"ProductCategory with Id {request.Id} not found");
 
-            // فقط فیلدهایی که در UpdateProductCategoryDto هستن رو update می‌کنیم
             productCategory.Update(
                 request.Dto.Name,
                 request.Dto.Description,

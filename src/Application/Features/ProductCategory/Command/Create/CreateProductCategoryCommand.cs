@@ -4,6 +4,8 @@ using OnlineShop.Application.DTOs.ProductCategory;
 
 namespace OnlineShop.Application.Features.ProductCategory.Command.Create
 {
-    public record CreateProductCategoryCommand(CreateProductCategoryDto Dto)
-        : IRequest<Result<ProductCategoryDto>>;
+    public class CreateProductCategoryCommand : IRequest<Result<ProductCategoryDto>>
+    {
+        public CreateProductCategoryDto? Dto { get; set; }
+    }
 }

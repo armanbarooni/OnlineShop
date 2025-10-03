@@ -9,18 +9,7 @@
 		<IsTestProject>true</IsTestProject>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Compile Remove="tests\OnlineShop.Application.Tests\Features\ProductCategory\**" />
-	  <Compile Remove="tests\OnlineShop.Application.Tests\Features\Product\**" />
-	  <EmbeddedResource Remove="tests\OnlineShop.Application.Tests\Features\ProductCategory\**" />
-	  <EmbeddedResource Remove="tests\OnlineShop.Application.Tests\Features\Product\**" />
-	  <None Remove="tests\OnlineShop.Application.Tests\Features\ProductCategory\**" />
-	  <None Remove="tests\OnlineShop.Application.Tests\Features\Product\**" />
-	</ItemGroup>
 
-	<ItemGroup>
-	  <Compile Remove="tests\OnlineShop.Application.Tests\Features\Unit\Queries\GetAllUnitsQueryHandlerTests.cs" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />

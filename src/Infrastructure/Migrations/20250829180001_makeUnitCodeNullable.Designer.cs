@@ -25,7 +25,7 @@ namespace OnlineShop.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("OnlineShop.Domain.Entites.Unit", b =>
+            modelBuilder.Entity("OnlineShop.Domain.Entities.Unit", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");

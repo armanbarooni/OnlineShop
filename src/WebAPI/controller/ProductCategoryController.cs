@@ -34,7 +34,7 @@ namespace OnlineShop.WebAPI.Controllers
             [FromBody] CreateProductCategoryDto dto,
             CancellationToken cancellationToken = default)
         {
-            var command = new CreateProductCategoryCommand(dto);
+            var command = new CreateProductCategoryCommand { Dto=dto };
             var result = await _mediator.Send(command, cancellationToken);
 
             return result.IsSuccess ? Ok(result) : BadRequest(result);
@@ -46,7 +46,8 @@ namespace OnlineShop.WebAPI.Controllers
             [FromBody] UpdateProductCategoryDto dto,
             CancellationToken cancellationToken = default)
         {
-            var command = new UpdateProductCategoryCommand(id, dto);
+            var command = new UpdateProductCategoryCommand { Id = id, Dto= dto };
+
             var result = await _mediator.Send(command, cancellationToken);
 
             return result.IsSuccess ? Ok(result) : BadRequest(result);
@@ -55,7 +56,7 @@ namespace OnlineShop.WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            var result = await _mediator.Send(new DeleteProductCategoryCommand(id), cancellationToken);
+            var result = await _mediator.Send(new DeleteProductCategoryCommand { Id = id }, cancellationToken);
             return result.IsSuccess ? NoContent() : NotFound(result);
         }
     }
