@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using MySqlX.XDevAPI.Common;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.DTOs.Unit;
 

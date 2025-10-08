@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Application.DTOs.ProductCategory;
 using OnlineShop.Application.Features.ProductCategory.Command.Create;
@@ -62,3 +62,5 @@ namespace OnlineShop.WebAPI.Controllers
         }
     }
 }
+
+

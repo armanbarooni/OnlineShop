@@ -4,7 +4,7 @@ using OnlineShop.Application.Features.ProductCategory.Queries.GetAll;
 using OnlineShop.Domain.Entities;
 using Xunit;
 
-namespace OnlineShop.Tests.Application.Features.ProductCategory.Handlers
+namespace OnlineShop.Application.Tests.Features.ProductCategory.Queries.GetAll
 {
     public class GetAllProductCategoriesQueryHandlerTests
     {

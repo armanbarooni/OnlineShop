@@ -1,11 +1,11 @@
-﻿using OnlineShop.Domain.Common;
+using OnlineShop.Domain.Common;
 
 namespace OnlineShop.Domain.Entities
 {
     public class Product : BaseEntity
     {
-        public string Name { get; private set; }
-        public string Description { get; private set; }
+        public string Name { get; private set; } = string.Empty;
+        public string Description { get; private set; } = string.Empty;
         public decimal Price { get; private set; }
         public int StockQuantity { get; private set; }
 
@@ -75,3 +75,5 @@ namespace OnlineShop.Domain.Entities
         }
     }
 }
+
+

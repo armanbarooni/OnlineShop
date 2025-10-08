@@ -9,7 +9,7 @@ using OnlineShop.Application.DTOs.Product;
 using OnlineShop.Application.Tests.TestHelpers;
 using OnlineShop.Infrastructure.Persistence.Repositories;
 
-namespace OnlineShop.Tests.Application.Features.Product.Queries.GetById
+namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
 {
     public class GetProductByIdQueryHandlerTests
     {

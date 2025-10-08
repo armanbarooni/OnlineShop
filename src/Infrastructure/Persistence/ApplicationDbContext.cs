@@ -7,7 +7,7 @@ namespace OnlineShop.Infrastructure.Persistence
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
         public DbSet<Unit> Units { get; set; }
-        public DbSet<Product> Products { get; internal set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }  
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

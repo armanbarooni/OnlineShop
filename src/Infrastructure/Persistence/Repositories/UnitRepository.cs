@@ -32,7 +32,8 @@ public class UnitRepository : IUnitRepository
 
     public async Task DeleteAsync(Unit unit, CancellationToken cancellationToken = default)
     {
-        _context.Units.Remove(unit);
+        unit.Delete(1);
+        _context.Units.Update(unit);
         await _context.SaveChangesAsync(cancellationToken);
     }
     public async Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken)

@@ -39,7 +39,8 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
 
         public Task DeleteAsync(ProductCategory productCategory, CancellationToken cancellationToken = default)
         {
-            _context.ProductCategories.Remove(productCategory);
+            productCategory.Delete(1);
+            _context.ProductCategories.Update(productCategory);
             return Task.CompletedTask;
         }
 

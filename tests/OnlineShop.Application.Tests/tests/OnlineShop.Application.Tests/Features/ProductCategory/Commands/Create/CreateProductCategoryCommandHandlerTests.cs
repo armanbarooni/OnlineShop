@@ -5,7 +5,7 @@ using OnlineShop.Application.Features.ProductCategory.Command.Create;
 using OnlineShop.Domain.Entities;
 using Xunit;
 
-namespace OnlineShop.Tests.Application.Features.ProductCategory.Handlers
+namespace OnlineShop.Application.Tests.Features.ProductCategory.Commands.Create
 {
     public class CreateProductCategoryCommandHandlerTests
     {
@@ -27,9 +27,7 @@ namespace OnlineShop.Tests.Application.Features.ProductCategory.Handlers
                 Dto = new CreateProductCategoryDto
                 {
                     Name = "Electronics",
-                    Description = "Electronic products",
-                    MahakClientId = 1001,
-                    MahakId = 2001
+                    Description = "Electronic products"
                 }
             };
 
@@ -49,8 +47,7 @@ namespace OnlineShop.Tests.Application.Features.ProductCategory.Handlers
             Assert.NotNull(result.Data);
             Assert.Equal("Electronics", result.Data.Name);
             Assert.Equal("Electronic products", result.Data.Description);
-            Assert.Equal(1001, result.Data.MahakClientId);
-            Assert.Equal(2001, result.Data.MahakId);
+            // No Mahak fields assertions
 
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.ProductCategory>(), It.IsAny<CancellationToken>()), Times.Once);
             _mockRepository.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -65,9 +62,7 @@ namespace OnlineShop.Tests.Application.Features.ProductCategory.Handlers
                 Dto = new CreateProductCategoryDto
                 {
                     Name = "Books",
-                    Description = "Book category",
-                    MahakClientId = 1002,
-                    MahakId = 2002
+                    Description = "Book category"
                 }
             };
 
@@ -88,8 +83,7 @@ namespace OnlineShop.Tests.Application.Features.ProductCategory.Handlers
             Assert.NotNull(capturedEntity);
             Assert.Equal("Books", capturedEntity.Name);
             Assert.Equal("Book category", capturedEntity.Description);
-            Assert.Equal(1002, capturedEntity.MahakClientId);
-            Assert.Equal(2002, capturedEntity.MahakId);
+            // No Mahak fields assertions
         }
 
         [Fact]
@@ -101,9 +95,7 @@ namespace OnlineShop.Tests.Application.Features.ProductCategory.Handlers
                 Dto = new CreateProductCategoryDto
                 {
                     Name = "Clothing",
-                    Description = "",
-                    MahakClientId = 1003,
-                    MahakId = 2003
+                    Description = ""
                 }
             };
 

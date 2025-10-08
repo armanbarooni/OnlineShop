@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Needed for Microsoft.AspNetCore.Identity types like IdentityUser<>
+         This uses the shared framework that ships with the SDK/runtime, no NuGet needed -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
 </Project>

@@ -11,9 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using OnlineShop.Infrastructure.Persistence.Repositories;
-using OnlineShop.Application.Features.Product.Queries.GetById;
 
-namespace OnlineShop.Tests.Application.Features.Product.Queries.GetAll
+namespace OnlineShop.Application.Tests.Features.Product.Queries.GetAll
 {
     public class GetAllProductsQueryHandlerTests
     {

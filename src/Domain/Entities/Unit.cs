@@ -1,12 +1,12 @@
-﻿using OnlineShop.Domain.Common;
+using OnlineShop.Domain.Common;
 
 namespace OnlineShop.Domain.Entities
 {
     public class Unit : BaseEntity
     {
         public int? UnitCode { get; set; }
-        public string Name { get; set; }
-        public string Comment { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Comment { get; set; } = string.Empty;
 
         protected Unit() { }
 
@@ -66,3 +66,5 @@ namespace OnlineShop.Domain.Entities
         }
     }
 }
+
+

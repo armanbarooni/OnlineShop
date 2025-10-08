@@ -1,11 +1,11 @@
-﻿using OnlineShop.Domain.Common;
+using OnlineShop.Domain.Common;
 
 namespace OnlineShop.Domain.Entities
 {
     public class ProductCategory : BaseEntity
     {
-        public string Name { get; private set; }
-        public string Description { get; private set; }
+        public string Name { get; private set; } = string.Empty;
+        public string Description { get; private set; } = string.Empty;
 
         protected ProductCategory() { }
 
@@ -53,3 +53,5 @@ namespace OnlineShop.Domain.Entities
         }
     }
 }
+
+

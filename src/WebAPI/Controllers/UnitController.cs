@@ -1,10 +1,11 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Application.DTOs.Unit;
 using OnlineShop.Application.Features.Unit.Command.Create;
 using OnlineShop.Application.Features.Unit.Command.Delete;
 using OnlineShop.Application.Features.Unit.Command.Update;
 using OnlineShop.Application.Features.Unit.Queries.GetById;
+using OnlineShop.Application.Features.Unit.Queries.GetAll;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -12,6 +13,14 @@ namespace OnlineShop.WebAPI.Controllers
     [Route("api/[controller]")]
     public class UnitController : ControllerBase
     {
+        [HttpGet]
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
+        {
+            var result = await _mediator.Send(new GetAllUnitsQuery(), cancellationToken);
+            if (result.IsSuccess)
+                return Ok(result);
+            return BadRequest(result);
+        }
         private readonly IMediator _mediator;
 
         public UnitController(IMediator mediator)
@@ -69,3 +78,5 @@ namespace OnlineShop.WebAPI.Controllers
         }
     }
 }
+
+
