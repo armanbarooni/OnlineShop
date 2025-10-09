@@ -23,7 +23,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Queries.GetAll
         [Fact]
         public async Task Should_Return_Empty_List_When_No_Units()
         {
-            _repoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Unit>());
+            _repoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<OnlineShop.Domain.Entities.Unit>());
 
             var handler = new GetAllUnitsQueryHandler(_repoMock.Object, _mapper);
 
@@ -37,10 +37,10 @@ namespace OnlineShop.Application.Tests.Features.Unit.Queries.GetAll
         [Fact]
         public async Task Should_Map_Units_To_Dtos()
         {
-            var units = new List<Unit>
+            var units = new List<OnlineShop.Domain.Entities.Unit>
             {
-                Unit.Create(1, "Kilogram", 1, 1, "Weight"),
-                Unit.Create(2, "Liter", 1, 1, "Volume")
+                OnlineShop.Domain.Entities.Unit.Create(1, "Kilogram", 1, 1, "Weight"),
+                OnlineShop.Domain.Entities.Unit.Create(2, "Liter", 1, 1, "Volume")
             };
 
             _repoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(units);

@@ -22,13 +22,13 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Queries
         {
             // Arrange
             var productCategoryId = Guid.NewGuid();
-            var productCategory = Domain.Entities.ProductCategory.Create(
+            var productCategory = OnlineShop.Domain.Entities.ProductCategory.Create(
                 "Electronics",
                 "Electronics description",
                 100,
                 1001
             );
-            typeof(Domain.Entities.ProductCategory)
+            typeof(OnlineShop.Domain.Entities.ProductCategory)
                 .GetProperty("Id")!
                 .SetValue(productCategory, productCategoryId);
 
@@ -59,7 +59,7 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Queries
 
             _mockRepository
                 .Setup(r => r.GetByIdAsync(productCategoryId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Domain.Entities.ProductCategory)null!);
+                .ReturnsAsync((OnlineShop.Domain.Entities.ProductCategory)null!);
 
             // Act
             var result = await _handler.Handle(query, CancellationToken.None);

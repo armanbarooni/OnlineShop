@@ -32,7 +32,7 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Commands.Create
             };
 
             _mockRepository
-                .Setup(r => r.AddAsync(It.IsAny<Domain.Entities.ProductCategory>(), It.IsAny<CancellationToken>()))
+                .Setup(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.ProductCategory>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
             _mockRepository
@@ -49,7 +49,7 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Commands.Create
             Assert.Equal("Electronic products", result.Data.Description);
             // No Mahak fields assertions
 
-            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.ProductCategory>(), It.IsAny<CancellationToken>()), Times.Once);
+            _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.ProductCategory>(), It.IsAny<CancellationToken>()), Times.Once);
             _mockRepository.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -66,10 +66,10 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Commands.Create
                 }
             };
 
-            Domain.Entities.ProductCategory? capturedEntity = null;
+            OnlineShop.Domain.Entities.ProductCategory? capturedEntity = null;
             _mockRepository
-                .Setup(r => r.AddAsync(It.IsAny<Domain.Entities.ProductCategory>(), It.IsAny<CancellationToken>()))
-                .Callback<Domain.Entities.ProductCategory, CancellationToken>((entity, ct) => capturedEntity = entity)
+                .Setup(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.ProductCategory>(), It.IsAny<CancellationToken>()))
+                .Callback<OnlineShop.Domain.Entities.ProductCategory, CancellationToken>((entity, ct) => capturedEntity = entity)
                 .Returns(Task.CompletedTask);
 
             _mockRepository
@@ -100,7 +100,7 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Commands.Create
             };
 
             _mockRepository
-                .Setup(r => r.AddAsync(It.IsAny<Domain.Entities.ProductCategory>(), It.IsAny<CancellationToken>()))
+                .Setup(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.ProductCategory>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
             _mockRepository

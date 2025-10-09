@@ -34,7 +34,8 @@ namespace OnlineShop.Application.Tests.Common
 
             var request = new TestRequest { Name = "valid" };
 
-            var act = async () => await behavior.Handle(request, () => NextDelegate.Execute(), CancellationToken.None);
+            RequestHandlerDelegate<string> next = (CancellationToken _) => NextDelegate.Execute();
+            var act = async () => await behavior.Handle(request, next, CancellationToken.None);
 
             await act.Should().NotThrowAsync();
             (await act()).Should().Be("OK");
@@ -48,7 +49,8 @@ namespace OnlineShop.Application.Tests.Common
 
             var request = new TestRequest { Name = string.Empty };
 
-            var act = async () => await behavior.Handle(request, () => NextDelegate.Execute(), CancellationToken.None);
+            RequestHandlerDelegate<string> next = (CancellationToken _) => NextDelegate.Execute();
+            var act = async () => await behavior.Handle(request, next, CancellationToken.None);
 
             await act.Should().ThrowAsync<ValidationException>();
         }

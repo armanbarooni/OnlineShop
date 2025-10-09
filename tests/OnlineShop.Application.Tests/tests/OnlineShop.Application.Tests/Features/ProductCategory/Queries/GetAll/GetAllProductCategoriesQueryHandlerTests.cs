@@ -21,11 +21,11 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Queries.GetAll
         public async Task Handle_ReturnsAllProductCategories()
         {
             // Arrange
-            var categories = new List<Domain.Entities.ProductCategory>
+            var categories = new List<OnlineShop.Domain.Entities.ProductCategory>
             {
-                Domain.Entities.ProductCategory.Create("Electronics", "Electronic products", 1001, 2001),
-                Domain.Entities.ProductCategory.Create("Books", "Book products", 1002, 2002),
-                Domain.Entities.ProductCategory.Create("Clothing", "Clothing products", 1003, 2003)
+                OnlineShop.Domain.Entities.ProductCategory.Create("Electronics", "Electronic products", 1001, 2001),
+                OnlineShop.Domain.Entities.ProductCategory.Create("Books", "Book products", 1002, 2002),
+                OnlineShop.Domain.Entities.ProductCategory.Create("Clothing", "Clothing products", 1003, 2003)
             };
 
             var query = new GetAllProductCategoriesQuery();
@@ -58,7 +58,7 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Queries.GetAll
 
             _mockRepository
                 .Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<Domain.Entities.ProductCategory>());
+                .ReturnsAsync(new List<OnlineShop.Domain.Entities.ProductCategory>());
 
             // Act
             var result = await _handler.Handle(query, CancellationToken.None);
@@ -75,9 +75,9 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Queries.GetAll
         public async Task Handle_SingleCategory_ReturnsOneResult()
         {
             // Arrange
-            var categories = new List<Domain.Entities.ProductCategory>
+            var categories = new List<OnlineShop.Domain.Entities.ProductCategory>
             {
-                Domain.Entities.ProductCategory.Create("Single Category", "Only one", 1004, 2004)
+                OnlineShop.Domain.Entities.ProductCategory.Create("Single Category", "Only one", 1004, 2004)
             };
 
             var query = new GetAllProductCategoriesQuery();
