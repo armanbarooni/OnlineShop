@@ -10,26 +10,45 @@ using OnlineShop.Application.Features.Product.Queries.GetById;
 
 namespace OnlineShop.WebAPI.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ProductController(IMediator mediator) : ControllerBase
-    {
-        private readonly IMediator _mediator = mediator;
+	[ApiController]
+	[Route("api/[controller]")]
+	public class ProductController(IMediator mediator, ILogger<ProductController> logger) : ControllerBase
+	{
+		private readonly IMediator _mediator = mediator;
+		private readonly ILogger<ProductController> _logger = logger;
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
         {
+            _logger.LogInformation("Getting all products");
             var result = await _mediator.Send(new GetAllProductsQuery(), cancellationToken);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved {Count} products", result.Data?.Count() ?? 0);
+                return Ok(result);
+            }
+            
+            _logger.LogWarning("Failed to retrieve products: {Error}", result.ErrorMessage);
+            return BadRequest(result);
         }
 
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
+            _logger.LogInformation("Getting product by ID: {ProductId}", id);
             var result = await _mediator.Send(new GetProductByIdQuery { Id = id }, cancellationToken);
-            return result.IsSuccess ? Ok(result) : NotFound(result);
+            
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved product: {ProductId}", id);
+                return Ok(result);
+            }
+            
+            _logger.LogWarning("Product not found: {ProductId}", id);
+            return NotFound(result);
         }
 
         [HttpPost]
@@ -38,10 +57,22 @@ namespace OnlineShop.WebAPI.Controllers
             [FromBody] CreateProductDto dto,
             CancellationToken cancellationToken = default)
         {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            _logger.LogInformation("Creating product: {ProductName} by user: {UserId}", dto.Name, userId);
+            
             var command = new CreateProductCommand { Product = dto };
             var result = await _mediator.Send(command, cancellationToken);
 
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Product created successfully: {ProductId} by user: {UserId}", 
+                    result.Data?.Id, userId);
+                return Ok(result);
+            }
+            
+            _logger.LogWarning("Failed to create product: {ProductName} by user: {UserId}. Error: {Error}", 
+                dto.Name, userId, result.ErrorMessage);
+            return BadRequest(result);
         }
 
         [HttpPut("{id}")]
@@ -51,20 +82,42 @@ namespace OnlineShop.WebAPI.Controllers
             [FromBody] UpdateProductDto dto,
             CancellationToken cancellationToken = default)
         {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            _logger.LogInformation("Updating product: {ProductId} by user: {UserId}", id, userId);
+            
             dto.Id = id;
             var command = new UpdateProductCommand { Product = dto };
-
             var result = await _mediator.Send(command, cancellationToken);
 
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Product updated successfully: {ProductId} by user: {UserId}", id, userId);
+                return Ok(result);
+            }
+            
+            _logger.LogWarning("Failed to update product: {ProductId} by user: {UserId}. Error: {Error}", 
+                id, userId, result.ErrorMessage);
+            return BadRequest(result);
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
-            var result = await _mediator.Send(new DeleteProductCommand (  id ), cancellationToken);
-            return result.IsSuccess ? NoContent() : NotFound(result);
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            _logger.LogInformation("Deleting product: {ProductId} by user: {UserId}", id, userId);
+            
+            var result = await _mediator.Send(new DeleteProductCommand(id), cancellationToken);
+            
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Product deleted successfully: {ProductId} by user: {UserId}", id, userId);
+                return NoContent();
+            }
+            
+            _logger.LogWarning("Failed to delete product: {ProductId} by user: {UserId}. Error: {Error}", 
+                id, userId, result.ErrorMessage);
+            return NotFound(result);
         }
     }
 }
