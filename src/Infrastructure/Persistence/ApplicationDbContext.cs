@@ -13,7 +13,33 @@ namespace OnlineShop.Infrastructure.Persistence
         public DbSet<Unit> Units { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
-        public DbSet<RefreshToken> RefreshTokens { get; set; }  
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        
+        // Product Related Entities
+        public DbSet<ProductDetail> ProductDetails { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<ProductReview> ProductReviews { get; set; }
+        public DbSet<ProductInventory> ProductInventories { get; set; }
+        public DbSet<Wishlist> Wishlists { get; set; }
+        
+        // User Related Entities
+        public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<UserPayment> UserPayments { get; set; }
+        public DbSet<UserOrder> UserOrders { get; set; }
+        public DbSet<UserOrderItem> UserOrderItems { get; set; }
+        public DbSet<UserReturnRequest> UserReturnRequests { get; set; }
+        
+        // Cart Related Entities
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<SavedCart> SavedCarts { get; set; }
+        
+        // Mahak Sync Entities
+        public DbSet<MahakSyncLog> MahakSyncLogs { get; set; }
+        public DbSet<MahakMapping> MahakMappings { get; set; }
+        public DbSet<MahakQueue> MahakQueues { get; set; }
+        public DbSet<SyncErrorLog> SyncErrorLogs { get; set; }  
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

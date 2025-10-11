@@ -47,6 +47,33 @@ public static class ServiceRegistration
         services.AddScoped<IUnitRepository, UnitRepository>();
         services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        
+        // Product Related Repositories
+        services.AddScoped<IProductDetailRepository, ProductDetailRepository>();
+        services.AddScoped<IProductImageRepository, ProductImageRepository>();
+        services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
+        services.AddScoped<IProductInventoryRepository, ProductInventoryRepository>();
+        services.AddScoped<IWishlistRepository, WishlistRepository>();
+        
+        // User Related Repositories
+        services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+        services.AddScoped<IUserAddressRepository, UserAddressRepository>();
+        services.AddScoped<IUserPaymentRepository, UserPaymentRepository>();
+        services.AddScoped<IUserOrderRepository, UserOrderRepository>();
+        services.AddScoped<IUserOrderItemRepository, UserOrderItemRepository>();
+        services.AddScoped<IUserReturnRequestRepository, UserReturnRequestRepository>();
+        
+        // Cart Related Repositories
+        services.AddScoped<ICartRepository, CartRepository>();
+        services.AddScoped<ICartItemRepository, CartItemRepository>();
+        services.AddScoped<ISavedCartRepository, SavedCartRepository>();
+        
+        // Mahak Sync Repositories
+        services.AddScoped<IMahakSyncLogRepository, MahakSyncLogRepository>();
+        services.AddScoped<IMahakMappingRepository, MahakMappingRepository>();
+        services.AddScoped<IMahakQueueRepository, MahakQueueRepository>();
+        services.AddScoped<ISyncErrorLogRepository, SyncErrorLogRepository>();
+        
         services.AddScoped<ITokenService, TokenService>();
 
         return services;
