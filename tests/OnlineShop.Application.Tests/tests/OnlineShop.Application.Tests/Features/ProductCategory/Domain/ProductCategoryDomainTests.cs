@@ -139,12 +139,12 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Domain
             );
 
             // Act
-            category.Update("New Name", "New Description", 10);
+            category.Update("New Name", "New Description", "user123");
 
             // Assert
             Assert.Equal("New Name", category.Name);
             Assert.Equal("New Description", category.Description);
-            Assert.Equal(10, category.UpdatedBy);
+            Assert.Equal("user123", category.UpdatedBy);
         }
 
         [Fact]
@@ -162,7 +162,7 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Domain
             category.Update("New Name", "New Description", null);
 
             // Assert
-            Assert.Equal(1, category.UpdatedBy);
+            Assert.Null(category.UpdatedBy);
         }
 
         [Fact]
@@ -177,11 +177,11 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Domain
             );
 
             // Act
-            category.Delete(5);
+            category.Delete("user123");
 
             // Assert
             Assert.True(category.Deleted);
-            Assert.Equal(5, category.UpdatedBy);
+            Assert.Equal("user123", category.UpdatedBy);
         }
 
         [Fact]
@@ -194,10 +194,10 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Domain
                 123,
                 456
             );
-            category.Delete(5);
+            category.Delete("user123");
 
             // Act & Assert
-            var exception = Assert.Throws<InvalidOperationException>(() => category.Delete(5));
+            var exception = Assert.Throws<InvalidOperationException>(() => category.Delete("user123"));
             Assert.Contains("already deleted", exception.Message);
         }
 
@@ -217,7 +217,7 @@ namespace OnlineShop.Application.Tests.Features.ProductCategory.Domain
 
             // Assert
             Assert.True(category.Deleted);
-            Assert.Equal(1, category.UpdatedBy);
+            Assert.Null(category.UpdatedBy);
         }
     }
 }

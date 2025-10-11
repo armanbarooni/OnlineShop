@@ -20,7 +20,9 @@ namespace OnlineShop.Application.Mapping
                 .ForMember(d => d.CreatedAt, opt => opt.Ignore())
                 .ForMember(d => d.CreatedBy, opt => opt.Ignore())
                 .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
-                .ForMember(d => d.UpdatedBy, opt => opt.Ignore());
+                .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+                .ForMember(d => d.LastModifiedAt, opt => opt.Ignore())
+                .ForMember(d => d.LastModifiedBy, opt => opt.Ignore());
 
             CreateMap<UpdateProductCategoryDto, ProductCategory>()
                 .ForMember(d => d.Id, opt => opt.Ignore())
@@ -31,7 +33,9 @@ namespace OnlineShop.Application.Mapping
                 .ForMember(d => d.CreatedAt, opt => opt.Ignore())
                 .ForMember(d => d.CreatedBy, opt => opt.Ignore())
                 .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
-                .ForMember(d => d.UpdatedBy, opt => opt.Ignore());
+                .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+                .ForMember(d => d.LastModifiedAt, opt => opt.Ignore())
+                .ForMember(d => d.LastModifiedBy, opt => opt.Ignore());
         }
     }
 }

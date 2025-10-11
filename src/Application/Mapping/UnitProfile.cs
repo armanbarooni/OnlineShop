@@ -22,7 +22,9 @@ public class UnitProfile : Profile
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
             .ForMember(d => d.CreatedBy, opt => opt.Ignore())
             .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
-            .ForMember(d => d.UpdatedBy, opt => opt.Ignore());
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.LastModifiedAt, opt => opt.Ignore())
+            .ForMember(d => d.LastModifiedBy, opt => opt.Ignore());
 
         CreateMap<UpdateUnitDto, Unit>()
             .ForMember(d => d.UnitCode, opt => opt.Ignore())
@@ -34,6 +36,8 @@ public class UnitProfile : Profile
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
             .ForMember(d => d.CreatedBy, opt => opt.Ignore())
             .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
-            .ForMember(d => d.UpdatedBy, opt => opt.Ignore());
+            .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
+            .ForMember(d => d.LastModifiedAt, opt => opt.Ignore())
+            .ForMember(d => d.LastModifiedBy, opt => opt.Ignore());
     }
 }
