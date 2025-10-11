@@ -35,20 +35,20 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Update(string name, string description, int? updatedBy)
+        public void Update(string name, string description, string? updatedBy)
         {
             SetName(name);
             SetDescription(description);
-            UpdatedBy = updatedBy ?? 1;
+            UpdatedBy = updatedBy;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Delete(int? updatedBy)
+        public void Delete(string? updatedBy)
         {
             if (Deleted)
                 throw new InvalidOperationException("This category is already deleted.");
             Deleted = true;
-            UpdatedBy = updatedBy ?? 1;
+            UpdatedBy = updatedBy;
             UpdatedAt = DateTime.UtcNow;
         }
     }

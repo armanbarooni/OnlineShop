@@ -1,14 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OnlineShop.Domain.Common;
 using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Infrastructure.Persistence
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor) : IdentityDbContext<ApplicationUser, Microsoft.AspNetCore.Identity.IdentityRole<Guid>, Guid>(options)
     {
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
         public DbSet<Unit> Units { get; set; }
         public DbSet<Product> Products { get; set; }
-        public DbSet<ProductCategory> ProductCategories { get; set; }  
+        public DbSet<ProductCategory> ProductCategories { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }  
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +31,57 @@ namespace OnlineShop.Infrastructure.Persistence
                         .Property<long>(nameof(BaseEntity.RowVersion))
                         .IsConcurrencyToken();
                 }
+            }
+        }
+
+        public override int SaveChanges()
+        {
+            SetAuditFields();
+            return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            SetAuditFields();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void SetAuditFields()
+        {
+            var currentUserId = GetCurrentUserId();
+            var now = DateTime.UtcNow;
+
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entry.Entity.CreatedAt = now;
+                        entry.Entity.CreatedBy = currentUserId;
+                        entry.Entity.LastModifiedAt = now;
+                        entry.Entity.LastModifiedBy = currentUserId;
+                        break;
+                    case EntityState.Modified:
+                        entry.Entity.LastModifiedAt = now;
+                        entry.Entity.LastModifiedBy = currentUserId;
+                        // Don't update CreatedAt and CreatedBy on modification
+                        entry.Property(e => e.CreatedAt).IsModified = false;
+                        entry.Property(e => e.CreatedBy).IsModified = false;
+                        break;
+                }
+            }
+        }
+
+        private string? GetCurrentUserId()
+        {
+            try
+            {
+                var user = _httpContextAccessor.HttpContext?.User;
+                return user?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            }
+            catch
+            {
+                return null;
             }
         }
     }

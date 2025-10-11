@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Application.DTOs.Unit;
 using OnlineShop.Application.Features.Unit.Command.Create;
@@ -14,6 +15,7 @@ namespace OnlineShop.WebAPI.Controllers
     public class UnitController : ControllerBase
     {
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
         {
             var result = await _mediator.Send(new GetAllUnitsQuery(), cancellationToken);
@@ -29,6 +31,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(Guid id)
         {
             var query = new GetUnitByIdQuery { Id = id };
@@ -41,6 +44,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateUnitDto dto)
         {
             var command = new CreateUnitCommand { UnitDto = dto };
@@ -53,6 +57,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUnitDto dto)
         {
             dto.Id = id;
@@ -66,6 +71,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var command = new DeleteUnitCommand { Id = id };

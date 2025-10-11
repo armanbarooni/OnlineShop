@@ -55,22 +55,22 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Update(string name, string description, decimal price, int qty, int? updatedBy)
+        public void Update(string name, string description, decimal price, int qty, string? updatedBy)
         {
             SetName(name);
             SetDescription(description);
             SetPrice(price);
             SetStockQuantity(qty);
-            UpdatedBy = updatedBy ?? 1;
+            UpdatedBy = updatedBy;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Delete(int? updatedBy)
+        public void Delete(string? updatedBy)
         {
             if (Deleted)
                 throw new InvalidOperationException("این محصول قبلاً حذف شده است.");
             Deleted = true;
-            UpdatedBy = updatedBy ?? 1;
+            UpdatedBy = updatedBy;
             UpdatedAt = DateTime.UtcNow;
         }
     }

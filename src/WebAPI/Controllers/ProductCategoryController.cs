@@ -6,6 +6,7 @@ using OnlineShop.Application.Features.ProductCategory.Command.Delete;
 using OnlineShop.Application.Features.ProductCategory.Command.Update;
 using OnlineShop.Application.Features.ProductCategory.Queries.GetAll;
 using OnlineShop.Application.Features.ProductCategory.Queries.GetById;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -16,6 +17,7 @@ namespace OnlineShop.WebAPI.Controllers
         private readonly IMediator _mediator = mediator;
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
         {
             var result = await _mediator.Send(new GetAllProductCategoriesQuery(), cancellationToken);
@@ -23,6 +25,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
             var result = await _mediator.Send(new GetProductCategoryByIdQuery { Id=id }, cancellationToken);
@@ -30,6 +33,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(
             [FromBody] CreateProductCategoryDto dto,
             CancellationToken cancellationToken = default)
@@ -41,6 +45,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(
             [FromRoute] Guid id,
             [FromBody] UpdateProductCategoryDto dto,
@@ -55,6 +60,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken = default)
         {
             var result = await _mediator.Send(new DeleteProductCategoryCommand { Id = id }, cancellationToken);

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using OnlineShop.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +31,7 @@ namespace OnlineShop.Infrastructure
 
             optionsBuilder.UseNpgsql(connectionString);
 
-            return new ApplicationDbContext(optionsBuilder.Options);
+            return new ApplicationDbContext(optionsBuilder.Options, new HttpContextAccessor());
         }
     }
 }

@@ -14,8 +14,10 @@ namespace OnlineShop.Domain.Common
         public long RowVersion { get; set; }
         public bool Deleted { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public int CreatedBy { get; set; } = 1;
+        public string? CreatedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public int? UpdatedBy { get; set; }
+        public string? UpdatedBy { get; set; }
+        public DateTime? LastModifiedAt { get; set; }
+        public string? LastModifiedBy { get; set; }
     }
 }

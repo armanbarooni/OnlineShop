@@ -51,7 +51,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             var product = await _context.Products.FindAsync(id, cancellationToken);
             if (product != null)
             {
-                product.Delete(1);
+                product.Delete(null);
                 _context.Products.Update(product);
                 await _context.SaveChangesAsync(cancellationToken);
             }

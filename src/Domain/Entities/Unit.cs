@@ -44,7 +44,7 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Update(string name, string comment, int? updateAt)
+        public void Update(string name, string comment, string? updateAt)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name), "نام واحد نمی‌تواند خالی باشد.");
@@ -52,17 +52,17 @@ namespace OnlineShop.Domain.Entities
             Name = name;
             Comment = comment;
             UpdatedAt = DateTime.UtcNow;
-            UpdatedBy = updateAt ?? 1;
+            UpdatedBy = updateAt;
         }
 
-        public void Delete(int? updateAt)
+        public void Delete(string? updateAt)
         {
             if (Deleted)
                 throw new InvalidOperationException("این واحد قبلاً حذف شده است.");
 
             Deleted = true;
             UpdatedAt = DateTime.UtcNow;
-            UpdatedBy = updateAt ?? 1;
+            UpdatedBy = updateAt;
         }
     }
 }
