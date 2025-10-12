@@ -5,6 +5,8 @@ using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.DTOs.ProductReview;
 using OnlineShop.Application.Features.ProductReview.Command.Create;
 using OnlineShop.Application.Features.ProductReview.Command.Update;
+using OnlineShop.Application.Features.ProductReview.Command.Approve;
+using OnlineShop.Application.Features.ProductReview.Command.Reject;
 using OnlineShop.Application.Features.ProductReview.Queries.GetByProductId;
 
 namespace OnlineShop.WebAPI.Controllers

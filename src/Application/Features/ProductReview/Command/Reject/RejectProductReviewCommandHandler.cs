@@ -24,7 +24,7 @@ namespace OnlineShop.Application.Features.ProductReview.Command.Reject
             if (productReview == null)
                 return Result<ProductReviewDto>.Failure("ProductReview not found");
 
-            productReview.Reject("Admin", request.RejectionReason, request.AdminNotes);
+            productReview.Reject("Admin");
 
             await _repository.UpdateAsync(productReview, cancellationToken);
             return Result<ProductReviewDto>.Success(_mapper.Map<ProductReviewDto>(productReview));

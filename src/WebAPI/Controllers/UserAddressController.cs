@@ -5,6 +5,7 @@ using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.DTOs.UserAddress;
 using OnlineShop.Application.Features.UserAddress.Command.Create;
 using OnlineShop.Application.Features.UserAddress.Command.Update;
+using OnlineShop.Application.Features.UserAddress.Command.SetDefault;
 using OnlineShop.Application.Features.UserAddress.Queries.GetByUserId;
 
 namespace OnlineShop.WebAPI.Controllers
