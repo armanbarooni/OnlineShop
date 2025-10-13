@@ -11,9 +11,10 @@ namespace OnlineShop.Application.DTOs.ProductInventory
     {
         [JsonIgnore]
         public Guid Id { get; set; }
-        public int Quantity { get; set; }
+        public int AvailableQuantity { get; set; }
         public int ReservedQuantity { get; set; }
-        public decimal UnitPrice { get; set; }
-        public string? Location { get; set; }
+        public int SoldQuantity { get; set; }
+        public decimal? CostPrice { get; set; }
+        public decimal? SellingPrice { get; set; }
     }
 }

@@ -20,7 +20,7 @@ namespace OnlineShop.Application.Features.UserPayment.Command.Create
 
         public async Task<Result<UserPaymentDto>> Handle(CreateUserPaymentCommand request, CancellationToken cancellationToken)
         {
-            var userPayment = UserPayment.Create(
+            var userPayment = Domain.Entities.UserPayment.Create(
                 request.UserPayment.UserId,
                 request.UserPayment.OrderId,
                 request.UserPayment.PaymentMethod,

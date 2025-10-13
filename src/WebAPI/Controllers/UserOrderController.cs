@@ -91,10 +91,9 @@ namespace OnlineShop.WebAPI.Controllers
             if (userId == null || !Guid.TryParse(userId, out var userGuid))
                 return Unauthorized("User not authenticated");
 
-            dto.UserId = userGuid;
             _logger.LogInformation("Creating user order for user: {UserId}", userGuid);
             
-            var command = new CreateUserOrderCommand { UserOrder = dto };
+            var command = new CreateUserOrderCommand { UserOrder = dto, UserId = userGuid };
             var result = await _mediator.Send(command, cancellationToken);
 
             if (result.IsSuccess)
@@ -113,10 +112,6 @@ namespace OnlineShop.WebAPI.Controllers
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (userId == null || !Guid.TryParse(userId, out var userGuid))
                 return Unauthorized("User not authenticated");
-
-            // Users can only update their own orders unless they're admin
-            if (dto.UserId != userGuid && !User.IsInRole("Admin"))
-                return Forbid("Access denied");
 
             dto.Id = id;
             _logger.LogInformation("Updating user order: {OrderId} by user: {UserId}", id, userGuid);

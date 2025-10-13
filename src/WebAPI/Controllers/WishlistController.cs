@@ -5,7 +5,10 @@ using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.DTOs.Wishlist;
 using OnlineShop.Application.Features.Wishlist.Command.Create;
 using OnlineShop.Application.Features.Wishlist.Command.Delete;
+using OnlineShop.Application.Features.Wishlist.Command.Update;
 using OnlineShop.Application.Features.Wishlist.Queries.GetByUserId;
+using OnlineShop.Application.Features.Wishlist.Queries.GetAll;
+using OnlineShop.Application.Features.Wishlist.Queries.GetById;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -19,6 +22,23 @@ namespace OnlineShop.WebAPI.Controllers
         public WishlistController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Result<IEnumerable<WishlistDto>>>> GetAll()
+        {
+            var result = await _mediator.Send(new GetAllWishlistsQuery());
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Result<WishlistDto>>> GetById(Guid id)
+        {
+            var result = await _mediator.Send(new GetWishlistByIdQuery { Id = id });
+            if (!result.IsSuccess)
+                return NotFound(result);
+            return Ok(result);
         }
 
         [HttpGet("user/{userId}")]
@@ -46,6 +66,19 @@ namespace OnlineShop.WebAPI.Controllers
                 return BadRequest(result);
 
             return CreatedAtAction(nameof(GetByUserId), new { userId = userGuid }, result);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Result<WishlistDto>>> UpdateWishlist(Guid id, [FromBody] UpdateWishlistDto wishlist)
+        {
+            if (id != wishlist.Id)
+                return BadRequest("ID mismatch");
+
+            var result = await _mediator.Send(new UpdateWishlistCommand { Wishlist = wishlist });
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
         }
 
         [HttpDelete("user/{userId}/product/{productId}")]

@@ -11,16 +11,13 @@ namespace OnlineShop.Application.DTOs.UserOrder
     {
         [JsonIgnore]
         public Guid Id { get; set; }
-        public Guid UserId { get; set; }
         public string OrderStatus { get; set; } = string.Empty;
-        public decimal TotalAmount { get; set; }
-        public decimal ShippingCost { get; set; }
+        public decimal SubTotal { get; set; }
+        public decimal TaxAmount { get; set; }
+        public decimal ShippingAmount { get; set; }
         public decimal DiscountAmount { get; set; }
-        public decimal FinalAmount { get; set; }
-        public string PaymentStatus { get; set; } = string.Empty;
-        public string ShippingAddress { get; set; } = string.Empty;
+        public decimal TotalAmount { get; set; }
         public string? Notes { get; set; }
-        public DateTime? ShippedDate { get; set; }
-        public DateTime? DeliveredDate { get; set; }
+        public string? TrackingNumber { get; set; }
     }
 }

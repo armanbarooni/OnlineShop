@@ -6,7 +6,10 @@ using OnlineShop.Application.DTOs.UserAddress;
 using OnlineShop.Application.Features.UserAddress.Command.Create;
 using OnlineShop.Application.Features.UserAddress.Command.Update;
 using OnlineShop.Application.Features.UserAddress.Command.SetDefault;
+using OnlineShop.Application.Features.UserAddress.Command.Delete;
 using OnlineShop.Application.Features.UserAddress.Queries.GetByUserId;
+using OnlineShop.Application.Features.UserAddress.Queries.GetAll;
+using OnlineShop.Application.Features.UserAddress.Queries.GetById;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -20,6 +23,23 @@ namespace OnlineShop.WebAPI.Controllers
         public UserAddressController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Result<IEnumerable<UserAddressDto>>>> GetAll()
+        {
+            var result = await _mediator.Send(new GetAllUserAddressesQuery());
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Result<UserAddressDto>>> GetById(Guid id)
+        {
+            var result = await _mediator.Send(new GetUserAddressByIdQuery { Id = id });
+            if (!result.IsSuccess)
+                return NotFound(result);
+            return Ok(result);
         }
 
         [HttpGet("user/{userId}")]
@@ -80,6 +100,16 @@ namespace OnlineShop.WebAPI.Controllers
                 return BadRequest(result);
 
             return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteAddress(Guid id)
+        {
+            var result = await _mediator.Send(new DeleteUserAddressCommand { Id = id });
+            if (!result.IsSuccess)
+                return NotFound(result);
+
+            return NoContent();
         }
     }
 }

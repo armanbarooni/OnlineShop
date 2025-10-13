@@ -7,7 +7,10 @@ using OnlineShop.Application.Features.ProductReview.Command.Create;
 using OnlineShop.Application.Features.ProductReview.Command.Update;
 using OnlineShop.Application.Features.ProductReview.Command.Approve;
 using OnlineShop.Application.Features.ProductReview.Command.Reject;
+using OnlineShop.Application.Features.ProductReview.Command.Delete;
 using OnlineShop.Application.Features.ProductReview.Queries.GetByProductId;
+using OnlineShop.Application.Features.ProductReview.Queries.GetAll;
+using OnlineShop.Application.Features.ProductReview.Queries.GetById;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -23,7 +26,26 @@ namespace OnlineShop.WebAPI.Controllers
             _mediator = mediator;
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult<Result<IEnumerable<ProductReviewDto>>>> GetAll()
+        {
+            var result = await _mediator.Send(new GetAllProductReviewsQuery());
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<Result<ProductReviewDto>>> GetById(Guid id)
+        {
+            var result = await _mediator.Send(new GetProductReviewByIdQuery { Id = id });
+            if (!result.IsSuccess)
+                return NotFound(result);
+            return Ok(result);
+        }
+
         [HttpGet("product/{productId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Result<IEnumerable<ProductReviewDto>>>> GetByProductId(Guid productId)
         {
             var result = await _mediator.Send(new GetProductReviewsByProductIdQuery { ProductId = productId });
@@ -94,6 +116,17 @@ namespace OnlineShop.WebAPI.Controllers
                 return BadRequest(result);
 
             return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> DeleteReview(Guid id)
+        {
+            var result = await _mediator.Send(new DeleteProductReviewCommand { Id = id });
+            if (!result.IsSuccess)
+                return NotFound(result);
+
+            return NoContent();
         }
     }
 }

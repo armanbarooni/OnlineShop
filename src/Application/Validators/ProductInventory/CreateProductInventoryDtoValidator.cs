@@ -11,25 +11,27 @@ namespace OnlineShop.Application.Validators.ProductInventory
                 .NotEmpty()
                 .WithMessage("Product ID is required");
 
-            RuleFor(x => x.UnitId)
-                .NotEmpty()
-                .WithMessage("Unit ID is required");
-
-            RuleFor(x => x.Quantity)
+            RuleFor(x => x.AvailableQuantity)
                 .GreaterThanOrEqualTo(0)
-                .WithMessage("Quantity cannot be negative");
+                .WithMessage("Available quantity cannot be negative");
 
             RuleFor(x => x.ReservedQuantity)
                 .GreaterThanOrEqualTo(0)
                 .WithMessage("Reserved quantity cannot be negative");
 
-            RuleFor(x => x.UnitPrice)
-                .GreaterThan(0)
-                .WithMessage("Unit price must be greater than 0");
+            RuleFor(x => x.SoldQuantity)
+                .GreaterThanOrEqualTo(0)
+                .WithMessage("Sold quantity cannot be negative");
 
-            RuleFor(x => x.Location)
-                .MaximumLength(200)
-                .WithMessage("Location cannot exceed 200 characters");
+            RuleFor(x => x.CostPrice)
+                .GreaterThanOrEqualTo(0)
+                .When(x => x.CostPrice.HasValue)
+                .WithMessage("Cost price cannot be negative");
+
+            RuleFor(x => x.SellingPrice)
+                .GreaterThanOrEqualTo(0)
+                .When(x => x.SellingPrice.HasValue)
+                .WithMessage("Selling price cannot be negative");
         }
     }
 }

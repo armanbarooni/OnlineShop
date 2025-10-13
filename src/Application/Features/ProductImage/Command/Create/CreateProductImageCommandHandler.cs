@@ -20,12 +20,15 @@ namespace OnlineShop.Application.Features.ProductImage.Command.Create
 
         public async Task<Result<ProductImageDto>> Handle(CreateProductImageCommand request, CancellationToken cancellationToken)
         {
-            var productImage = ProductImage.Create(
+            var productImage = Domain.Entities.ProductImage.Create(
                 request.ProductImage.ProductId,
                 request.ProductImage.ImageUrl,
                 request.ProductImage.AltText,
+                request.ProductImage.Title,
                 request.ProductImage.DisplayOrder,
-                request.ProductImage.IsPrimary
+                request.ProductImage.IsPrimary,
+                request.ProductImage.FileSize,
+                request.ProductImage.MimeType
             );
 
             await _repository.AddAsync(productImage, cancellationToken);

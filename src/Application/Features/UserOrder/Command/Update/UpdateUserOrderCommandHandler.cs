@@ -24,18 +24,19 @@ namespace OnlineShop.Application.Features.UserOrder.Command.Update
                 return Result<UserOrderDto>.Failure("UserOrder not found");
 
             userOrder.Update(
-                request.UserOrder.OrderStatus,
-                request.UserOrder.TotalAmount,
-                request.UserOrder.ShippingCost,
+                request.UserOrder.SubTotal,
+                request.UserOrder.TaxAmount,
+                request.UserOrder.ShippingAmount,
                 request.UserOrder.DiscountAmount,
-                request.UserOrder.FinalAmount,
-                request.UserOrder.PaymentStatus,
-                request.UserOrder.ShippingAddress,
+                request.UserOrder.TotalAmount,
                 request.UserOrder.Notes,
-                request.UserOrder.ShippedDate,
-                request.UserOrder.DeliveredDate,
                 "System"
             );
+            
+            if (!string.IsNullOrEmpty(request.UserOrder.TrackingNumber))
+            {
+                userOrder.SetTrackingNumber(request.UserOrder.TrackingNumber);
+            }
 
             await _repository.UpdateAsync(userOrder, cancellationToken);
             return Result<UserOrderDto>.Success(_mapper.Map<UserOrderDto>(userOrder));

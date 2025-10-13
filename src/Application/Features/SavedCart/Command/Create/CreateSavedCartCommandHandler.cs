@@ -20,7 +20,7 @@ namespace OnlineShop.Application.Features.SavedCart.Command.Create
 
         public async Task<Result<SavedCartDto>> Handle(CreateSavedCartCommand request, CancellationToken cancellationToken)
         {
-            var savedCart = SavedCart.Create(
+            var savedCart = Domain.Entities.SavedCart.Create(
                 request.SavedCart.UserId,
                 request.SavedCart.CartId,
                 request.SavedCart.SavedCartName,

@@ -49,26 +49,8 @@ namespace OnlineShop.Application.Features.UserOrder.Command.Create
 
             await _orderRepository.AddAsync(userOrder, cancellationToken);
 
-            // Add order items
-            foreach (var itemDto in request.UserOrder.OrderItems)
-            {
-                var orderItem = Domain.Entities.UserOrderItem.Create(
-                    userOrder.Id,
-                    itemDto.ProductId,
-                    itemDto.ProductName,
-                    itemDto.Quantity,
-                    itemDto.UnitPrice,
-                    itemDto.TotalPrice
-                );
-
-                orderItem.SetProductDescription(itemDto.ProductDescription);
-                orderItem.SetProductSku(itemDto.ProductSku);
-                orderItem.SetDiscountAmount(itemDto.DiscountAmount);
-                orderItem.SetNotes(itemDto.Notes);
-
-                await _orderItemRepository.AddAsync(orderItem, cancellationToken);
-            }
-
+            // Note: Order items should be added separately through UserOrderItem endpoints
+            
             return Result<UserOrderDto>.Success(_mapper.Map<UserOrderDto>(userOrder));
         }
     }

@@ -16,5 +16,6 @@ namespace OnlineShop.Application.DTOs.UserReturnRequest
         public string? Description { get; set; }
         public int Quantity { get; set; }
         public decimal RefundAmount { get; set; }
+        public string? UpdatedBy { get; set; }
     }
 }

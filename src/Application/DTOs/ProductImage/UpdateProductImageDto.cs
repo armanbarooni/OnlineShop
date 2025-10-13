@@ -13,7 +13,10 @@ namespace OnlineShop.Application.DTOs.ProductImage
         public Guid Id { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public string? AltText { get; set; }
+        public string? Title { get; set; }
         public int DisplayOrder { get; set; }
         public bool IsPrimary { get; set; }
+        public long FileSize { get; set; }
+        public string? MimeType { get; set; }
     }
 }
