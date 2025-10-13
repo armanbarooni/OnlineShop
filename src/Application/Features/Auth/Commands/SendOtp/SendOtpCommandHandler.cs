@@ -67,8 +67,8 @@ namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
             var code = string.Empty;
 
             for (int i = 0; i < length; i++)
-            {
-                code += random.Next(0, 10).ToString();
+            { 
+                code += random.Next(0, 10).ToString(); 
             }
 
             return code;
