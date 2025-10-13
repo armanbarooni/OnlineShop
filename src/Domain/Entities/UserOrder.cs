@@ -136,26 +136,58 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void StartProcessing(string? updatedBy = null)
+        {
+            if (OrderStatus != "Pending")
+                throw new InvalidOperationException($"فقط سفارشات در حالت 'Pending' می‌توانند به حالت 'Processing' تغییر کنند. وضعیت فعلی: {OrderStatus}");
+            
+            OrderStatus = "Processing";
+            UpdatedBy = updatedBy;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         public void Ship(string? trackingNumber)
         {
+            if (OrderStatus != "Processing" && OrderStatus != "Pending")
+                throw new InvalidOperationException($"فقط سفارشات در حالت 'Processing' یا 'Pending' می‌توانند ارسال شوند. وضعیت فعلی: {OrderStatus}");
+
             OrderStatus = "Shipped";
             SetTrackingNumber(trackingNumber);
             ShippedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void MarkAsShipped(string trackingNumber, string? updatedBy = null)
+        {
+            Ship(trackingNumber);
+            UpdatedBy = updatedBy;
+        }
+
         public void Deliver()
         {
+            if (OrderStatus != "Shipped")
+                throw new InvalidOperationException($"فقط سفارشات ارسال شده می‌توانند تحویل داده شوند. وضعیت فعلی: {OrderStatus}");
+
             OrderStatus = "Delivered";
             DeliveredAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Cancel(string? cancellationReason)
+        public void MarkAsDelivered(string? updatedBy = null)
         {
+            Deliver();
+            UpdatedBy = updatedBy;
+        }
+
+        public void Cancel(string? cancellationReason, string? updatedBy = null)
+        {
+            if (OrderStatus == "Delivered")
+                throw new InvalidOperationException("سفارشات تحویل داده شده نمی‌توانند لغو شوند");
+
             OrderStatus = "Cancelled";
             CancellationReason = cancellationReason?.Trim();
             CancelledAt = DateTime.UtcNow;
+            UpdatedBy = updatedBy;
             UpdatedAt = DateTime.UtcNow;
         }
 

@@ -4,6 +4,7 @@ using FluentValidation;
 using MediatR;
 using OnlineShop.Application.Common.Behaviors;
 using AutoMapper;
+using OnlineShop.Application.Services;
 
 namespace OnlineShop.Application.Common
 {
@@ -27,6 +28,9 @@ namespace OnlineShop.Application.Common
 
             // Add validation pipeline behavior
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            // Register application services
+            services.AddScoped<IInventoryService, InventoryService>();
 
             return services;
         }
