@@ -9,6 +9,7 @@ using OnlineShop.Application.Features.UserOrder.Command.Delete;
 using OnlineShop.Application.Features.UserOrder.Queries.GetById;
 using OnlineShop.Application.Features.UserOrder.Queries.GetByUserId;
 using OnlineShop.Application.Features.UserOrder.Queries.GetAll;
+using OnlineShop.Application.Features.UserOrder.Queries.Search;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -40,6 +41,34 @@ namespace OnlineShop.WebAPI.Controllers
             }
             
             _logger.LogWarning("Failed to retrieve user orders: {Error}", result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        [HttpPost("search")]
+        public async Task<IActionResult> Search([FromBody] UserOrderSearchCriteriaDto? criteria, CancellationToken cancellationToken = default)
+        {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            // If not admin, force criteria to only show user's own orders
+            if (!User.IsInRole("Admin"))
+            {
+                if (criteria == null)
+                    criteria = new UserOrderSearchCriteriaDto();
+                criteria.UserId = currentUserGuid;
+            }
+
+            _logger.LogInformation("Searching user orders with criteria");
+            var result = await _mediator.Send(new UserOrderSearchQuery { Criteria = criteria }, cancellationToken);
+            
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved {Count} user orders from search", result.Data?.TotalCount ?? 0);
+                return Ok(result);
+            }
+            
+            _logger.LogWarning("Failed to search user orders: {Error}", result.ErrorMessage);
             return BadRequest(result);
         }
 

@@ -7,6 +7,7 @@ using OnlineShop.Application.Features.Product.Command.Delete;
 using OnlineShop.Application.Features.Product.Command.Update;
 using OnlineShop.Application.Features.Product.Queries.GetAll;
 using OnlineShop.Application.Features.Product.Queries.GetById;
+using OnlineShop.Application.Features.Product.Queries.Search;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -31,6 +32,23 @@ namespace OnlineShop.WebAPI.Controllers
             }
             
             _logger.LogWarning("Failed to retrieve products: {Error}", result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        [HttpPost("search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromBody] ProductSearchCriteriaDto? criteria, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Searching products with criteria");
+            var result = await _mediator.Send(new ProductSearchQuery { Criteria = criteria }, cancellationToken);
+            
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved {Count} products from search", result.Data?.TotalCount ?? 0);
+                return Ok(result);
+            }
+            
+            _logger.LogWarning("Failed to search products: {Error}", result.ErrorMessage);
             return BadRequest(result);
         }
 
