@@ -20,6 +20,7 @@ namespace OnlineShop.Application.Mapping
                     src.Title,
                     src.DisplayOrder,
                     src.IsPrimary,
+                    "Main", // Default image type
                     src.FileSize,
                     src.MimeType
                 ));

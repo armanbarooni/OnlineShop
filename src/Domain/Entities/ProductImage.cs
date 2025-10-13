@@ -10,6 +10,7 @@ namespace OnlineShop.Domain.Entities
         public string? Title { get; private set; }
         public int DisplayOrder { get; private set; }
         public bool IsPrimary { get; private set; }
+        public string ImageType { get; private set; } = "Main"; // Main, Hover, Gallery, 360, Video
         public long FileSize { get; private set; }
         public string? MimeType { get; private set; }
 
@@ -19,7 +20,7 @@ namespace OnlineShop.Domain.Entities
         protected ProductImage() { }
 
         private ProductImage(Guid productId, string imageUrl, string? altText, string? title, 
-            int displayOrder, bool isPrimary, long fileSize, string? mimeType)
+            int displayOrder, bool isPrimary, string imageType, long fileSize, string? mimeType)
         {
             ProductId = productId;
             SetImageUrl(imageUrl);
@@ -27,6 +28,7 @@ namespace OnlineShop.Domain.Entities
             SetTitle(title);
             SetDisplayOrder(displayOrder);
             SetIsPrimary(isPrimary);
+            SetImageType(imageType);
             SetFileSize(fileSize);
             SetMimeType(mimeType);
             Deleted = false;
@@ -34,8 +36,8 @@ namespace OnlineShop.Domain.Entities
 
         public static ProductImage Create(Guid productId, string imageUrl, string? altText = null, 
             string? title = null, int displayOrder = 0, bool isPrimary = false, 
-            long fileSize = 0, string? mimeType = null)
-            => new(productId, imageUrl, altText, title, displayOrder, isPrimary, fileSize, mimeType);
+            string imageType = "Main", long fileSize = 0, string? mimeType = null)
+            => new(productId, imageUrl, altText, title, displayOrder, isPrimary, imageType, fileSize, mimeType);
 
         public void SetImageUrl(string imageUrl)
         {
@@ -85,14 +87,24 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void SetImageType(string imageType)
+        {
+            var validTypes = new[] { "Main", "Hover", "Gallery", "360", "Video" };
+            if (!validTypes.Contains(imageType, StringComparer.OrdinalIgnoreCase))
+                throw new ArgumentException("نوع تصویر باید یکی از مقادیر Main, Hover, Gallery, 360, Video باشد");
+            ImageType = imageType.Trim();
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         public void Update(string imageUrl, string? altText, string? title, int displayOrder, 
-            bool isPrimary, long fileSize, string? mimeType, string? updatedBy)
+            bool isPrimary, string imageType, long fileSize, string? mimeType, string? updatedBy)
         {
             SetImageUrl(imageUrl);
             SetAltText(altText);
             SetTitle(title);
             SetDisplayOrder(displayOrder);
             SetIsPrimary(isPrimary);
+            SetImageType(imageType);
             SetFileSize(fileSize);
             SetMimeType(mimeType);
             UpdatedBy = updatedBy;

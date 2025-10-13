@@ -29,6 +29,11 @@ namespace OnlineShop.Infrastructure.DbConfigurations
                 .IsRequired()
                 .HasDefaultValue(false);
 
+            builder.Property(pi => pi.ImageType)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasDefaultValue("Main");
+
             builder.Property(pi => pi.FileSize)
                 .IsRequired()
                 .HasDefaultValue(0);

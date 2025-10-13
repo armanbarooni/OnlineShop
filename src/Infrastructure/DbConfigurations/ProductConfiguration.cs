@@ -30,6 +30,11 @@ namespace OnlineShop.Infrastructure.DbConfigurations
 
             builder.Property(p => p.UnitId);
 
+            builder.Property(p => p.BrandId);
+
+            builder.Property(p => p.Gender)
+                .HasMaxLength(20);
+
             builder.Property(p => p.Sku)
                 .HasMaxLength(100);
 
@@ -72,6 +77,11 @@ namespace OnlineShop.Infrastructure.DbConfigurations
                 .HasForeignKey(p => p.UnitId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            builder.HasOne(p => p.Brand)
+                .WithMany(b => b.Products)
+                .HasForeignKey(p => p.BrandId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // Base Entity Properties
             builder.Property(p => p.MahakId);
             builder.Property(p => p.MahakClientId);
@@ -86,6 +96,8 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             builder.HasIndex(p => p.Name);
             builder.HasIndex(p => p.CategoryId);
             builder.HasIndex(p => p.UnitId);
+            builder.HasIndex(p => p.BrandId);
+            builder.HasIndex(p => p.Gender);
             builder.HasIndex(p => p.Sku).IsUnique();
             builder.HasIndex(p => p.Barcode).IsUnique();
             builder.HasIndex(p => p.IsActive);

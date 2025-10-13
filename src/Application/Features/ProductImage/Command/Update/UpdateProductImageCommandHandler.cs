@@ -33,6 +33,7 @@ namespace OnlineShop.Application.Features.ProductImage.Command.Update
                 request.ProductImage.Title,
                 request.ProductImage.DisplayOrder,
                 request.ProductImage.IsPrimary,
+                productImage.ImageType, // Keep existing image type
                 request.ProductImage.FileSize,
                 request.ProductImage.MimeType,
                 null

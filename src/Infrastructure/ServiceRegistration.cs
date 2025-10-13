@@ -79,6 +79,12 @@ public static class ServiceRegistration
         // Authentication Repositories
         services.AddScoped<IOtpRepository, OtpRepository>();
         
+        // Enhanced Product Repositories
+        services.AddScoped<IBrandRepository, BrandRepository>();
+        services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
+        services.AddScoped<IMaterialRepository, MaterialRepository>();
+        services.AddScoped<ISeasonRepository, SeasonRepository>();
+        
         // Services
         services.AddScoped<ITokenService, TokenService>();
         

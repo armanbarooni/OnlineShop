@@ -27,6 +27,7 @@ namespace OnlineShop.Application.Features.ProductImage.Command.Create
                 request.ProductImage.Title,
                 request.ProductImage.DisplayOrder,
                 request.ProductImage.IsPrimary,
+                "Main", // Default image type
                 request.ProductImage.FileSize,
                 request.ProductImage.MimeType
             );

@@ -10,6 +10,8 @@ namespace OnlineShop.Domain.Entities
         public int StockQuantity { get; private set; }
         public Guid? CategoryId { get; private set; }
         public Guid? UnitId { get; private set; }
+        public Guid? BrandId { get; private set; }
+        public string? Gender { get; private set; } // Male, Female, Kids, Unisex
         public string? Sku { get; private set; }
         public string? Barcode { get; private set; }
         public decimal? Weight { get; private set; }
@@ -24,10 +26,14 @@ namespace OnlineShop.Domain.Entities
         // Navigation Properties
         public virtual ProductCategory? Category { get; private set; }
         public virtual Unit? Unit { get; private set; }
+        public virtual Brand? Brand { get; private set; }
         public virtual ICollection<ProductDetail> ProductDetails { get; private set; } = new List<ProductDetail>();
         public virtual ICollection<ProductImage> ProductImages { get; private set; } = new List<ProductImage>();
         public virtual ICollection<ProductReview> ProductReviews { get; private set; } = new List<ProductReview>();
         public virtual ICollection<ProductInventory> ProductInventories { get; private set; } = new List<ProductInventory>();
+        public virtual ICollection<ProductVariant> ProductVariants { get; private set; } = new List<ProductVariant>();
+        public virtual ICollection<ProductMaterial> ProductMaterials { get; private set; } = new List<ProductMaterial>();
+        public virtual ICollection<ProductSeason> ProductSeasons { get; private set; } = new List<ProductSeason>();
         public virtual ICollection<Wishlist> Wishlists { get; private set; } = new List<Wishlist>();
         public virtual ICollection<UserOrderItem> OrderItems { get; private set; } = new List<UserOrderItem>();
         public virtual ICollection<CartItem> CartItems { get; private set; } = new List<CartItem>();
@@ -97,6 +103,24 @@ namespace OnlineShop.Domain.Entities
         public void SetUnitId(Guid? unitId)
         {
             UnitId = unitId;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetBrandId(Guid? brandId)
+        {
+            BrandId = brandId;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetGender(string? gender)
+        {
+            if (gender != null)
+            {
+                var validGenders = new[] { "Male", "Female", "Kids", "Unisex" };
+                if (!validGenders.Contains(gender, StringComparer.OrdinalIgnoreCase))
+                    throw new ArgumentException("جنسیت باید یکی از مقادیر Male, Female, Kids, Unisex باشد");
+            }
+            Gender = gender?.Trim();
             UpdatedAt = DateTime.UtcNow;
         }
 
