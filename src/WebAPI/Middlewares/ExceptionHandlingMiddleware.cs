@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Exceptions;
+using ValidationException = FluentValidation.ValidationException;
 
 namespace OnlineShop.API.Middleware
 {
@@ -48,7 +50,7 @@ namespace OnlineShop.API.Middleware
 
                 case ValidationException ve:
                     statusCode = (int)HttpStatusCode.BadRequest;
-                    message = ve.Message;
+                    message = string.Join("; ", ve.Errors.Select(e => e.ErrorMessage));
                     break;
 
                 case UnauthorizedAccessException ua:

@@ -39,12 +39,12 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
                 UnitDto = updateDto
             };
 
-            var existingUnit = Domain.Entities.Unit.Create(1, "Kilogram", 123, 1, "Weight unit");
+            var existingUnit = OnlineShop.Domain.Entities.Unit.Create(1, "Kilogram", 123, 1, "Weight unit");
 
             _mockRepository.Setup(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingUnit);
 
-            _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()))
+            _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
             _mockRepository.Setup(r => r.ExistsByNameAsync(updateDto.Name, It.IsAny<CancellationToken>()))
@@ -58,7 +58,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Data.Should().BeTrue();
 
             _mockRepository.Verify(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()), Times.Once);
-            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Once);
+            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             };
 
             _mockRepository.Setup(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Domain.Entities.Unit)null);
+                .ReturnsAsync((OnlineShop.Domain.Entities.Unit)null);
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -88,7 +88,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.IsSuccess.Should().BeFalse();
             result.ErrorMessage.Should().NotBeNullOrEmpty();
 
-            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
                 UnitDto = updateDto
             };
 
-            var existingUnit = Domain.Entities.Unit.Create(1, "Kilogram", 123, 1, "Weight unit");
+            var existingUnit = OnlineShop.Domain.Entities.Unit.Create(1, "Kilogram", 123, 1, "Weight unit");
 
             _mockRepository.Setup(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingUnit);
@@ -123,7 +123,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.IsSuccess.Should().BeFalse();
             result.ErrorMessage.Should().NotBeNullOrEmpty();
 
-            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]

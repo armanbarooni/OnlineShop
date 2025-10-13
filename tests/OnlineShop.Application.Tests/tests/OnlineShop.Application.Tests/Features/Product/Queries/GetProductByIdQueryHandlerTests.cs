@@ -8,6 +8,7 @@ using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Application.DTOs.Product;
 using OnlineShop.Application.Tests.TestHelpers;
 using OnlineShop.Infrastructure.Persistence.Repositories;
+using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
 {
@@ -69,7 +70,7 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
             var productId = Guid.NewGuid();
 
             _mockRepository.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Domain.Entities.Product?)null);
+                .ReturnsAsync((OnlineShop.Domain.Entities.Product?)null);
 
             var query = new GetProductByIdQuery { Id = productId };
 
@@ -82,7 +83,7 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
             result.ErrorMessage.Should().Contain("not found");
 
             _mockRepository.Verify(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
-            _mockMapper.Verify(m => m.Map<ProductDetailsDto>(It.IsAny<Domain.Entities.Product>()), Times.Never);
+            _mockMapper.Verify(m => m.Map<ProductDetailsDto>(It.IsAny<OnlineShop.Domain.Entities.Product>()), Times.Never);
         }
 
         [Fact]

@@ -9,6 +9,7 @@ namespace OnlineShop.Domain.Entities
         public Guid OrderItemId { get; private set; }
         public string ReturnReason { get; private set; } = string.Empty;
         public string ReturnStatus { get; private set; } = "Pending";
+        public string RequestStatus => ReturnStatus; // Alias for backward compatibility with tests
         public string? Description { get; private set; }
         public int Quantity { get; private set; }
         public decimal RefundAmount { get; private set; }
@@ -82,7 +83,7 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Approve(string? approvedBy, string? adminNotes)
+        public void Approve(string? approvedBy, string? adminNotes = null)
         {
             ReturnStatus = "Approved";
             ApprovedAt = DateTime.UtcNow;
@@ -91,7 +92,7 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Reject(string? rejectedBy, string? rejectionReason, string? adminNotes)
+        public void Reject(string? rejectedBy, string? rejectionReason = null, string? adminNotes = null)
         {
             ReturnStatus = "Rejected";
             RejectedAt = DateTime.UtcNow;

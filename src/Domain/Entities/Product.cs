@@ -132,10 +132,30 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void Activate()
+        {
+            SetIsActive(true);
+        }
+
+        public void Deactivate()
+        {
+            SetIsActive(false);
+        }
+
         public void SetIsFeatured(bool isFeatured)
         {
             IsFeatured = isFeatured;
             UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetAsFeatured()
+        {
+            SetIsFeatured(true);
+        }
+
+        public void RemoveFromFeatured()
+        {
+            SetIsFeatured(false);
         }
 
         public void IncrementViewCount()

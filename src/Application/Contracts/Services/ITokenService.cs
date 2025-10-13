@@ -1,6 +1,6 @@
 using OnlineShop.Application.DTOs.Auth;
 
-namespace OnlineShop.Infrastructure.Services
+namespace OnlineShop.Application.Contracts.Services
 {
     public interface ITokenService
     {
@@ -10,3 +10,4 @@ namespace OnlineShop.Infrastructure.Services
         Task RevokeAllUserTokensAsync(string email);
     }
 }
+

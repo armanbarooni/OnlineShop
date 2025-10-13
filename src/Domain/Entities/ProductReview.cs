@@ -13,6 +13,10 @@ namespace OnlineShop.Domain.Entities
         public bool IsApproved { get; private set; }
         public DateTime? ApprovedAt { get; private set; }
         public string? ApprovedBy { get; private set; }
+        public string? AdminNotes { get; private set; }
+        public DateTime? RejectedAt { get; private set; }
+        public string? RejectedBy { get; private set; }
+        public string? RejectionReason { get; private set; }
 
         // Navigation Properties
         public virtual Product Product { get; private set; } = null!;
@@ -65,20 +69,30 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Approve(string? approvedBy)
+        public void SetAdminNotes(string? adminNotes)
+        {
+            AdminNotes = adminNotes?.Trim();
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void Approve(string? approvedBy, string? adminNotes = null)
         {
             IsApproved = true;
             ApprovedAt = DateTime.UtcNow;
             ApprovedBy = approvedBy;
+            SetAdminNotes(adminNotes);
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void Reject(string? updatedBy)
+        public void Reject(string? rejectedBy, string? rejectionReason = null, string? adminNotes = null)
         {
             IsApproved = false;
             ApprovedAt = null;
             ApprovedBy = null;
-            UpdatedBy = updatedBy;
+            RejectedAt = DateTime.UtcNow;
+            RejectedBy = rejectedBy;
+            RejectionReason = rejectionReason?.Trim();
+            SetAdminNotes(adminNotes);
             UpdatedAt = DateTime.UtcNow;
         }
 

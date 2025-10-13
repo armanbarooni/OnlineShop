@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Application.DTOs.Auth;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Infrastructure.Persistence;
@@ -27,9 +28,15 @@ namespace OnlineShop.Infrastructure.Services
             _context = context;
         }
 
-        public async Task<AuthResponseDto> GenerateTokensAsync(string email, IEnumerable<string> roles)
+        public async Task<AuthResponseDto> GenerateTokensAsync(string emailOrPhoneNumber, IEnumerable<string> roles)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            // Try to find by email first, then by username (phone number)
+            var user = await _userManager.FindByEmailAsync(emailOrPhoneNumber);
+            if (user == null)
+            {
+                user = await _userManager.FindByNameAsync(emailOrPhoneNumber);
+            }
+            
             if (user == null)
                 throw new InvalidOperationException("User not found");
 
@@ -42,9 +49,9 @@ namespace OnlineShop.Infrastructure.Services
 
             var claims = new List<Claim>
             {
-                new(JwtRegisteredClaimNames.Sub, email),
+                new(JwtRegisteredClaimNames.Sub, user.Email ?? user.UserName ?? emailOrPhoneNumber),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new(ClaimTypes.Name, email),
+                new(ClaimTypes.Name, user.UserName ?? emailOrPhoneNumber),
                 new(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
@@ -80,7 +87,7 @@ namespace OnlineShop.Infrastructure.Services
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
                 ExpiresAt = expires,
-                Email = email,
+                Email = user.Email ?? user.UserName ?? emailOrPhoneNumber,
                 Roles = roles
             };
         }

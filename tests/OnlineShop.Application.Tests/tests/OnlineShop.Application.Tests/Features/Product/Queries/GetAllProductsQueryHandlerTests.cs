@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using OnlineShop.Infrastructure.Persistence.Repositories;
+using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Application.Tests.Features.Product.Queries.GetAll
 {
@@ -33,10 +34,10 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetAll
             // Arrange
             var query = new GetAllProductsQuery();
 
-            var products = new List<Domain.Entities.Product>
+            var products = new List<OnlineShop.Domain.Entities.Product>
             {
-                Domain.Entities.Product.Create("Product 1", "Desc 1", 100m, 10),
-                Domain.Entities.Product.Create("Product 2", "Desc 2", 200m, 20)
+                OnlineShop.Domain.Entities.Product.Create("Product 1", "Desc 1", 100m, 10),
+                OnlineShop.Domain.Entities.Product.Create("Product 2", "Desc 2", 200m, 20)
             };
 
             var productDtos = new List<ProductDto>
@@ -69,7 +70,7 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetAll
         {
             // Arrange
             var query = new GetAllProductsQuery();
-            var emptyList = new List<Domain.Entities.Product>();
+            var emptyList = new List<OnlineShop.Domain.Entities.Product>();
 
             _repositoryMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(emptyList);

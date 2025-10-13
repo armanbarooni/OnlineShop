@@ -2,7 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Infrastructure.Persistence;
 using OnlineShop.Infrastructure.Persistence.Repositories;
@@ -74,7 +76,26 @@ public static class ServiceRegistration
         services.AddScoped<IMahakQueueRepository, MahakQueueRepository>();
         services.AddScoped<ISyncErrorLogRepository, SyncErrorLogRepository>();
         
+        // Authentication Repositories
+        services.AddScoped<IOtpRepository, OtpRepository>();
+        
+        // Services
         services.AddScoped<ITokenService, TokenService>();
+        
+        // SMS Service Configuration
+        var smsSettings = configuration.GetSection("SmsSettings");
+        services.Configure<SmsSettings>(smsSettings);
+        
+        var smsProvider = smsSettings.GetValue<string>("Provider")?.ToLower();
+        if (smsProvider == "kavenegar")
+        {
+            services.AddHttpClient<ISmsService, KavenegarSmsService>();
+        }
+        else
+        {
+            // Default to Mock SMS Service for development
+            services.AddScoped<ISmsService, MockSmsService>();
+        }
 
         return services;
     }

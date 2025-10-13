@@ -25,26 +25,39 @@ namespace OnlineShop.Domain.Entities
         protected UserAddress() { }
 
         private UserAddress(Guid userId, string title, string firstName, string lastName, 
-            string addressLine1, string city, string state, string postalCode, string country)
+            string addressLine1, string city, string state, string postalCode, string country, string? addressLine2 = null, string? phoneNumber = null)
         {
             UserId = userId;
             SetTitle(title);
             SetFirstName(firstName);
             SetLastName(lastName);
             SetAddressLine1(addressLine1);
+            SetAddressLine2(addressLine2);
             SetCity(city);
             SetState(state);
             SetPostalCode(postalCode);
             SetCountry(country);
+            SetPhoneNumber(phoneNumber);
             IsDefault = false;
             IsBillingAddress = false;
             IsShippingAddress = false;
             Deleted = false;
         }
 
+        // Basic create without optional fields
         public static UserAddress Create(Guid userId, string title, string firstName, string lastName, 
             string addressLine1, string city, string state, string postalCode, string country)
-            => new(userId, title, firstName, lastName, addressLine1, city, state, postalCode, country);
+            => new(userId, title, firstName, lastName, addressLine1, city, state, postalCode, country, null, null);
+
+        // Create with addressLine2 (for backward compatibility with tests)
+        public static UserAddress Create(Guid userId, string title, string firstName, string lastName, 
+            string addressLine1, string? addressLine2, string city, string state, string postalCode, string country)
+            => new(userId, title, firstName, lastName, addressLine1, city, state, postalCode, country, addressLine2, null);
+
+        // Create with all fields
+        public static UserAddress Create(Guid userId, string title, string firstName, string lastName, 
+            string addressLine1, string city, string state, string postalCode, string country, string? addressLine2, string? phoneNumber)
+            => new(userId, title, firstName, lastName, addressLine1, city, state, postalCode, country, addressLine2, phoneNumber);
 
         public void SetTitle(string title)
         {
@@ -134,6 +147,11 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void UnsetAsDefault()
+        {
+            RemoveAsDefault();
+        }
+
         public void SetAsBillingAddress(bool isBilling)
         {
             IsBillingAddress = isBilling;
@@ -148,7 +166,7 @@ namespace OnlineShop.Domain.Entities
 
         public void Update(string title, string firstName, string lastName, string addressLine1, 
             string? addressLine2, string city, string state, string postalCode, string country, 
-            string? phoneNumber, bool isDefault, bool isBillingAddress, bool isShippingAddress, string? updatedBy)
+            string? phoneNumber, bool isDefault = false, bool isBillingAddress = false, bool isShippingAddress = false, string? updatedBy = null)
         {
             SetTitle(title);
             SetFirstName(firstName);

@@ -1,9 +1,14 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Application.DTOs.Auth;
+using OnlineShop.Application.Features.Auth.Commands.SendOtp;
+using OnlineShop.Application.Features.Auth.Commands.VerifyOtp;
+using OnlineShop.Application.Features.Auth.Commands.RegisterWithPhone;
+using OnlineShop.Application.Features.Auth.Commands.LoginWithPhone;
+using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Domain.Entities;
-using OnlineShop.Infrastructure.Services;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -15,17 +20,20 @@ namespace OnlineShop.WebAPI.Controllers
 		private readonly SignInManager<ApplicationUser> _signInManager;
 		private readonly ITokenService _tokenService;
 		private readonly ILogger<AuthController> _logger;
+		private readonly IMediator _mediator;
 
 		public AuthController(
 			UserManager<ApplicationUser> userManager,
 			SignInManager<ApplicationUser> signInManager,
 			ITokenService tokenService,
-			ILogger<AuthController> logger)
+			ILogger<AuthController> logger,
+			IMediator mediator)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_tokenService = tokenService;
 			_logger = logger;
+			_mediator = mediator;
 		}
 
 		[HttpPost("login")]
@@ -152,6 +160,88 @@ namespace OnlineShop.WebAPI.Controllers
 
 			_logger.LogInformation("Logout successful for user: {UserId}", userId);
 			return Ok(new { message = "Logged out successfully" });
+		}
+
+		// OTP-based Authentication Endpoints
+
+		[HttpPost("send-otp")]
+		[ProducesResponseType(typeof(OtpResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> SendOtp([FromBody] SendOtpDto dto, CancellationToken cancellationToken = default)
+		{
+			_logger.LogInformation("Send OTP request for phone: {PhoneNumber}, Purpose: {Purpose}", dto.PhoneNumber, dto.Purpose);
+
+			var command = new SendOtpCommand { Request = dto };
+			var result = await _mediator.Send(command, cancellationToken);
+
+			if (result.IsSuccess)
+			{
+				_logger.LogInformation("OTP sent successfully to {PhoneNumber}", dto.PhoneNumber);
+				return Ok(result);
+			}
+
+			_logger.LogWarning("Failed to send OTP to {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
+			return BadRequest(result);
+		}
+
+		[HttpPost("verify-otp")]
+		[ProducesResponseType(typeof(OtpResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDto dto, CancellationToken cancellationToken = default)
+		{
+			_logger.LogInformation("Verify OTP request for phone: {PhoneNumber}", dto.PhoneNumber);
+
+			var command = new VerifyOtpCommand { Request = dto };
+			var result = await _mediator.Send(command, cancellationToken);
+
+			if (result.IsSuccess)
+			{
+				_logger.LogInformation("OTP verified successfully for {PhoneNumber}", dto.PhoneNumber);
+				return Ok(result);
+			}
+
+			_logger.LogWarning("Failed to verify OTP for {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
+			return BadRequest(result);
+		}
+
+		[HttpPost("register-phone")]
+		[ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status201Created)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> RegisterWithPhone([FromBody] RegisterWithPhoneDto dto, CancellationToken cancellationToken = default)
+		{
+			_logger.LogInformation("Register with phone request for: {PhoneNumber}", dto.PhoneNumber);
+
+			var command = new RegisterWithPhoneCommand { Request = dto };
+			var result = await _mediator.Send(command, cancellationToken);
+
+			if (result.IsSuccess)
+			{
+				_logger.LogInformation("User registered successfully with phone: {PhoneNumber}", dto.PhoneNumber);
+				return CreatedAtAction(nameof(Login), result);
+			}
+
+			_logger.LogWarning("Failed to register user with phone {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
+			return BadRequest(result);
+		}
+
+		[HttpPost("login-phone")]
+		[ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> LoginWithPhone([FromBody] LoginWithPhoneDto dto, CancellationToken cancellationToken = default)
+		{
+			_logger.LogInformation("Login with phone request for: {PhoneNumber}", dto.PhoneNumber);
+
+			var command = new LoginWithPhoneCommand { Request = dto };
+			var result = await _mediator.Send(command, cancellationToken);
+
+			if (result.IsSuccess)
+			{
+				_logger.LogInformation("User logged in successfully with phone: {PhoneNumber}", dto.PhoneNumber);
+				return Ok(result);
+			}
+
+			_logger.LogWarning("Failed to login with phone {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
+			return Unauthorized(result);
 		}
 	}
 }

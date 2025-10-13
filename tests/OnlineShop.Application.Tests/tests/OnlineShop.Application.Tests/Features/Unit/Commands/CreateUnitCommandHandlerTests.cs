@@ -38,7 +38,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             };
 
             // ✅ ایجاد entity بدون دستکاری ID
-            var unitEntity = Domain.Entities.Unit.Create(
+            var unitEntity = OnlineShop.Domain.Entities.Unit.Create(
                 unitCode: 1,
                 name: "Kilogram",
                 mahakClientId: 123,
@@ -49,10 +49,10 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             _mockRepository.Setup(r => r.ExistsByNameAsync("Kilogram", It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
-            _mockMapper.Setup(m => m.Map<Domain.Entities.Unit>(createDto))
+            _mockMapper.Setup(m => m.Map<OnlineShop.Domain.Entities.Unit>(createDto))
                 .Returns(unitEntity);
 
-            _mockRepository.Setup(r => r.AddAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()))
+            _mockRepository.Setup(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
             // Act
@@ -65,8 +65,8 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             // result.Data.Should().NotBe(Guid.Empty);
 
             _mockRepository.Verify(r => r.ExistsByNameAsync("Kilogram", It.IsAny<CancellationToken>()), Times.Once);
-            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Once);
-            _mockMapper.Verify(m => m.Map<Domain.Entities.Unit>(createDto), Times.Once);
+            _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Once);
+            _mockMapper.Verify(m => m.Map<OnlineShop.Domain.Entities.Unit>(createDto), Times.Once);
         }
 
         [Fact]
@@ -97,8 +97,8 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.ErrorMessage.Should().Contain("واحدی با این نام قبلاً ثبت شده است");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync("Kilogram", It.IsAny<CancellationToken>()), Times.Once);
-            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
-            _mockMapper.Verify(m => m.Map<Domain.Entities.Unit>(It.IsAny<CreateUnitDto>()), Times.Never);
+            _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mockMapper.Verify(m => m.Map<OnlineShop.Domain.Entities.Unit>(It.IsAny<CreateUnitDto>()), Times.Never);
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.ErrorMessage.Should().Contain("درخواست نمی تواند خالی باشد");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.ErrorMessage.Should().Contain("نام واحد نمی‌تواند خالی باشد");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -176,7 +176,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.ErrorMessage.Should().Contain("نام واحد نمی‌تواند خالی باشد");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
-            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
@@ -204,7 +204,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
 
             exception.Message.Should().Be("Database connection failed");
 
-            _mockRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
 
