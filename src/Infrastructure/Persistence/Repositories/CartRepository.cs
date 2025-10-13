@@ -61,6 +61,14 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<IEnumerable<CartItem>> GetCartItemsAsync(Guid cartId, CancellationToken cancellationToken)
+        {
+            return await _context.CartItems
+                .AsNoTracking()
+                .Where(ci => ci.CartId == cartId && !ci.Deleted)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task AddAsync(Cart cart, CancellationToken cancellationToken)
         {
             await _context.Carts.AddAsync(cart, cancellationToken);
@@ -80,6 +88,24 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             {
                 cart.Delete(null);
                 _context.Carts.Update(cart);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        public async Task ClearCartAsync(Guid cartId, CancellationToken cancellationToken)
+        {
+            var cartItems = await _context.CartItems
+                .Where(ci => ci.CartId == cartId && !ci.Deleted)
+                .ToListAsync(cancellationToken);
+
+            foreach (var item in cartItems)
+            {
+                item.Delete(null);
+            }
+
+            if (cartItems.Any())
+            {
+                _context.CartItems.UpdateRange(cartItems);
                 await _context.SaveChangesAsync(cancellationToken);
             }
         }

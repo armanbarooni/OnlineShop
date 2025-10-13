@@ -99,6 +99,55 @@ namespace OnlineShop.Domain.Entities
 
         public int GetTotalQuantity() => AvailableQuantity + ReservedQuantity + SoldQuantity;
 
+        public int GetAvailableStock() => AvailableQuantity - ReservedQuantity;
+
+        public void ReserveQuantity(int quantity)
+        {
+            if (quantity <= 0)
+                throw new ArgumentException("مقدار رزرو باید بزرگتر از صفر باشد");
+
+            var availableStock = GetAvailableStock();
+            if (availableStock < quantity)
+                throw new InvalidOperationException($"موجودی کافی نیست. موجودی قابل دسترس: {availableStock}، درخواستی: {quantity}");
+
+            ReservedQuantity += quantity;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void ReleaseReservedQuantity(int quantity)
+        {
+            if (quantity <= 0)
+                throw new ArgumentException("مقدار آزادسازی باید بزرگتر از صفر باشد");
+
+            if (ReservedQuantity < quantity)
+                throw new InvalidOperationException($"مقدار رزرو شده کافی نیست. رزرو شده: {ReservedQuantity}, درخواستی: {quantity}");
+
+            ReservedQuantity -= quantity;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void CommitSale(int quantity)
+        {
+            if (quantity <= 0)
+                throw new ArgumentException("مقدار فروش باید بزرگتر از صفر باشد");
+
+            if (ReservedQuantity < quantity)
+                throw new InvalidOperationException($"مقدار رزرو شده کافی نیست. رزرو شده: {ReservedQuantity}, درخواستی: {quantity}");
+
+            ReservedQuantity -= quantity;
+            SoldQuantity += quantity;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void AddStock(int quantity)
+        {
+            if (quantity <= 0)
+                throw new ArgumentException("مقدار اضافه شدن باید بزرگتر از صفر باشد");
+
+            AvailableQuantity += quantity;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         public void Delete(string? updatedBy)
         {
             if (Deleted)
