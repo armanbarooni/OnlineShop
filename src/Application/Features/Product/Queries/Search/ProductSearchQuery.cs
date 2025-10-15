@@ -5,7 +5,7 @@ using OnlineShop.Application.DTOs.Product;
 
 namespace OnlineShop.Application.Features.Product.Queries.Search
 {
-    public class ProductSearchQuery : IRequest<Result<PagedResultDto<ProductDto>>>
+    public class ProductSearchQuery : IRequest<Result<ProductSearchResultDto>>
     {
         public ProductSearchCriteriaDto? Criteria { get; set; }
     }

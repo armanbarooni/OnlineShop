@@ -12,7 +12,7 @@ namespace OnlineShop.Application.Features.Product.Queries.GetById
     {
         public async Task<Result<ProductDetailsDto>> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
-            var product = await productRepository.GetByIdAsync(request.Id, cancellationToken);
+            var product = await productRepository.GetByIdWithIncludesAsync(request.Id, cancellationToken);
             if (product == null)
             {
                 return Result<ProductDetailsDto>.Failure($"Product with ID {request.Id} not found");

@@ -23,10 +23,40 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
+        public async Task<Product?> GetByIdWithIncludesAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _context.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Unit)
+                .Include(p => p.ProductImages.OrderBy(i => i.DisplayOrder))
+                .Include(p => p.ProductVariants.OrderBy(v => v.DisplayOrder))
+                .Include(p => p.ProductMaterials).ThenInclude(pm => pm.Material)
+                .Include(p => p.ProductSeasons).ThenInclude(ps => ps.Season)
+                .Include(p => p.ProductReviews)
+                .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        }
+
 
         public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken)
         {
             return await _context.Products.AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        public async Task<IEnumerable<Product>> GetAllWithIncludesAsync(CancellationToken cancellationToken)
+        {
+            return await _context.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Unit)
+                .Include(p => p.ProductImages.OrderBy(i => i.DisplayOrder))
+                .Include(p => p.ProductVariants.OrderBy(v => v.DisplayOrder))
+                .Include(p => p.ProductMaterials).ThenInclude(pm => pm.Material)
+                .Include(p => p.ProductSeasons).ThenInclude(ps => ps.Season)
+                .Include(p => p.ProductReviews)
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken)

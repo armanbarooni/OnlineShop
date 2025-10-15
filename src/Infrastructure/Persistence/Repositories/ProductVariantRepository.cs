@@ -25,6 +25,9 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         public Task<ProductVariant?> GetBySKUAsync(string sku, CancellationToken cancellationToken = default)
             => _context.ProductVariants.AsNoTracking().FirstOrDefaultAsync(pv => pv.SKU == sku && !pv.Deleted, cancellationToken);
 
+        public Task<bool> ExistsBySkuAsync(string sku, CancellationToken cancellationToken = default)
+            => _context.ProductVariants.AnyAsync(pv => pv.SKU == sku && !pv.Deleted, cancellationToken);
+
         public async Task AddAsync(ProductVariant variant, CancellationToken cancellationToken = default)
         {
             await _context.ProductVariants.AddAsync(variant, cancellationToken);

@@ -44,7 +44,7 @@ namespace OnlineShop.WebAPI.Controllers
             
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Successfully retrieved {Count} products from search", result.Data?.TotalCount ?? 0);
+                _logger.LogInformation("Successfully retrieved {Count} products from search", result.Data?.Products?.TotalCount ?? 0);
                 return Ok(result);
             }
             

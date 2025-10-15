@@ -22,6 +22,9 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         public Task<Season?> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
             => _context.Seasons.AsNoTracking().FirstOrDefaultAsync(s => s.Code == code && !s.Deleted, cancellationToken);
 
+        public Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default)
+            => _context.Seasons.AnyAsync(s => s.Name == name && !s.Deleted, cancellationToken);
+
         public async Task AddAsync(Season season, CancellationToken cancellationToken = default)
         {
             await _context.Seasons.AddAsync(season, cancellationToken);

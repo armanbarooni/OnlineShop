@@ -9,6 +9,7 @@ namespace OnlineShop.Application.DTOs.ProductVariant
         public string? Barcode { get; set; }
         public int StockQuantity { get; set; }
         public decimal? AdditionalPrice { get; set; }
+        public int DisplayOrder { get; set; } = 0;
     }
 }
 

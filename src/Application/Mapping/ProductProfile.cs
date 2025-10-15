@@ -8,7 +8,15 @@ namespace OnlineShop.Application.Mapping
     {
         public ProductProfile()
         {
-            CreateMap<Product, ProductDto>();
+            CreateMap<Product, ProductDto>()
+                .ForMember(d => d.Images, opt => opt.MapFrom(s => s.ProductImages.OrderBy(i => i.DisplayOrder)))
+                .ForMember(d => d.Variants, opt => opt.MapFrom(s => s.ProductVariants.OrderBy(v => v.DisplayOrder)))
+                .ForMember(d => d.Materials, opt => opt.MapFrom(s => s.ProductMaterials.Select(pm => pm.Material)))
+                .ForMember(d => d.Seasons, opt => opt.MapFrom(s => s.ProductSeasons.Select(ps => ps.Season)))
+                .ForMember(d => d.ReviewCount, opt => opt.MapFrom(s => s.ProductReviews.Count))
+                .ForMember(d => d.AverageRating, opt => opt.MapFrom(s => 
+                    s.ProductReviews.Any() ? s.ProductReviews.Average(r => r.Rating) : 0));
+
             CreateMap<Product, ProductDetailsDto>();
 
             CreateMap<CreateProductDto, Product>()
