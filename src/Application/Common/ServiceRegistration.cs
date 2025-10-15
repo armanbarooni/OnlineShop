@@ -28,6 +28,9 @@ namespace OnlineShop.Application.Common
                 
                 // Add new mapping profiles for Phase 7
                 cfg.AddProfile<OnlineShop.Application.Mapping.OrderStatusHistoryProfile>();
+                
+                // Add new mapping profiles for Phase 8
+                cfg.AddProfile<OnlineShop.Application.Mapping.StockAlertProfile>();
             });
             services.AddSingleton<IMapper>(mapperConfig.CreateMapper());
 

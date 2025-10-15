@@ -95,6 +95,9 @@ public static class ServiceRegistration
 
             // Phase 7 - Order Tracking Repositories
             services.AddScoped<IOrderStatusHistoryRepository, OrderStatusHistoryRepository>();
+            
+            // Phase 8 - Stock Alerts & User Engagement Repositories
+            services.AddScoped<IStockAlertRepository, StockAlertRepository>();
         
         // Services
         services.AddScoped<ITokenService, TokenService>();

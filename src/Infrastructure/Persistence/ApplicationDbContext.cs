@@ -59,6 +59,9 @@ namespace OnlineShop.Infrastructure.Persistence
         public DbSet<ProductMaterial> ProductMaterials { get; set; }
         public DbSet<ProductSeason> ProductSeasons { get; set; }
         
+        // Phase 8 - Stock Alerts & User Engagement
+        public DbSet<StockAlert> StockAlerts { get; set; }
+        
         // Phase 5 - Related Products & Recommendations
         public DbSet<ProductRelation> ProductRelations { get; set; }
         public DbSet<UserProductView> UserProductViews { get; set; }  
