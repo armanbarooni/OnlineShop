@@ -1,7 +1,8 @@
-﻿using MediatR;
+using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 
+
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.ProductCategory.Command.Delete
 {
     public class DeleteProductCategoryCommandHandler
@@ -30,3 +31,5 @@ namespace OnlineShop.Application.Features.ProductCategory.Command.Delete
         }
     }
 }
+
+

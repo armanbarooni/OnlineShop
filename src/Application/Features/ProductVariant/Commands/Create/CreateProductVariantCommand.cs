@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.ProductVariant.Commands.Create
         public CreateProductVariantDto ProductVariant { get; set; } = null!;
     }
 }
+

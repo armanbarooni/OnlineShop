@@ -8,3 +8,4 @@ namespace OnlineShop.Application.Features.SavedCart.Command.Delete
         public Guid Id { get; set; }
     }
 }
+

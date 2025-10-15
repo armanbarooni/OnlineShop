@@ -1,10 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.Wishlist;
 using OnlineShop.Domain.Entities;
-using OnlineShop.Infrastructure.Persistence.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 
 namespace OnlineShop.Application.Features.Wishlist.Command.Create
 {
@@ -40,3 +40,4 @@ namespace OnlineShop.Application.Features.Wishlist.Command.Create
         }
     }
 }
+

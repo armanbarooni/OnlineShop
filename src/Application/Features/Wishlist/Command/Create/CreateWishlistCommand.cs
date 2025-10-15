@@ -10,3 +10,4 @@ namespace OnlineShop.Application.Features.Wishlist.Command.Create
         public Guid UserId { get; set; }
     }
 }
+

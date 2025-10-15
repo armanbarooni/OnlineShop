@@ -1,5 +1,5 @@
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Domain.Entities;
+using OnlineShop.Domain.Interfaces.Repositories;
 
 namespace OnlineShop.Application.Services
 {

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.DTOs.Unit;
 using System;
@@ -14,3 +14,4 @@ namespace OnlineShop.Application.Features.Unit.Command.Update
         public UpdateUnitDto? UnitDto { get; set; }
     }
 }
+

@@ -1,11 +1,12 @@
 using MediatR;
 using Microsoft.Extensions.Options;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Application.DTOs.Auth;
 using OnlineShop.Domain.Entities;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
 {
     public class SendOtpCommandHandler : IRequestHandler<SendOtpCommand, Result<OtpResponseDto>>
@@ -75,4 +76,6 @@ namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
         }
     }
 }
+
+
 

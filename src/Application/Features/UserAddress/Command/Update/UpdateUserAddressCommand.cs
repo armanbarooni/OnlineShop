@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.UserAddress.Command.Update
         public UpdateUserAddressDto? UserAddress { get; set; }
     }
 }
+

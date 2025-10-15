@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.UserProfile.Command.Create
         public CreateUserProfileDto? UserProfile { get; set; }
     }
 }
+

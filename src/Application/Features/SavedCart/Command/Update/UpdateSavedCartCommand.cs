@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.SavedCart.Command.Update
         public UpdateSavedCartDto SavedCart { get; set; } = null!;
     }
 }
+

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -56,6 +56,22 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .Include(p => p.ProductMaterials).ThenInclude(pm => pm.Material)
                 .Include(p => p.ProductSeasons).ThenInclude(ps => ps.Season)
                 .Include(p => p.ProductReviews)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<IEnumerable<Product>> GetByIdsWithIncludesAsync(List<Guid> ids, CancellationToken cancellationToken)
+        {
+            return await _context.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Unit)
+                .Include(p => p.ProductImages.OrderBy(i => i.DisplayOrder))
+                .Include(p => p.ProductVariants.OrderBy(v => v.DisplayOrder))
+                .Include(p => p.ProductMaterials).ThenInclude(pm => pm.Material)
+                .Include(p => p.ProductSeasons).ThenInclude(ps => ps.Season)
+                .Include(p => p.ProductReviews)
+                .Where(p => ids.Contains(p.Id))
                 .ToListAsync(cancellationToken);
         }
 

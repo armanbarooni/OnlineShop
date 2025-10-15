@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.MahakMapping;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.MahakMapping.Queries.GetById
 {
     public class GetMahakMappingByIdQueryHandler(
@@ -29,4 +30,6 @@ namespace OnlineShop.Application.Features.MahakMapping.Queries.GetById
         }
     }
 }
+
+
 

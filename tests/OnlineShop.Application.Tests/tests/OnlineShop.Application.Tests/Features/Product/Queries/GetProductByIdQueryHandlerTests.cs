@@ -1,13 +1,14 @@
-﻿// GetProductByIdQueryHandlerTests.cs
+// GetProductByIdQueryHandlerTests.cs
 using Xunit;
 using Moq;
 using FluentAssertions;
 using AutoMapper;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 using OnlineShop.Application.Features.Product.Queries.GetById;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.DTOs.Product;
 using OnlineShop.Application.Tests.TestHelpers;
-using OnlineShop.Infrastructure.Persistence.Repositories;
 using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
@@ -16,13 +17,21 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
     {
         private readonly Mock<IProductRepository> _mockRepository;
         private readonly Mock<IMapper> _mockMapper;
+        private readonly Mock<IMediator> _mockMediator;
+        private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
         private readonly GetProductByIdQueryHandler _handler;
 
         public GetProductByIdQueryHandlerTests()
         {
             _mockRepository = new Mock<IProductRepository>();
             _mockMapper = new Mock<IMapper>();
-            _handler = new GetProductByIdQueryHandler(_mockRepository.Object, _mockMapper.Object);
+            _mockMediator = new Mock<IMediator>();
+            _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            _handler = new GetProductByIdQueryHandler(
+                _mockRepository.Object, 
+                _mockMapper.Object,
+                _mockMediator.Object,
+                _mockHttpContextAccessor.Object);
         }
 
         [Fact]
@@ -79,7 +88,7 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.ErrorMessage.Should().NotBeNullOrEmpty(); // استفاده از ErrorMessage
+            result.ErrorMessage.Should().NotBeNullOrEmpty(); // ������� �� ErrorMessage
             result.ErrorMessage.Should().Contain("not found");
 
             _mockRepository.Verify(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
@@ -97,7 +106,7 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.ErrorMessage.Should().NotBeNullOrEmpty(); // استفاده از ErrorMessage
+            result.ErrorMessage.Should().NotBeNullOrEmpty(); // ������� �� ErrorMessage
         }
     }
 }

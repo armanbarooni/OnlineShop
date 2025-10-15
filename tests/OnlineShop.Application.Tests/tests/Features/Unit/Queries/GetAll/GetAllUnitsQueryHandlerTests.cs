@@ -1,7 +1,7 @@
 using AutoMapper;
 using FluentAssertions;
 using Moq;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.DTOs.Unit;
 using OnlineShop.Application.Features.Unit.Queries.GetAll;
 using OnlineShop.Domain.Entities;

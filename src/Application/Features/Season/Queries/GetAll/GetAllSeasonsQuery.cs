@@ -6,3 +6,4 @@ namespace OnlineShop.Application.Features.Season.Queries.GetAll
 {
     public record GetAllSeasonsQuery : IRequest<Result<List<SeasonDto>>>;
 }
+

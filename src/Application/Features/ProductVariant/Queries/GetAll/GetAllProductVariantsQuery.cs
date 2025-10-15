@@ -6,3 +6,4 @@ namespace OnlineShop.Application.Features.ProductVariant.Queries.GetAll
 {
     public record GetAllProductVariantsQuery : IRequest<Result<List<ProductVariantDto>>>;
 }
+

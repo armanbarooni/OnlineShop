@@ -1,16 +1,16 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FluentAssertions;
 using Moq;
 using OnlineShop.Application.DTOs.Product;
 using OnlineShop.Application.Features.Product.Queries.GetAll;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using OnlineShop.Infrastructure.Persistence.Repositories;
+
 using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Application.Tests.Features.Product.Queries.GetAll

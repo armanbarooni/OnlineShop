@@ -1,10 +1,11 @@
-ï»¿using MediatR;
+using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.Unit.Command.Delete
 {
     public class DeleteUnitCommandHandler(IUnitRepository unitRepository) : IRequestHandler<DeleteUnitCommand, Result<bool>>
@@ -13,12 +14,12 @@ namespace OnlineShop.Application.Features.Unit.Command.Delete
         {
 
             if (request.Id == Guid.Empty)
-                return Result<bool>.Failure("Ø´Ù†Ø§Ø³Ù‡ ÙˆØ§Ø­Ø¯ Ù…Ø¹ØªØ¨Ø± Ù†ÛŒØ³Øª.");
+                return Result<bool>.Failure("ÔäÇÓå æÇÍÏ ãÚÊÈÑ äíÓÊ.");
 
 
             var entity = await unitRepository.GetByIdAsync(request.Id, cancellationToken);
             if (entity == null)
-                return Result<bool>.Failure("ÙˆØ§Ø­Ø¯ Ù…ÙˆØ±Ø¯ Ù†Ø¸Ø± Ù¾ÛŒØ¯Ø§ Ù†Ø´Ø¯.");
+                return Result<bool>.Failure("æÇÍÏ ãæÑÏ äÙÑ íÏÇ äÔÏ.");
 
             entity.Delete(null);
 
@@ -28,3 +29,4 @@ namespace OnlineShop.Application.Features.Unit.Command.Delete
         }
     }
 }
+

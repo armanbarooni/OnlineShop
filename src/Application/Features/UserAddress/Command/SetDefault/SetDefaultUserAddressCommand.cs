@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.UserAddress.Command.SetDefault
         public Guid AddressId { get; set; }
     }
 }
+

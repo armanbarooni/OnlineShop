@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Domain.Common;
@@ -50,7 +50,11 @@ namespace OnlineShop.Infrastructure.Persistence
         public DbSet<Material> Materials { get; set; }
         public DbSet<Season> Seasons { get; set; }
         public DbSet<ProductMaterial> ProductMaterials { get; set; }
-        public DbSet<ProductSeason> ProductSeasons { get; set; }  
+        public DbSet<ProductSeason> ProductSeasons { get; set; }
+        
+        // Phase 5 - Related Products & Recommendations
+        public DbSet<ProductRelation> ProductRelations { get; set; }
+        public DbSet<UserProductView> UserProductViews { get; set; }  
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

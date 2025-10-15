@@ -1,9 +1,10 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.Unit;
 using OnlineShop.Application.Exceptions;
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.Unit.Queries.GetById
 {
     public class GetUnitByIdQueryHandler : IRequestHandler<GetUnitByIdQuery, Result<UnitDetailsDto>>
@@ -30,3 +31,4 @@ namespace OnlineShop.Application.Features.Unit.Queries.GetById
 
     }
 }
+

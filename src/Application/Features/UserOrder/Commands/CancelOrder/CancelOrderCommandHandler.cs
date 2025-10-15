@@ -1,10 +1,11 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.UserOrder;
 using OnlineShop.Application.Services;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.UserOrder.Commands.CancelOrder
 {
     public class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Result<UserOrderDto>>
@@ -48,4 +49,6 @@ namespace OnlineShop.Application.Features.UserOrder.Commands.CancelOrder
         }
     }
 }
+
+
 

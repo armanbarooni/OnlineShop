@@ -1,7 +1,7 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.DTOs.Brand;
 
 namespace OnlineShop.Application.Features.Brand.Commands.Create
@@ -40,4 +40,5 @@ namespace OnlineShop.Application.Features.Brand.Commands.Create
         }
     }
 }
+
 

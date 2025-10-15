@@ -11,3 +11,4 @@ namespace OnlineShop.Application.Features.ProductReview.Command.Reject
         public string? AdminNotes { get; set; }
     }
 }
+

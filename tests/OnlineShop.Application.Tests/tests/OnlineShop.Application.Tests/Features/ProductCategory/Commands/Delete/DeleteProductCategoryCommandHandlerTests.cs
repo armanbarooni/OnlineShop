@@ -1,5 +1,5 @@
-ï»¿using Moq;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using Moq;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.Features.ProductCategory.Command.Delete;
 using OnlineShop.Domain.Entities;
 using Xunit;
@@ -96,7 +96,7 @@ namespace OnlineShop.Tests.Features.ProductCategory.Commands
 
             var command = new DeleteProductCategoryCommand { Id = productCategoryId };
 
-            // Repository ÙÛŒÙ„ØªØ± Ù…ÛŒâ€ŒÚ©Ù†Ø¯ØŒ Ù¾Ø³ already deleted item Ø¨Ø±Ù†Ù…ÛŒâ€ŒÚ¯Ø±Ø¯Ø§Ù†Ø¯
+            // Repository ÝíáÊÑ ãí˜äÏ¡ Ó already deleted item ÈÑäãíÑÏÇäÏ
             _mockRepository
                 .Setup(r => r.GetByIdAsync(productCategoryId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Domain.Entities.ProductCategory)null!);

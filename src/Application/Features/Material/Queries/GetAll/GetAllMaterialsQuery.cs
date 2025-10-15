@@ -6,3 +6,4 @@ namespace OnlineShop.Application.Features.Material.Queries.GetAll
 {
     public record GetAllMaterialsQuery : IRequest<Result<List<MaterialDto>>>;
 }
+

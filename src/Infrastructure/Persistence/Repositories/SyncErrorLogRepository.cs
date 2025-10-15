@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Infrastructure.Persistence;
 

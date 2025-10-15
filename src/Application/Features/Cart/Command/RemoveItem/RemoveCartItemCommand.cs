@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.Cart.Command.RemoveItem
         public Guid ProductId { get; set; }
     }
 }
+

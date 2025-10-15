@@ -1,8 +1,8 @@
-ï»¿using Xunit;
+using Xunit;
 using Moq;
 using FluentAssertions;
 using OnlineShop.Application.Features.Unit.Command.Delete;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.Application.Tests.Features.Unit.Commands
@@ -60,7 +60,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.ErrorMessage.Should().Contain("ÙˆØ§Ø­Ø¯ Ù…ÙˆØ±Ø¯ Ù†Ø¸Ø± Ù¾ÛŒØ¯Ø§ Ù†Ø´Ø¯.");
+            result.ErrorMessage.Should().Contain("æÇÍÏ ãæÑÏ äÙÑ íÏÇ äÔÏ.");
 
             _mockRepository.Verify(r => r.GetByIdAsync(unitId, It.IsAny<CancellationToken>()), Times.Once);
             _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -77,7 +77,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.ErrorMessage.Should().Contain("Ø´Ù†Ø§Ø³Ù‡ ÙˆØ§Ø­Ø¯ Ù…Ø¹ØªØ¨Ø± Ù†ÛŒØ³Øª.");
+            result.ErrorMessage.Should().Contain("ÔäÇÓå æÇÍÏ ãÚÊÈÑ äíÓÊ.");
 
             _mockRepository.Verify(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
             _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);

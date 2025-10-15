@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.Season.Commands.Update
         public UpdateSeasonDto Season { get; set; } = null!;
     }
 }
+

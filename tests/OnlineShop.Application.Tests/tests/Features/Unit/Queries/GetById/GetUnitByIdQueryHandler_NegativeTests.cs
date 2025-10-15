@@ -2,7 +2,7 @@ using AutoMapper;
 using FluentAssertions;
 using Moq;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.Features.Unit.Queries.GetById;
 using Xunit;
 

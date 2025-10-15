@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.UserOrder.Queries.GetByUserId
         public Guid UserId { get; set; }
     }
 }
+

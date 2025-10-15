@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.ProductImage;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.ProductImage.Queries.GetById
 {
     public class GetProductImageByIdQueryHandler : IRequestHandler<GetProductImageByIdQuery, Result<ProductImageDto>>
@@ -27,3 +28,5 @@ namespace OnlineShop.Application.Features.ProductImage.Queries.GetById
         }
     }
 }
+
+

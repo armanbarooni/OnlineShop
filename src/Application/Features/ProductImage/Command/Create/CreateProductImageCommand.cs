@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.ProductImage.Command.Create
         public CreateProductImageDto ProductImage { get; set; } = null!;
     }
 }
+

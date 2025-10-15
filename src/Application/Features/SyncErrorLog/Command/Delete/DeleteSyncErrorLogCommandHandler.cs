@@ -1,7 +1,8 @@
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 
+
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.SyncErrorLog.Command.Delete
 {
     public class DeleteSyncErrorLogCommandHandler(ISyncErrorLogRepository repository)
@@ -28,4 +29,6 @@ namespace OnlineShop.Application.Features.SyncErrorLog.Command.Delete
         }
     }
 }
+
+
 

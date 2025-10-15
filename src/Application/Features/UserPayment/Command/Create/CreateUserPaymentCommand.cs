@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.UserPayment.Command.Create
         public CreateUserPaymentDto UserPayment { get; set; } = null!;
     }
 }
+

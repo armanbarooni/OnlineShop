@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.MahakQueue;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.MahakQueue.Queries.GetAll
 {
     public class GetAllMahakQueuesQueryHandler(
@@ -25,4 +26,6 @@ namespace OnlineShop.Application.Features.MahakQueue.Queries.GetAll
         }
     }
 }
+
+
 

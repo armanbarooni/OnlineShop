@@ -1,7 +1,8 @@
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 
+
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.SavedCart.Command.Delete
 {
     public class DeleteSavedCartCommandHandler : IRequestHandler<DeleteSavedCartCommand, Result<bool>>
@@ -24,3 +25,5 @@ namespace OnlineShop.Application.Features.SavedCart.Command.Delete
         }
     }
 }
+
+

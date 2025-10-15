@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.MahakMapping;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.MahakMapping.Command.Update
 {
     public class UpdateMahakMappingCommandHandler(
@@ -39,4 +40,6 @@ namespace OnlineShop.Application.Features.MahakMapping.Command.Update
         }
     }
 }
+
+
 

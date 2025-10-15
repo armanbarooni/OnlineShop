@@ -1,13 +1,13 @@
-ï»¿using Xunit;
+using Xunit;
 using Moq;
 using OnlineShop.Application.Features.Product.Command.Delete;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Application.Exceptions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OnlineShop.Infrastructure.Persistence.Repositories;
+
 using FluentAssertions;
 
 namespace OnlineShop.UnitTests.Application.Features.Product.Commands.Delete
@@ -38,7 +38,7 @@ namespace OnlineShop.UnitTests.Application.Features.Product.Commands.Delete
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.ErrorMessage.Should().Contain("Product not found"); // Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø§Ø² Error Ø¨Ù‡ Ø¬Ø§ÛŒ Message
+            result.ErrorMessage.Should().Contain("Product not found"); // ÇÓÊÝÇÏå ÇÒ Error Èå ÌÇí Message
 
             _mockProductRepository.Verify(x => x.GetByIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
             _mockProductRepository.Verify(x => x.UpdateAsync(It.IsAny<OnlineShop.Domain.Entities.Product>(), It.IsAny<CancellationToken>()), Times.Never);

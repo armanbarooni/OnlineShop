@@ -1,9 +1,9 @@
-﻿using Xunit;
+using Xunit;
 using Moq;
 using FluentAssertions;
 using AutoMapper;
 using OnlineShop.Application.Features.Unit.Command.Update;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.DTOs.Unit;
 using OnlineShop.Domain.Entities;
 

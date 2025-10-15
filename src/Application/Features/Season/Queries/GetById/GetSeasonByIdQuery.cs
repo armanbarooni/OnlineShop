@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.Season.Queries.GetById
         public Guid Id { get; set; }
     }
 }
+

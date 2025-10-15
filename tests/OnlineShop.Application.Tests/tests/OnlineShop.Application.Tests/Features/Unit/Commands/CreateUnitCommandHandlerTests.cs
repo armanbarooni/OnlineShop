@@ -1,9 +1,9 @@
-ï»¿using Xunit;
+using Xunit;
 using Moq;
 using FluentAssertions;
 using AutoMapper;
 using OnlineShop.Application.Features.Unit.Command.Create;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.DTOs.Unit;
 using OnlineShop.Domain.Entities;
 
@@ -37,7 +37,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
                 UnitDto = createDto
             };
 
-            // âœ… Ø§ÛŒØ¬Ø§Ø¯ entity Ø¨Ø¯ÙˆÙ† Ø¯Ø³ØªÚ©Ø§Ø±ÛŒ ID
+            // ? ÇíÌÇÏ entity ÈÏæä ÏÓÊ˜ÇÑí ID
             var unitEntity = OnlineShop.Domain.Entities.Unit.Create(
                 unitCode: 1,
                 name: "Kilogram",
@@ -61,7 +61,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
-            // âœ… Ø­Ø°Ù Ú†Ú© ID - Ù…Ù…Ú©Ù† Ø§Ø³Øª handler ID Ø±Ø§ Ø§Ø² Ø¬Ø§ÛŒ Ø¯ÛŒÚ¯Ø±ÛŒ Ø¨Ú¯ÛŒØ±Ø¯
+            // ? ÍĞİ ˜ ID - ãã˜ä ÇÓÊ handler ID ÑÇ ÇÒ ÌÇí ÏíÑí ÈíÑÏ
             // result.Data.Should().NotBe(Guid.Empty);
 
             _mockRepository.Verify(r => r.ExistsByNameAsync("Kilogram", It.IsAny<CancellationToken>()), Times.Once);
@@ -94,7 +94,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
             result.ErrorMessage.Should().NotBeNullOrEmpty();
-            result.ErrorMessage.Should().Contain("ÙˆØ§Ø­Ø¯ÛŒ Ø¨Ø§ Ø§ÛŒÙ† Ù†Ø§Ù… Ù‚Ø¨Ù„Ø§Ù‹ Ø«Ø¨Øª Ø´Ø¯Ù‡ Ø§Ø³Øª");
+            result.ErrorMessage.Should().Contain("æÇÍÏí ÈÇ Çíä äÇã ŞÈáÇğ ËÈÊ ÔÏå ÇÓÊ");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync("Kilogram", It.IsAny<CancellationToken>()), Times.Once);
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -117,7 +117,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
             result.ErrorMessage.Should().NotBeNullOrEmpty();
-            result.ErrorMessage.Should().Contain("Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ù†Ù…ÛŒ ØªÙˆØ§Ù†Ø¯ Ø®Ø§Ù„ÛŒ Ø¨Ø§Ø´Ø¯");
+            result.ErrorMessage.Should().Contain("ÏÑÎæÇÓÊ äãí ÊæÇäÏ ÎÇáí ÈÇÔÏ");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -145,7 +145,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
             result.ErrorMessage.Should().NotBeNullOrEmpty();
-            result.ErrorMessage.Should().Contain("Ù†Ø§Ù… ÙˆØ§Ø­Ø¯ Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ø®Ø§Ù„ÛŒ Ø¨Ø§Ø´Ø¯");
+            result.ErrorMessage.Should().Contain("äÇã æÇÍÏ äãíÊæÇäÏ ÎÇáí ÈÇÔÏ");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -157,7 +157,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             // Arrange
             var createDto = new CreateUnitDto
             {
-                Name = "   ", // ÙÙ‚Ø· ÙØ§ØµÙ„Ù‡
+                Name = "   ", // İŞØ İÇÕáå
                 Comment = "Weight unit"
             };
 
@@ -173,7 +173,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
             result.ErrorMessage.Should().NotBeNullOrEmpty();
-            result.ErrorMessage.Should().Contain("Ù†Ø§Ù… ÙˆØ§Ø­Ø¯ Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ø®Ø§Ù„ÛŒ Ø¨Ø§Ø´Ø¯");
+            result.ErrorMessage.Should().Contain("äÇã æÇÍÏ äãíÊæÇäÏ ÎÇáí ÈÇÔÏ");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -198,7 +198,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
                 .ThrowsAsync(new Exception("Database connection failed"));
 
             // Act & Assert
-            // âœ… Ø§Ú¯Ø± handler exception Ø±Ø§ catch Ù†Ù…ÛŒâ€ŒÚ©Ù†Ø¯ØŒ Ø§Ù†ØªØ¸Ø§Ø± throw Ø´Ø¯Ù† Ø¢Ù† Ø±Ø§ Ø¯Ø§Ø±ÛŒÙ…
+            // ? ÇÑ handler exception ÑÇ catch äãí˜äÏ¡ ÇäÊÙÇÑ throw ÔÏä Âä ÑÇ ÏÇÑíã
             var exception = await Assert.ThrowsAsync<Exception>(
                 () => _handler.Handle(command, CancellationToken.None));
 

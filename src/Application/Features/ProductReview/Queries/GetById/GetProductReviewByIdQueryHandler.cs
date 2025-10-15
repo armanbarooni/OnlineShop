@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.ProductReview;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.ProductReview.Queries.GetById
 {
     public class GetProductReviewByIdQueryHandler(
@@ -29,4 +30,6 @@ namespace OnlineShop.Application.Features.ProductReview.Queries.GetById
         }
     }
 }
+
+
 

@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.ProductDetail.Command.Create
         public CreateProductDetailDto? ProductDetail { get; set; }
     }
 }
+

@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.SavedCart;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.SavedCart.Queries.GetById
 {
     public class GetSavedCartByIdQueryHandler : IRequestHandler<GetSavedCartByIdQuery, Result<SavedCartDto>>
@@ -27,3 +28,5 @@ namespace OnlineShop.Application.Features.SavedCart.Queries.GetById
         }
     }
 }
+
+

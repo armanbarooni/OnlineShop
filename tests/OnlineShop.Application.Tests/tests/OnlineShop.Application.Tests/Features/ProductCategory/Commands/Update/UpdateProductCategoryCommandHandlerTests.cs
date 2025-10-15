@@ -1,5 +1,5 @@
-ï»¿using Moq;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using Moq;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.Features.ProductCategory.Command.Update;
 using OnlineShop.Application.DTOs.ProductCategory;
 using OnlineShop.Domain.Entities;
@@ -64,7 +64,7 @@ namespace OnlineShop.Tests.Features.ProductCategory.Commands
             Assert.NotNull(result.Data);
             Assert.Equal("Updated Electronics", result.Data.Name);
             Assert.Equal("Updated description", result.Data.Description);
-            // Ø§ÛŒÙ† ÙÛŒÙ„Ø¯Ù‡Ø§ Ø¨Ø§ÛŒØ¯ Ø¨Ø¯ÙˆÙ† ØªØºÛŒÛŒØ± Ø¨Ø§Ù‚ÛŒ Ø¨Ù…Ø§Ù†Ù†Ø¯
+            // Çíä ÝíáÏåÇ ÈÇíÏ ÈÏæä ÊÛííÑ ÈÇÞí ÈãÇääÏ
             Assert.Equal(100, result.Data.MahakClientId);
             Assert.Equal(1001, result.Data.MahakId);
         }
@@ -149,7 +149,7 @@ namespace OnlineShop.Tests.Features.ProductCategory.Commands
             Assert.NotNull(capturedEntity);
             Assert.Equal("Updated Books", capturedEntity.Name);
             Assert.Equal("Updated books description", capturedEntity.Description);
-            // ÙÛŒÙ„Ø¯Ù‡Ø§ÛŒ Mahak Ø¨Ø§ÛŒØ¯ Ø¨Ø¯ÙˆÙ† ØªØºÛŒÛŒØ± Ø¨Ø§Ø´Ù†Ø¯
+            // ÝíáÏåÇí Mahak ÈÇíÏ ÈÏæä ÊÛííÑ ÈÇÔäÏ
             Assert.Equal(originalMahakClientId, capturedEntity.MahakClientId);
             Assert.Equal(originalMahakId, capturedEntity.MahakId);
             _mockRepository.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.ProductCategory>(), It.IsAny<CancellationToken>()), Times.Once);

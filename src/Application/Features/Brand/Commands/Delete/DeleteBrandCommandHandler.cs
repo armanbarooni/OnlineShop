@@ -1,7 +1,8 @@
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 
+
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.Brand.Commands.Delete
 {
     public class DeleteBrandCommandHandler : IRequestHandler<DeleteBrandCommand, Result<bool>>
@@ -24,4 +25,6 @@ namespace OnlineShop.Application.Features.Brand.Commands.Delete
         }
     }
 }
+
+
 

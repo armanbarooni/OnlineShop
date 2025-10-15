@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.ProductInventory.Command.Update
         public UpdateProductInventoryDto? ProductInventory { get; set; }
     }
 }
+

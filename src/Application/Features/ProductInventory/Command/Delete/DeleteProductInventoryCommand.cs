@@ -8,3 +8,4 @@ namespace OnlineShop.Application.Features.ProductInventory.Command.Delete
         public Guid Id { get; set; }
     }
 }
+

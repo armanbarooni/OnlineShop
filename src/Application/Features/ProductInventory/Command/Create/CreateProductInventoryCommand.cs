@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.ProductInventory.Command.Create
         public CreateProductInventoryDto? ProductInventory { get; set; }
     }
 }
+

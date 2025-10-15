@@ -1,12 +1,13 @@
-ï»¿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Domain.Entities;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.Unit.Command.Update
 {
     public class UpdateUnitCommandHandler : IRequestHandler<UpdateUnitCommand, Result<bool>>
@@ -24,21 +25,21 @@ namespace OnlineShop.Application.Features.Unit.Command.Update
         {
 
             if (request.UnitDto == null)
-                return Result<bool>.Failure("Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ø®Ø§Ù„ÛŒ Ø¨Ø§Ø´Ø¯.");
+                return Result<bool>.Failure("ÏÑÎæÇÓÊ äãíÊæÇäÏ ÎÇáí ÈÇÔÏ.");
 
             if (request.UnitDto.Id == Guid.Empty)
-                return Result<bool>.Failure("Ø´Ù†Ø§Ø³Ù‡ ÙˆØ§Ø­Ø¯ Ù…Ø¹ØªØ¨Ø± Ù†ÛŒØ³Øª.");
+                return Result<bool>.Failure("ÔäÇÓå æÇÍÏ ãÚÊÈÑ äíÓÊ.");
 
             if (string.IsNullOrWhiteSpace(request.UnitDto.Name))
-                return Result<bool>.Failure("Ù†Ø§Ù… ÙˆØ§Ø­Ø¯ Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ø®Ø§Ù„ÛŒ Ø¨Ø§Ø´Ø¯.");
+                return Result<bool>.Failure("äÇã æÇÍÏ äãíÊæÇäÏ ÎÇáí ÈÇÔÏ.");
 
             var entity = await _unitRepository.GetByIdAsync(request.UnitDto.Id, cancellationToken);
             if (entity == null)
-                return Result<bool>.Failure("ÙˆØ§Ø­Ø¯ Ù…ÙˆØ±Ø¯ Ù†Ø¸Ø± Ù¾ÛŒØ¯Ø§ Ù†Ø´Ø¯.");
+                return Result<bool>.Failure("æÇÍÏ ãæÑÏ äÙÑ íÏÇ äÔÏ.");
 
             var nameExists = await _unitRepository.ExistsByNameAsync(request.UnitDto.Name, cancellationToken);
             if (nameExists)
-                return Result<bool>.Failure("ÙˆØ§Ø­Ø¯ÛŒ Ø¨Ø§ Ø§ÛŒÙ† Ù†Ø§Ù… Ù‚Ø¨Ù„Ø§Ù‹ Ø«Ø¨Øª Ø´Ø¯Ù‡ Ø§Ø³Øª.");
+                return Result<bool>.Failure("æÇÍÏí ÈÇ Çíä äÇã ŞÈáÇğ ËÈÊ ÔÏå ÇÓÊ.");
 
 
             entity.Update(request.UnitDto.Name, request.UnitDto.Comment, null);
@@ -48,3 +49,4 @@ namespace OnlineShop.Application.Features.Unit.Command.Update
         }
     }
 }
+

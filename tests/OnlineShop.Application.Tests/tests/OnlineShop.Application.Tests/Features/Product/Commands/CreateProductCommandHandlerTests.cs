@@ -1,14 +1,14 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FluentAssertions;
 using Moq;
 using OnlineShop.Application.DTOs.Product;
 using OnlineShop.Application.Features.Product.Command.Create;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using OnlineShop.Infrastructure.Persistence.Repositories;
+
 
 namespace OnlineShop.Tests.Application.Features.Product.Command.Create
 {

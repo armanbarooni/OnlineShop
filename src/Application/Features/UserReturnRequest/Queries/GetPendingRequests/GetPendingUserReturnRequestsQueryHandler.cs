@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.UserReturnRequest;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.UserReturnRequest.Queries.GetPendingRequests
 {
     public class GetPendingUserReturnRequestsQueryHandler(
@@ -25,4 +26,6 @@ namespace OnlineShop.Application.Features.UserReturnRequest.Queries.GetPendingRe
         }
     }
 }
+
+
 

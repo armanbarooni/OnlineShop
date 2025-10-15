@@ -10,3 +10,4 @@ namespace OnlineShop.Application.Features.MahakQueue.Command.Create
     }
 }
 
+

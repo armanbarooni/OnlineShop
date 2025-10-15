@@ -1,11 +1,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Application.DTOs.Auth;
 using OnlineShop.Domain.Entities;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.Auth.Commands.LoginWithPhone
 {
     public class LoginWithPhoneCommandHandler : IRequestHandler<LoginWithPhoneCommand, Result<AuthResponseDto>>
@@ -57,4 +58,6 @@ namespace OnlineShop.Application.Features.Auth.Commands.LoginWithPhone
         }
     }
 }
+
+
 

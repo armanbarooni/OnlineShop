@@ -20,6 +20,9 @@ namespace OnlineShop.Application.Common
             var mapperConfig = new MapperConfiguration(cfg =>
             {
                 cfg.AddMaps(typeof(AssemblyReference).Assembly);
+                // Add new mapping profiles for Phase 5
+                cfg.AddProfile<OnlineShop.Application.Mapping.ProductRelationProfile>();
+                cfg.AddProfile<OnlineShop.Application.Mapping.UserProductViewProfile>();
             });
             services.AddSingleton<IMapper>(mapperConfig.CreateMapper());
 

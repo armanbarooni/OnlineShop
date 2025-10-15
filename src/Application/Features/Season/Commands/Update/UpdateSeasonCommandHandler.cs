@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.Season;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.Season.Commands.Update
 {
     public class UpdateSeasonCommandHandler : IRequestHandler<UpdateSeasonCommand, Result<SeasonDto>>
@@ -55,3 +56,5 @@ namespace OnlineShop.Application.Features.Season.Commands.Update
         }
     }
 }
+
+

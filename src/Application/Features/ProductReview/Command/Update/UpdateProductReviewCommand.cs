@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.ProductReview.Command.Update
         public UpdateProductReviewDto? ProductReview { get; set; }
     }
 }
+

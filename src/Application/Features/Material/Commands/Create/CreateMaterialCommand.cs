@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.Material.Commands.Create
         public CreateMaterialDto Material { get; set; } = null!;
     }
 }
+

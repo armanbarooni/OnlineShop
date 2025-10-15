@@ -10,3 +10,4 @@ namespace OnlineShop.Application.Features.ProductReview.Command.Create
         public Guid UserId { get; set; }
     }
 }
+

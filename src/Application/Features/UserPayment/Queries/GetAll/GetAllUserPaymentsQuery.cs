@@ -8,3 +8,4 @@ namespace OnlineShop.Application.Features.UserPayment.Queries.GetAll
     {
     }
 }
+

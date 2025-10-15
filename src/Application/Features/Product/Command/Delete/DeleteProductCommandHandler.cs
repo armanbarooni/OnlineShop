@@ -1,6 +1,6 @@
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Infrastructure.Persistence.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using System.Threading;
 using System.Threading.Tasks;
 

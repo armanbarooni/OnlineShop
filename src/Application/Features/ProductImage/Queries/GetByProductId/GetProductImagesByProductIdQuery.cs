@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.ProductImage.Queries.GetByProductId
         public Guid ProductId { get; set; }
     }
 }
+

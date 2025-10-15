@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.Cart.Command.UpdateItem
         public UpdateCartItemDto? CartItem { get; set; }
     }
 }
+

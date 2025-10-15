@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.SyncErrorLog;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.SyncErrorLog.Command.Create
 {
     public class CreateSyncErrorLogCommandHandler(
@@ -38,4 +39,6 @@ namespace OnlineShop.Application.Features.SyncErrorLog.Command.Create
         }
     }
 }
+
+
 

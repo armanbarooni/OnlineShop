@@ -5,3 +5,4 @@ namespace OnlineShop.Application.Features.Material.Commands.Delete
 {
     public record DeleteMaterialCommand(Guid Id) : IRequest<Result<bool>>;
 }
+

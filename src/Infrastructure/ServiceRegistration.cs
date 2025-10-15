@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Infrastructure.Persistence;
@@ -84,6 +84,10 @@ public static class ServiceRegistration
         services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<IMaterialRepository, MaterialRepository>();
         services.AddScoped<ISeasonRepository, SeasonRepository>();
+        
+        // Phase 5 - Related Products & Recommendations Repositories
+        services.AddScoped<IProductRelationRepository, ProductRelationRepository>();
+        services.AddScoped<IUserProductViewRepository, UserProductViewRepository>();
         
         // Services
         services.AddScoped<ITokenService, TokenService>();

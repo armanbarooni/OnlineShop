@@ -1,5 +1,5 @@
-﻿using Moq;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using Moq;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.DTOs.ProductCategory;
 using OnlineShop.Application.Features.ProductCategory.Command.Create;
 using OnlineShop.Domain.Entities;

@@ -1,7 +1,6 @@
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
-using OnlineShop.Infrastructure.Persistence.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 
 namespace OnlineShop.Application.Features.Cart.Command.RemoveItem
 {
@@ -25,3 +24,4 @@ namespace OnlineShop.Application.Features.Cart.Command.RemoveItem
         }
     }
 }
+

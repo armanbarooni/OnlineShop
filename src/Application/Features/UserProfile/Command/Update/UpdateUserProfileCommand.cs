@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.UserProfile.Command.Update
         public UpdateUserProfileDto? UserProfile { get; set; }
     }
 }
+

@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.Wishlist.Command.Delete
         public Guid ProductId { get; set; }
     }
 }
+

@@ -8,3 +8,4 @@ namespace OnlineShop.Application.Features.UserPayment.Command.Delete
         public Guid Id { get; set; }
     }
 }
+

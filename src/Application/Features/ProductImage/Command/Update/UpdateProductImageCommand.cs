@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.ProductImage.Command.Update
         public UpdateProductImageDto? ProductImage { get; set; }
     }
 }
+

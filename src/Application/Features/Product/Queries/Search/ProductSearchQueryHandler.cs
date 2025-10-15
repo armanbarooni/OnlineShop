@@ -2,10 +2,9 @@ using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.DTOs.Common;
 using OnlineShop.Application.DTOs.Product;
-using OnlineShop.Infrastructure.Persistence.Repositories;
 
 namespace OnlineShop.Application.Features.Product.Queries.Search
 {
@@ -295,4 +294,5 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
         }
     }
 }
+
 

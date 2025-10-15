@@ -1,8 +1,9 @@
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.Auth;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.Auth.Commands.VerifyOtp
 {
     public class VerifyOtpCommandHandler : IRequestHandler<VerifyOtpCommand, Result<OtpResponseDto>>
@@ -57,4 +58,6 @@ namespace OnlineShop.Application.Features.Auth.Commands.VerifyOtp
         }
     }
 }
+
+
 

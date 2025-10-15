@@ -10,3 +10,4 @@ namespace OnlineShop.Application.Features.MahakSyncLog.Queries.GetById
     }
 }
 
+

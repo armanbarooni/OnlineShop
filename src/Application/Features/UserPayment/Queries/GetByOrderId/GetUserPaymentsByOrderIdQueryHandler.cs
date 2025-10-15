@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.UserPayment;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.UserPayment.Queries.GetByOrderId
 {
     public class GetUserPaymentsByOrderIdQueryHandler : IRequestHandler<GetUserPaymentsByOrderIdQuery, Result<IEnumerable<UserPaymentDto>>>
@@ -25,3 +26,5 @@ namespace OnlineShop.Application.Features.UserPayment.Queries.GetByOrderId
         }
     }
 }
+
+

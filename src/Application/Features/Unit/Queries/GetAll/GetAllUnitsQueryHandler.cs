@@ -1,9 +1,10 @@
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.Unit;
 using AutoMapper;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.Unit.Queries.GetAll
 {
     public class GetAllUnitsQueryHandler
@@ -28,3 +29,4 @@ namespace OnlineShop.Application.Features.Unit.Queries.GetAll
         }
     }
 }
+

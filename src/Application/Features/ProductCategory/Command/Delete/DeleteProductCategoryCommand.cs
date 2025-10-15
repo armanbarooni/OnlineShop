@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using OnlineShop.Application.Common.Models;
 
 namespace OnlineShop.Application.Features.ProductCategory.Command.Delete
@@ -8,3 +8,4 @@ namespace OnlineShop.Application.Features.ProductCategory.Command.Delete
         public Guid Id{ get; set; }
     }
 }
+

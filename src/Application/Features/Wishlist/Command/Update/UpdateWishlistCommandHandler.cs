@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.Wishlist;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.Wishlist.Command.Update
 {
     public class UpdateWishlistCommandHandler(
@@ -34,4 +35,6 @@ namespace OnlineShop.Application.Features.Wishlist.Command.Update
         }
     }
 }
+
+
 

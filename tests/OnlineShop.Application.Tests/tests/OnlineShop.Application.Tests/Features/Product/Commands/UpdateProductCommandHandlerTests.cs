@@ -1,14 +1,14 @@
-ï»¿using AutoMapper;
+using AutoMapper;
 using FluentAssertions;
 using Moq;
 using OnlineShop.Application.DTOs.Product;
 using OnlineShop.Application.Features.Product.Command.Update;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using OnlineShop.Domain.Interfaces.Repositories;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using OnlineShop.Infrastructure.Persistence.Repositories;
+
 
 namespace OnlineShop.Tests.Application.Features.Product.Command.Update
 {
@@ -102,7 +102,7 @@ namespace OnlineShop.Tests.Application.Features.Product.Command.Update
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
-            result.ErrorMessage.Should().Be("Product not found"); // ØªØºÛŒÛŒØ± Ø§Ø² Error Ø¨Ù‡ Message
+            result.ErrorMessage.Should().Be("Product not found"); // ÊÛííÑ ÇÒ Error Èå Message
 
             _repositoryMock.Verify(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
             _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Domain.Entities.Product>(), It.IsAny<CancellationToken>()), Times.Never);

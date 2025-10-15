@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.ProductInventory;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.ProductInventory.Queries.GetById
 {
     public class GetProductInventoryByIdQueryHandler : IRequestHandler<GetProductInventoryByIdQuery, Result<ProductInventoryDto>>
@@ -27,3 +28,5 @@ namespace OnlineShop.Application.Features.ProductInventory.Queries.GetById
         }
     }
 }
+
+

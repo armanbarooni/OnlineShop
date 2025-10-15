@@ -1,5 +1,5 @@
-﻿using Moq;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+using Moq;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Application.Features.ProductCategory.Queries.GetById;
 using OnlineShop.Domain.Entities;
 using Xunit;

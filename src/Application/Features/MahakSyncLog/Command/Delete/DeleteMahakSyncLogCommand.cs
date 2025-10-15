@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.MahakSyncLog.Command.Delete
     }
 }
 
+

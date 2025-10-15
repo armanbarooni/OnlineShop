@@ -1,9 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.ProductVariant;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.ProductVariant.Queries.GetByProductId
 {
     public class GetProductVariantsByProductIdQueryHandler : IRequestHandler<GetProductVariantsByProductIdQuery, Result<List<ProductVariantDto>>>
@@ -32,3 +33,5 @@ namespace OnlineShop.Application.Features.ProductVariant.Queries.GetByProductId
         }
     }
 }
+
+

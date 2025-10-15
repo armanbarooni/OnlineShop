@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.SavedCart.Queries.GetFavoriteCarts
         public Guid UserId { get; set; }
     }
 }
+

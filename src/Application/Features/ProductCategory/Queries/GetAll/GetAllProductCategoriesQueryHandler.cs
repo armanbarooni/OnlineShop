@@ -1,8 +1,9 @@
-﻿using MediatR;
+using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
+
 using OnlineShop.Application.DTOs.ProductCategory;
 
+using OnlineShop.Domain.Interfaces.Repositories;
 namespace OnlineShop.Application.Features.ProductCategory.Queries.GetAll
 {
     public class GetAllProductCategoriesQueryHandler
@@ -34,3 +35,5 @@ namespace OnlineShop.Application.Features.ProductCategory.Queries.GetAll
         }
     }
 }
+
+

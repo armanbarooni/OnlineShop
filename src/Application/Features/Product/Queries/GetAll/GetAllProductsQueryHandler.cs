@@ -1,12 +1,11 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-using OnlineShop.Application.Contracts.Persistence.InterFaces.Repositories;
 using OnlineShop.Application.DTOs.Product;
+using OnlineShop.Domain.Interfaces.Repositories;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using OnlineShop.Infrastructure.Persistence.Repositories;
 
 namespace OnlineShop.Application.Features.Product.Queries.GetAll
 {

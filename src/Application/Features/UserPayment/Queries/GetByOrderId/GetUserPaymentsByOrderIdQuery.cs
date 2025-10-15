@@ -9,3 +9,4 @@ namespace OnlineShop.Application.Features.UserPayment.Queries.GetByOrderId
         public Guid OrderId { get; set; }
     }
 }
+
