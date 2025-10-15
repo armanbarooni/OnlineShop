@@ -101,6 +101,7 @@ public static class ServiceRegistration
         
         // Services
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<INotificationService, NotificationService>();
         
         // SMS Service Configuration
         var smsSettings = configuration.GetSection("SmsSettings");

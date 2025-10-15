@@ -1,5 +1,6 @@
 using MediatR;
 using OnlineShop.Application.Common.Models;
+using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Domain.Interfaces.Repositories;
 
@@ -9,13 +10,16 @@ namespace OnlineShop.Application.Features.UserOrder.Commands.UpdateOrderStatus
     {
         private readonly IUserOrderRepository _orderRepository;
         private readonly IOrderStatusHistoryRepository _statusHistoryRepository;
+        private readonly INotificationService _notificationService;
 
         public UpdateOrderStatusCommandHandler(
             IUserOrderRepository orderRepository,
-            IOrderStatusHistoryRepository statusHistoryRepository)
+            IOrderStatusHistoryRepository statusHistoryRepository,
+            INotificationService notificationService)
         {
             _orderRepository = orderRepository;
             _statusHistoryRepository = statusHistoryRepository;
+            _notificationService = notificationService;
         }
 
         public async Task<Result<bool>> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
@@ -48,6 +52,22 @@ namespace OnlineShop.Application.Features.UserOrder.Commands.UpdateOrderStatus
                 request.UpdatedBy
             );
             await _statusHistoryRepository.AddAsync(statusHistory, cancellationToken);
+
+            // Send notification to user
+            try
+            {
+                await _notificationService.SendOrderStatusUpdateAsync(
+                    order.UserId.ToString(),
+                    order.OrderNumber,
+                    newStatus,
+                    order.TrackingNumber,
+                    cancellationToken);
+            }
+            catch (Exception)
+            {
+                // Log error but don't fail the status update
+                // Notification failure shouldn't prevent status update
+            }
 
             return Result<bool>.Success(true);
         }

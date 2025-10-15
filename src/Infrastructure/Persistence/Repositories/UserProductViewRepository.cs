@@ -94,6 +94,82 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             }
         }
 
+        public Task<List<UserProductView>> GetBySessionIdAsync(string sessionId, CancellationToken cancellationToken = default)
+            => _context.UserProductViews
+                .AsNoTracking()
+                .Include(upv => upv.Product)
+                .Where(upv => upv.SessionId == sessionId && !upv.Deleted)
+                .OrderByDescending(upv => upv.ViewedAt)
+                .ToListAsync(cancellationToken);
+
+        public Task<List<UserProductView>> GetByDeviceTypeAsync(string deviceType, int limit = 50, CancellationToken cancellationToken = default)
+            => _context.UserProductViews
+                .AsNoTracking()
+                .Include(upv => upv.Product)
+                .Where(upv => upv.DeviceType == deviceType && !upv.Deleted)
+                .OrderByDescending(upv => upv.ViewedAt)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+        public Task<List<UserProductView>> GetByBrowserAsync(string browser, int limit = 50, CancellationToken cancellationToken = default)
+            => _context.UserProductViews
+                .AsNoTracking()
+                .Include(upv => upv.Product)
+                .Where(upv => upv.Browser == browser && !upv.Deleted)
+                .OrderByDescending(upv => upv.ViewedAt)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+        public Task<List<UserProductView>> GetReturningViewsAsync(string userId, CancellationToken cancellationToken = default)
+            => _context.UserProductViews
+                .AsNoTracking()
+                .Include(upv => upv.Product)
+                .Where(upv => upv.UserId == userId && upv.IsReturningView && !upv.Deleted)
+                .OrderByDescending(upv => upv.ViewedAt)
+                .ToListAsync(cancellationToken);
+
+        public Task<List<UserProductView>> GetLongDurationViewsAsync(int minDurationSeconds = 60, int limit = 50, CancellationToken cancellationToken = default)
+            => _context.UserProductViews
+                .AsNoTracking()
+                .Include(upv => upv.Product)
+                .Where(upv => upv.ViewDuration >= minDurationSeconds && !upv.Deleted)
+                .OrderByDescending(upv => upv.ViewDuration)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+        public async Task<Dictionary<string, int>> GetDeviceTypeStatsAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.UserProductViews
+                .Where(upv => !upv.Deleted && !string.IsNullOrEmpty(upv.DeviceType))
+                .GroupBy(upv => upv.DeviceType)
+                .Select(g => new { DeviceType = g.Key!, Count = g.Count() })
+                .ToDictionaryAsync(x => x.DeviceType, x => x.Count, cancellationToken);
+        }
+
+        public async Task<Dictionary<string, int>> GetBrowserStatsAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.UserProductViews
+                .Where(upv => !upv.Deleted && !string.IsNullOrEmpty(upv.Browser))
+                .GroupBy(upv => upv.Browser)
+                .Select(g => new { Browser = g.Key!, Count = g.Count() })
+                .ToDictionaryAsync(x => x.Browser, x => x.Count, cancellationToken);
+        }
+
+        public async Task<Dictionary<string, int>> GetOperatingSystemStatsAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.UserProductViews
+                .Where(upv => !upv.Deleted && !string.IsNullOrEmpty(upv.OperatingSystem))
+                .GroupBy(upv => upv.OperatingSystem)
+                .Select(g => new { OperatingSystem = g.Key!, Count = g.Count() })
+                .ToDictionaryAsync(x => x.OperatingSystem, x => x.Count, cancellationToken);
+        }
+
+        public async Task<bool> HasUserViewedProductAsync(string userId, Guid productId, CancellationToken cancellationToken = default)
+        {
+            return await _context.UserProductViews
+                .AnyAsync(upv => upv.UserId == userId && upv.ProductId == productId && !upv.Deleted, cancellationToken);
+        }
+
         public async Task DeleteOldViewsAsync(int daysOld = 90, CancellationToken cancellationToken = default)
         {
             var cutoffDate = DateTime.UtcNow.AddDays(-daysOld);

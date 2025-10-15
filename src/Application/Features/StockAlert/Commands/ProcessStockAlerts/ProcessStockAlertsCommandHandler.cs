@@ -1,5 +1,6 @@
 using MediatR;
 using OnlineShop.Application.Common.Models;
+using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Domain.Interfaces.Repositories;
 using System.Linq;
 
@@ -9,13 +10,19 @@ namespace OnlineShop.Application.Features.StockAlert.Commands.ProcessStockAlerts
     {
         private readonly IStockAlertRepository _stockAlertRepository;
         private readonly IProductInventoryRepository _inventoryRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly INotificationService _notificationService;
 
         public ProcessStockAlertsCommandHandler(
             IStockAlertRepository stockAlertRepository,
-            IProductInventoryRepository inventoryRepository)
+            IProductInventoryRepository inventoryRepository,
+            IProductRepository productRepository,
+            INotificationService notificationService)
         {
             _stockAlertRepository = stockAlertRepository;
             _inventoryRepository = inventoryRepository;
+            _productRepository = productRepository;
+            _notificationService = notificationService;
         }
 
         public async Task<Result<int>> Handle(ProcessStockAlertsCommand request, CancellationToken cancellationToken)
@@ -38,13 +45,35 @@ namespace OnlineShop.Application.Features.StockAlert.Commands.ProcessStockAlerts
 
                     if (isInStock)
                     {
-                        // Mark alert as notified
-                        alert.MarkAsNotified("System");
-                        await _stockAlertRepository.UpdateAsync(alert, cancellationToken);
-                        processedCount++;
+                        // Get product name for notification
+                        var product = await _productRepository.GetByIdAsync(alert.ProductId, cancellationToken);
+                        if (product != null)
+                        {
+                            // Send notification
+                            var stockAlertDto = new OnlineShop.Application.DTOs.StockAlert.StockAlertDto
+                            {
+                                Id = alert.Id,
+                                ProductId = alert.ProductId,
+                                ProductVariantId = alert.ProductVariantId,
+                                UserId = alert.UserId,
+                                Email = alert.Email,
+                                PhoneNumber = alert.PhoneNumber,
+                                NotificationMethod = alert.NotificationMethod
+                            };
 
-                        // TODO: Send actual notification (email/SMS)
-                        // This would be implemented with a notification service
+                            var notificationSent = await _notificationService.SendStockAlertNotificationAsync(
+                                stockAlertDto, 
+                                product.Name, 
+                                cancellationToken);
+
+                            if (notificationSent)
+                            {
+                                // Mark alert as notified
+                                alert.MarkAsNotified("System");
+                                await _stockAlertRepository.UpdateAsync(alert, cancellationToken);
+                                processedCount++;
+                            }
+                        }
                     }
                 }
 

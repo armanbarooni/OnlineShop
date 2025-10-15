@@ -14,6 +14,12 @@ namespace OnlineShop.Domain.Entities
         public string? SessionId { get; private set; }
         public string? UserAgent { get; private set; }
         public string? IpAddress { get; private set; }
+        public int ViewDuration { get; private set; } = 0; // Duration in seconds
+        public string? ReferrerUrl { get; private set; }
+        public string? DeviceType { get; private set; } // Mobile, Desktop, Tablet
+        public string? Browser { get; private set; }
+        public string? OperatingSystem { get; private set; }
+        public bool IsReturningView { get; private set; } = false;
 
         // Navigation Properties
         public virtual ApplicationUser User { get; private set; } = null!;
@@ -21,7 +27,8 @@ namespace OnlineShop.Domain.Entities
 
         protected UserProductView() { }
 
-        private UserProductView(string userId, Guid productId, string? sessionId = null, string? userAgent = null, string? ipAddress = null)
+        private UserProductView(string userId, Guid productId, string? sessionId = null, string? userAgent = null, string? ipAddress = null, 
+            string? referrerUrl = null, string? deviceType = null, string? browser = null, string? operatingSystem = null)
         {
             SetUserId(userId);
             SetProductId(productId);
@@ -29,11 +36,16 @@ namespace OnlineShop.Domain.Entities
             SetSessionId(sessionId);
             SetUserAgent(userAgent);
             SetIpAddress(ipAddress);
+            SetReferrerUrl(referrerUrl);
+            SetDeviceType(deviceType);
+            SetBrowser(browser);
+            SetOperatingSystem(operatingSystem);
             Deleted = false;
         }
 
-        public static UserProductView Create(string userId, Guid productId, string? sessionId = null, string? userAgent = null, string? ipAddress = null)
-            => new(userId, productId, sessionId, userAgent, ipAddress);
+        public static UserProductView Create(string userId, Guid productId, string? sessionId = null, string? userAgent = null, string? ipAddress = null,
+            string? referrerUrl = null, string? deviceType = null, string? browser = null, string? operatingSystem = null)
+            => new(userId, productId, sessionId, userAgent, ipAddress, referrerUrl, deviceType, browser, operatingSystem);
 
         public void SetUserId(string userId)
         {
@@ -72,6 +84,52 @@ namespace OnlineShop.Domain.Entities
         public void UpdateViewTime()
         {
             ViewedAt = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetReferrerUrl(string? referrerUrl)
+        {
+            ReferrerUrl = referrerUrl?.Trim();
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetDeviceType(string? deviceType)
+        {
+            DeviceType = deviceType?.Trim();
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetBrowser(string? browser)
+        {
+            Browser = browser?.Trim();
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetOperatingSystem(string? operatingSystem)
+        {
+            OperatingSystem = operatingSystem?.Trim();
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetViewDuration(int durationInSeconds)
+        {
+            if (durationInSeconds < 0)
+                throw new ArgumentException("مدت زمان بازدید نمی‌تواند منفی باشد");
+            ViewDuration = durationInSeconds;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void MarkAsReturningView()
+        {
+            IsReturningView = true;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void UpdateViewDuration(int additionalSeconds)
+        {
+            if (additionalSeconds < 0)
+                throw new ArgumentException("مدت زمان اضافی نمی‌تواند منفی باشد");
+            ViewDuration += additionalSeconds;
             UpdatedAt = DateTime.UtcNow;
         }
 
