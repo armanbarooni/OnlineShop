@@ -48,6 +48,10 @@ namespace OnlineShop.Infrastructure.Persistence
         public DbSet<Brand> Brands { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
         public DbSet<Material> Materials { get; set; }
+        
+        // Coupon & Discount Entities
+        public DbSet<Coupon> Coupons { get; set; }
+        public DbSet<UserCouponUsage> UserCouponUsages { get; set; }
         public DbSet<Season> Seasons { get; set; }
         public DbSet<ProductMaterial> ProductMaterials { get; set; }
         public DbSet<ProductSeason> ProductSeasons { get; set; }

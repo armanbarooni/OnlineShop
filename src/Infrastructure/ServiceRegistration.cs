@@ -89,6 +89,10 @@ public static class ServiceRegistration
         services.AddScoped<IProductRelationRepository, ProductRelationRepository>();
         services.AddScoped<IUserProductViewRepository, UserProductViewRepository>();
         
+        // Phase 6 - Coupon & Discount Repositories
+        services.AddScoped<ICouponRepository, CouponRepository>();
+        services.AddScoped<IUserCouponUsageRepository, UserCouponUsageRepository>();
+        
         // Services
         services.AddScoped<ITokenService, TokenService>();
         

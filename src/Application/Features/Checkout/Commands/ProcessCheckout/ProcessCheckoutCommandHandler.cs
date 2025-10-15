@@ -15,6 +15,8 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
         private readonly IUserOrderRepository _orderRepository;
         private readonly IUserOrderItemRepository _orderItemRepository;
         private readonly IUserAddressRepository _addressRepository;
+        private readonly ICouponRepository _couponRepository;
+        private readonly IUserCouponUsageRepository _userCouponUsageRepository;
         private readonly IMapper _mapper;
 
         public ProcessCheckoutCommandHandler(
@@ -24,6 +26,8 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
             IUserOrderRepository orderRepository,
             IUserOrderItemRepository orderItemRepository,
             IUserAddressRepository addressRepository,
+            ICouponRepository couponRepository,
+            IUserCouponUsageRepository userCouponUsageRepository,
             IMapper mapper)
         {
             _cartRepository = cartRepository;
@@ -32,6 +36,8 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
             _addressRepository = addressRepository;
+            _couponRepository = couponRepository;
+            _userCouponUsageRepository = userCouponUsageRepository;
             _mapper = mapper;
         }
 
@@ -106,21 +112,56 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 subtotal += item.TotalPrice;
             }
 
-            // 5. Calculate totals
-            var taxAmount = subtotal * request.Request.TaxRate;
-            var totalAmount = subtotal + taxAmount + request.Request.ShippingCost - request.Request.DiscountAmount;
+            // 5. Validate and apply coupon if provided
+            decimal discountAmount = request.Request.DiscountAmount;
+            Guid? appliedCouponId = null;
+            
+            if (!string.IsNullOrEmpty(request.Request.CouponCode))
+            {
+                var coupon = await _couponRepository.GetByCodeAsync(request.Request.CouponCode, cancellationToken);
+                if (coupon == null)
+                    return Result<CheckoutResultDto>.Failure("کد کوپن نامعتبر است");
 
-            // 6. Generate order number
+                // Validate coupon
+                if (!coupon.IsActive)
+                    return Result<CheckoutResultDto>.Failure("کوپن غیرفعال است");
+
+                if (coupon.EndDate < DateTime.UtcNow)
+                    return Result<CheckoutResultDto>.Failure("کوپن منقضی شده است");
+
+                if (coupon.UsageLimit > 0)
+                {
+                    var usageCount = await _userCouponUsageRepository.GetUsageCountByUserAsync(request.UserId.ToString(), coupon.Id, cancellationToken);
+                    if (usageCount >= coupon.UsageLimit)
+                        return Result<CheckoutResultDto>.Failure("حد مجاز استفاده از این کوپن تمام شده است");
+                }
+
+                if (coupon.MinimumPurchase > 0 && subtotal < coupon.MinimumPurchase)
+                    return Result<CheckoutResultDto>.Failure($"حداقل مبلغ سفارش برای این کوپن {coupon.MinimumPurchase} تومان است");
+
+                // Calculate discount using the entity method
+                discountAmount = coupon.CalculateDiscount(subtotal);
+
+                // Ensure discount doesn't exceed subtotal
+                discountAmount = Math.Min(discountAmount, subtotal);
+                appliedCouponId = coupon.Id;
+            }
+
+            // 6. Calculate totals
+            var taxAmount = subtotal * request.Request.TaxRate;
+            var totalAmount = subtotal + taxAmount + request.Request.ShippingCost - discountAmount;
+
+            // 7. Generate order number
             var orderNumber = await _orderRepository.GenerateOrderNumberAsync(cancellationToken);
 
-            // 7. Create order
+            // 8. Create order
             var order = Domain.Entities.UserOrder.Create(
                 request.UserId,
                 orderNumber,
                 subtotal,
                 taxAmount,
                 request.Request.ShippingCost,
-                request.Request.DiscountAmount,
+                discountAmount,
                 totalAmount,
                 "IRR"
             );
@@ -131,7 +172,20 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
 
             await _orderRepository.AddAsync(order, cancellationToken);
 
-            // 8. Create order items
+            // 9. Record coupon usage if applied
+            if (appliedCouponId.HasValue)
+            {
+                var couponUsage = Domain.Entities.UserCouponUsage.Create(
+                    request.UserId.ToString(),
+                    appliedCouponId.Value,
+                    order.Id,
+                    discountAmount,
+                    totalAmount
+                );
+                await _userCouponUsageRepository.AddAsync(couponUsage, cancellationToken);
+            }
+
+            // 10. Create order items
             var orderItemSummaries = new List<OrderItemSummaryDto>();
             foreach (var cartItem in cartItems)
             {
@@ -159,16 +213,16 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 });
             }
 
-            // 9. Update inventory
+            // 11. Update inventory
             foreach (var (inventory, quantity) in inventoryUpdates)
             {
                 await _inventoryRepository.UpdateAsync(inventory, cancellationToken);
             }
 
-            // 10. Clear cart
+            // 12. Clear cart
             await _cartRepository.ClearCartAsync(cart.Id, cancellationToken);
 
-            // 11. Prepare result
+            // 13. Prepare result
             var orderDto = _mapper.Map<OnlineShop.Application.DTOs.UserOrder.UserOrderDto>(order);
             
             var summary = new OrderSummaryDto
@@ -179,7 +233,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 SubTotal = subtotal,
                 TaxAmount = taxAmount,
                 ShippingAmount = request.Request.ShippingCost,
-                DiscountAmount = request.Request.DiscountAmount,
+                DiscountAmount = discountAmount,
                 TotalAmount = totalAmount,
                 Currency = "IRR",
                 OrderDate = order.CreatedAt,

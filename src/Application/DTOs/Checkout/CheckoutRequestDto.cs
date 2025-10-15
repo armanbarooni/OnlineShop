@@ -8,6 +8,7 @@ namespace OnlineShop.Application.DTOs.Checkout
         public decimal ShippingCost { get; set; }
         public decimal TaxRate { get; set; } = 0.09m; // 9% default tax
         public decimal DiscountAmount { get; set; } = 0;
+        public string? CouponCode { get; set; } // کد کوپن اختیاری
         public string? Notes { get; set; }
     }
 }
