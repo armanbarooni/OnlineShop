@@ -52,6 +52,9 @@ namespace OnlineShop.Infrastructure.Persistence
         // Coupon & Discount Entities
         public DbSet<Coupon> Coupons { get; set; }
         public DbSet<UserCouponUsage> UserCouponUsages { get; set; }
+
+        // Order Tracking Entities
+        public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
         public DbSet<Season> Seasons { get; set; }
         public DbSet<ProductMaterial> ProductMaterials { get; set; }
         public DbSet<ProductSeason> ProductSeasons { get; set; }

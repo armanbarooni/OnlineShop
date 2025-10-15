@@ -25,6 +25,9 @@ namespace OnlineShop.Application.Common
                 cfg.AddProfile<OnlineShop.Application.Mapping.UserProductViewProfile>();
                 // Add new mapping profiles for Phase 6
                 cfg.AddProfile<OnlineShop.Application.Mapping.CouponProfile>();
+                
+                // Add new mapping profiles for Phase 7
+                cfg.AddProfile<OnlineShop.Application.Mapping.OrderStatusHistoryProfile>();
             });
             services.AddSingleton<IMapper>(mapperConfig.CreateMapper());
 

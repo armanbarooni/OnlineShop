@@ -19,5 +19,14 @@ namespace OnlineShop.Domain.Common
         public string? UpdatedBy { get; set; }
         public DateTime? LastModifiedAt { get; set; }
         public string? LastModifiedBy { get; set; }
+
+        public virtual void Delete(string? deletedBy = null)
+        {
+            if (Deleted)
+                throw new InvalidOperationException("این رکورد قبلاً حذف شده است.");
+            Deleted = true;
+            UpdatedBy = deletedBy;
+            UpdatedAt = DateTime.UtcNow;
+        }
     }
 }

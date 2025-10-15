@@ -19,6 +19,8 @@ namespace OnlineShop.Domain.Entities
         public DateTime? CancelledAt { get; private set; }
         public string? CancellationReason { get; private set; }
         public string? TrackingNumber { get; private set; }
+        public DateTime? EstimatedDeliveryDate { get; private set; }
+        public DateTime? ActualDeliveryDate { get; private set; }
         public Guid? ShippingAddressId { get; private set; }
         public Guid? BillingAddressId { get; private set; }
 
@@ -177,6 +179,32 @@ namespace OnlineShop.Domain.Entities
         {
             Deliver();
             UpdatedBy = updatedBy;
+        }
+
+        public void SetEstimatedDeliveryDate(DateTime estimatedDeliveryDate)
+        {
+            if (estimatedDeliveryDate <= DateTime.UtcNow)
+                throw new ArgumentException("تاریخ تحویل پیش‌بینی شده باید در آینده باشد");
+            EstimatedDeliveryDate = estimatedDeliveryDate;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetActualDeliveryDate(DateTime actualDeliveryDate)
+        {
+            if (actualDeliveryDate > DateTime.UtcNow)
+                throw new ArgumentException("تاریخ تحویل واقعی نمی‌تواند در آینده باشد");
+            ActualDeliveryDate = actualDeliveryDate;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void UpdateStatus(string newStatus, string? note = null, string? updatedBy = null)
+        {
+            if (string.IsNullOrWhiteSpace(newStatus))
+                throw new ArgumentException("وضعیت سفارش نمی‌تواند خالی باشد");
+
+            OrderStatus = newStatus.Trim();
+            UpdatedBy = updatedBy;
+            UpdatedAt = DateTime.UtcNow;
         }
 
         public void Cancel(string? cancellationReason, string? updatedBy = null)
