@@ -15,10 +15,10 @@ namespace OnlineShop.Application.Features.Product.Command.Create
         {
 
             var product = Domain.Entities.Product.Create(
-                request.Product.Name,
-                request.Product.Description,
-                request.Product.Price,
-                request.Product.StockQuantity            
+                request.Product?.Name ?? string.Empty,
+                request.Product?.Description ?? string.Empty,
+                request.Product?.Price ?? 0,
+                request.Product?.StockQuantity ?? 0
             );
 
             await repository.AddAsync(product, cancellationToken);

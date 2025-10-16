@@ -16,10 +16,10 @@ namespace OnlineShop.Application.Features.ProductCategory.Command.Create
             CancellationToken cancellationToken)
         {
             var productCategory = Domain.Entities.ProductCategory.Create(
-                request.Dto.Name,
-                request.Dto.Description,
-                request.Dto.MahakClientId,
-                request.Dto.MahakId
+                request.Dto?.Name ?? string.Empty,
+                request.Dto?.Description ?? string.Empty,
+                request.Dto?.MahakClientId ?? 0,
+                request.Dto?.MahakId ?? 0
             );
 
             await _repository.AddAsync(productCategory, cancellationToken);

@@ -200,7 +200,7 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
             };
         }
 
-        private async Task<FacetData> GenerateFacets(IEnumerable<Domain.Entities.Product> allProducts, ProductSearchCriteriaDto criteria, CancellationToken cancellationToken)
+        private Task<FacetData> GenerateFacets(IEnumerable<Domain.Entities.Product> allProducts, ProductSearchCriteriaDto criteria, CancellationToken cancellationToken)
         {
             var products = allProducts.ToList();
 
@@ -280,7 +280,7 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
                 }
             }
 
-            return facets;
+            return Task.FromResult(facets);
         }
 
         private class FacetData

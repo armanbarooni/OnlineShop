@@ -87,10 +87,10 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStockAlert(Guid id, CancellationToken cancellationToken)
+        public Task<IActionResult> DeleteStockAlert(Guid id, CancellationToken cancellationToken)
         {
             // TODO: Implement delete stock alert command
-            return Ok(new { Message = "حذف هشدار موجودی پیاده‌سازی خواهد شد" });
+            return Task.FromResult<IActionResult>(Ok(new { Message = "حذف هشدار موجودی پیاده‌سازی خواهد شد" }));
         }
     }
 }

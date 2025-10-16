@@ -39,9 +39,10 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             await _context.UserCouponUsages.AddAsync(userCouponUsage, cancellationToken);
         }
 
-        public async Task UpdateAsync(UserCouponUsage userCouponUsage, CancellationToken cancellationToken = default)
+        public Task UpdateAsync(UserCouponUsage userCouponUsage, CancellationToken cancellationToken = default)
         {
             _context.UserCouponUsages.Update(userCouponUsage);
+            return Task.CompletedTask;
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
