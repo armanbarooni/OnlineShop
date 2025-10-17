@@ -1,0 +1,19 @@
+%% System Architecture Overview
+graph TB
+    subgraph "Clean Architecture Layers"
+        UI[Presentation Layer<br/>WebAPI]
+        APP[Application Layer<br/>Business Logic]
+        DOM[Domain Layer<br/>Entities & Rules]
+        INF[Infrastructure Layer<br/>Data Access & External Services]
+    end
+    
+    UI --> APP
+    APP --> DOM
+    INF --> APP
+    INF --> DOM
+    
+    style DOM fill:#f9f,stroke:#333,stroke-width:4px
+    style APP fill:#bbf,stroke:#333,stroke-width:2px
+    style INF fill:#bfb,stroke:#333,stroke-width:2px
+    style UI fill:#fbb,stroke:#333,stroke-width:2px
+

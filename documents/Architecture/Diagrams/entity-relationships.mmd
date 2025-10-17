@@ -1,0 +1,48 @@
+%% Entity Relationship Diagram
+erDiagram
+    ApplicationUser ||--o{ UserOrder : "places"
+    ApplicationUser ||--o{ UserAddress : "has"
+    ApplicationUser ||--|| UserProfile : "has"
+    ApplicationUser ||--o{ Wishlist : "maintains"
+    ApplicationUser ||--o{ ProductReview : "writes"
+    ApplicationUser ||--o{ Cart : "owns"
+    ApplicationUser ||--o{ UserReturnRequest : "submits"
+
+    Product ||--o{ ProductImage : "has"
+    Product ||--o{ ProductDetail : "has"
+    Product ||--o{ ProductVariant : "has_variant"
+    Product ||--o{ ProductInventory : "has_inventory"
+    Product ||--o{ ProductReview : "receives"
+    Product ||--o{ Wishlist : "in"
+    Product ||--o{ CartItem : "in"
+    Product ||--o{ UserOrderItem : "in"
+    Product }o--|| ProductCategory : "belongs_to"
+    Product }o--|| Brand : "from"
+    Product }o--|| Unit : "measured_in"
+    Product }o--o{ Material : "uses"
+    Product }o--o{ Season : "for"
+
+    ProductCategory ||--o{ Product : "contains"
+    Brand ||--o{ Product : "manufactures"
+    Unit ||--o{ Product : "measures"
+
+    Material }o--o{ Product : "used_in"
+    Season }o--o{ Product : "suitable_for"
+
+    Cart ||--o{ CartItem : "contains"
+    Cart ||--|| ApplicationUser : "belongs_to"
+    CartItem }o--|| Product : "references"
+
+    UserOrder ||--o{ UserOrderItem : "contains"
+    UserOrder ||--o{ UserPayment : "paid_by"
+    UserOrder ||--o{ OrderStatusHistory : "tracks"
+    UserOrder ||--o{ UserReturnRequest : "may_have"
+    UserOrder }o--|| ApplicationUser : "placed_by"
+    UserOrder }o--|| UserAddress : "ships_to"
+
+    UserOrderItem }o--|| Product : "references"
+
+    Coupon ||--o{ UserCouponUsage : "used_in"
+    UserCouponUsage }o--|| ApplicationUser : "used_by"
+    UserCouponUsage }o--|| UserOrder : "applied_to"
+

@@ -1,0 +1,16 @@
+%% CQRS Pattern Flow
+graph LR
+    Client[Client] --> API[WebAPI Controller]
+    API --> Mediator[MediatR]
+    
+    Mediator --> Command[Command Handler<br/>Write Operations]
+    Mediator --> Query[Query Handler<br/>Read Operations]
+    
+    Command --> Repo[Repository]
+    Query --> Repo
+    
+    Repo --> DB[(Database)]
+    
+    style Command fill:#fbb,stroke:#333
+    style Query fill:#bfb,stroke:#333
+

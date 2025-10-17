@@ -1,0 +1,45 @@
+%% Complete Shopping Flow
+sequenceDiagram
+    participant U as User
+    participant PC as ProductController
+    participant CC as CartController
+    participant CHK as CheckoutController
+    participant OC as OrderController
+    participant INV as InventoryService
+    participant DB as Database
+
+    Note over U,DB: 1. Search Products
+    U->>PC: GET /api/product/search
+    PC-->>U: ProductSearchResultDto
+
+    Note over U,DB: 2. View Details
+    U->>PC: GET /api/product/{id}
+    PC-->>U: ProductDetailsDto
+
+    Note over U,DB: 3. Add to Cart
+    U->>CC: POST /api/cart/add
+    CC->>DB: Add to Cart
+    DB-->>CC: Success
+    CC-->>U: CartDto
+
+    Note over U,DB: 4. View Cart
+    U->>CC: GET /api/cart
+    CC->>DB: Get Cart with Items
+    DB-->>CC: Cart + Items
+    CC-->>U: CartDto
+
+    Note over U,DB: 5. Initiate Checkout
+    U->>CHK: POST /api/checkout/initiate
+    CHK->>DB: Get Cart
+    CHK->>INV: Check Stock
+    INV-->>CHK: Stock Available
+    CHK-->>U: CheckoutSummaryDto
+
+    Note over U,DB: 6. Complete Checkout
+    U->>CHK: POST /api/checkout/complete
+    CHK->>DB: Create Order
+    CHK->>INV: Reserve Stock
+    INV->>DB: Update Inventory
+    CHK->>DB: Clear Cart
+    CHK-->>U: OrderDto
+

@@ -14,6 +14,11 @@ namespace OnlineShop.Application.Mapping
 
             CreateMap<OrderStatusHistory, OrderTimelineDto>()
                 .ForMember(dest => dest.OrderId, opt => opt.MapFrom(src => src.OrderId))
+                .ForMember(dest => dest.OrderNumber, opt => opt.Ignore())
+                .ForMember(dest => dest.CurrentStatus, opt => opt.Ignore())
+                .ForMember(dest => dest.TrackingNumber, opt => opt.Ignore())
+                .ForMember(dest => dest.EstimatedDeliveryDate, opt => opt.Ignore())
+                .ForMember(dest => dest.ActualDeliveryDate, opt => opt.Ignore())
                 .ForMember(dest => dest.StatusHistory, opt => opt.Ignore());
         }
 

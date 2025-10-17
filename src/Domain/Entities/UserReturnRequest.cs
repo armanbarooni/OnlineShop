@@ -85,6 +85,9 @@ namespace OnlineShop.Domain.Entities
 
         public void Approve(string? approvedBy, string? adminNotes = null)
         {
+            if (ReturnStatus != "Pending")
+                throw new InvalidOperationException($"فقط درخواست‌های در حالت 'Pending' قابل تایید هستند. وضعیت فعلی: {ReturnStatus}");
+            
             ReturnStatus = "Approved";
             ApprovedAt = DateTime.UtcNow;
             ApprovedBy = approvedBy;
@@ -94,6 +97,9 @@ namespace OnlineShop.Domain.Entities
 
         public void Reject(string? rejectedBy, string? rejectionReason = null, string? adminNotes = null)
         {
+            if (ReturnStatus != "Pending")
+                throw new InvalidOperationException($"فقط درخواست‌های در حالت 'Pending' قابل رد هستند. وضعیت فعلی: {ReturnStatus}");
+            
             ReturnStatus = "Rejected";
             RejectedAt = DateTime.UtcNow;
             RejectedBy = rejectedBy;

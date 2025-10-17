@@ -1,0 +1,38 @@
+%% OTP Authentication Flow
+sequenceDiagram
+    participant U as User
+    participant C as AuthController
+    participant M as MediatR
+    participant H as SendOtpHandler
+    participant SMS as SmsService
+    participant DB as Database
+
+    Note over U,DB: Step 1: Send OTP
+    U->>C: POST /api/auth/send-otp
+    C->>M: SendOtpCommand
+    M->>H: Handle
+    H->>H: Generate 6-digit code
+    H->>DB: Save OTP (5 min expiry)
+    DB-->>H: Success
+    H->>SMS: SendOtp(Phone, Code)
+    SMS-->>U: SMS with OTP code
+    H-->>C: Success Response
+
+    Note over U,DB: Step 2: Verify OTP & Login
+    U->>C: POST /api/auth/login-phone
+    C->>M: LoginWithPhoneCommand
+    M->>H: Handle
+    H->>DB: Find OTP
+    DB-->>H: OTP Record
+    H->>H: Validate OTP
+    alt OTP Valid
+        H->>DB: Mark OTP as Used
+        H->>DB: Find User by Phone
+        H->>H: Generate JWT + RefreshToken
+        H-->>C: AuthResponseDto
+        C-->>U: 200 OK + Tokens
+    else OTP Invalid
+        H-->>C: Error
+        C-->>U: 400 Bad Request
+    end
+

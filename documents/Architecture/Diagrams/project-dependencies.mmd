@@ -1,0 +1,18 @@
+%% Project Dependencies Diagram
+graph TB
+    WebAPI[WebAPI<br/>Presentation Layer]
+    App[Application<br/>Use Cases]
+    Dom[Domain<br/>Business Logic]
+    Infra[Infrastructure<br/>External Concerns]
+    
+    WebAPI --> App
+    WebAPI --> Infra
+    App --> Dom
+    Infra --> App
+    Infra --> Dom
+    
+    style Dom fill:#f9f,stroke:#333,stroke-width:4px
+    style App fill:#bbf,stroke:#333,stroke-width:2px
+    style Infra fill:#bfb,stroke:#333,stroke-width:2px
+    style WebAPI fill:#fbb,stroke:#333,stroke-width:2px
+

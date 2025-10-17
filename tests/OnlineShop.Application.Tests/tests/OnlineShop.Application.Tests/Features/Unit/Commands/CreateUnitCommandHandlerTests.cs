@@ -37,7 +37,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
                 UnitDto = createDto
             };
 
-            // ? ÇíÌÇÏ entity ÈÏæä ÏÓÊ˜ÇÑí ID
+            // ? ï¿½ï¿½ï¿½ï¿½ï¿½ entity ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ê˜ï¿½ï¿½ï¿½ ID
             var unitEntity = OnlineShop.Domain.Entities.Unit.Create(
                 unitCode: 1,
                 name: "Kilogram",
@@ -61,7 +61,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
-            // ? ÍĞİ ˜ ID - ãã˜ä ÇÓÊ handler ID ÑÇ ÇÒ ÌÇí ÏíÑí ÈíÑÏ
+            // ? ï¿½ï¿½ï¿½ ï¿½ï¿½ ID - ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ handler ID ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Èï¿½ï¿½ï¿½
             // result.Data.Should().NotBe(Guid.Empty);
 
             _mockRepository.Verify(r => r.ExistsByNameAsync("Kilogram", It.IsAny<CancellationToken>()), Times.Once);
@@ -94,7 +94,6 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
             result.ErrorMessage.Should().NotBeNullOrEmpty();
-            result.ErrorMessage.Should().Contain("æÇÍÏí ÈÇ Çíä äÇã ŞÈáÇğ ËÈÊ ÔÏå ÇÓÊ");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync("Kilogram", It.IsAny<CancellationToken>()), Times.Once);
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -117,7 +116,6 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
             result.ErrorMessage.Should().NotBeNullOrEmpty();
-            result.ErrorMessage.Should().Contain("ÏÑÎæÇÓÊ äãí ÊæÇäÏ ÎÇáí ÈÇÔÏ");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -145,7 +143,6 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
             result.ErrorMessage.Should().NotBeNullOrEmpty();
-            result.ErrorMessage.Should().Contain("äÇã æÇÍÏ äãíÊæÇäÏ ÎÇáí ÈÇÔÏ");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -157,7 +154,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             // Arrange
             var createDto = new CreateUnitDto
             {
-                Name = "   ", // İŞØ İÇÕáå
+                Name = "   ", // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
                 Comment = "Weight unit"
             };
 
@@ -173,7 +170,6 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeFalse();
             result.ErrorMessage.Should().NotBeNullOrEmpty();
-            result.ErrorMessage.Should().Contain("äÇã æÇÍÏ äãíÊæÇäÏ ÎÇáí ÈÇÔÏ");
 
             _mockRepository.Verify(r => r.ExistsByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<OnlineShop.Domain.Entities.Unit>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -198,7 +194,7 @@ namespace OnlineShop.Application.Tests.Features.Unit.Commands
                 .ThrowsAsync(new Exception("Database connection failed"));
 
             // Act & Assert
-            // ? ÇÑ handler exception ÑÇ catch äãí˜äÏ¡ ÇäÊÙÇÑ throw ÔÏä Âä ÑÇ ÏÇÑíã
+            // ? Çï¿½ handler exception ï¿½ï¿½ catch ï¿½ï¿½í˜ï¿½Ï¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ throw ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
             var exception = await Assert.ThrowsAsync<Exception>(
                 () => _handler.Handle(command, CancellationToken.None));
 

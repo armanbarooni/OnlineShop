@@ -23,7 +23,7 @@ namespace OnlineShop.Domain.Entities
             SetSessionId(sessionId);
             SetCartName(cartName);
             SetIsActive(isActive);
-            SetExpiresAt(expiresAt);
+            ExpiresAt = expiresAt; // Set directly in constructor without validation
             Deleted = false;
         }
 

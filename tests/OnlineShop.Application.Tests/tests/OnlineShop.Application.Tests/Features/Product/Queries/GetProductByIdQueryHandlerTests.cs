@@ -50,7 +50,7 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
                 StockQuantity = 10
             };
 
-            _mockRepository.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
+            _mockRepository.Setup(r => r.GetByIdWithIncludesAsync(productId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(product);
 
             _mockMapper.Setup(m => m.Map<ProductDetailsDto>(product))
@@ -68,7 +68,7 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
             result.Data.Name.Should().Be("Test Product");
             result.Data.Price.Should().Be(100m);
 
-            _mockRepository.Verify(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
+            _mockRepository.Verify(r => r.GetByIdWithIncludesAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
             _mockMapper.Verify(m => m.Map<ProductDetailsDto>(product), Times.Once);
         }
 
@@ -78,7 +78,7 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
             // Arrange
             var productId = Guid.NewGuid();
 
-            _mockRepository.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
+            _mockRepository.Setup(r => r.GetByIdWithIncludesAsync(productId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((OnlineShop.Domain.Entities.Product?)null);
 
             var query = new GetProductByIdQuery { Id = productId };
@@ -88,10 +88,10 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetById
 
             // Assert
             result.IsSuccess.Should().BeFalse();
-            result.ErrorMessage.Should().NotBeNullOrEmpty(); // ������� �� ErrorMessage
+            result.ErrorMessage.Should().NotBeNullOrEmpty();
             result.ErrorMessage.Should().Contain("not found");
 
-            _mockRepository.Verify(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
+            _mockRepository.Verify(r => r.GetByIdWithIncludesAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
             _mockMapper.Verify(m => m.Map<ProductDetailsDto>(It.IsAny<OnlineShop.Domain.Entities.Product>()), Times.Never);
         }
 
