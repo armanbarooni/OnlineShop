@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using OnlineShop.Infrastructure.Persistence;
 
 namespace OnlineShop.IntegrationTests.Infrastructure
@@ -10,6 +12,8 @@ namespace OnlineShop.IntegrationTests.Infrastructure
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            builder.UseEnvironment("Development"); // Use Development to load appsettings properly
+
             builder.ConfigureServices(services =>
             {
                 // Remove the existing ApplicationDbContext registration
@@ -24,7 +28,7 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                 // Add ApplicationDbContext using in-memory database for testing
                 services.AddDbContext<ApplicationDbContext>(options =>
                 {
-                    options.UseInMemoryDatabase("InMemoryDbForTesting");
+                    options.UseInMemoryDatabase($"InMemoryDb_{Guid.NewGuid()}");
                 });
 
                 // Build the service provider
