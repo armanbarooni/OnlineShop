@@ -116,7 +116,12 @@ if (app.Environment.IsDevelopment())
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        db.Database.Migrate();
+        
+        // Only run migrations if using a relational database provider (not InMemory)
+        if (db.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+        {
+            db.Database.Migrate();
+        }
         
         // Seed roles
         await OnlineShop.Infrastructure.Data.DatabaseSeeder.SeedRolesAsync(scope.ServiceProvider);
@@ -138,4 +143,6 @@ app.MapControllers();
 
 app.Run();
 
+// Make the implicit Program class public so test projects can access it
+public partial class Program { }
 
