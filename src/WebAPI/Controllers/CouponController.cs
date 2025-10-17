@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using OnlineShop.Application.Features.Coupon.Commands.Create;
 using OnlineShop.Application.Features.Coupon.Commands.ApplyCoupon;
 using OnlineShop.Application.Features.Coupon.Queries.ValidateCoupon;
+using OnlineShop.Application.Features.Coupon.Queries.GetAll;
 using OnlineShop.Application.DTOs.Coupon;
 
 namespace OnlineShop.WebAPI.Controllers
@@ -16,6 +18,22 @@ namespace OnlineShop.WebAPI.Controllers
         public CouponController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        /// <summary>
+        /// Get all coupons (Admin only)
+        /// </summary>
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllCoupons()
+        {
+            var query = new GetAllCouponsQuery();
+            var result = await _mediator.Send(query);
+            
+            if (result.IsSuccess)
+                return Ok(result);
+            
+            return BadRequest(result);
         }
 
         /// <summary>

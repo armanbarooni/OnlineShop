@@ -6,6 +6,7 @@ using OnlineShop.Application.DTOs.ProductInventory;
 using OnlineShop.Application.Features.ProductInventory.Command.Create;
 using OnlineShop.Application.Features.ProductInventory.Command.Update;
 using OnlineShop.Application.Features.ProductInventory.Command.Delete;
+using OnlineShop.Application.Features.ProductInventory.Command.BulkUpdate;
 using OnlineShop.Application.Features.ProductInventory.Queries.GetById;
 using OnlineShop.Application.Features.ProductInventory.Queries.GetByProductId;
 using OnlineShop.Application.Features.ProductInventory.Queries.GetAll;
@@ -60,6 +61,30 @@ namespace OnlineShop.WebAPI.Controllers
             return NotFound(result);
         }
 
+        [HttpGet("low-stock")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetLowStock([FromQuery] int threshold = 10, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Getting low stock products with threshold: {Threshold}", threshold);
+            var result = await _mediator.Send(new GetAllProductInventoriesQuery(), cancellationToken);
+            
+            if (result.IsSuccess)
+            {
+                var lowStockItems = result.Data?.Where(i => i.AvailableQuantity <= threshold).ToList();
+                _logger.LogInformation("Found {Count} low stock items", lowStockItems?.Count ?? 0);
+                
+                if (lowStockItems == null || !lowStockItems.Any())
+                {
+                    return NotFound(new { Message = "No low stock items found" });
+                }
+                
+                return Ok(new { IsSuccess = true, Data = lowStockItems });
+            }
+            
+            _logger.LogWarning("Failed to retrieve low stock products: {Error}", result.ErrorMessage);
+            return BadRequest(result);
+        }
+
         [HttpGet("product/{productId}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetByProductId(Guid productId, CancellationToken cancellationToken = default)
@@ -96,6 +121,25 @@ namespace OnlineShop.WebAPI.Controllers
             
             _logger.LogWarning("Failed to create product inventory for product: {ProductId} by user: {UserId}. Error: {Error}", 
                 dto.ProductId, userId, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        [HttpPost("bulk-update")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> BulkUpdate([FromBody] BulkUpdateProductInventoryCommand command, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            _logger.LogInformation("Bulk updating {Count} product inventories by user: {UserId}", command.Items?.Count ?? 0, userId);
+            
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Bulk update successful for user: {UserId}", userId);
+                return Ok(result);
+            }
+            
+            _logger.LogWarning("Failed to bulk update inventories by user: {UserId}. Error: {Error}", userId, result.ErrorMessage);
             return BadRequest(result);
         }
 

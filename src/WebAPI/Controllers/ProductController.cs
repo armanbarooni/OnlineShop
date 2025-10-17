@@ -39,6 +39,49 @@ namespace OnlineShop.WebAPI.Controllers
             return BadRequest(result);
         }
 
+        [HttpGet("search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SearchWithQuery(
+            [FromQuery] string? searchTerm = null,
+            [FromQuery] Guid? categoryId = null,
+            [FromQuery] Guid? brandId = null,
+            [FromQuery] decimal? minPrice = null,
+            [FromQuery] decimal? maxPrice = null,
+            [FromQuery] bool? inStock = null,
+            [FromQuery] string? sortBy = null,
+            [FromQuery] bool sortDescending = false,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 20,
+            CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Searching products with query parameters");
+            
+            var criteria = new ProductSearchCriteriaDto
+            {
+                SearchTerm = searchTerm,
+                CategoryId = categoryId,
+                BrandId = brandId,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                InStock = inStock,
+                SortBy = sortBy,
+                SortDescending = sortDescending,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+            
+            var result = await _mediator.Send(new ProductSearchQuery { Criteria = criteria }, cancellationToken);
+            
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved {Count} products from search", result.Data?.Products?.TotalCount ?? 0);
+                return Ok(result);
+            }
+            
+            _logger.LogWarning("Failed to search products: {Error}", result.ErrorMessage);
+            return BadRequest(result);
+        }
+
         [HttpPost("search")]
         [AllowAnonymous]
         public async Task<IActionResult> Search([FromBody] ProductSearchCriteriaDto? criteria, CancellationToken cancellationToken = default)

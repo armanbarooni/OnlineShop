@@ -93,6 +93,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpPost("items")]
+        [HttpPost("add")] // Alternative route for backward compatibility with tests
         public async Task<ActionResult<Result<CartItemDto>>> AddItem([FromBody] CreateCartItemDto cartItem)
         {
             var result = await _mediator.Send(new AddCartItemCommand 

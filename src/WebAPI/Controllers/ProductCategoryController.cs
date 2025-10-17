@@ -6,6 +6,8 @@ using OnlineShop.Application.Features.ProductCategory.Command.Delete;
 using OnlineShop.Application.Features.ProductCategory.Command.Update;
 using OnlineShop.Application.Features.ProductCategory.Queries.GetAll;
 using OnlineShop.Application.Features.ProductCategory.Queries.GetById;
+using OnlineShop.Application.Features.ProductCategory.Queries.GetCategoryTree;
+using OnlineShop.Application.Features.ProductCategory.Queries.GetSubCategories;
 using Microsoft.AspNetCore.Authorization;
 
 namespace OnlineShop.WebAPI.Controllers
@@ -118,6 +120,36 @@ namespace OnlineShop.WebAPI.Controllers
             _logger.LogWarning("Failed to delete product category: {CategoryId} by user: {UserId}. Error: {Error}", 
                 id, userId, result.ErrorMessage);
             return NotFound(result);
+        }
+
+        [HttpGet("tree")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetCategoryTree(CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Getting category tree");
+            var result = await _mediator.Send(new GetCategoryTreeQuery(), cancellationToken);
+            
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+            
+            return BadRequest(result);
+        }
+
+        [HttpGet("{id}/subcategories")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetSubCategories([FromRoute] Guid id, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Getting subcategories for category: {CategoryId}", id);
+            var result = await _mediator.Send(new GetSubCategoriesQuery(id), cancellationToken);
+            
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+            
+            return BadRequest(result);
         }
     }
 }

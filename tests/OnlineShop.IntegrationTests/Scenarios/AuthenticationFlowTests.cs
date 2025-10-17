@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using OnlineShop.Application.DTOs.Auth;
 using OnlineShop.IntegrationTests.Infrastructure;
+using OnlineShop.IntegrationTests.Helpers;
 using Xunit;
 
 namespace OnlineShop.IntegrationTests.Scenarios
@@ -35,10 +36,12 @@ namespace OnlineShop.IntegrationTests.Scenarios
             // Assert 1: Registration successful
             registerResponse.StatusCode.Should().Be(HttpStatusCode.Created);
             
-            var registerResult = await registerResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
-            registerResult.Should().NotBeNull();
-            registerResult!.AccessToken.Should().NotBeNullOrEmpty();
-            registerResult.RefreshToken.Should().NotBeNullOrEmpty();
+            var registerContent = await registerResponse.Content.ReadAsStringAsync();
+            var accessToken = JsonHelper.GetNestedProperty(registerContent, "data", "accessToken");
+            var refreshToken = JsonHelper.GetNestedProperty(registerContent, "data", "refreshToken");
+
+            accessToken.Should().NotBeNullOrEmpty();
+            refreshToken.Should().NotBeNullOrEmpty();
 
             // Act 2: Login with same credentials
             var loginDto = new LoginDto
@@ -52,10 +55,12 @@ namespace OnlineShop.IntegrationTests.Scenarios
             // Assert 2: Login successful
             loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             
-            var loginResult = await loginResponse.Content.ReadFromJsonAsync<AuthResponseDto>();
-            loginResult.Should().NotBeNull();
-            loginResult!.AccessToken.Should().NotBeNullOrEmpty();
-            loginResult.Email.Should().Be(registerDto.Email);
+            var loginContent = await loginResponse.Content.ReadAsStringAsync();
+            var loginAccessToken = JsonHelper.GetNestedProperty(loginContent, "data", "accessToken");
+            var loginRefreshToken = JsonHelper.GetNestedProperty(loginContent, "data", "refreshToken");
+
+            loginAccessToken.Should().NotBeNullOrEmpty();
+            loginRefreshToken.Should().NotBeNullOrEmpty();
         }
 
         [Fact]

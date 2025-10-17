@@ -12,6 +12,7 @@ using OnlineShop.Application.Features.UserReturnRequest.Queries.GetById;
 using OnlineShop.Application.Features.UserReturnRequest.Queries.GetByUserId;
 using OnlineShop.Application.Features.UserReturnRequest.Queries.GetPendingRequests;
 using OnlineShop.Application.Features.UserReturnRequest.Queries.GetAll;
+using OnlineShop.Application.Features.UserReturnRequest.Queries.Search;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -77,6 +78,23 @@ namespace OnlineShop.WebAPI.Controllers
             
             _logger.LogWarning("User return request not found: {RequestId}", id);
             return NotFound(result);
+        }
+
+        [HttpPost("search")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Search([FromBody] SearchUserReturnRequestsQuery query, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Searching user return requests with status: {Status}", query.Status);
+            var result = await _mediator.Send(query, cancellationToken);
+            
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully found {Count} return requests", result.Data?.Count() ?? 0);
+                return Ok(result);
+            }
+            
+            _logger.LogWarning("Failed to search return requests: {Error}", result.ErrorMessage);
+            return BadRequest(result);
         }
 
         [HttpGet("user/{userId}")]

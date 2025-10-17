@@ -18,6 +18,15 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             builder.Property(pc => pc.Description)
                 .HasMaxLength(500);
 
+            builder.Property(pc => pc.ParentCategoryId);
+            builder.Property(pc => pc.Level).HasDefaultValue(0);
+
+            // Self-referencing relationship for hierarchical categories
+            builder.HasOne(pc => pc.ParentCategory)
+                .WithMany(pc => pc.SubCategories)
+                .HasForeignKey(pc => pc.ParentCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.Property(pc => pc.MahakId);
             builder.Property(pc => pc.MahakClientId);
             builder.Property(pc => pc.RowVersion).IsConcurrencyToken();

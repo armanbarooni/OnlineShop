@@ -48,5 +48,30 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<IEnumerable<ProductCategory>> GetRootCategoriesAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.ProductCategories
+                .Where(pc => pc.ParentCategoryId == null && !pc.Deleted)
+                .Include(pc => pc.SubCategories)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<IEnumerable<ProductCategory>> GetSubCategoriesAsync(Guid parentId, CancellationToken cancellationToken = default)
+        {
+            return await _context.ProductCategories
+                .Where(pc => pc.ParentCategoryId == parentId && !pc.Deleted)
+                .Include(pc => pc.SubCategories)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<IEnumerable<ProductCategory>> GetCategoryTreeAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.ProductCategories
+                .Where(pc => pc.ParentCategoryId == null && !pc.Deleted)
+                .Include(pc => pc.SubCategories)
+                    .ThenInclude(sc => sc.SubCategories)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

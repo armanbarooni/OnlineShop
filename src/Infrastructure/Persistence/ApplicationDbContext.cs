@@ -59,6 +59,9 @@ namespace OnlineShop.Infrastructure.Persistence
         public DbSet<ProductMaterial> ProductMaterials { get; set; }
         public DbSet<ProductSeason> ProductSeasons { get; set; }
         
+        // Product Comparison
+        public DbSet<ProductComparison> ProductComparisons { get; set; }
+        
         // Phase 8 - Stock Alerts & User Engagement
         public DbSet<StockAlert> StockAlerts { get; set; }
         

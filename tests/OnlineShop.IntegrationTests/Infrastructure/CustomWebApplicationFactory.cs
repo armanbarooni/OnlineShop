@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using OnlineShop.Infrastructure.Persistence;
+using OnlineShop.Application.Contracts.Services;
+using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.IntegrationTests.Infrastructure
 {
@@ -31,6 +33,17 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                     options.UseInMemoryDatabase($"InMemoryDb_{Guid.NewGuid()}");
                 });
 
+                // Replace ISmsService with TestSmsService
+                var smsServiceDescriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(ISmsService));
+
+                if (smsServiceDescriptor != null)
+                {
+                    services.Remove(smsServiceDescriptor);
+                }
+
+                services.AddScoped<ISmsService, TestSmsService>();
+
                 // Build the service provider
                 var sp = services.BuildServiceProvider();
 
@@ -39,11 +52,61 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                 {
                     var scopedServices = scope.ServiceProvider;
                     var db = scopedServices.GetRequiredService<ApplicationDbContext>();
+                    var userManager = scopedServices.GetRequiredService<UserManager<OnlineShop.Domain.Entities.ApplicationUser>>();
+                    var roleManager = scopedServices.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
                     // Ensure the database is created
                     db.Database.EnsureCreated();
+
+                    // Seed roles and admin user
+                    SeedTestData(roleManager, userManager).GetAwaiter().GetResult();
                 }
             });
+        }
+
+        private static async Task SeedTestData(RoleManager<IdentityRole<Guid>> roleManager, UserManager<ApplicationUser> userManager)
+        {
+            // Create roles
+            string[] roles = { "Admin", "User", "Manager" };
+            foreach (var roleName in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+                }
+            }
+
+            // Create admin user with phone number
+            var adminPhoneNumber = "09123456789";
+            var adminUser = await userManager.FindByNameAsync(adminPhoneNumber);
+            
+            if (adminUser == null)
+            {
+                adminUser = new ApplicationUser
+                {
+                    UserName = adminPhoneNumber,
+                    PhoneNumber = adminPhoneNumber,
+                    Email = "admin@test.com",
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true,
+                    FirstName = "Admin",
+                    LastName = "User"
+                };
+
+                var result = await userManager.CreateAsync(adminUser, "AdminPassword123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+            }
+            else
+            {
+                // Ensure admin has Admin role
+                if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+            }
         }
     }
 }

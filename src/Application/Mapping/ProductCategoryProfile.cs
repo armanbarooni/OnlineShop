@@ -8,11 +8,16 @@ namespace OnlineShop.Application.Mapping
     {
         public ProductCategoryProfile()
         {
-            CreateMap<ProductCategory, ProductCategoryDto>();
+            CreateMap<ProductCategory, ProductCategoryDto>()
+                .ForMember(d => d.ParentName, opt => opt.MapFrom(s => s.ParentCategory != null ? s.ParentCategory.Name : null));
+            
             CreateMap<ProductCategory, ProductCategoryDetailsDto>();
 
             CreateMap<CreateProductCategoryDto, ProductCategory>()
                 .ForMember(d => d.Id, opt => opt.Ignore())
+                .ForMember(d => d.Level, opt => opt.Ignore())
+                .ForMember(d => d.ParentCategory, opt => opt.Ignore())
+                .ForMember(d => d.SubCategories, opt => opt.Ignore())
                 .ForMember(d => d.MahakId, opt => opt.Ignore())
                 .ForMember(d => d.MahakClientId, opt => opt.Ignore())
                 .ForMember(d => d.RowVersion, opt => opt.Ignore())
@@ -26,6 +31,10 @@ namespace OnlineShop.Application.Mapping
 
             CreateMap<UpdateProductCategoryDto, ProductCategory>()
                 .ForMember(d => d.Id, opt => opt.Ignore())
+                .ForMember(d => d.ParentCategoryId, opt => opt.Ignore())
+                .ForMember(d => d.Level, opt => opt.Ignore())
+                .ForMember(d => d.ParentCategory, opt => opt.Ignore())
+                .ForMember(d => d.SubCategories, opt => opt.Ignore())
                 .ForMember(d => d.MahakId, opt => opt.Ignore())
                 .ForMember(d => d.MahakClientId, opt => opt.Ignore())
                 .ForMember(d => d.RowVersion, opt => opt.Ignore())

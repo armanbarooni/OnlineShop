@@ -6,20 +6,28 @@ namespace OnlineShop.Domain.Entities
     {
         public string Name { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
+        public Guid? ParentCategoryId { get; private set; }
+        public int Level { get; private set; }
+
+        // Navigation Properties
+        public virtual ProductCategory? ParentCategory { get; private set; }
+        public virtual ICollection<ProductCategory> SubCategories { get; private set; } = new List<ProductCategory>();
 
         protected ProductCategory() { }
 
-        private ProductCategory(string name, string description, long mahakClientId, int mahakId)
+        private ProductCategory(string name, string description, long mahakClientId, int mahakId, Guid? parentCategoryId = null)
         {
             SetName(name);
             SetDescription(description);
             MahakClientId = mahakClientId;
             MahakId = mahakId;
+            ParentCategoryId = parentCategoryId;
+            Level = 0; // Will be calculated based on parent
             Deleted = false;
         }
 
-        public static ProductCategory Create(string name, string description, long mahakClientId, int mahakId)
-            => new(name, description, mahakClientId, mahakId);
+        public static ProductCategory Create(string name, string description, long mahakClientId, int mahakId, Guid? parentCategoryId = null)
+            => new(name, description, mahakClientId, mahakId, parentCategoryId);
 
         public void SetName(string name)
         {
@@ -50,6 +58,27 @@ namespace OnlineShop.Domain.Entities
             Deleted = true;
             UpdatedBy = updatedBy;
             UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetParentCategory(Guid? parentCategoryId)
+        {
+            ParentCategoryId = parentCategoryId;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetLevel(int level)
+        {
+            if (level < 0)
+                throw new ArgumentException("Level cannot be negative");
+            Level = level;
+        }
+
+        public string GetFullPath()
+        {
+            if (ParentCategory == null)
+                return Name;
+            
+            return $"{ParentCategory.GetFullPath()} > {Name}";
         }
     }
 }

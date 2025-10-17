@@ -17,7 +17,7 @@ namespace OnlineShop.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.20")
+                .HasAnnotation("ProductVersion", "8.0.21")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -1252,6 +1252,11 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
+                    b.Property<int>("Level")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<long?>("MahakClientId")
                         .HasColumnType("bigint");
 
@@ -1262,6 +1267,9 @@ namespace OnlineShop.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<Guid?>("ParentCategoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<long>("RowVersion")
                         .IsConcurrencyToken()
@@ -1275,7 +1283,62 @@ namespace OnlineShop.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ParentCategoryId");
+
                     b.ToTable("ProductCategories");
+                });
+
+            modelBuilder.Entity("OnlineShop.Domain.Entities.ProductComparison", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("MahakClientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("MahakId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProductIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProductComparisons");
                 });
 
             modelBuilder.Entity("OnlineShop.Domain.Entities.ProductDetail", b =>
@@ -3331,6 +3394,16 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Navigation("Unit");
                 });
 
+            modelBuilder.Entity("OnlineShop.Domain.Entities.ProductCategory", b =>
+                {
+                    b.HasOne("OnlineShop.Domain.Entities.ProductCategory", "ParentCategory")
+                        .WithMany("SubCategories")
+                        .HasForeignKey("ParentCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ParentCategory");
+                });
+
             modelBuilder.Entity("OnlineShop.Domain.Entities.ProductDetail", b =>
                 {
                     b.HasOne("OnlineShop.Domain.Entities.Product", "Product")
@@ -3744,6 +3817,11 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Navigation("ProductVariants");
 
                     b.Navigation("Wishlists");
+                });
+
+            modelBuilder.Entity("OnlineShop.Domain.Entities.ProductCategory", b =>
+                {
+                    b.Navigation("SubCategories");
                 });
 
             modelBuilder.Entity("OnlineShop.Domain.Entities.Season", b =>

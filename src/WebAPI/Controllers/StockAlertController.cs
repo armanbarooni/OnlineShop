@@ -72,6 +72,24 @@ namespace OnlineShop.WebAPI.Controllers
             return BadRequest(result);
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserStockAlerts(string userId, CancellationToken cancellationToken = default)
+        {
+            var query = new GetStockAlertsQuery
+            {
+                UserId = userId,
+                PageNumber = 1,
+                PageSize = 100
+            };
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (result.IsSuccess)
+                return Ok(result.Data);
+
+            return NotFound(result);
+        }
+
         [HttpPost("process")]
         [Authorize(Roles = "Admin")] // Only admins can process stock alerts
         public async Task<IActionResult> ProcessStockAlerts(
@@ -82,6 +100,29 @@ namespace OnlineShop.WebAPI.Controllers
 
             if (result.IsSuccess)
                 return Ok(new { ProcessedCount = result.Data, Message = "هشدارهای موجودی با موفقیت پردازش شدند" });
+
+            return BadRequest(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken = default)
+        {
+            var query = new GetStockAlertsQuery
+            {
+                PageNumber = 1,
+                PageSize = 100
+            };
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                var alert = result.Data?.FirstOrDefault(a => a.Id == id);
+                if (alert != null)
+                    return Ok(new { IsSuccess = true, Data = alert });
+                
+                return NotFound(new { IsSuccess = false, ErrorMessage = "Stock alert not found" });
+            }
 
             return BadRequest(result);
         }
