@@ -28,21 +28,47 @@ namespace OnlineShop.IntegrationTests.Helpers
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
             Logger.LogDebug($"Authorization header found: {authHeader}");
 
-            // Create a test user with admin role
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                Logger.LogDebug("Invalid authorization header format");
+                return Task.FromResult(AuthenticateResult.NoResult());
+            }
+
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+            
+            // Determine user role based on token content or use a simple mapping
+            string role = "User"; // Default role
+            string userId = "d869562d-b70b-4b55-9589-08a7c7584a24";
+            string email = "user@test.com";
+            
+            // Simple token-based role detection
+            if (token.Contains("admin") || token.Length > 50) // Admin tokens are typically longer
+            {
+                role = "Admin";
+                userId = "d869562d-b70b-4b55-9589-08a7c7584a24";
+                email = "admin@test.com";
+            }
+            else if (token.Contains("user"))
+            {
+                role = "User";
+                userId = "d869562d-b70b-4b55-9589-08a7c7584a24";
+                email = "user@test.com";
+            }
+
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, "d869562d-b70b-4b55-9589-08a7c7584a24"),
-                new Claim(ClaimTypes.Name, "admin@test.com"),
-                new Claim(ClaimTypes.Email, "admin@test.com"),
-                new Claim(ClaimTypes.Role, "Admin"),
-                new Claim("sub", "d869562d-b70b-4b55-9589-08a7c7584a24")
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.Role, role),
+                new Claim("sub", userId)
             };
 
             var identity = new ClaimsIdentity(claims, "Test");
             var principal = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principal, "Test");
 
-            Logger.LogDebug("Test authentication successful");
+            Logger.LogDebug($"Test authentication successful for {role} user: {email}");
             return Task.FromResult(AuthenticateResult.Success(ticket));
         }
     }

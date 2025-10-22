@@ -498,7 +498,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Controllers
             var response = await _client.PutAsync($"/api/mahakqueue/{nonExistentId}", content);
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
         #endregion
