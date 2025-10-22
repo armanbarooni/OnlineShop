@@ -1320,7 +1320,7 @@ namespace OnlineShop.Infrastructure.Migrations
 
                     b.Property<string>("ProductIds")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<long>("RowVersion")
                         .IsConcurrencyToken()

@@ -106,20 +106,29 @@ public static class ServiceRegistration
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<INotificationService, NotificationService>();
         
-        // SMS Service Configuration
-        var smsSettings = configuration.GetSection("SmsSettings");
-        services.Configure<SmsSettings>(smsSettings);
-        
-        var smsProvider = smsSettings.GetValue<string>("Provider")?.ToLower();
-        if (smsProvider == "kavenegar")
+        // SMS Service Configuration (runtime selection via options)
+        services.Configure<SmsSettings>(configuration.GetSection("SmsSettings"));
+        services.Configure<OnlineShop.Application.Settings.SmsIrSettings>(configuration.GetSection("SmsIr"));
+
+        services.AddScoped<ISmsService>(sp =>
         {
-            services.AddHttpClient<ISmsService, KavenegarSmsService>();
-        }
-        else
-        {
-            // Default to Mock SMS Service for development
-            services.AddScoped<ISmsService, MockSmsService>();
-        }
+            var smsIr = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<OnlineShop.Application.Settings.SmsIrSettings>>().Value;
+            if (!string.IsNullOrWhiteSpace(smsIr.ApiKey))
+            {
+                return ActivatorUtilities.CreateInstance<SmsIrSmsService>(sp);
+            }
+
+            var legacy = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<SmsSettings>>().Value;
+            if ((legacy.Provider ?? string.Empty).Equals("kavenegar", StringComparison.OrdinalIgnoreCase))
+            {
+                // We need HttpClient for KavenegarSmsService; resolve a typed instance
+                var httpFactory = sp.GetRequiredService<System.Net.Http.IHttpClientFactory>();
+                var httpClient = httpFactory.CreateClient();
+                return new KavenegarSmsService(httpClient, sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<SmsSettings>>(), sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<KavenegarSmsService>>());
+            }
+
+            return ActivatorUtilities.CreateInstance<MockSmsService>(sp);
+        });
 
         return services;
     }

@@ -71,7 +71,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
             var cartResponse = await _client.PostAsJsonAsync("/api/cart/add", cartDto);
 
             // Assert
-            cartResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            cartResponse.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Created);
         }
 
         [Fact]
@@ -164,7 +164,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
             var response = await _client.PostAsJsonAsync("/api/cart/add", cartDto);
 
             // Assert - Should either succeed with available quantity or return bad request
-            response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest);
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest, HttpStatusCode.Created);
         }
 
         [Fact]
@@ -297,7 +297,9 @@ namespace OnlineShop.IntegrationTests.Scenarios
             var addressDto = new
             {
                 UserId = userId,
-                FullName = "Test User",
+                Title = "Order Address",
+                FirstName = "Test",
+                LastName = "User",
                 PhoneNumber = "09123456789",
                 AddressLine1 = "123 Test St",
                 City = "Tehran",

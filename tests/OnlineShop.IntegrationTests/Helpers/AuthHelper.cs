@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
+using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.IntegrationTests.Infrastructure;
 
 namespace OnlineShop.IntegrationTests.Helpers
@@ -15,26 +17,44 @@ namespace OnlineShop.IntegrationTests.Helpers
             "User"         // Last name
         };
 
-        public static async Task<string> GetAdminTokenAsync(HttpClient client)
+        public static async Task<string> GetAdminTokenAsync(HttpClient client, CustomWebApplicationFactory<Program> factory = null)
         {
             Console.WriteLine($"[AuthHelper] Starting authentication process...");
 
             try 
             {
+                // Seed database if factory is provided
+                if (factory != null)
+                {
+                    Console.WriteLine($"[AuthHelper] Seeding database...");
+                    await factory.SeedDatabaseAsync();
+                }
+
                 // Try password-based login first (for pre-seeded admin user)
                 var hardcodedToken = await TryHardcodedAdminLoginAsync(client);
                 if (!string.IsNullOrEmpty(hardcodedToken))
+                {
+                    Console.WriteLine($"[AuthHelper] Successfully obtained token via hardcoded admin login");
                     return hardcodedToken;
+                }
 
-                // Attempt to login with OTP
-                var loginToken = await TryLoginAsync(client);
+                // If hardcoded login fails, try OTP flow
+                Console.WriteLine($"[AuthHelper] Hardcoded login failed, trying OTP flow...");
+                var loginToken = await TryLoginAsync(client, factory);
                 if (!string.IsNullOrEmpty(loginToken))
+                {
+                    Console.WriteLine($"[AuthHelper] Successfully obtained token via OTP login");
                     return loginToken;
+                }
 
                 // If login fails, try registration
-                var registrationToken = await TryRegisterAsync(client);
+                Console.WriteLine($"[AuthHelper] OTP login failed, trying registration...");
+                var registrationToken = await TryRegisterAsync(client, factory);
                 if (!string.IsNullOrEmpty(registrationToken))
+                {
+                    Console.WriteLine($"[AuthHelper] Successfully obtained token via registration");
                     return registrationToken;
+                }
             }
             catch (Exception ex)
             {
@@ -46,7 +66,7 @@ namespace OnlineShop.IntegrationTests.Helpers
             return string.Empty;
         }
 
-        private static async Task<string> TryLoginAsync(HttpClient client)
+        private static async Task<string> TryLoginAsync(HttpClient client, CustomWebApplicationFactory<Program> factory)
         {
             try 
             {
@@ -61,8 +81,27 @@ namespace OnlineShop.IntegrationTests.Helpers
                 }
 
                 // Get the OTP code from TestSmsService
-                await Task.Delay(100); // Small delay to ensure OTP is captured
-                var otpCode = TestSmsService.GetLastOtpCode(AdminCredentials[0]);
+                string? otpCode = null;
+                for (int i = 0; i < 5 && string.IsNullOrEmpty(otpCode); i++)
+                {
+                    await Task.Delay(150);
+                    otpCode = TestSmsService.GetLastOtpCode(AdminCredentials[0]);
+                }
+                // Fallback: try to retrieve from database if still null
+                if (string.IsNullOrEmpty(otpCode) && factory != null)
+                {
+                    try
+                    {
+                        using var scope = factory.Services.CreateScope();
+                        var repo = scope.ServiceProvider.GetRequiredService<IOtpRepository>();
+                        var otp = await repo.GetValidOtpByPhoneAsync(AdminCredentials[0]);
+                        otpCode = otp?.Code;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[AuthHelper] OTP DB fallback failed: {ex.Message}");
+                    }
+                }
                 
                 if (string.IsNullOrEmpty(otpCode))
                 {
@@ -101,7 +140,7 @@ namespace OnlineShop.IntegrationTests.Helpers
             return null;
         }
 
-        private static async Task<string> TryRegisterAsync(HttpClient client)
+        private static async Task<string> TryRegisterAsync(HttpClient client, CustomWebApplicationFactory<Program> factory)
         {
             try 
             {
@@ -116,8 +155,27 @@ namespace OnlineShop.IntegrationTests.Helpers
                 }
 
                 // Get the OTP code from TestSmsService
-                await Task.Delay(100); // Small delay to ensure OTP is captured
-                var otpCode = TestSmsService.GetLastOtpCode(AdminCredentials[0]);
+                string? otpCode = null;
+                for (int i = 0; i < 5 && string.IsNullOrEmpty(otpCode); i++)
+                {
+                    await Task.Delay(150);
+                    otpCode = TestSmsService.GetLastOtpCode(AdminCredentials[0]);
+                }
+                // Fallback: try to retrieve from database if still null
+                if (string.IsNullOrEmpty(otpCode) && factory != null)
+                {
+                    try
+                    {
+                        using var scope = factory.Services.CreateScope();
+                        var repo = scope.ServiceProvider.GetRequiredService<IOtpRepository>();
+                        var otp = await repo.GetValidOtpByPhoneAsync(AdminCredentials[0]);
+                        otpCode = otp?.Code;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[AuthHelper] OTP DB fallback (register) failed: {ex.Message}");
+                    }
+                }
                 
                 if (string.IsNullOrEmpty(otpCode))
                 {

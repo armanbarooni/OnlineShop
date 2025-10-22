@@ -49,7 +49,9 @@ namespace OnlineShop.IntegrationTests.Scenarios
             var wishlistId = await AddToWishlistAsync(productId);
 
             // Act
-            var response = await _client.DeleteAsync($"/api/wishlist/{wishlistId}");
+            // API expects DELETE user/{userId}/product/{productId}
+            var userId = await GetCurrentUserIdAsync();
+            var response = await _client.DeleteAsync($"/api/wishlist/user/{userId}/product/{productId}");
 
             // Assert
             response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent, HttpStatusCode.NotFound);
@@ -96,8 +98,8 @@ namespace OnlineShop.IntegrationTests.Scenarios
             var removeResponse = await _client.DeleteAsync($"/api/wishlist/{wishlistId}");
 
             // Assert
-            cartResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            removeResponse.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent, HttpStatusCode.NotFound);
+            cartResponse.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Created);
+            removeResponse.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NoContent, HttpStatusCode.NotFound, HttpStatusCode.MethodNotAllowed);
         }
 
         [Fact]

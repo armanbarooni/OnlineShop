@@ -10,10 +10,12 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class DebugTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public DebugTests(CustomWebApplicationFactory<Program> factory)
         {
             _client = factory.CreateClient();
+            _factory = factory;
         }
 
         [Fact]
@@ -34,13 +36,12 @@ namespace OnlineShop.IntegrationTests.Scenarios
             
             // Test our AuthHelper
             Console.WriteLine("\n=== Testing AuthHelper ===");
-            var token = await AuthHelper.GetAdminTokenAsync(_client);
+            var token = await AuthHelper.GetAdminTokenAsync(_client, _factory);
 
             Console.WriteLine($"=== AuthHelper Result ===");
             Console.WriteLine($"Token: {(string.IsNullOrEmpty(token) ? "NULL OR EMPTY" : $"EXTRACTED (length: {token.Length})")}");
 
-            Assert.NotNull(token);
-            Assert.NotEmpty(token);
+            Assert.True(!string.IsNullOrEmpty(token));
         }
 
         [Fact]

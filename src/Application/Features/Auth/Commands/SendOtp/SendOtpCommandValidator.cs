@@ -27,8 +27,15 @@ namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
 
         private bool BeValidPurpose(string purpose)
         {
-            var validPurposes = new[] { "Login", "Registration", "PasswordReset" };
-            return validPurposes.Contains(purpose, StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(purpose))
+                return false;
+
+            var normalizedPurpose = purpose.ToLowerInvariant();
+            return normalizedPurpose == "login" 
+                || normalizedPurpose == "register" 
+                || normalizedPurpose == "registration" 
+                || normalizedPurpose == "passwordreset" 
+                || normalizedPurpose == "password-reset";
         }
     }
 }

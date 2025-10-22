@@ -315,7 +315,8 @@ namespace OnlineShop.IntegrationTests.Scenarios
             var addressDto = new
             {
                 UserId = userId,
-                FullName = "Test User",
+                FirstName = "Test",
+                LastName = "User",
                 PhoneNumber = "09123456789",
                 AddressLine1 = "123 Test St",
                 City = "Tehran",

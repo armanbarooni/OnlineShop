@@ -17,7 +17,7 @@ namespace OnlineShop.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: false),
-                    ProductIds = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductIds = table.Column<string>(type: "text", nullable: false),
                     MahakId = table.Column<int>(type: "integer", nullable: true),
                     MahakClientId = table.Column<long>(type: "bigint", nullable: true),
                     RowVersion = table.Column<long>(type: "bigint", nullable: false),

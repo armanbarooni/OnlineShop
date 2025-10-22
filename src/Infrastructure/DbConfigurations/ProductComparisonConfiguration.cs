@@ -21,7 +21,7 @@ namespace OnlineShop.Infrastructure.DbConfigurations
                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
                           .Select(Guid.Parse)
                           .ToList())
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("text");
 
             builder.Property(pc => pc.CreatedAt).IsRequired();
             builder.Property(pc => pc.UpdatedAt);

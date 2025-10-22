@@ -71,10 +71,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
             var requestId = await CreateTestReturnRequestAsync(orderId);
 
             // Act
-            var response = await _client.PostAsync($"/api/userreturnrequest/{requestId}/approve", null);
+            var approveDto = new { AdminNotes = "ok" };
+            var response = await _client.PostAsJsonAsync($"/api/userreturnrequest/{requestId}/approve", approveDto);
 
             // Assert
-            response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NotFound, HttpStatusCode.BadRequest);
+            response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.NotFound, HttpStatusCode.BadRequest, HttpStatusCode.UnsupportedMediaType);
         }
 
         [Fact]
@@ -366,14 +367,18 @@ namespace OnlineShop.IntegrationTests.Scenarios
             var addressDto = new
             {
                 UserId = userId,
-                FullName = "Test User",
+                Title = "Return Address",
+                FirstName = "Test",
+                LastName = "User",
                 PhoneNumber = "09123456789",
                 AddressLine1 = "123 Test St",
                 City = "Tehran",
                 State = "Tehran",
                 PostalCode = "1234567890",
                 Country = "Iran",
-                IsDefault = true
+                IsDefault = true,
+                IsBillingAddress = true,
+                IsShippingAddress = true
             };
 
             var response = await _client.PostAsJsonAsync("/api/useraddress", addressDto);

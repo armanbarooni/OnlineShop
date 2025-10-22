@@ -19,5 +19,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="IPE.SmsIR" Version="1.2.7" />
+  </ItemGroup>
 
 </Project>
