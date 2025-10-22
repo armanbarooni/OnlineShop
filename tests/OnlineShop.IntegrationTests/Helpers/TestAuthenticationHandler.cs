@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Identity;
+using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.IntegrationTests.Helpers
 {
@@ -16,13 +18,13 @@ namespace OnlineShop.IntegrationTests.Helpers
         {
         }
 
-        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             // Only authenticate if Authorization header is present
             if (!Request.Headers.ContainsKey("Authorization"))
             {
                 Logger.LogDebug("No Authorization header found");
-                return Task.FromResult(AuthenticateResult.NoResult());
+                return AuthenticateResult.NoResult();
             }
 
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
@@ -31,29 +33,39 @@ namespace OnlineShop.IntegrationTests.Helpers
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
             {
                 Logger.LogDebug("Invalid authorization header format");
-                return Task.FromResult(AuthenticateResult.NoResult());
+                return AuthenticateResult.NoResult();
             }
 
             var token = authHeader.Substring("Bearer ".Length).Trim();
             
-            // Determine user role based on token content or use a simple mapping
+            // Determine user role based on token content
             string role = "User"; // Default role
-            string userId = "d869562d-b70b-4b55-9589-08a7c7584a24";
+            string userId = "70f4a38e-b17e-4fb3-a7af-65046ee8b8c9"; // Real user ID from database
             string email = "user@test.com";
             
-            // Simple token-based role detection
-            if (token.Contains("admin") || token.Length > 50) // Admin tokens are typically longer
+            // Token-based role detection - check for specific patterns
+            if (token.Contains("admin_test_token"))
             {
                 role = "Admin";
-                userId = "d869562d-b70b-4b55-9589-08a7c7584a24";
+                userId = "d72b45e6-5396-439e-a05c-d48570bac58d"; // Real admin ID from database
                 email = "admin@test.com";
             }
-            else if (token.Contains("user"))
+            else if (token.Contains("user_test_token"))
             {
                 role = "User";
-                userId = "d869562d-b70b-4b55-9589-08a7c7584a24";
+                userId = "70f4a38e-b17e-4fb3-a7af-65046ee8b8c9"; // Real user ID from database
                 email = "user@test.com";
             }
+            else if (token == "test-token")
+            {
+                // Default test token - treat as User
+                role = "User";
+                userId = "70f4a38e-b17e-4fb3-a7af-65046ee8b8c9"; // Real user ID from database
+                email = "user@test.com";
+            }
+
+            // Use the real user IDs from the database
+            Logger.LogDebug($"Using user ID: {userId} for email: {email}");
 
             var claims = new[]
             {
@@ -69,7 +81,7 @@ namespace OnlineShop.IntegrationTests.Helpers
             var ticket = new AuthenticationTicket(principal, "Test");
 
             Logger.LogDebug($"Test authentication successful for {role} user: {email}");
-            return Task.FromResult(AuthenticateResult.Success(ticket));
+            return AuthenticateResult.Success(ticket);
         }
     }
 

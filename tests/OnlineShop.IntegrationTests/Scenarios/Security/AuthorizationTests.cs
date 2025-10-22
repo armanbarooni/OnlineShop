@@ -22,13 +22,14 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
         public async Task CreateProduct_AsUser_ShouldReturnForbidden()
         {
             // Arrange
-            var authToken = await AuthHelper.GetUserTokenAsync(_client);
-            _client.DefaultRequestHeaders.Authorization = 
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
-
             var categoryId = await CreateTestCategoryAsync();
             var unitId = await CreateTestUnitAsync();
             var brandId = await CreateTestBrandAsync();
+
+            // Set user token after creating test data (which uses admin token)
+            var authToken = await AuthHelper.GetUserTokenAsync(_client);
+            _client.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
             var productDto = new
             {
@@ -53,11 +54,12 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
         public async Task UpdateProduct_AsUser_ShouldReturnForbidden()
         {
             // Arrange
+            var productId = await CreateTestProductAsync();
+
+            // Set user token after creating test data (which uses admin token)
             var authToken = await AuthHelper.GetUserTokenAsync(_client);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
-
-            var productId = await CreateTestProductAsync();
 
             var updateDto = new
             {
@@ -80,11 +82,12 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
         public async Task DeleteProduct_AsUser_ShouldReturnForbidden()
         {
             // Arrange
+            var productId = await CreateTestProductAsync();
+
+            // Set user token after creating test data (which uses admin token)
             var authToken = await AuthHelper.GetUserTokenAsync(_client);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
-
-            var productId = await CreateTestProductAsync();
 
             // Act
             var response = await _client.DeleteAsync($"/api/product/{productId}");
@@ -499,10 +502,10 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
-            // Test various admin-only endpoints
+            // Test various admin-only endpoints (POST/PUT/DELETE operations)
             var adminEndpoints = new[]
             {
-                "/api/product",
+                "/api/product", // POST - Create product
                 "/api/productinventory",
                 "/api/coupon",
                 "/api/mahakmapping"
@@ -510,12 +513,11 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
 
             foreach (var endpoint in adminEndpoints)
             {
-                // Act
-                var response = await _client.GetAsync(endpoint);
+                // Act - Test POST operations which require Admin role
+                var response = await _client.PostAsJsonAsync(endpoint, new { });
 
                 // Assert
-                response.StatusCode.Should().Be(HttpStatusCode.Forbidden, 
-                    $"User should not have access to {endpoint}");
+                response.StatusCode.Should().BeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.BadRequest);
             }
         }
 

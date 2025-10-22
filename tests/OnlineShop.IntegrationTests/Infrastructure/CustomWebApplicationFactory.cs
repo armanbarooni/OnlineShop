@@ -79,10 +79,8 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                 // Configure authorization for tests
                 services.AddAuthorization(options =>
                 {
-                    // Use a permissive policy for tests
-                    options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
-                        .RequireAssertion(_ => true)
-                        .Build();
+                    // Remove the permissive default policy to allow proper role-based authorization
+                    // The default policy will now require authentication and proper roles
                 });
             });
         }

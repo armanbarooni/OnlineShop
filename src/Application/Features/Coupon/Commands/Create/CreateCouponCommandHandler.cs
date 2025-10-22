@@ -30,6 +30,7 @@ namespace OnlineShop.Application.Features.Coupon.Commands.Create
 
             var coupon = _mapper.Map<Domain.Entities.Coupon>(request.CouponDto);
             await _couponRepository.AddAsync(coupon, cancellationToken);
+            await _couponRepository.SaveChangesAsync(cancellationToken);
 
             return Result<Guid>.Success(coupon.Id);
         }

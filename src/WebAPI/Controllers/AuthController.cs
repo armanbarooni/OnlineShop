@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Application.DTOs.Auth;
+using OnlineShop.Application.DTOs.UserProfile;
 using OnlineShop.Application.Features.Auth.Commands.SendOtp;
 using OnlineShop.Application.Features.Auth.Commands.VerifyOtp;
 using OnlineShop.Application.Features.Auth.Commands.RegisterWithPhone;
@@ -242,6 +243,47 @@ namespace OnlineShop.WebAPI.Controllers
 
 			_logger.LogWarning("Failed to login with phone {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
 			return Unauthorized(result);
+		}
+
+		/// <summary>
+		/// Get current user profile
+		/// </summary>
+		[HttpGet("me")]
+		[Authorize]
+		[ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		public async Task<IActionResult> GetCurrentUser()
+		{
+			var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+			if (string.IsNullOrEmpty(userId))
+			{
+				_logger.LogWarning("GetCurrentUser failed - user ID not found in claims");
+				return Unauthorized("User ID not found");
+			}
+
+			var user = await _userManager.FindByIdAsync(userId);
+			if (user == null)
+			{
+				_logger.LogWarning("GetCurrentUser failed - user not found for ID: {UserId}", userId);
+				return Unauthorized("User not found");
+			}
+
+			var userProfile = new UserProfileDto
+			{
+				Id = user.Id,
+				UserId = user.Id,
+				UserName = user.UserName ?? string.Empty,
+				UserEmail = user.Email ?? string.Empty,
+				FirstName = user.FirstName,
+				LastName = user.LastName,
+				IsEmailVerified = user.EmailConfirmed,
+				IsPhoneVerified = user.PhoneNumberConfirmed,
+				CreatedAt = user.CreatedAt,
+				UpdatedAt = user.LastLoginAt
+			};
+
+			_logger.LogInformation("GetCurrentUser successful for user: {UserId}", userId);
+			return Ok(userProfile);
 		}
 	}
 }

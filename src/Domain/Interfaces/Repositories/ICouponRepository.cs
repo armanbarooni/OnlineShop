@@ -9,6 +9,7 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         Task AddAsync(Coupon coupon, CancellationToken cancellationToken = default);
         Task UpdateAsync(Coupon coupon, CancellationToken cancellationToken = default);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+        Task SaveChangesAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get coupon by code

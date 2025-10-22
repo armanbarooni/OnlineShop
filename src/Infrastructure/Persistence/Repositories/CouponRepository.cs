@@ -48,6 +48,11 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         public async Task<Coupon?> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
         {
             return await _context.Coupons
