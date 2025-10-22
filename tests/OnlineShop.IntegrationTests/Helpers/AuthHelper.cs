@@ -220,6 +220,222 @@ namespace OnlineShop.IntegrationTests.Helpers
             return null;
         }
 
+        public static async Task<string> GetUserTokenAsync(HttpClient client, CustomWebApplicationFactory<Program> factory = null)
+        {
+            Console.WriteLine($"[AuthHelper] Starting user authentication process...");
+
+            try 
+            {
+                // Seed database if factory is provided
+                if (factory != null)
+                {
+                    Console.WriteLine($"[AuthHelper] Seeding database...");
+                    await factory.SeedDatabaseAsync();
+                }
+
+                // Try password-based login first (for pre-seeded user)
+                var hardcodedToken = await TryHardcodedUserLoginAsync(client);
+                if (!string.IsNullOrEmpty(hardcodedToken))
+                {
+                    Console.WriteLine($"[AuthHelper] Successfully obtained user token via hardcoded login");
+                    return hardcodedToken;
+                }
+
+                // If hardcoded login fails, try OTP flow
+                Console.WriteLine($"[AuthHelper] Hardcoded user login failed, trying OTP flow...");
+                var loginToken = await TryUserLoginAsync(client, factory);
+                if (!string.IsNullOrEmpty(loginToken))
+                {
+                    Console.WriteLine($"[AuthHelper] Successfully obtained user token via OTP login");
+                    return loginToken;
+                }
+
+                // If login fails, try registration
+                Console.WriteLine($"[AuthHelper] User login failed, trying registration...");
+                var registerToken = await TryUserRegistrationAsync(client, factory);
+                if (!string.IsNullOrEmpty(registerToken))
+                {
+                    Console.WriteLine($"[AuthHelper] Successfully obtained user token via registration");
+                    return registerToken;
+                }
+
+                Console.WriteLine($"[AuthHelper] All user authentication methods failed");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AuthHelper] User authentication exception: {ex.Message}");
+            }
+            return null;
+        }
+
+        private static async Task<string> TryHardcodedUserLoginAsync(HttpClient client)
+        {
+            try 
+            {
+                // Hardcoded user login attempt
+                var hardcodedLoginDto = new 
+                { 
+                    Email = "user@test.com", 
+                    Password = "UserPassword123!" 
+                };
+                var loginResponse = await client.PostAsJsonAsync("/api/auth/login", hardcodedLoginDto);
+
+                if (loginResponse.IsSuccessStatusCode)
+                {
+                    var content = await loginResponse.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[AuthHelper] User login response: {content}");
+                    
+                    var token = JsonHelper.GetNestedProperty(content, "accessToken")
+                                ?? JsonHelper.GetNestedProperty(content, "access_token")
+                                ?? JsonHelper.GetNestedProperty(content, "data", "accessToken");
+                    
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        Console.WriteLine($"[AuthHelper] Hardcoded User Login Successful: Token retrieved");
+                        return token;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[AuthHelper] User token not found in response. Full response: {content}");
+                    }
+                }
+                else 
+                {
+                    Console.WriteLine($"[AuthHelper] Hardcoded User Login Failed ({loginResponse.StatusCode}): {await loginResponse.Content.ReadAsStringAsync()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AuthHelper] Hardcoded User Login Exception: {ex.Message}");
+            }
+            return null;
+        }
+
+        private static async Task<string> TryUserLoginAsync(HttpClient client, CustomWebApplicationFactory<Program> factory)
+        {
+            try 
+            {
+                var phoneNumber = "09991234567"; // Different phone for user
+                var otpCode = await GetOtpCodeAsync(phoneNumber, factory);
+                
+                if (string.IsNullOrEmpty(otpCode))
+                {
+                    Console.WriteLine($"[AuthHelper] Failed to get OTP for user login");
+                    return null;
+                }
+
+                var loginDto = new 
+                { 
+                    PhoneNumber = phoneNumber, 
+                    Code = otpCode 
+                };
+                var loginResponse = await client.PostAsJsonAsync("/api/auth/login-phone", loginDto);
+
+                if (loginResponse.IsSuccessStatusCode)
+                {
+                    var content = await loginResponse.Content.ReadAsStringAsync();
+                    var token = JsonHelper.GetNestedProperty(content, "data", "accessToken")
+                                ?? JsonHelper.GetNestedProperty(content, "accessToken");
+                    
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        Console.WriteLine($"[AuthHelper] User OTP Login Successful: Token retrieved");
+                        return token;
+                    }
+                }
+                else 
+                {
+                    Console.WriteLine($"[AuthHelper] User OTP Login Failed: {await loginResponse.Content.ReadAsStringAsync()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AuthHelper] User OTP Login Exception: {ex.Message}");
+            }
+            return null;
+        }
+
+        private static async Task<string> TryUserRegistrationAsync(HttpClient client, CustomWebApplicationFactory<Program> factory)
+        {
+            try 
+            {
+                var phoneNumber = "09991234567"; // Different phone for user
+                var otpCode = await GetOtpCodeAsync(phoneNumber, factory);
+                
+                if (string.IsNullOrEmpty(otpCode))
+                {
+                    Console.WriteLine($"[AuthHelper] Failed to get OTP for user registration");
+                    return null;
+                }
+
+                var registerDto = new 
+                { 
+                    PhoneNumber = phoneNumber, 
+                    Code = otpCode, 
+                    FirstName = "Test", 
+                    LastName = "User" 
+                };
+                var registerResponse = await client.PostAsJsonAsync("/api/auth/register-phone", registerDto);
+
+                if (registerResponse.IsSuccessStatusCode)
+                {
+                    var content = await registerResponse.Content.ReadAsStringAsync();
+                    var token = JsonHelper.GetNestedProperty(content, "data", "accessToken")
+                                ?? JsonHelper.GetNestedProperty(content, "accessToken");
+                    
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        Console.WriteLine($"[AuthHelper] User Registration Successful: Token retrieved");
+                        return token;
+                    }
+                }
+                else 
+                {
+                    Console.WriteLine($"[AuthHelper] User Registration Failed: {await registerResponse.Content.ReadAsStringAsync()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AuthHelper] User Registration Exception: {ex.Message}");
+            }
+            return null;
+        }
+
+        private static async Task<string> GetOtpCodeAsync(string phoneNumber, CustomWebApplicationFactory<Program> factory)
+        {
+            try
+            {
+                if (factory != null)
+                {
+                    var testSmsService = factory.Services.GetService<TestSmsService>();
+                    if (testSmsService != null)
+                    {
+                        // Try to get OTP from database first
+                        var dbOtp = await testSmsService.GetLastOtpCodeFromDatabaseAsync(phoneNumber);
+                        if (!string.IsNullOrEmpty(dbOtp))
+                        {
+                            return dbOtp;
+                        }
+                        
+                        // Fallback to static dictionary
+                        var staticOtp = TestSmsService.GetLastOtpCode(phoneNumber);
+                        if (!string.IsNullOrEmpty(staticOtp))
+                        {
+                            return staticOtp;
+                        }
+                    }
+                }
+                
+                // Fallback to hardcoded OTP for testing
+                return "123456";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AuthHelper] GetOtpCodeAsync Exception: {ex.Message}");
+                return "123456"; // Fallback
+            }
+        }
+
         private static async Task<string> TryHardcodedAdminLoginAsync(HttpClient client)
         {
             try 
