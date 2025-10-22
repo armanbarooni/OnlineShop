@@ -179,6 +179,39 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                     await userManager.AddToRoleAsync(adminUser, "Admin");
                 }
             }
+
+            // Create regular user with phone number
+            var userPhoneNumber = "09987654321";
+            var userEmail = "user@test.com";
+            var regularUser = await userManager.FindByEmailAsync(userEmail);
+            
+            if (regularUser == null)
+            {
+                regularUser = new ApplicationUser
+                {
+                    UserName = userEmail, // Use email as username for easier login
+                    PhoneNumber = userPhoneNumber,
+                    Email = userEmail,
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true,
+                    FirstName = "Regular",
+                    LastName = "User"
+                };
+
+                var result = await userManager.CreateAsync(regularUser, "UserPassword123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(regularUser, "User");
+                }
+            }
+            else
+            {
+                // Ensure user has User role
+                if (!await userManager.IsInRoleAsync(regularUser, "User"))
+                {
+                    await userManager.AddToRoleAsync(regularUser, "User");
+                }
+            }
         }
     }
 }

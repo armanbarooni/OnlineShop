@@ -11,10 +11,18 @@ namespace OnlineShop.IntegrationTests.Helpers
     {
         private static readonly string[] AdminCredentials = new[]
         {
-            "09123456789", // Phone number
-            "",            // OTP code (will be retrieved from TestSmsService)
+            "admin@test.com", // Email
+            "AdminPassword123!", // Password
             "Admin",       // First name
             "User"         // Last name
+        };
+
+        private static readonly string[] UserCredentials = new[]
+        {
+            "user@test.com", // Email
+            "UserPassword123!", // Password
+            "Regular",     // First name
+            "User"          // Last name
         };
 
         public static async Task<string> GetAdminTokenAsync(HttpClient client, CustomWebApplicationFactory<Program> factory = null)
