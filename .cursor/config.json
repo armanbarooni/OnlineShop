@@ -1,0 +1,31 @@
+{
+  // -------- Cursor & Terminal Stability --------
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "args": ["-NoLogo"]
+    },
+    "Git Bash": {
+      "path": "C:\\Program Files\\Git\\bin\\bash.exe"
+    },
+    "WSL Bash": {
+      "path": "C:\\Windows\\System32\\wsl.exe"
+    }
+  },
+
+  // -------- Cursor Run / Build Behavior --------
+  "cursor.run.shell": "PowerShell",
+  "cursor.run.defaultCommand": "dotnet run",
+  "cursor.run.keepAlive": true,
+  "cursor.run.alwaysTerminal": true,
+
+  // -------- Prevent Interruptions --------
+  "editor.renderControlCharacters": false,
+  "editor.stopOnError": false,
+  "ai.disableStreamOutput": true,
+
+  // -------- Optional Quality of Life --------
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1500
+}

@@ -77,3 +77,6 @@ Ability to run `dotnet test` commands through Cursor AI's terminal integration w
 3. Alternative approaches to run tests through AI agent
 4. Any known issues with Cursor AI terminal integration for long-running commands
 
+
+
+

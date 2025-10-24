@@ -60,9 +60,24 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
-// CORS configuration (adjust origins as needed)
+// CORS configuration for Frontend
 builder.Services.AddCors(options =>
 {
+    options.AddPolicy("AllowFrontend", policy =>
+        policy
+            .WithOrigins(
+                "http://localhost:3000",
+                "http://127.0.0.1:3000", 
+                "http://localhost:5500",
+                "http://127.0.0.1:5500",
+                "http://localhost:8080",
+                "http://127.0.0.1:8080"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
+    
+    // Fallback for development
     options.AddPolicy("DefaultCors", policy =>
         policy
             .AllowAnyHeader()
@@ -129,9 +144,23 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.UseCors("DefaultCors");
+// Use specific CORS policy for frontend, fallback to default for development
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("AllowFrontend");
+}
+else
+{
+    app.UseCors("DefaultCors");
+}
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();
+
+// Serve static files from wwwroot
+app.UseStaticFiles();
+
+// Serve default files (index.html) for SPA routing
+app.UseDefaultFiles();
 
 app.UseHttpsRedirection();
 

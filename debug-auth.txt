@@ -1,0 +1,6 @@
+﻿Build started 10/18/2025 12:08:12 AM.
+     1>Project "C:\Users\arman\source\repos\OnlineShop\OnlineShop.sln" on node 1 (Restore target(s)).
+     1>ValidateSolutionConfiguration:
+         Building solution configuration "Debug|Any CPU".
+       _GetAllRestoreProjectPathItems:
+         Determining projects to restore...

@@ -25,7 +25,11 @@ namespace OnlineShop.IntegrationTests.Infrastructure
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.UseEnvironment("Development"); // Use Development to load appsettings with JWT config
+            // Force Development environment for tests
+            builder.UseEnvironment("Development");
+            
+            // Set environment variable explicitly
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
 
             builder.ConfigureServices(services =>
             {
@@ -56,32 +60,8 @@ namespace OnlineShop.IntegrationTests.Infrastructure
 
                 services.AddScoped<ISmsService, TestSmsService>();
 
-                // Remove all JWT Bearer authentication registrations
-                var jwtDescriptors = services.Where(d => 
-                    d.ServiceType.FullName?.Contains("JwtBearer") == true ||
-                    d.ServiceType.FullName?.Contains("Authentication") == true)
-                    .ToList();
-                
-                foreach (var jwtDescriptor in jwtDescriptors)
-                {
-                    services.Remove(jwtDescriptor);
-                }
-
-                // Add test authentication as the default scheme
-                services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = "Test";
-                    options.DefaultChallengeScheme = "Test";
-                    options.DefaultScheme = "Test";
-                })
-                .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>("Test", options => { });
-                
-                // Configure authorization for tests
-                services.AddAuthorization(options =>
-                {
-                    // Remove the permissive default policy to allow proper role-based authorization
-                    // The default policy will now require authentication and proper roles
-                });
+                // Keep the real JWT authentication for tests
+                // This allows AuthHelper to get real JWT tokens that work with the middleware
             });
         }
 

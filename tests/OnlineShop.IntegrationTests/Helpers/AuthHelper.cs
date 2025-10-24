@@ -38,10 +38,32 @@ namespace OnlineShop.IntegrationTests.Helpers
                     await factory.SeedDatabaseAsync();
                 }
 
-                // For test environment, return a mock admin token
-                var adminToken = "admin_test_token_" + Guid.NewGuid().ToString("N")[..32];
-                Console.WriteLine($"[AuthHelper] Generated admin test token: {adminToken}");
-                return adminToken;
+                // Try actual login with hardcoded admin credentials
+                var token = await TryHardcodedAdminLoginAsync(client);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    Console.WriteLine($"[AuthHelper] Admin login successful: Token retrieved ({token.Length} chars)");
+                    return token;
+                }
+
+                // Fallback: try OTP-based login
+                token = await TryLoginAsync(client, factory);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    Console.WriteLine($"[AuthHelper] Admin OTP login successful: Token retrieved ({token.Length} chars)");
+                    return token;
+                }
+
+                // Fallback: try registration
+                token = await TryRegisterAsync(client, factory);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    Console.WriteLine($"[AuthHelper] Admin registration successful: Token retrieved ({token.Length} chars)");
+                    return token;
+                }
+
+                Console.WriteLine($"[AuthHelper] WARNING: All authentication methods failed, returning empty string");
+                return string.Empty;
             }
             catch (Exception ex)
             {
@@ -234,10 +256,32 @@ namespace OnlineShop.IntegrationTests.Helpers
                     await factory.SeedDatabaseAsync();
                 }
 
-                // For test environment, return a mock user token
-                var userToken = "user_test_token_" + Guid.NewGuid().ToString("N")[..32];
-                Console.WriteLine($"[AuthHelper] Generated user test token: {userToken}");
-                return userToken;
+                // Try actual login with hardcoded user credentials
+                var token = await TryHardcodedUserLoginAsync(client);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    Console.WriteLine($"[AuthHelper] User login successful: Token retrieved ({token.Length} chars)");
+                    return token;
+                }
+
+                // Fallback: try OTP-based login
+                token = await TryUserLoginAsync(client, factory);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    Console.WriteLine($"[AuthHelper] User OTP login successful: Token retrieved ({token.Length} chars)");
+                    return token;
+                }
+
+                // Fallback: try registration
+                token = await TryUserRegistrationAsync(client, factory);
+                if (!string.IsNullOrEmpty(token))
+                {
+                    Console.WriteLine($"[AuthHelper] User registration successful: Token retrieved ({token.Length} chars)");
+                    return token;
+                }
+
+                Console.WriteLine($"[AuthHelper] WARNING: All user authentication methods failed, returning empty string");
+                return string.Empty;
             }
             catch (Exception ex)
             {
