@@ -81,6 +81,30 @@ namespace OnlineShop.WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Result<bool>>> RemoveFromWishlistById(Guid id)
+        {
+            // Get the wishlist by ID first to get userId and productId
+            var wishlistResult = await _mediator.Send(new GetWishlistByIdQuery { Id = id });
+            if (!wishlistResult.IsSuccess)
+                return NotFound(wishlistResult);
+
+            var wishlist = wishlistResult.Data;
+            if (wishlist == null)
+                return NotFound(Result<bool>.Failure("Wishlist item not found"));
+
+            var result = await _mediator.Send(new DeleteWishlistCommand 
+            { 
+                UserId = wishlist.UserId,
+                ProductId = wishlist.ProductId
+            });
+            
+            if (!result.IsSuccess)
+                return NotFound(result);
+
+            return Ok(result);
+        }
+
         [HttpDelete("user/{userId}/product/{productId}")]
         public async Task<ActionResult<Result<bool>>> RemoveFromWishlist(Guid userId, Guid productId)
         {

@@ -25,7 +25,7 @@ namespace OnlineShop.IntegrationTests.Infrastructure
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.UseEnvironment("Development"); // Use Development to load appsettings properly
+            builder.UseEnvironment("Development"); // Use Development to load appsettings with JWT config
 
             builder.ConfigureServices(services =>
             {
@@ -39,10 +39,10 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                 }
 
                 // Add ApplicationDbContext using in-memory database for testing
-                // Use a unique database name for each factory instance
+                // Use a shared database name for all tests to maintain seed data
                 services.AddDbContext<ApplicationDbContext>(options =>
                 {
-                    options.UseInMemoryDatabase(_databaseName);
+                    options.UseInMemoryDatabase("InMemoryDb_SharedForTests");
                 });
 
                 // Replace ISmsService with TestSmsService
@@ -135,13 +135,20 @@ namespace OnlineShop.IntegrationTests.Infrastructure
 
         private static async Task SeedTestData(RoleManager<IdentityRole<Guid>> roleManager, UserManager<ApplicationUser> userManager)
         {
+            Console.WriteLine("[CustomWebApplicationFactory] Starting test data seeding...");
+            
             // Create roles
             string[] roles = { "Admin", "User", "Manager" };
             foreach (var roleName in roles)
             {
                 if (!await roleManager.RoleExistsAsync(roleName))
                 {
-                    await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+                    var roleResult = await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+                    Console.WriteLine($"[CustomWebApplicationFactory] Role '{roleName}' created: {roleResult.Succeeded}");
+                }
+                else
+                {
+                    Console.WriteLine($"[CustomWebApplicationFactory] Role '{roleName}' already exists");
                 }
             }
 
@@ -152,6 +159,7 @@ namespace OnlineShop.IntegrationTests.Infrastructure
             
             if (adminUser == null)
             {
+                Console.WriteLine($"[CustomWebApplicationFactory] Creating admin user with phone: {adminPhoneNumber}");
                 adminUser = new ApplicationUser
                 {
                     UserName = adminEmail, // Use email as username for easier login
@@ -167,15 +175,33 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(adminUser, "Admin");
+                    Console.WriteLine($"[CustomWebApplicationFactory] Admin user created successfully. UserID: {adminUser.Id}");
+                }
+                else
+                {
+                    Console.WriteLine($"[CustomWebApplicationFactory] Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
                 }
             }
             else
             {
+                Console.WriteLine($"[CustomWebApplicationFactory] Admin user already exists. UserID: {adminUser.Id}");
                 // Ensure admin has Admin role
                 if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
                 {
                     await userManager.AddToRoleAsync(adminUser, "Admin");
+                    Console.WriteLine($"[CustomWebApplicationFactory] Added Admin role to existing user");
                 }
+            }
+            
+            // Also ensure admin can be found by email
+            var adminByEmail = await userManager.FindByEmailAsync("admin@test.com");
+            if (adminByEmail == null)
+            {
+                Console.WriteLine($"[CustomWebApplicationFactory] WARNING: Admin user not found by email!");
+            }
+            else
+            {
+                Console.WriteLine($"[CustomWebApplicationFactory] Admin user found by email: {adminByEmail.Email}");
             }
 
             // Create regular user with phone number

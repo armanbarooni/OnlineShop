@@ -22,7 +22,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
             // Step 1: User Registration
             var phoneNumber = $"0991{new Random().Next(10000000, 99999999)}";
             
-            var sendOtpDto = new { PhoneNumber = phoneNumber, Purpose = "registration" };
+            var sendOtpDto = new { PhoneNumber = phoneNumber, Purpose = "register" };  // Changed from "Registration" to "register"
             var otpResponse = await _client.PostAsJsonAsync("/api/auth/send-otp", sendOtpDto);
             otpResponse.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.BadRequest);
             if (!otpResponse.IsSuccessStatusCode)

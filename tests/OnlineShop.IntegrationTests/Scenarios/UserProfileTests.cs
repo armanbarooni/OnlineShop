@@ -175,12 +175,12 @@ namespace OnlineShop.IntegrationTests.Scenarios
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
-            // Act - Send OTP for new phone number
+            // Act - Send OTP for new phone number (using "Login" as purpose since "update" is not a valid purpose)
             var newPhone = $"0991{Random.Shared.Next(10000000, 99999999)}";
             var otpDto = new
             {
                 PhoneNumber = newPhone,
-                Purpose = "password-reset"
+                Purpose = "Login"  // Changed from "update" to "Login"
             };
             var response = await _client.PostAsJsonAsync("/api/auth/send-otp", otpDto);
             await Task.Delay(200);

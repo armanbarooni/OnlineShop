@@ -15,3 +15,6 @@ namespace OnlineShop.Application.Features.ProductInventory.Command.BulkUpdate
     }
 }
 
+
+
+

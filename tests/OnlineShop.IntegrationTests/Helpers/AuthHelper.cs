@@ -58,7 +58,7 @@ namespace OnlineShop.IntegrationTests.Helpers
             try 
             {
                 // Send OTP for login
-                var loginOtpDto = new { PhoneNumber = AdminCredentials[0], Purpose = "login" };
+                var loginOtpDto = new { PhoneNumber = AdminCredentials[0], Purpose = "Login" };
                 var otpResponse = await client.PostAsJsonAsync("/api/auth/send-otp", loginOtpDto);
                 
                 if (!otpResponse.IsSuccessStatusCode)
@@ -105,14 +105,21 @@ namespace OnlineShop.IntegrationTests.Helpers
                 if (loginResponse.IsSuccessStatusCode)
                 {
                     var content = await loginResponse.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[AuthHelper] Phone Login response: {content}");
                     // Phone login returns AuthResponseDto directly
                     var token = JsonHelper.GetNestedProperty(content, "accessToken")
-                                ?? JsonHelper.GetNestedProperty(content, "data", "accessToken");
+                                ?? JsonHelper.GetNestedProperty(content, "AccessToken")
+                                ?? JsonHelper.GetNestedProperty(content, "data", "accessToken")
+                                ?? JsonHelper.GetNestedProperty(content, "data", "AccessToken");
                     
                     if (!string.IsNullOrEmpty(token))
                     {
-                        Console.WriteLine($"[AuthHelper] Login Successful: Token retrieved");
+                        Console.WriteLine($"[AuthHelper] Login Successful: Token retrieved ({token.Length} chars)");
                         return token;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[AuthHelper] Token not found in phone login response");
                     }
                 }
                 else 
@@ -132,7 +139,7 @@ namespace OnlineShop.IntegrationTests.Helpers
             try 
             {
                 // Send OTP for registration
-                var registerOtpDto = new { PhoneNumber = AdminCredentials[0], Purpose = "register" };
+                var registerOtpDto = new { PhoneNumber = AdminCredentials[0], Purpose = "Registration" };
                 var otpResponse = await client.PostAsJsonAsync("/api/auth/send-otp", registerOtpDto);
                 
                 if (!otpResponse.IsSuccessStatusCode)
@@ -185,14 +192,21 @@ namespace OnlineShop.IntegrationTests.Helpers
                 if (registerResponse.IsSuccessStatusCode)
                 {
                     var content = await registerResponse.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[AuthHelper] Phone Registration response: {content}");
                     // Phone registration might return Result<AuthResponseDto> or AuthResponseDto
                     var token = JsonHelper.GetNestedProperty(content, "data", "accessToken")
-                                ?? JsonHelper.GetNestedProperty(content, "accessToken");
+                                ?? JsonHelper.GetNestedProperty(content, "data", "AccessToken")
+                                ?? JsonHelper.GetNestedProperty(content, "accessToken")
+                                ?? JsonHelper.GetNestedProperty(content, "AccessToken");
                     
                     if (!string.IsNullOrEmpty(token))
                     {
-                        Console.WriteLine($"[AuthHelper] Registration Successful: Token retrieved");
+                        Console.WriteLine($"[AuthHelper] Registration Successful: Token retrieved ({token.Length} chars)");
                         return token;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[AuthHelper] Token not found in registration response");
                     }
                 }
                 else 
@@ -418,14 +432,16 @@ namespace OnlineShop.IntegrationTests.Helpers
                     Console.WriteLine($"[AuthHelper] Login response: {content}");
                     
                     // AuthController returns AuthResponseDto directly (not wrapped in Result)
-                    // Try different property paths for token
+                    // .NET 6+ uses camelCase by default, so AccessToken becomes accessToken
                     var token = JsonHelper.GetNestedProperty(content, "accessToken")
+                                ?? JsonHelper.GetNestedProperty(content, "AccessToken")
                                 ?? JsonHelper.GetNestedProperty(content, "access_token")
-                                ?? JsonHelper.GetNestedProperty(content, "data", "accessToken");
+                                ?? JsonHelper.GetNestedProperty(content, "data", "accessToken")
+                                ?? JsonHelper.GetNestedProperty(content, "data", "AccessToken");
                     
                     if (!string.IsNullOrEmpty(token))
                     {
-                        Console.WriteLine($"[AuthHelper] Hardcoded Admin Login Successful: Token retrieved");
+                        Console.WriteLine($"[AuthHelper] Hardcoded Admin Login Successful: Token retrieved ({token.Length} chars)");
                         return token;
                     }
                     else
@@ -441,6 +457,7 @@ namespace OnlineShop.IntegrationTests.Helpers
             catch (Exception ex)
             {
                 Console.WriteLine($"[AuthHelper] Hardcoded Admin Login Exception: {ex.Message}");
+                Console.WriteLine($"[AuthHelper] Stack Trace: {ex.StackTrace}");
             }
             return null;
         }
