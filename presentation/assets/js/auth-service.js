@@ -127,7 +127,15 @@ class AuthService {
      */
     async register(userData) {
         try {
-            const response = await this.apiClient.post('/auth/register', userData);
+            // Use standard register endpoint
+            const response = await this.apiClient.post('/auth/register', {
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                phoneNumber: userData.phone,
+                email: userData.email || `${userData.phone}@temp.com`, // Use phone as email if no email provided
+                password: userData.password,
+                confirmPassword: userData.password
+            });
 
             // Handle different response structures
             let authData;
