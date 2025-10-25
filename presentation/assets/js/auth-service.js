@@ -138,7 +138,7 @@ class AuthService {
             console.error('Registration error:', error);
             return {
                 success: false,
-                error: error.message
+                error: this.apiClient.handleError(error)
             };
         }
     }

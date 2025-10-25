@@ -278,6 +278,84 @@ class UserProfileService {
             errors: errors
         };
     }
+
+    /**
+     * Get wallet balance
+     */
+    async getWalletBalance() {
+        try {
+            const response = await this.apiClient.get('/userpayment/wallet/balance');
+            return {
+                success: true,
+                data: response.data || response
+            };
+        } catch (error) {
+            console.error('Error fetching wallet balance:', error);
+            return {
+                success: false,
+                error: this.apiClient.handleError(error)
+            };
+        }
+    }
+
+    /**
+     * Get wallet transactions
+     */
+    async getWalletTransactions(searchCriteria = {}) {
+        try {
+            const response = await this.apiClient.post('/userpayment/wallet/transactions', searchCriteria);
+            return {
+                success: true,
+                data: response.data || response
+            };
+        } catch (error) {
+            console.error('Error fetching wallet transactions:', error);
+            return {
+                success: false,
+                error: this.apiClient.handleError(error)
+            };
+        }
+    }
+
+    /**
+     * Deposit to wallet
+     */
+    async depositToWallet(amount) {
+        try {
+            const response = await this.apiClient.post('/userpayment/wallet/deposit', { amount });
+            return {
+                success: true,
+                data: response.data || response,
+                message: 'واریز با موفقیت انجام شد'
+            };
+        } catch (error) {
+            console.error('Error depositing to wallet:', error);
+            return {
+                success: false,
+                error: this.apiClient.handleError(error)
+            };
+        }
+    }
+
+    /**
+     * Withdraw from wallet
+     */
+    async withdrawFromWallet(amount) {
+        try {
+            const response = await this.apiClient.post('/userpayment/wallet/withdraw', { amount });
+            return {
+                success: true,
+                data: response.data || response,
+                message: 'برداشت با موفقیت انجام شد'
+            };
+        } catch (error) {
+            console.error('Error withdrawing from wallet:', error);
+            return {
+                success: false,
+                error: this.apiClient.handleError(error)
+            };
+        }
+    }
 }
 
 // Create global instance

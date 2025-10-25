@@ -57,8 +57,11 @@ class OrderService {
      */
     async getRecentOrders(limit = 5) {
         try {
-            const response = await this.getOrders(1, limit);
-            return response;
+            const response = await this.apiClient.get(`/userorder/recent?limit=${limit}`);
+            return {
+                success: true,
+                data: response.data || response
+            };
         } catch (error) {
             console.error('Error fetching recent orders:', error);
             return {
