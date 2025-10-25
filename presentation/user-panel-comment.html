@@ -584,7 +584,7 @@
                     <p class="text-gray-600 dark:text-gray-400">مدیریت و مشاهده تمام نظرات ارسال شده توسط شما</p>
                 </div>
                 <div class="mt-4 md:mt-0">
-                    <button class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary/80 transition-colors">
+                    <button onclick="openCommentModal()" class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary/80 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                         </svg>
@@ -1212,6 +1212,11 @@
         await loadReviews();
         setupEventListeners();
     });
+
+    // Open comment modal
+    function openCommentModal() {
+        window.utils.showToast('فرم ارسال نظر در حال توسعه است', 'info');
+    }
 
     // Setup event listeners
     function setupEventListeners() {

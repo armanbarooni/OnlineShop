@@ -1095,21 +1095,30 @@
 </div>
 <script>
     // Modal Manager
-    const addressModal = document.getElementById('addressModal');
+    let addressModal;
+
+    // Initialize modal when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        addressModal = document.getElementById('addressModal');
+    });
 
     // Function to open the modal
     function openAddressModal() {
-        addressModal.classList.remove('hidden');
+        if (addressModal) {
+            addressModal.classList.remove('hidden');
+        }
     }
 
     // Function to close the modal
     function closeAddressModal() {
-        addressModal.classList.add('hidden');
+        if (addressModal) {
+            addressModal.classList.add('hidden');
+        }
     }
 
     // Close the modal when clicking outside of it
     document.addEventListener('click', (event) => {
-        if (event.target === addressModal) {
+        if (addressModal && event.target === addressModal) {
             closeAddressModal();
         }
     });
