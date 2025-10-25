@@ -268,7 +268,7 @@
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-500 dark:text-gray-400">
                         قبلاً حساب کاربری دارید؟
-                        <a href="#" class="font-medium text-primary dark:text-primary-dark hover:underline">وارد شوید</a>
+                        <a href="login.html" class="font-medium text-primary dark:text-primary-dark hover:underline">وارد شوید</a>
                     </p>
                 </div>
             </div>
@@ -312,6 +312,14 @@
         // Show next step
         document.getElementById(`step${next}`).classList.add('active');
         currentStep = next;
+
+        // Update step indicator
+        updateStepIndicator(current, next);
+
+        // If next step is review, show the info
+        if(next === 3) {
+            updateReviewSection();
+        }
     }
 
     // Validate step 1 (Personal Info)
@@ -551,15 +559,6 @@
         }
     });
 
-        // Update step indicator
-        updateStepIndicator(current, next);
-
-        // If next step is review, show the info
-        if(next === 3) {
-            updateReviewSection();
-        }
-    }
-
     function prevStep(current, prev) {
         // Hide current step
         document.getElementById(`step${current}`).classList.remove('active');
@@ -634,7 +633,7 @@
                 
                 // Redirect to dashboard after short delay
                 setTimeout(() => {
-                    window.location.href = '/user-panel-index.html';
+                    window.location.href = 'user-panel-index.html';
                 }, 2000);
             } else {
                 showRegisterError(result.error || 'خطا در ثبت نام. لطفا دوباره تلاش کنید.');
@@ -667,8 +666,10 @@
         `;
 
         // Insert error message at the top of the form
-        const form = document.querySelector('.registration-form');
-        form.insertBefore(errorDiv, form.firstChild);
+        const form = document.querySelector('.bg-white.dark\\:bg-gray-800');
+        if (form) {
+            form.insertBefore(errorDiv, form.firstChild);
+        }
 
         // Automatically remove error message after 5 seconds
         setTimeout(() => {
@@ -694,8 +695,10 @@
         `;
 
         // Insert success message at the top of the form
-        const form = document.querySelector('.registration-form');
-        form.insertBefore(successDiv, form.firstChild);
+        const form = document.querySelector('.bg-white.dark\\:bg-gray-800');
+        if (form) {
+            form.insertBefore(successDiv, form.firstChild);
+        }
 
         // Automatically remove success message after 3 seconds
         setTimeout(() => {
@@ -799,3 +802,804 @@
 
 </body>
 </html>
+
+
+                startOtpTimer();
+
+            } else {
+
+                window.utils.showToast(response.error || 'خطا در ارسال کد تایید', 'error');
+
+            }
+
+        } catch (error) {
+
+            console.error('Error sending OTP:', error);
+
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+
+        } finally {
+
+            const submitButton = document.getElementById('sendOtpButton');
+
+            window.utils.hideLoading(submitButton);
+
+        }
+
+    }
+
+
+
+    // Start OTP timer
+
+    function startOtpTimer() {
+
+        let timeLeft = 120; // 2 minutes
+
+        const timerElement = document.getElementById('otpTimer');
+
+        const resendButton = document.getElementById('resendOtpButton');
+
+
+
+        const timer = setInterval(() => {
+
+            const minutes = Math.floor(timeLeft / 60);
+
+            const seconds = timeLeft % 60;
+
+            
+
+            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            
+
+            if (timeLeft <= 0) {
+
+                clearInterval(timer);
+
+                timerElement.style.display = 'none';
+
+                resendButton.style.display = 'inline-block';
+
+            }
+
+            
+
+            timeLeft--;
+
+        }, 1000);
+
+    }
+
+
+
+    // Resend OTP
+
+    async function resendOTP() {
+
+        await sendOTP();
+
+    }
+
+
+
+    // Complete registration
+
+    async function completeRegistration() {
+
+        if (!validateStep3()) {
+
+            return;
+
+        }
+
+
+
+        try {
+
+            const submitButton = document.getElementById('completeRegistrationButton');
+
+            window.utils.showLoading(submitButton, 'در حال ثبت‌نام...');
+
+
+
+            const response = await window.authService.registerWithPhone({
+
+                firstName: registrationData.firstName,
+
+                lastName: registrationData.lastName,
+
+                mobile: registrationData.mobile,
+
+                password: registrationData.password,
+
+                otp: registrationData.otp
+
+            });
+
+
+
+            if (response.success) {
+
+                window.utils.showToast('ثبت‌نام با موفقیت انجام شد', 'success');
+
+                setTimeout(() => {
+
+                    window.location.href = 'login.html';
+
+                }, 2000);
+
+            } else {
+
+                window.utils.showToast(response.error || 'خطا در ثبت‌نام', 'error');
+
+            }
+
+        } catch (error) {
+
+            console.error('Error completing registration:', error);
+
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+
+        } finally {
+
+            const submitButton = document.getElementById('completeRegistrationButton');
+
+            window.utils.hideLoading(submitButton);
+
+        }
+
+    }
+
+
+
+    // Password strength checker
+
+    function checkPasswordStrength(showFeedback = false) {
+
+        const password = document.getElementById('password').value;
+
+        let strength = 0;
+
+        const feedback = [];
+
+
+
+        if (password.length >= 8) {
+
+            strength++;
+
+        } else {
+
+            feedback.push('حداقل ۸ کاراکتر');
+
+        }
+
+
+
+        if (/[a-z]/.test(password)) {
+
+            strength++;
+
+        } else {
+
+            feedback.push('حداقل یک حرف کوچک');
+
+        }
+
+
+
+        if (/[A-Z]/.test(password)) {
+
+            strength++;
+
+        } else {
+
+            feedback.push('حداقل یک حرف بزرگ');
+
+        }
+
+
+
+        if (/[0-9]/.test(password)) {
+
+            strength++;
+
+        } else {
+
+            feedback.push('حداقل یک عدد');
+
+        }
+
+
+
+        if (/[^A-Za-z0-9]/.test(password)) {
+
+            strength++;
+
+        } else {
+
+            feedback.push('حداقل یک کاراکتر خاص');
+
+        }
+
+
+
+        if (showFeedback && feedback.length > 0) {
+
+            window.utils.showToast(feedback.join('، '), 'info');
+
+        }
+
+
+
+        return strength;
+
+    }
+
+
+
+    // Toggle password visibility
+
+    function togglePasswordVisibility(inputId) {
+
+        const input = document.getElementById(inputId);
+
+        const icon = document.querySelector(`[onclick="togglePasswordVisibility('${inputId}')"] i`);
+
+        
+
+        if (input.type === 'password') {
+
+            input.type = 'text';
+
+            icon.classList.remove('fa-eye');
+
+            icon.classList.add('fa-eye-slash');
+
+        } else {
+
+            input.type = 'password';
+
+            icon.classList.remove('fa-eye-slash');
+
+            icon.classList.add('fa-eye');
+
+        }
+
+    }
+
+
+
+    // Initialize page
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // Add event listeners
+
+        const passwordInput = document.getElementById('password');
+
+        if (passwordInput) {
+
+            passwordInput.addEventListener('input', function() {
+
+                checkPasswordStrength();
+
+            });
+
+        }
+
+
+
+        // Auto-focus first input
+
+        const firstInput = document.querySelector('input[required]');
+
+        if (firstInput) {
+
+            firstInput.focus();
+
+        }
+
+    });
+
+
+
+        // Update step indicator
+
+        updateStepIndicator(current, next);
+
+
+
+        // If next step is review, show the info
+
+        if(next === 3) {
+
+            updateReviewSection();
+
+        }
+
+    }
+
+
+
+    function prevStep(current, prev) {
+
+        // Hide current step
+
+        document.getElementById(`step${current}`).classList.remove('active');
+
+
+
+        // Show previous step
+
+        document.getElementById(`step${prev}`).classList.add('active');
+
+
+
+        // Update step indicator
+
+        updateStepIndicator(current, prev, false);
+
+    }
+
+
+
+    function updateStepIndicator(current, next, isNext = true) {
+
+        // Update step circle
+
+        document.querySelector(`.step-circle[data-step="${next}"]`).classList.remove('inactive');
+
+        document.querySelector(`.step-circle[data-step="${next}"]`).classList.add('active');
+
+
+
+        // Update connecting line
+
+        if(isNext) {
+
+            document.querySelectorAll('.step-line')[current-1].classList.add('active');
+
+        } else {
+
+            document.querySelectorAll('.step-line')[next-1].classList.remove('active');
+
+            document.querySelector(`.step-circle[data-step="${current}"]`).classList.remove('active');
+
+            document.querySelector(`.step-circle[data-step="${current}"]`).classList.add('inactive');
+
+        }
+
+    }
+
+
+
+    function updateReviewSection() {
+
+        document.getElementById('review-name').textContent =
+
+            `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`;
+
+
+
+        document.getElementById('review-mobile').textContent =
+
+            document.getElementById('mobile').value;
+
+
+
+        document.getElementById('review-email').textContent =
+
+            document.getElementById('email').value || 'وارد نشده';
+
+    }
+
+
+
+    async function submitForm() {
+
+        const terms = document.getElementById('terms').checked;
+
+
+
+        if(!terms) {
+
+            showRegisterError('لطفا با قوانین و مقررات موافقت کنید');
+
+            return;
+
+        }
+
+
+
+        // Get form data
+
+        const formData = {
+
+            firstName: document.getElementById('first-name').value,
+
+            lastName: document.getElementById('last-name').value,
+
+            phone: document.getElementById('mobile').value,
+
+            email: document.getElementById('email').value || null,
+
+            password: document.getElementById('password').value
+
+        };
+
+
+
+        // Show loading state
+
+        const submitBtn = document.querySelector('[onclick="submitForm()"]');
+
+        const originalText = submitBtn.innerHTML;
+
+        submitBtn.disabled = true;
+
+        submitBtn.innerHTML = `
+
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+
+            </svg>
+
+            در حال ثبت نام...
+
+        `;
+
+
+
+        try {
+
+            const result = await authService.register(formData);
+
+
+
+            if (result.success) {
+
+                showRegisterSuccess('ثبت نام شما با موفقیت انجام شد!');
+
+                
+
+                // Redirect to dashboard after short delay
+
+                setTimeout(() => {
+
+                    window.location.href = '/user-panel-index.html';
+
+                }, 2000);
+
+            } else {
+
+                showRegisterError(result.error || 'خطا در ثبت نام. لطفا دوباره تلاش کنید.');
+
+            }
+
+        } catch (error) {
+
+            console.error('Registration error:', error);
+
+            showRegisterError('خطا در اتصال به سرور. لطفا دوباره تلاش کنید.');
+
+        } finally {
+
+            // Reset button state
+
+            submitBtn.disabled = false;
+
+            submitBtn.innerHTML = originalText;
+
+        }
+
+    }
+
+
+
+    // Function to show register error message
+
+    function showRegisterError(message) {
+
+        // Remove existing error messages
+
+        const existingErrors = document.querySelectorAll('.register-error-message');
+
+        existingErrors.forEach(el => el.remove());
+
+
+
+        const errorDiv = document.createElement('div');
+
+        errorDiv.className = 'register-error-message mb-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-xl border border-red-200 dark:border-red-800';
+
+        errorDiv.innerHTML = `
+
+            <div class="flex items-center">
+
+                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+
+                </svg>
+
+                ${message}
+
+            </div>
+
+        `;
+
+
+
+        // Insert error message at the top of the form
+
+        const form = document.querySelector('.registration-form');
+
+        form.insertBefore(errorDiv, form.firstChild);
+
+
+
+        // Automatically remove error message after 5 seconds
+
+        setTimeout(() => {
+
+            errorDiv.remove();
+
+        }, 5000);
+
+    }
+
+
+
+    // Function to show register success message
+
+    function showRegisterSuccess(message) {
+
+        // Remove existing messages
+
+        const existingMessages = document.querySelectorAll('.register-success-message, .register-error-message');
+
+        existingMessages.forEach(el => el.remove());
+
+
+
+        const successDiv = document.createElement('div');
+
+        successDiv.className = 'register-success-message mb-4 p-4 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-300 rounded-xl border border-green-200 dark:border-green-800';
+
+        successDiv.innerHTML = `
+
+            <div class="flex items-center">
+
+                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+
+                </svg>
+
+                ${message}
+
+            </div>
+
+        `;
+
+
+
+        // Insert success message at the top of the form
+
+        const form = document.querySelector('.registration-form');
+
+        form.insertBefore(successDiv, form.firstChild);
+
+
+
+        // Automatically remove success message after 3 seconds
+
+        setTimeout(() => {
+
+            successDiv.remove();
+
+        }, 3000);
+
+    }
+
+
+
+    // Show/hide password function
+
+    function togglePassword(id) {
+
+        const passwordInput = document.getElementById(id);
+
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+
+        passwordInput.setAttribute('type', type);
+
+    }
+
+
+
+    // Password strength checker function
+
+    function checkPasswordStrength(silent = false) {
+
+        const password = document.getElementById('password').value;
+
+        const strengthBar = document.getElementById('password-strength-bar');
+
+
+
+        // Check password conditions
+
+        const hasMinLength = password.length >= 8;
+
+        const hasUpperCase = /[A-Z]/.test(password);
+
+        const hasLowerCase = /[a-z]/.test(password);
+
+        const hasNumber = /[0-9]/.test(password);
+
+        const hasSpecialChar = /[!@#$%^&*]/.test(password);
+
+
+
+        // Update requirement indicators
+
+        updateRequirement('req-length', hasMinLength);
+
+        updateRequirement('req-uppercase', hasUpperCase);
+
+        updateRequirement('req-lowercase', hasLowerCase);
+
+        updateRequirement('req-number', hasNumber);
+
+        updateRequirement('req-special', hasSpecialChar);
+
+
+
+        // Calculate password strength
+
+        let strength = 0;
+
+        if(hasMinLength) strength++;
+
+        if(hasUpperCase) strength++;
+
+        if(hasLowerCase) strength++;
+
+        if(hasNumber) strength++;
+
+        if(hasSpecialChar) strength++;
+
+
+
+        // Update strength bar
+
+        strengthBar.className = 'password-strength-bar';
+
+
+
+        if(password.length === 0) {
+
+            strengthBar.style.width = '0';
+
+        } else {
+
+            switch(strength) {
+
+                case 1:
+
+                    strengthBar.classList.add('password-strength-weak');
+
+                    break;
+
+                case 2:
+
+                    strengthBar.classList.add('password-strength-weak');
+
+                    break;
+
+                case 3:
+
+                    strengthBar.classList.add('password-strength-medium');
+
+                    break;
+
+                case 4:
+
+                    strengthBar.classList.add('password-strength-medium');
+
+                    break;
+
+                case 5:
+
+                    strengthBar.classList.add('password-strength-strong');
+
+                    break;
+
+                default:
+
+                    strengthBar.style.width = '0';
+
+            }
+
+        }
+
+
+
+        // Check if password matches
+
+        checkPasswordMatch();
+
+
+
+        return strength;
+
+    }
+
+
+
+    function updateRequirement(id, isValid) {
+
+        const element = document.getElementById(id);
+
+        element.classList.remove('valid', 'invalid');
+
+        element.classList.add(isValid ? 'valid' : 'invalid');
+
+    }
+
+
+
+    // Password match checker function
+
+    function checkPasswordMatch() {
+
+        const password = document.getElementById('password').value;
+
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        const messageElement = document.getElementById('password-match-message');
+
+
+
+        if(password && confirmPassword) {
+
+            if(password === confirmPassword) {
+
+                messageElement.textContent = 'رمز عبورها مطابقت دارند';
+
+                messageElement.style.color = '#10B981';
+
+            } else {
+
+                messageElement.textContent = 'رمز عبورها مطابقت ندارند';
+
+                messageElement.style.color = '#EF4444';
+
+            }
+
+        } else {
+
+            messageElement.textContent = '';
+
+        }
+
+    }
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
+
+

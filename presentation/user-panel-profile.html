@@ -992,6 +992,7 @@
 <!-- /canvas responsive menu -->
 
 
+<script src="config.js"></script>
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
 <script src="assets/js/api-client.js"></script>
@@ -1011,7 +1012,7 @@
         try {
             window.utils.showLoading(document.getElementById('profileForm'), 'در حال بارگذاری...');
             
-            const response = await userProfileService.getUserProfile();
+            const response = await window.userProfileService.getUserProfile();
             
             if (response.success && response.data) {
                 populateProfileForm(response.data);
@@ -1087,7 +1088,7 @@
         };
 
         // Validate profile data
-        const validation = userProfileService.validateProfileData(profileData);
+        const validation = window.userProfileService.validateProfileData(profileData);
         if (!validation.isValid) {
             displayValidationErrors(validation.errors);
             return;
@@ -1096,7 +1097,7 @@
         try {
             window.utils.showLoading(this.querySelector('button[type="submit"]'), 'در حال ذخیره...');
             
-            const response = await userProfileService.updateProfile(profileData);
+            const response = await window.userProfileService.updateProfile(profileData);
             
             if (response.success) {
                 window.utils.showToast('پروفایل با موفقیت بروزرسانی شد', 'success');
@@ -1153,7 +1154,7 @@
         try {
             window.utils.showLoading(this, 'در حال آپلود...');
             
-            const response = await userProfileService.uploadProfilePicture(file);
+            const response = await window.userProfileService.uploadProfilePicture(file);
             
             if (response.success) {
                 window.utils.showToast('تصویر پروفایل با موفقیت آپلود شد', 'success');
@@ -1196,7 +1197,7 @@
         try {
             window.utils.showLoading(this.querySelector('button[type="submit"]'), 'در حال تغییر...');
             
-            const response = await userProfileService.changePassword(currentPassword, newPassword);
+            const response = await window.userProfileService.changePassword(currentPassword, newPassword);
             
             if (response.success) {
                 window.utils.showToast('رمز عبور با موفقیت تغییر یافت', 'success');

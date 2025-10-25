@@ -18,17 +18,8 @@ class AuthService {
                 password: password
             });
 
-            // Handle different response structures
-            let authData;
-            if (response.accessToken) {
-                // Direct response
-                authData = response;
-            } else if (response.data && response.data.accessToken) {
-                // Wrapped response
-                authData = response.data;
-            } else {
-                throw new Error('Invalid response format');
-            }
+            // Handle response structure - now API client returns data directly for auth endpoints
+            let authData = response;
 
             // Store tokens
             this.apiClient.setTokens(authData.accessToken, authData.refreshToken);
@@ -49,7 +40,7 @@ class AuthService {
             console.error('Login error:', error);
             return {
                 success: false,
-                error: this.apiClient.handleError(error)
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }
@@ -72,7 +63,7 @@ class AuthService {
             console.error('Send OTP error:', error);
             return {
                 success: false,
-                error: this.apiClient.handleError(error)
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }
@@ -87,15 +78,8 @@ class AuthService {
                 code: code
             });
 
-            // Handle different response structures
-            let authData;
-            if (response.accessToken) {
-                authData = response;
-            } else if (response.data && response.data.accessToken) {
-                authData = response.data;
-            } else {
-                throw new Error('Invalid response format');
-            }
+            // Handle response structure - now API client returns data directly for auth endpoints
+            let authData = response;
 
             // Store tokens
             this.apiClient.setTokens(authData.accessToken, authData.refreshToken);
@@ -117,7 +101,7 @@ class AuthService {
             console.error('Verify OTP error:', error);
             return {
                 success: false,
-                error: this.apiClient.handleError(error)
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }
@@ -137,15 +121,8 @@ class AuthService {
                 confirmPassword: userData.password
             });
 
-            // Handle different response structures
-            let authData;
-            if (response.accessToken) {
-                authData = response;
-            } else if (response.data && response.data.accessToken) {
-                authData = response.data;
-            } else {
-                throw new Error('Invalid response format');
-            }
+            // Handle response structure - now API client returns data directly for auth endpoints
+            let authData = response;
 
             // Store tokens
             this.apiClient.setTokens(authData.accessToken, authData.refreshToken);
@@ -239,7 +216,7 @@ class AuthService {
             console.error('Change password error:', error);
             return {
                 success: false,
-                error: this.apiClient.handleError(error)
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }
@@ -261,7 +238,7 @@ class AuthService {
             console.error('Forgot password error:', error);
             return {
                 success: false,
-                error: this.apiClient.handleError(error)
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }
@@ -284,7 +261,7 @@ class AuthService {
             console.error('Reset password error:', error);
             return {
                 success: false,
-                error: this.apiClient.handleError(error)
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }

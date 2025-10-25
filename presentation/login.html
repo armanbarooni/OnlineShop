@@ -218,7 +218,7 @@
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-500 dark:text-gray-400">
                         حساب کاربری ندارید؟
-                        <a href="#" class="font-medium text-primary dark:text-primary-dark hover:underline">ثبت نام کنید</a>
+                        <a href="register.html" class="font-medium text-primary dark:text-primary-dark hover:underline">ثبت نام کنید</a>
                     </p>
                 </div>
             </div>
@@ -226,6 +226,7 @@
     </div>
 </div>
 
+<script src="config.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
 <script src="assets/js/api-client.js"></script>
 <script src="assets/js/auth-service.js"></script>
@@ -418,7 +419,7 @@
                     
                     // Redirect to dashboard after short delay
                     setTimeout(() => {
-                        window.location.href = '/user-panel-index.html';
+                        window.location.href = 'user-panel-index.html';
                     }, 1500);
                 } else {
                     showLoginError(result.error || 'خطا در ورود. لطفا دوباره تلاش کنید.');
@@ -483,7 +484,7 @@
                 
                 // Redirect to dashboard after short delay
                 setTimeout(() => {
-                    window.location.href = '/user-panel-index.html';
+                    window.location.href = 'user-panel-index.html';
                 }, 1500);
             } else {
                 showLoginError(result.error || 'کد تایید نامعتبر است');

@@ -1441,12 +1441,12 @@
 <!-- /canvas responsive menu -->
 
 
+<script src="config.js"></script>
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
 <script src="assets/js/api-client.js"></script>
 <script src="assets/js/auth-service.js"></script>
 <script src="assets/js/auth-guard.js"></script>
-<script src="assets/js/dashboard-service.js"></script>
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/services/user-profile-service.js"></script>
 <script src="assets/js/services/order-service.js"></script>
@@ -1469,19 +1469,19 @@
             showLoadingState();
 
             // Load user profile
-            const userProfileResponse = await userProfileService.getUserProfile();
+            const userProfileResponse = await window.userProfileService.getUserProfile();
             
             // Load recent orders
-            const ordersResponse = await orderService.getRecentOrders(5);
+            const ordersResponse = await window.orderService.getRecentOrders(5);
             
             // Load wishlist count
-            const wishlistResponse = await wishlistService.getWishlistCount();
+            const wishlistResponse = await window.wishlistService.getWishlistCount();
             
             // Load user statistics
-            const statsResponse = await userProfileService.getUserStatistics();
+            const statsResponse = await window.userProfileService.getUserStatistics();
             
             // Load notifications
-            const notificationsResponse = await userProfileService.getNotifications();
+            const notificationsResponse = await window.userProfileService.getNotifications();
 
             const dashboardData = {
                 success: true,

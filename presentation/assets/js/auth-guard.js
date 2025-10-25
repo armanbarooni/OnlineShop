@@ -127,7 +127,7 @@ class AuthGuard {
         const currentUrl = window.location.href;
         localStorage.setItem('intendedUrl', currentUrl);
         
-        window.location.href = '/login.html';
+        window.location.href = 'login.html';
     }
 
     /**
@@ -139,7 +139,7 @@ class AuthGuard {
             localStorage.removeItem('intendedUrl');
             window.location.href = intendedUrl;
         } else {
-            window.location.href = '/user-panel-index.html';
+            window.location.href = 'user-panel-index.html';
         }
     }
 

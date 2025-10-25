@@ -42,7 +42,23 @@ class ApiClient {
                 if (refreshed) {
                     // Retry the original request
                     config.headers = this.getHeaders();
-                    return await fetch(url, config);
+                    const retryResponse = await fetch(url, config);
+                    const retryData = await retryResponse.json();
+                    
+                    if (!retryResponse.ok) {
+                        throw new Error(retryData.message || `HTTP error! status: ${retryResponse.status}`);
+                    }
+
+                    // Return data directly for auth endpoints, wrapped for others
+                    if (endpoint.startsWith('/auth/')) {
+                        return retryData;
+                    }
+
+                    return {
+                        success: true,
+                        data: retryData,
+                        status: retryResponse.status
+                    };
                 }
             }
 
@@ -50,6 +66,11 @@ class ApiClient {
             
             if (!response.ok) {
                 throw new Error(data.message || `HTTP error! status: ${response.status}`);
+            }
+
+            // Return data directly for auth endpoints, wrapped for others
+            if (endpoint.startsWith('/auth/')) {
+                return data;
             }
 
             return {
@@ -87,6 +108,7 @@ class ApiClient {
             if (response.ok) {
                 const data = await response.json();
                 this.token = data.accessToken;
+                this.refreshToken = data.refreshToken;
                 localStorage.setItem('accessToken', data.accessToken);
                 localStorage.setItem('refreshToken', data.refreshToken);
                 return true;
@@ -183,6 +205,11 @@ class ApiClient {
         }
     }
 
+    // Set tokens (plural) - for compatibility with auth-service
+    setTokens(accessToken, refreshToken = null) {
+        this.setToken(accessToken, refreshToken);
+    }
+
     // Clear tokens
     clearTokens() {
         this.token = null;
@@ -200,6 +227,20 @@ class ApiClient {
     // Check if user is authenticated
     isAuthenticated() {
         return !!this.token;
+    }
+
+    // Handle API errors
+    handleError(error) {
+        if (error.response) {
+            // Server responded with error status
+            return error.response.data?.message || error.response.statusText || 'خطا در سرور';
+        } else if (error.request) {
+            // Request was made but no response received
+            return 'خطا در اتصال به سرور';
+        } else {
+            // Something else happened
+            return error.message || 'خطای نامشخص';
+        }
     }
 }
 

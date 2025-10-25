@@ -4,8 +4,10 @@ Write-Host "Starting OnlineShop project..."
 
 # Check Node.js
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-    Write-Host "Node.js is not installed! Please install Node.js."
-    exit 1
+    Write-Host "Node.js is not installed! Skipping frontend startup." -ForegroundColor Yellow
+    $skipFrontend = $true
+} else {
+    $skipFrontend = $false
 }
 
 # Check .NET SDK
@@ -28,35 +30,61 @@ try {
 
 Write-Host "Node.js and .NET confirmed."
 
-# Frontend dependencies
-Write-Host "Checking frontend dependencies..."
-if (-not (Test-Path "presentation/node_modules")) {
-    Write-Host "Installing frontend dependencies..."
-    Set-Location "presentation"
-    npm install
-    Set-Location ".."
+# Frontend dependencies (only if Node.js is available)
+if (-not $skipFrontend) {
+    Write-Host "Checking frontend dependencies..."
+    if (-not (Test-Path "presentation/node_modules")) {
+        Write-Host "Installing frontend dependencies..."
+        Set-Location "presentation"
+        npm install
+        Set-Location ".."
+    }
 }
 
 # Database migration
 Write-Host "Running database migration..."
 Set-Location "src/WebAPI"
+
+# First, ensure the project builds successfully
+Write-Host "Build started..."
+$buildResult = dotnet build --verbosity quiet
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Build failed! Cannot continue with migration." -ForegroundColor Red
+    Write-Host "Please fix build errors before running migrations." -ForegroundColor Red
+    Set-Location "../.."
+    exit 1
+}
+Write-Host "Build succeeded."
+
+# Now run migration
 try {
-    dotnet ef database update
+    $migrationResult = dotnet ef database update
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Migration failed!" -ForegroundColor Red
+        Set-Location "../.."
+        exit 1
+    }
     Write-Host "Database migration successful."
 } catch {
-    Write-Host "Database migration error. Database might already be up to date."
+    Write-Host "Database migration error. Database might already be up to date." -ForegroundColor Yellow
 }
 Set-Location "../.."
 
 # Start frontend & backend
-Write-Host "Starting frontend and backend..."
+Write-Host "Starting backend..."
 
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd presentation; npm run start" -WindowStyle Normal
-Start-Sleep -Seconds 3
+if (-not $skipFrontend) {
+    Write-Host "Starting frontend and backend..."
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd presentation; npm run start" -WindowStyle Normal
+    Start-Sleep -Seconds 3
+    Write-Host "Frontend: http://localhost:8080"
+} else {
+    Write-Host "Skipping frontend startup (Node.js not available)"
+}
+
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd src/WebAPI; dotnet run --urls 'http://localhost:5000'" -WindowStyle Normal
 
 Write-Host "Project started!"
-Write-Host "Frontend: http://localhost:8080"
 Write-Host "Backend: http://localhost:5000"
 Write-Host "Swagger: http://localhost:5000/swagger"
 Write-Host "API: http://localhost:5000/api"

@@ -1107,6 +1107,7 @@
 <!-- /canvas responsive menu -->
 
 
+<script src="config.js"></script>
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
 <script src="assets/js/api-client.js"></script>
@@ -1158,7 +1159,7 @@
                 ...filters
             };
 
-            const response = await orderService.searchOrders(searchCriteria);
+            const response = await window.orderService.searchOrders(searchCriteria);
             
             if (response.success && response.data) {
                 displayOrders(response.data.items || []);
