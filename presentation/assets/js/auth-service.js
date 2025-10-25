@@ -222,17 +222,17 @@ class AuthService {
     }
 
     /**
-     * Forgot password - send reset email
+     * Forgot password - send OTP to phone number
      */
-    async forgotPassword(email) {
+    async forgotPassword(phoneNumber) {
         try {
             const response = await this.apiClient.post('/auth/forgot-password', {
-                email: email
+                phoneNumber: phoneNumber
             });
 
             return {
                 success: true,
-                message: 'لینک بازیابی رمز عبور به ایمیل شما ارسال شد'
+                message: 'کد بازیابی رمز عبور به شماره موبایل شما ارسال شد'
             };
         } catch (error) {
             console.error('Forgot password error:', error);
@@ -244,12 +244,13 @@ class AuthService {
     }
 
     /**
-     * Reset password with token
+     * Reset password with OTP
      */
-    async resetPassword(token, newPassword) {
+    async resetPassword(phoneNumber, otpCode, newPassword) {
         try {
             const response = await this.apiClient.post('/auth/reset-password', {
-                token: token,
+                phoneNumber: phoneNumber,
+                otpCode: otpCode,
                 newPassword: newPassword
             });
 

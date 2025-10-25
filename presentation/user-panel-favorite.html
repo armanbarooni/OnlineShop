@@ -1410,6 +1410,7 @@
 <!-- /canvas responsive menu -->
 
 
+<script src="config.js"></script>
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
 <script src="assets/js/api-client.js"></script>
@@ -1417,6 +1418,7 @@
 <script src="assets/js/auth-guard.js"></script>
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/services/wishlist-service.js"></script>
+<script src="assets/js/services/cart-service.js"></script>
 
 <script>
     let currentPage = 1;
@@ -1461,7 +1463,7 @@
                 ...filters
             };
 
-            const response = await wishlistService.getWishlistItems(searchCriteria);
+            const response = await window.wishlistService.getWishlistItems(searchCriteria);
             
             if (response.success && response.data) {
                 displayWishlistItems(response.data.items || []);
@@ -1596,7 +1598,7 @@
         }
 
         try {
-            const response = await wishlistService.removeFromWishlist(itemId);
+            const response = await window.wishlistService.removeFromWishlist(itemId);
             
             if (response.success) {
                 window.utils.showToast('محصول از علاقه‌مندی‌ها حذف شد', 'success');
@@ -1611,9 +1613,24 @@
     }
 
     // Add product to cart
-    function addToCart(productId) {
-        // This would typically redirect to product page or add to cart
-        window.location.href = `/product/${productId}`;
+    async function addToCart(productId) {
+        try {
+            window.utils.showToast('در حال افزودن به سبد خرید...', 'info');
+            
+            const response = await window.cartService.addToCart({
+                productId: productId,
+                quantity: 1
+            });
+            
+            if (response.success) {
+                window.utils.showToast('محصول به سبد خرید اضافه شد', 'success');
+            } else {
+                window.utils.showToast(response.error || 'خطا در افزودن به سبد خرید', 'error');
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        }
     }
 
     // View product details
@@ -1734,7 +1751,7 @@
         }
 
         try {
-            const response = await wishlistService.clearWishlist();
+            const response = await window.wishlistService.clearWishlist();
             
             if (response.success) {
                 window.utils.showToast('تمام محصولات از علاقه‌مندی‌ها حذف شدند', 'success');

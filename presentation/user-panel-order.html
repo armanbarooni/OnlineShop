@@ -1129,29 +1129,54 @@
 
     // Setup event listeners
     function setupEventListeners() {
-        // Search form
-        const searchForm = document.getElementById('searchForm');
-        if (searchForm) {
-            searchForm.addEventListener('submit', handleSearch);
+        // Filter form
+        const filterForm = document.querySelector('.bg-white.dark\\:bg-card-dark.rounded-xl.shadow-soft');
+        if (filterForm) {
+            const applyFilterBtn = filterForm.querySelector('button');
+            if (applyFilterBtn) {
+                applyFilterBtn.addEventListener('click', handleFilterApply);
+            }
         }
 
-        // Filter buttons
+        // Filter buttons in the table header
         const filterButtons = document.querySelectorAll('[data-filter]');
         filterButtons.forEach(button => {
             button.addEventListener('click', handleFilter);
         });
 
         // Pagination
-        const paginationContainer = document.getElementById('pagination');
+        const paginationContainer = document.querySelector('.flex.space-x-2.space-x-2');
         if (paginationContainer) {
             paginationContainer.addEventListener('click', handlePagination);
+        }
+
+        // Order tracking form
+        const trackingForm = document.querySelector('input[placeholder="شماره سفارش خود را وارد کنید"]');
+        if (trackingForm) {
+            const trackingBtn = trackingForm.nextElementSibling;
+            if (trackingBtn) {
+                trackingBtn.addEventListener('click', handleOrderTracking);
+            }
         }
     }
 
     // Load user orders
     async function loadOrders(filters = {}) {
         try {
-            window.utils.showLoading(document.getElementById('ordersContainer'), 'در حال بارگذاری...');
+            // Show loading on the table body
+            const tableBody = document.querySelector('tbody');
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                            <div class="flex items-center justify-center">
+                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                                <span class="mr-2">در حال بارگذاری...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
             
             const searchCriteria = {
                 page: currentPage,
@@ -1170,78 +1195,76 @@
         } catch (error) {
             console.error('Error loading orders:', error);
             window.utils.showToast('خطا در اتصال به سرور', 'error');
-        } finally {
-            window.utils.hideLoading(document.getElementById('ordersContainer'));
         }
     }
 
     // Display orders in the UI
     function displayOrders(orders) {
-        const container = document.getElementById('ordersContainer');
-        if (!container) return;
+        const tableBody = document.querySelector('tbody');
+        if (!tableBody) return;
 
         if (!Array.isArray(orders) || orders.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <p>هنوز سفارشی ثبت نکرده‌اید</p>
-                </div>
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                        <div class="flex flex-col items-center">
+                            <svg class="w-12 h-12 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <p>هنوز سفارشی ثبت نکرده‌اید</p>
+                        </div>
+                    </td>
+                </tr>
             `;
             return;
         }
 
-        container.innerHTML = orders.map(order => `
-            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                <div class="flex items-start justify-between mb-4">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            سفارش شماره ${order.orderNumber}
-                        </h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                            تاریخ: ${window.utils.formatDate(order.orderDate)}
-                        </p>
-                    </div>
-                    <div class="text-left">
-                        <span class="px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(order.status)}">
-                            ${getStatusText(order.status)}
-                        </span>
-                        <p class="text-lg font-bold text-gray-900 dark:text-white mt-1">
-                            ${window.utils.formatPrice(order.totalAmount)} تومان
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">تعداد آیتم‌ها:</p>
-                        <p class="font-medium">${order.itemsCount} آیتم</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">روش پرداخت:</p>
-                        <p class="font-medium">${order.paymentMethod || 'نامشخص'}</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+        tableBody.innerHTML = orders.map(order => `
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark dark:text-light">
+                    #${order.orderNumber || order.id}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    ${window.utils.formatDate(order.orderDate)}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    ${window.utils.formatPrice(order.totalAmount)} تومان
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-3 py-1 inline-flex text-xs leading-5 rounded-full ${getStatusColor(order.status)}">
+                        ${getStatusText(order.status)}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     <div class="flex items-center space-x-2 space-x-reverse">
                         <button onclick="viewOrderDetails('${order.id}')" 
-                                class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-sm">
-                            مشاهده جزئیات
+                                class="text-primary hover:text-primary/80 dark:text-primary-dark dark:hover:text-primary/70 flex items-center">
+                            جزئیات
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
+                            </svg>
                         </button>
-                        ${canReturnOrder(order) ? `
-                            <button onclick="returnOrder('${order.id}')" 
-                                    class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm">
-                                درخواست مرجوعی
+                        ${canDownloadInvoice(order) ? `
+                            <button onclick="downloadInvoice('${order.id}')" 
+                                    class="text-green-600 hover:text-green-800 flex items-center">
+                                فاکتور
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path>
+                                </svg>
+                            </button>
+                        ` : ''}
+                        ${canTrackOrder(order) ? `
+                            <button onclick="trackOrder('${order.id}')" 
+                                    class="text-blue-600 hover:text-blue-800 flex items-center">
+                                پیگیری
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"></path>
+                                </svg>
                             </button>
                         ` : ''}
                     </div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                        کد پیگیری: ${order.trackingCode || 'نامشخص'}
-                    </div>
-                </div>
-            </div>
+                </td>
+            </tr>
         `).join('');
     }
 
@@ -1290,6 +1313,18 @@
         return false;
     }
 
+    // Check if invoice can be downloaded
+    function canDownloadInvoice(order) {
+        const downloadableStatuses = ['Processing', 'Shipped', 'Delivered'];
+        return downloadableStatuses.includes(order.status);
+    }
+
+    // Check if order can be tracked
+    function canTrackOrder(order) {
+        const trackableStatuses = ['Shipped', 'Delivered'];
+        return trackableStatuses.includes(order.status);
+    }
+
     // View order details
     function viewOrderDetails(orderId) {
         sessionStorage.setItem('viewingOrderId', orderId);
@@ -1302,16 +1337,107 @@
         window.location.href = 'user-panel-order-return-step-one.html';
     }
 
-    // Handle search
-    async function handleSearch(e) {
+    // Download invoice
+    async function downloadInvoice(orderId) {
+        try {
+            window.utils.showToast('در حال دانلود فاکتور...', 'info');
+            
+            // This would call the API to download invoice
+            // For now, we'll simulate it
+            const response = await fetch(`${window.config.api.baseURL}/userorder/${orderId}/invoice`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `invoice-${orderId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                window.utils.showToast('فاکتور با موفقیت دانلود شد', 'success');
+            } else {
+                window.utils.showToast('خطا در دانلود فاکتور', 'error');
+            }
+        } catch (error) {
+            console.error('Error downloading invoice:', error);
+            window.utils.showToast('خطا در دانلود فاکتور', 'error');
+        }
+    }
+
+    // Track order
+    async function trackOrder(orderId) {
+        try {
+            window.utils.showToast('در حال دریافت اطلاعات پیگیری...', 'info');
+            
+            // This would call the API to get tracking info
+            const response = await fetch(`${window.config.api.baseURL}/ordertracking/${orderId}/timeline`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            });
+            
+            if (response.ok) {
+                const trackingData = await response.json();
+                // Show tracking modal or redirect to tracking page
+                showTrackingModal(trackingData);
+            } else {
+                window.utils.showToast('خطا در دریافت اطلاعات پیگیری', 'error');
+            }
+        } catch (error) {
+            console.error('Error tracking order:', error);
+            window.utils.showToast('خطا در دریافت اطلاعات پیگیری', 'error');
+        }
+    }
+
+    // Show tracking modal
+    function showTrackingModal(trackingData) {
+        // Create and show a modal with tracking information
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-bold mb-4">وضعیت پیگیری سفارش</h3>
+                <div class="space-y-3">
+                    ${trackingData.map(item => `
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <div class="w-3 h-3 rounded-full ${item.isActive ? 'bg-primary' : 'bg-gray-300'}"></div>
+                            <div>
+                                <p class="font-medium">${item.status}</p>
+                                <p class="text-sm text-gray-500">${item.date}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button onclick="this.closest('.fixed').remove()" 
+                        class="mt-4 w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90">
+                    بستن
+                </button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    // Handle filter apply
+    async function handleFilterApply(e) {
         e.preventDefault();
-        const formData = new FormData(e.target);
+        
+        // Get filter values from the form
+        const filterForm = document.querySelector('.bg-white.dark\\:bg-card-dark.rounded-xl.shadow-soft');
+        if (!filterForm) return;
         
         const filters = {
-            orderNumber: formData.get('orderNumber'),
-            status: formData.get('status'),
-            startDate: formData.get('startDate'),
-            endDate: formData.get('endDate')
+            orderNumber: filterForm.querySelector('input[placeholder*="شماره سفارش"]')?.value,
+            status: filterForm.querySelector('select')?.value,
+            startDate: filterForm.querySelector('input[type="date"]')?.value,
+            endDate: filterForm.querySelectorAll('input[type="date"]')[1]?.value
         };
 
         // Remove empty filters
@@ -1324,6 +1450,44 @@
         currentFilters = filters;
         currentPage = 1;
         await loadOrders(filters);
+    }
+
+    // Handle order tracking
+    async function handleOrderTracking(e) {
+        e.preventDefault();
+        
+        const trackingInput = document.querySelector('input[placeholder="شماره سفارش خود را وارد کنید"]');
+        const orderNumber = trackingInput?.value;
+        
+        if (!orderNumber) {
+            window.utils.showToast('لطفاً شماره سفارش را وارد کنید', 'error');
+            return;
+        }
+        
+        try {
+            window.utils.showToast('در حال جستجوی سفارش...', 'info');
+            
+            // Search for the order
+            const response = await window.orderService.searchOrders({
+                orderNumber: orderNumber,
+                page: 1,
+                pageSize: 1
+            });
+            
+            if (response.success && response.data.items && response.data.items.length > 0) {
+                const order = response.data.items[0];
+                showTrackingModal([{
+                    status: getStatusText(order.status),
+                    date: window.utils.formatDate(order.orderDate),
+                    isActive: true
+                }]);
+            } else {
+                window.utils.showToast('سفارش یافت نشد', 'error');
+            }
+        } catch (error) {
+            console.error('Error tracking order:', error);
+            window.utils.showToast('خطا در جستجوی سفارش', 'error');
+        }
     }
 
     // Handle filter buttons

@@ -1110,8 +1110,330 @@
 <!--  /discount modal  -->
 
 
+<script src="config.js"></script>
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/user-profile-service.js"></script>
+
+<script>
+    let currentPage = 1;
+    let totalPages = 1;
+    let walletBalance = 0;
+    let transactions = [];
+
+    // Load wallet data when page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadWalletData();
+        await loadTransactions();
+        setupEventListeners();
+    });
+
+    // Setup event listeners
+    function setupEventListeners() {
+        // Deposit form
+        const depositForm = document.getElementById('depositForm');
+        if (depositForm) {
+            depositForm.addEventListener('submit', handleDeposit);
+        }
+
+        // Withdraw form
+        const withdrawForm = document.getElementById('withdrawForm');
+        if (withdrawForm) {
+            withdrawForm.addEventListener('submit', handleWithdraw);
+        }
+
+        // Transaction filter
+        const filterButtons = document.querySelectorAll('[data-filter]');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', handleFilter);
+        });
+
+        // Pagination
+        const paginationContainer = document.getElementById('pagination');
+        if (paginationContainer) {
+            paginationContainer.addEventListener('click', handlePagination);
+        }
+    }
+
+    // Load wallet data
+    async function loadWalletData() {
+        try {
+            window.utils.showLoading(document.getElementById('walletContainer'), 'در حال بارگذاری...');
+            
+            const response = await window.userProfileService.getWalletBalance();
+            
+            if (response.success && response.data) {
+                walletBalance = response.data.balance;
+                displayWalletBalance(walletBalance);
+            } else {
+                window.utils.showToast('خطا در بارگذاری موجودی کیف پول', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading wallet data:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        } finally {
+            window.utils.hideLoading(document.getElementById('walletContainer'));
+        }
+    }
+
+    // Display wallet balance
+    function displayWalletBalance(balance) {
+        const balanceElement = document.getElementById('walletBalance');
+        if (balanceElement) {
+            balanceElement.textContent = window.utils.formatPrice(balance);
+        }
+    }
+
+    // Load transactions
+    async function loadTransactions(filters = {}) {
+        try {
+            const searchCriteria = {
+                page: currentPage,
+                pageSize: 10,
+                ...filters
+            };
+
+            const response = await window.userProfileService.getWalletTransactions(searchCriteria);
+            
+            if (response.success && response.data) {
+                transactions = response.data.items || [];
+                displayTransactions(transactions);
+                updatePagination(response.data.totalPages || 1);
+            } else {
+                window.utils.showToast('خطا در بارگذاری تراکنش‌ها', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading transactions:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        }
+    }
+
+    // Display transactions
+    function displayTransactions(transactions) {
+        const container = document.getElementById('transactionsContainer');
+        if (!container) return;
+
+        if (!Array.isArray(transactions) || transactions.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                    </svg>
+                    <p>هنوز تراکنشی ثبت نشده است</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = transactions.map(transaction => `
+            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 space-x-reverse mb-2">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${transaction.description}</h3>
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${getTransactionStatusColor(transaction.status)}">
+                                ${getTransactionStatusText(transaction.status)}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                            ${window.utils.formatDate(transaction.date)}
+                        </p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            ${transaction.type === 'deposit' ? 'واریز' : 'برداشت'}: ${window.utils.formatPrice(transaction.amount)}
+                        </p>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-lg font-bold ${transaction.type === 'deposit' ? 'text-green-600' : 'text-red-600'}">
+                            ${transaction.type === 'deposit' ? '+' : '-'}${window.utils.formatPrice(transaction.amount)}
+                        </p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            کد تراکنش: ${transaction.transactionId}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Get transaction status color
+    function getTransactionStatusColor(status) {
+        const statusColors = {
+            'completed': 'bg-green-100 text-green-800',
+            'pending': 'bg-yellow-100 text-yellow-800',
+            'failed': 'bg-red-100 text-red-800',
+            'cancelled': 'bg-gray-100 text-gray-800'
+        };
+        return statusColors[status] || 'bg-gray-100 text-gray-800';
+    }
+
+    // Get transaction status text
+    function getTransactionStatusText(status) {
+        const statusTexts = {
+            'completed': 'تکمیل شده',
+            'pending': 'در انتظار',
+            'failed': 'ناموفق',
+            'cancelled': 'لغو شده'
+        };
+        return statusTexts[status] || status;
+    }
+
+    // Handle deposit
+    async function handleDeposit(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const depositData = {
+            amount: parseFloat(formData.get('amount')),
+            paymentMethod: formData.get('paymentMethod'),
+            description: formData.get('description')
+        };
+
+        try {
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            window.utils.showLoading(submitButton, 'در حال واریز...');
+            
+            const response = await window.userProfileService.depositToWallet(depositData);
+            
+            if (response.success) {
+                window.utils.showToast('درخواست واریز با موفقیت ثبت شد', 'success');
+                e.target.reset();
+                await loadWalletData();
+                await loadTransactions();
+            } else {
+                window.utils.showToast(response.error || 'خطا در ثبت درخواست واریز', 'error');
+            }
+        } catch (error) {
+            console.error('Error processing deposit:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        } finally {
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            window.utils.hideLoading(submitButton);
+        }
+    }
+
+    // Handle withdraw
+    async function handleWithdraw(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const withdrawData = {
+            amount: parseFloat(formData.get('amount')),
+            bankAccount: formData.get('bankAccount'),
+            description: formData.get('description')
+        };
+
+        if (withdrawData.amount > walletBalance) {
+            window.utils.showToast('مبلغ درخواستی بیشتر از موجودی کیف پول است', 'error');
+            return;
+        }
+
+        try {
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            window.utils.showLoading(submitButton, 'در حال برداشت...');
+            
+            const response = await window.userProfileService.withdrawFromWallet(withdrawData);
+            
+            if (response.success) {
+                window.utils.showToast('درخواست برداشت با موفقیت ثبت شد', 'success');
+                e.target.reset();
+                await loadWalletData();
+                await loadTransactions();
+            } else {
+                window.utils.showToast(response.error || 'خطا در ثبت درخواست برداشت', 'error');
+            }
+        } catch (error) {
+            console.error('Error processing withdraw:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        } finally {
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            window.utils.hideLoading(submitButton);
+        }
+    }
+
+    // Handle filter
+    async function handleFilter(e) {
+        const filter = e.target.dataset.filter;
+        
+        if (filter === 'all') {
+            currentFilters = {};
+        } else {
+            currentFilters = { type: filter };
+        }
+        
+        currentPage = 1;
+        await loadTransactions(currentFilters);
+    }
+
+    // Handle pagination
+    async function handlePagination(e) {
+        if (e.target.classList.contains('page-link')) {
+            e.preventDefault();
+            const page = parseInt(e.target.dataset.page);
+            if (page && page !== currentPage) {
+                currentPage = page;
+                await loadTransactions(currentFilters);
+            }
+        }
+    }
+
+    // Update pagination
+    function updatePagination(totalPages) {
+        const container = document.getElementById('pagination');
+        if (!container) return;
+
+        this.totalPages = totalPages;
+        
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let paginationHTML = '<nav class="flex items-center justify-center space-x-1 space-x-reverse">';
+        
+        // Previous button
+        if (currentPage > 1) {
+            paginationHTML += `
+                <button class="page-link px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50" 
+                        data-page="${currentPage - 1}">
+                    قبلی
+                </button>
+            `;
+        }
+
+        // Page numbers
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const isActive = i === currentPage;
+            paginationHTML += `
+                <button class="page-link px-3 py-2 text-sm font-medium ${isActive ? 
+                    'text-white bg-primary border-primary' : 
+                    'text-gray-500 bg-white border-gray-300 hover:bg-gray-50'
+                } border rounded-lg" data-page="${i}">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // Next button
+        if (currentPage < totalPages) {
+            paginationHTML += `
+                <button class="page-link px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50" 
+                        data-page="${currentPage + 1}">
+                    بعدی
+                </button>
+            `;
+        }
+
+        paginationHTML += '</nav>';
+        container.innerHTML = paginationHTML;
+    }
+</script>
 
 </body>
 </html>

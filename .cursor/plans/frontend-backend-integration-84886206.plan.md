@@ -1,352 +1,513 @@
-<!-- 84886206-dc95-433f-978f-ddc4a6852be0 b593cd85-6a7d-42db-8c92-ab3a7e22bb3b -->
-# پلن بررسی کامل Frontend و Backend Integration
+<!-- 84886206-dc95-433f-978f-ddc4a6852be0 c8c1c13a-1903-4868-8614-886fbc0341c8 -->
+# پلن بررسی کامل تمام دکمه‌ها و کامپوننت‌های صفحات
 
 ## 🎯 هدف
-
-بررسی تک‌تک صفحات presentation، شناسایی تمام دکمه‌ها، فرم‌ها، و کامپوننت‌ها، و mapping آن‌ها با API endpoints موجود
-
-## 📊 مرحله 1: شناسایی Backend API Endpoints
-
-### Controllers موجود:
-
-1. **AuthController** - احراز هویت
-2. **ProductController** - محصولات
-3. **ProductCategoryController** - دسته‌بندی محصولات
-4. **CartController** - سبد خرید
-5. **CheckoutController** - تسویه حساب
-6. **UserProfileController** - پروفایل کاربر
-7. **UserAddressController** - آدرس‌های کاربر
-8. **UserOrderController** - سفارشات کاربر
-9. **UserPaymentController** - پرداخت‌های کاربر
-10. **WishlistController** - لیست علاقه‌مندی‌ها
-11. **ProductReviewController** - نظرات محصولات
-12. **CouponController** - کوپن‌های تخفیف
-13. **ProductComparisonController** - مقایسه محصولات
-14. **StockAlertController** - هشدار موجودی
-15. **UserReturnRequestController** - درخواست مرجوعی
-
-### Auth Endpoints:
-
-- `POST /api/auth/login` - ورود با ایمیل/پسورد
-- `POST /api/auth/register` - ثبت‌نام
-- `POST /api/auth/send-otp` - ارسال کد OTP
-- `POST /api/auth/verify-otp` - تایید کد OTP
-- `POST /api/auth/register-phone` - ثبت‌نام با موبایل
-- `POST /api/auth/login-phone` - ورود با موبایل
-- `POST /api/auth/refresh` - تازه‌سازی توکن
-- `POST /api/auth/logout` - خروج
-- `GET /api/auth/me` - اطلاعات کاربر جاری
-
-## 📋 مرحله 2: بررسی صفحات Authentication
-
-### 2.1. login.html
-
-**وضعیت**: ✅ تکمیل شده
-**دکمه‌ها و عملکردها**:
-
-- ✅ دکمه ورود با پسورد → `POST /api/auth/login`
-- ✅ دکمه ورود با SMS → `POST /api/auth/send-otp` + `POST /api/auth/verify-otp`
-- ✅ لینک ثبت‌نام → `register.html`
-- ✅ لینک فراموشی رمز عبور
-- ✅ Toggle نمایش پسورد
-
-**نیازمندی‌ها**:
-
-- ✅ اتصال به API
-- ✅ مدیریت توکن
-- ✅ Redirect به dashboard
-
-### 2.2. register.html
-
-**وضعیت**: ⚠️ نیاز به بررسی
-**دکمه‌ها و عملکردها**:
-
-- ✅ دکمه مرحله بعد (Step 1 → 2)
-- ✅ دکمه مرحله بعد (Step 2 → 3)
-- ✅ دکمه مرحله قبل
-- ⚠️ دکمه ثبت‌نام → `POST /api/auth/register`
-- ✅ لینک ورود → `login.html`
-- ✅ Toggle نمایش پسورد
-- ✅ Password strength indicator
-
-**نیازمندی‌ها**:
-
-- ⚠️ بررسی validation
-- ⚠️ بررسی API call
-- ⚠️ بررسی error handling
-
-## 📋 مرحله 3: بررسی صفحات User Panel
-
-### 3.1. user-panel-index.html (Dashboard)
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 دکمه خروج → `POST /api/auth/logout`
-- 🔍 نمایش اطلاعات کاربر → `GET /api/auth/me`
-- 🔍 نمایش سفارشات اخیر → `GET /api/userorder`
-- 🔍 نمایش محصولات مشاهده شده
-- 🔍 لینک‌های منو
-
-**API مورد نیاز**:
-
-- `GET /api/auth/me`
-- `GET /api/userorder`
-- `GET /api/userprofile`
-
-### 3.2. user-panel-profile.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 دکمه ذخیره اطلاعات → `PUT /api/userprofile`
-- 🔍 آپلود عکس پروفایل
-- 🔍 فرم ویرایش اطلاعات شخصی
-
-**API مورد نیاز**:
-
-- `GET /api/userprofile/{id}`
-- `PUT /api/userprofile/{id}`
-
-### 3.3. user-panel-address.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 دکمه افزودن آدرس → `POST /api/useraddress`
-- 🔍 دکمه ویرایش آدرس → `PUT /api/useraddress/{id}`
-- 🔍 دکمه حذف آدرس → `DELETE /api/useraddress/{id}`
-- 🔍 نمایش لیست آدرس‌ها → `GET /api/useraddress`
-
-**API مورد نیاز**:
-
-- `GET /api/useraddress`
-- `POST /api/useraddress`
-- `PUT /api/useraddress/{id}`
-- `DELETE /api/useraddress/{id}`
-
-### 3.4. user-panel-order.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 نمایش لیست سفارشات → `GET /api/userorder`
-- 🔍 فیلتر سفارشات
-- 🔍 جستجوی سفارش
-- 🔍 لینک جزئیات سفارش
-
-**API مورد نیاز**:
-
-- `GET /api/userorder`
-- `GET /api/userorder/{id}`
-
-### 3.5. user-panel-order-detail.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 نمایش جزئیات سفارش → `GET /api/userorder/{id}`
-- 🔍 دکمه مرجوعی کالا
-- 🔍 دکمه لغو سفارش
-- 🔍 دکمه پیگیری سفارش
-
-**API مورد نیاز**:
-
-- `GET /api/userorder/{id}`
-- `POST /api/userreturnrequest`
-- `PUT /api/userorder/{id}`
-
-### 3.6. user-panel-favorite.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 نمایش لیست علاقه‌مندی‌ها → `GET /api/wishlist`
-- 🔍 دکمه حذف از علاقه‌مندی‌ها → `DELETE /api/wishlist/{id}`
-- 🔍 دکمه افزودن به سبد خرید
-
-**API مورد نیاز**:
-
-- `GET /api/wishlist`
-- `DELETE /api/wishlist/{id}`
-- `POST /api/cart`
-
-### 3.7. user-panel-wallet.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 نمایش موجودی کیف پول
-- 🔍 دکمه افزایش موجودی
-- 🔍 دکمه انتقال وجه
-- 🔍 تاریخچه تراکنش‌ها
-
-**API مورد نیاز**:
-
-- `GET /api/userpayment`
-- `POST /api/userpayment`
-
-### 3.8. user-panel-change-password.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 فرم تغییر رمز عبور
-- 🔍 دکمه ذخیره
-- 🔍 Toggle نمایش پسورد
-
-**API مورد نیاز**:
-
-- `PUT /api/userprofile/change-password`
-
-### 3.9. user-panel-comment.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 نمایش لیست نظرات → `GET /api/productreview`
-- 🔍 دکمه ویرایش نظر
-- 🔍 دکمه حذف نظر
-
-**API مورد نیاز**:
-
-- `GET /api/productreview`
-- `PUT /api/productreview/{id}`
-- `DELETE /api/productreview/{id}`
-
-### 3.10. user-panel-discount.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 نمایش کوپن‌های تخفیف → `GET /api/coupon`
-- 🔍 دکمه استفاده از کوپن
-
-**API مورد نیاز**:
-
-- `GET /api/coupon`
-- `POST /api/coupon/apply`
-
-### 3.11. user-panel-ticket.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 نمایش لیست تیکت‌ها
-- 🔍 دکمه ایجاد تیکت جدید
-- 🔍 لینک مشاهده تیکت
-
-**API مورد نیاز**:
-
-- ❌ API تیکت وجود ندارد (نیاز به ایجاد)
-
-## 📋 مرحله 4: بررسی صفحات محصولات
-
-### 4.1. product.html
-
-**دکمه‌ها و عملکردها**:
-
-- 🔍 نمایش جزئیات محصول → `GET /api/product/{id}`
-- 🔍 دکمه افزودن به سبد → `POST /api/cart/items`
-- 🔍 دکمه افزودن به علاقه‌مندی‌ها → `POST /api/wishlist`
-- 🔍 دکمه مقایسه → `POST /api/productcomparison`
-- 🔍 فرم ثبت نظر → `POST /api/productreview`
-- 🔍 نمایش نظرات → `GET /api/productreview/product/{productId}`
-- 🔍 گالری تصاویر
-- 🔍 انتخاب رنگ/سایز
-- 🔍 محصولات مرتبط → `GET /api/product/{id}/related`
-- 🔍 محصولات خریداری شده با هم → `GET /api/product/{id}/frequently-bought-together`
-
-**API مورد نیاز**:
-
-- ✅ `GET /api/product/{id}` - موجود
-- ✅ `GET /api/productreview/product/{productId}` - موجود
-- ✅ `POST /api/cart/items` - موجود
-- ✅ `POST /api/wishlist` - موجود
-- ✅ `POST /api/productcomparison` - موجود
-- ✅ `POST /api/productreview` - موجود
-- ✅ `GET /api/product/{id}/related` - موجود
-- ✅ `GET /api/product/{id}/frequently-bought-together` - موجود
-
-## 📋 مرحله 5: Components مشترک
-
-### 5.1. Header/Navigation
-
-**عملکردها**:
-
-- 🔍 جستجوی محصولات
-- 🔍 منوی دسته‌بندی
-- 🔍 سبد خرید
-- 🔍 لینک پروفایل
-- 🔍 دکمه خروج
-
-### 5.2. Sidebar (User Panel)
-
-**عملکردها**:
-
-- 🔍 منوی کاربری
-- 🔍 نمایش نام کاربر
-- 🔍 لینک‌های صفحات
-
-## 🔧 مرحله 6: اقدامات مورد نیاز
-
-### 6.1. صفحات نیازمند API Integration
-
-1. **user-panel-index.html** - Dashboard
-2. **user-panel-profile.html** - پروفایل
-3. **user-panel-address.html** - آدرس‌ها
-4. **user-panel-order.html** - سفارشات
-5. **user-panel-favorite.html** - علاقه‌مندی‌ها
-6. **user-panel-wallet.html** - کیف پول
-7. **user-panel-comment.html** - نظرات
-8. **product.html** - جزئیات محصول
-
-### 6.2. API های موجود ولی استفاده نشده
-
-- ProductController endpoints
-- CartController endpoints
-- CheckoutController endpoints
-- CouponController endpoints
-- ProductComparisonController endpoints
-
-### 6.3. API های مورد نیاز ولی موجود نیست
-
-- TicketController (تیکت پشتیبانی)
-- NotificationController (اعلان‌ها)
-
-## 📊 خلاصه وضعیت
-
-### ✅ کامل شده:
-
-- login.html
-- register.html (با مشکلات جزئی)
-
-### ⚠️ نیاز به کار:
-
-- تمام صفحات user-panel
-- product.html
-- Components مشترک
-
-### ❌ API موجود نیست:
-
-- Ticket system
-- Notifications
-
-## 🎯 اولویت‌بندی
+بررسی **خیلی خیلی دقیق** تمام دکمه‌ها، فرم‌ها، لینک‌ها، و کامپوننت‌های تمام صفحات در `presentation` و mapping آن‌ها با API endpoints موجود.
+
+---
+
+## 📋 **صفحه 1: login.html**
+
+### دکمه‌ها و عملکردها:
+
+#### **Tab Buttons:**
+1. **دکمه "ورود با رمز عبور"** 
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `switchTab('password')`
+   - نیاز به API: ❌
+
+2. **دکمه "ورود با پیامک"**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `switchTab('sms')`
+   - نیاز به API: ❌
+
+#### **Form Buttons (Password Login):**
+3. **دکمه "ورود"** (Password Form)
+   - وضعیت: ✅ متصل به API
+   - API: `POST /api/auth/login`
+   - عملکرد: ورود با username/password
+   - نیاز: ✅ API موجود
+
+4. **Toggle نمایش پسورد**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `togglePassword('password')`
+   - نیاز به API: ❌
+
+5. **لینک "فراموشی رمز عبور"**
+   - وضعیت: ❌ کار نمی‌کنه
+   - API مورد نیاز: `POST /api/auth/forgot-password`
+   - نیاز: ⚠️ صفحه forgot-password.html وجود ندارد
+
+#### **Form Buttons (SMS Login):**
+6. **دکمه "ارسال کد"**
+   - وضعیت: ✅ متصل به API
+   - API: `POST /api/auth/send-otp`
+   - عملکرد: ارسال OTP
+   - نیاز: ✅ API موجود
+
+7. **دکمه "ورود"** (SMS Form)
+   - وضعیت: ✅ متصل به API
+   - API: `POST /api/auth/verify-otp`
+   - عملکرد: تایید OTP
+   - نیاز: ✅ API موجود
+
+#### **Navigation Links:**
+8. **لینک "ثبت نام کنید"**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: redirect به `register.html`
+   - نیاز به API: ❌
+
+---
+
+## 📋 **صفحه 2: register.html**
+
+### دکمه‌ها و عملکردها:
+
+#### **Step Navigation:**
+1. **دکمه "مرحله بعد"** (Step 1 → 2)
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `nextStep(1, 2)`
+   - نیاز به API: ❌
+
+2. **دکمه "مرحله بعد"** (Step 2 → 3)
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `nextStep(2, 3)`
+   - نیاز به API: ❌
+
+3. **دکمه "مرحله قبل"**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `previousStep()`
+   - نیاز به API: ❌
+
+#### **Form Buttons:**
+4. **دکمه "ثبت نام"**
+   - وضعیت: ✅ متصل به API
+   - API: `POST /api/auth/register`
+   - عملکرد: ثبت نام کاربر
+   - نیاز: ✅ API موجود
+
+5. **Toggle نمایش پسورد**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `togglePassword()`
+   - نیاز به API: ❌
+
+#### **Navigation Links:**
+6. **لینک "وارد شوید"**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: redirect به `login.html`
+   - نیاز به API: ❌
+
+---
+
+## 📋 **صفحه 3: user-panel-index.html (Dashboard)**
+
+### دکمه‌ها و عملکردها:
+
+#### **Sidebar Navigation:**
+1. **لینک "پیشخوان"**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `user-panel-index.html`
+   - نیاز به API: ❌
+
+2. **لینک "پروفایل"**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `user-panel-profile.html`
+   - نیاز به API: ❌
+
+3. **لینک "علاقه‌مندی‌ها"**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `user-panel-favorite.html`
+   - نیاز به API: ❌
+
+4. **Toggle منوی سفارش‌ها**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `toggleMenu('order-menu','order-arrow')`
+   - نیاز به API: ❌
+
+5. **Toggle منوی آدرس‌ها**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: `toggleMenu('address-menu','address-arrow')`
+   - نیاز به API: ❌
+
+#### **Dashboard Data Loading:**
+6. **Load User Profile**
+   - وضعیت: ✅ متصل به API
+   - API: `GET /api/auth/me`
+   - عملکرد: `window.userProfileService.getUserProfile()`
+   - نیاز: ✅ API موجود
+
+7. **Load Recent Orders**
+   - وضعیت: ✅ متصل به API
+   - API: `GET /api/userorder` (با pagination)
+   - عملکرد: `window.orderService.getRecentOrders(5)`
+   - نیاز: ✅ API موجود
+
+8. **Load Wishlist Count**
+   - وضعیت: ✅ متصل به API
+   - API: `GET /api/wishlist`
+   - عملکرد: `window.wishlistService.getWishlistCount()`
+   - نیاز: ✅ API موجود
+
+9. **Load User Statistics**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `GET /api/userprofile/statistics`
+   - عملکرد: `window.userProfileService.getUserStatistics()`
+   - نیاز: ❓ باید بررسی شود
+
+10. **Load Notifications**
+    - وضعیت: ⚠️ نیاز به بررسی
+    - API: `GET /api/notifications`
+    - عملکرد: `window.userProfileService.getNotifications()`
+    - نیاز: ❌ API موجود نیست
+
+#### **Header Buttons:**
+11. **دکمه Notifications**
+    - وضعیت: ❌ کار نمی‌کنه
+    - API مورد نیاز: `GET /api/notifications`
+    - نیاز: ❌ API موجود نیست
+
+12. **دکمه Profile Dropdown**
+    - وضعیت: ✅ کار می‌کنه
+    - عملکرد: `toggleDropdown('profile-dropdown')`
+    - نیاز به API: ❌
+
+13. **دکمه Logout**
+    - وضعیت: ⚠️ نیاز به بررسی
+    - API: `POST /api/auth/logout`
+    - عملکرد: `window.authService.logout()`
+    - نیاز: ✅ API موجود
+
+---
+
+## 📋 **صفحه 4: user-panel-profile.html**
+
+### دکمه‌ها و عملکردها:
+
+#### **Profile Form:**
+1. **دکمه "ذخیره تغییرات"**
+   - وضعیت: ✅ متصل به API
+   - API: `PUT /api/userprofile`
+   - عملکرد: `window.userProfileService.updateProfile()`
+   - نیاز: ✅ API موجود
+
+2. **دکمه "آپلود عکس پروفایل"**
+   - وضعیت: ✅ متصل به API
+   - API: `POST /api/userprofile/upload-picture`
+   - عملکرد: `window.userProfileService.uploadProfilePicture()`
+   - نیاز: ⚠️ باید بررسی شود
+
+#### **Password Change Form:**
+3. **دکمه "تغییر رمز عبور"**
+   - وضعیت: ✅ متصل به API
+   - API: `POST /api/auth/change-password`
+   - عملکرد: `window.userProfileService.changePassword()`
+   - نیاز: ✅ API موجود
+
+#### **Data Pre-filling:**
+4. **Pre-fill Profile Data**
+   - وضعیت: ✅ متصل به API
+   - API: `GET /api/auth/me`
+   - عملکرد: `loadUserProfile()` → `populateProfileForm()`
+   - نیاز: ✅ API موجود
+
+---
+
+## 📋 **صفحه 5: user-panel-order.html**
+
+### دکمه‌ها و عملکردها:
+
+#### **Search & Filter:**
+1. **دکمه "جستجو"**
+   - وضعیت: ✅ متصل به API
+   - API: `POST /api/userorder/search`
+   - عملکرد: `window.orderService.searchOrders()`
+   - نیاز: ✅ API موجود
+
+2. **Filter by Status**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `POST /api/userorder/search` (با filter)
+   - عملکرد: `filterOrders(status)`
+   - نیاز: ✅ API موجود
+
+3. **Filter by Date Range**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `POST /api/userorder/search` (با date filter)
+   - عملکرد: `filterByDateRange()`
+   - نیاز: ✅ API موجود
+
+#### **Order Actions:**
+4. **لینک "مشاهده جزئیات"**
+   - وضعیت: ✅ کار می‌کنه
+   - عملکرد: redirect به `user-panel-order-detail.html?id={orderId}`
+   - نیاز به API: ❌
+
+5. **دکمه "دانلود فاکتور"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `GET /api/userorder/{id}/invoice`
+   - عملکرد: `downloadInvoice(orderId)`
+   - نیاز: ⚠️ باید بررسی شود
+
+6. **دکمه "پیگیری سفارش"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `GET /api/userorder/{id}/track`
+   - عملکرد: `trackOrder(orderId)`
+   - نیاز: ⚠️ باید بررسی شود
+
+#### **Pagination:**
+7. **دکمه‌های Pagination**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `POST /api/userorder/search` (با page number)
+   - عملکرد: `changePage(pageNumber)`
+   - نیاز: ✅ API موجود
+
+---
+
+## 📋 **صفحه 6: user-panel-address.html**
+
+### دکمه‌ها و عملکردها:
+
+#### **Address List:**
+1. **دکمه "افزودن آدرس جدید"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - عملکرد: نمایش modal یا redirect
+   - نیاز به API: ❌
+
+2. **دکمه "ویرایش"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - عملکرد: redirect به `user-panel-edit-address.html?id={addressId}`
+   - نیاز به API: ❌
+
+3. **دکمه "حذف"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `DELETE /api/useraddress/{id}`
+   - عملکرد: `deleteAddress(addressId)`
+   - نیاز: ✅ API موجود
+
+#### **Address Form:**
+4. **دکمه "ذخیره آدرس"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `POST /api/useraddress`
+   - عملکرد: `createAddress()`
+   - نیاز: ✅ API موجود
+
+#### **Data Loading:**
+5. **Load Addresses**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `GET /api/useraddress`
+   - عملکرد: `loadAddresses()`
+   - نیاز: ✅ API موجود
+
+---
+
+## 📋 **صفحه 7: user-panel-favorite.html**
+
+### دکمه‌ها و عملکردها:
+
+#### **Wishlist Actions:**
+1. **دکمه "حذف از علاقه‌مندی‌ها"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `DELETE /api/wishlist/{id}`
+   - عملکرد: `removeFromWishlist(wishlistId)`
+   - نیاز: ✅ API موجود
+
+2. **دکمه "افزودن به سبد خرید"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `POST /api/cart/items`
+   - عملکرد: `addToCart(productId)`
+   - نیاز: ✅ API موجود
+
+3. **دکمه "مشاهده محصول"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - عملکرد: redirect به `product.html?id={productId}`
+   - نیاز به API: ❌
+
+#### **Data Loading:**
+4. **Load Wishlist**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `GET /api/wishlist`
+   - عملکرد: `loadWishlist()`
+   - نیاز: ✅ API موجود
+
+---
+
+## 📋 **صفحه 8: user-panel-wallet.html**
+
+### دکمه‌ها و عملکردها:
+
+#### **Wallet Actions:**
+1. **دکمه "افزایش موجودی"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - عملکرد: redirect به `user-panel-increase-money.html`
+   - نیاز به API: ❌
+
+2. **دکمه "انتقال وجه"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - عملکرد: redirect به `user-panel-transfer-money.html`
+   - نیاز به API: ❌
+
+3. **دکمه "مشاهده جزئیات تراکنش"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `GET /api/userpayment/{id}`
+   - عملکرد: `viewTransactionDetails(paymentId)`
+   - نیاز: ✅ API موجود
+
+#### **Data Loading:**
+4. **Load Wallet Balance**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `GET /api/userpayment/balance`
+   - عملکرد: `loadWalletBalance()`
+   - نیاز: ⚠️ باید بررسی شود
+
+5. **Load Transaction History**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `GET /api/userpayment`
+   - عملکرد: `loadTransactionHistory()`
+   - نیاز: ✅ API موجود
+
+---
+
+## 📋 **صفحه 9: product.html**
+
+### دکمه‌ها و عملکردها:
+
+#### **Product Actions:**
+1. **دکمه "افزودن به سبد خرید"**
+   - وضعیت: ✅ متصل به API
+   - API: `POST /api/cart/items`
+   - عملکرد: `addToCart(productId, quantity)`
+   - نیاز: ✅ API موجود
+
+2. **دکمه "افزودن به علاقه‌مندی‌ها"**
+   - وضعیت: ✅ متصل به API
+   - API: `POST /api/wishlist`
+   - عملکرد: `addToWishlist(productId)`
+   - نیاز: ✅ API موجود
+
+3. **دکمه "مقایسه"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `POST /api/productcomparison`
+   - عملکرد: `addToComparison(productId)`
+   - نیاز: ✅ API موجود
+
+4. **دکمه "اشتراک‌گذاری"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - عملکرد: `shareProduct()`
+   - نیاز به API: ❌
+
+#### **Product Reviews:**
+5. **دکمه "ثبت نظر"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `POST /api/productreview`
+   - عملکرد: `submitReview()`
+   - نیاز: ✅ API موجود
+
+6. **دکمه "ویرایش نظر"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `PUT /api/productreview/{id}`
+   - عملکرد: `editReview(reviewId)`
+   - نیاز: ✅ API موجود
+
+7. **دکمه "حذف نظر"**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - API: `DELETE /api/productreview/{id}`
+   - عملکرد: `deleteReview(reviewId)`
+   - نیاز: ✅ API موجود
+
+#### **Product Gallery:**
+8. **دکمه‌های Navigation گالری**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - عملکرد: `changeImage(index)`
+   - نیاز به API: ❌
+
+9. **دکمه Zoom**
+   - وضعیت: ⚠️ نیاز به بررسی
+   - عملکرد: `zoomImage()`
+   - نیاز به API: ❌
+
+#### **Product Variants:**
+10. **انتخاب رنگ**
+    - وضعیت: ⚠️ نیاز به بررسی
+    - عملکرد: `selectColor(colorId)`
+    - نیاز به API: ❌
+
+11. **انتخاب سایز**
+    - وضعیت: ⚠️ نیاز به بررسی
+    - عملکرد: `selectSize(sizeId)`
+    - نیاز به API: ❌
+
+#### **Data Loading:**
+12. **Load Product Details**
+    - وضعیت: ✅ متصل به API
+    - API: `GET /api/product/{id}`
+    - عملکرد: `window.productService.getProductById(productId)`
+    - نیاز: ✅ API موجود
+
+13. **Load Related Products**
+    - وضعیت: ✅ متصل به API
+    - API: `GET /api/product/{id}/related`
+    - عملکرد: `window.productService.getRelatedProducts(productId)`
+    - نیاز: ✅ API موجود
+
+14. **Load Product Reviews**
+    - وضعیت: ⚠️ نیاز به بررسی
+    - API: `GET /api/productreview/product/{productId}`
+    - عملکرد: `loadProductReviews(productId)`
+    - نیاز: ✅ API موجود
+
+---
+
+## 📊 **خلاصه وضعیت**
+
+### ✅ **کامل و کار می‌کنند:**
+- login.html - تمام دکمه‌های اصلی
+- register.html - تمام دکمه‌های اصلی
+- user-panel-index.html - navigation و data loading
+- user-panel-profile.html - فرم‌ها و data loading
+- product.html - دکمه‌های اصلی (add to cart, wishlist)
+
+### ⚠️ **نیاز به بررسی و تست:**
+- user-panel-order.html - search, filter, pagination
+- user-panel-address.html - CRUD operations
+- user-panel-favorite.html - wishlist operations
+- user-panel-wallet.html - wallet operations
+- product.html - reviews, gallery, variants
+
+### ❌ **کار نمی‌کنند یا API ندارند:**
+- Notifications system - API موجود نیست
+- Forgot Password - صفحه موجود نیست
+- User Statistics - API باید بررسی شود
+- Upload Profile Picture - API باید بررسی شود
+
+---
+
+## 🎯 **اولویت‌بندی رفع مشکلات**
 
 ### Priority 1 (بحرانی):
-
-1. user-panel-index.html - Dashboard
-2. user-panel-profile.html
-3. user-panel-order.html
-4. product.html
+1. بررسی و رفع مشکلات user-panel-order.html
+2. بررسی و رفع مشکلات user-panel-address.html
+3. بررسی و رفع مشکلات user-panel-favorite.html
+4. بررسی و رفع مشکلات product.html (reviews)
 
 ### Priority 2 (مهم):
-
-5. user-panel-address.html
-6. user-panel-favorite.html
-7. user-panel-wallet.html
+5. بررسی و رفع مشکلات user-panel-wallet.html
+6. ایجاد صفحه forgot-password.html
+7. ایجاد Notifications API
+8. بررسی User Statistics API
 
 ### Priority 3 (متوسط):
+9. بررسی Upload Profile Picture API
+10. بررسی سایر صفحات user-panel
+11. تست کامل تمام دکمه‌ها
 
-8. user-panel-comment.html
-9. user-panel-discount.html
-10. سایر صفحات
+
 
 ### To-dos
 
-- [ ] رفع مشکلات api-client.js: اضافه کردن setTokens() و handleError()
-- [ ] تصحیح auth-service.js: رفع مشکل response structure
-- [ ] رفع مشکلات login.html: اضافه کردن config.js و تصحیح لینک‌ها
-- [ ] رفع مشکلات register.html: تصحیح لینک‌ها و redirect paths
-- [ ] تصحیح auth-guard.js: رفع مشکل redirect paths
-- [ ] تست کامل integration: login, register, navigation, و auth flow
+- [ ] بررسی و رفع مشکلات user-panel-order.html: search, filter, pagination, download invoice
+- [ ] بررسی و رفع مشکلات user-panel-address.html: CRUD operations, data loading
+- [ ] بررسی و رفع مشکلات user-panel-favorite.html: wishlist operations, add to cart
+- [ ] بررسی و رفع مشکلات product.html: reviews, gallery, variants
+- [ ] بررسی و رفع مشکلات user-panel-wallet.html: wallet operations, transaction history
+- [ ] ایجاد صفحه forgot-password.html و اتصال به API
+- [ ] بررسی API های مفقود: Notifications, User Statistics, Upload Profile Picture
+- [ ] تست کامل تمام دکمه‌ها و کامپوننت‌ها در تمام صفحات

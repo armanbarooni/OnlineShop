@@ -1117,6 +1117,7 @@
 <!-- end modal add or edit address -->
 
 
+<script src="config.js"></script>
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
 <script src="assets/js/api-client.js"></script>
@@ -1136,7 +1137,7 @@
         try {
             window.utils.showLoading(document.getElementById('addressesContainer'), 'در حال بارگذاری...');
             
-            const response = await addressService.getAddresses();
+            const response = await window.addressService.getAddresses();
             
             if (response.success && response.data) {
                 displayAddresses(response.data);
@@ -1211,7 +1212,7 @@
     // Set address as default
     async function setAsDefault(addressId) {
         try {
-            const response = await addressService.setDefaultAddress(addressId);
+            const response = await window.addressService.setDefaultAddress(addressId);
             
             if (response.success) {
                 window.utils.showToast('آدرس پیش‌فرض با موفقیت تنظیم شد', 'success');
@@ -1240,7 +1241,7 @@
         }
 
         try {
-            const response = await addressService.deleteAddress(addressId);
+            const response = await window.addressService.deleteAddress(addressId);
             
             if (response.success) {
                 window.utils.showToast('آدرس با موفقیت حذف شد', 'success');
@@ -1271,7 +1272,7 @@
         };
 
         // Validate address data
-        const validation = addressService.validateAddressData(addressData);
+        const validation = window.addressService.validateAddressData(addressData);
         if (!validation.isValid) {
             displayValidationErrors(validation.errors);
             return;
@@ -1281,7 +1282,7 @@
             const submitButton = this.querySelector('button[type="submit"]');
             window.utils.showLoading(submitButton, 'در حال ذخیره...');
             
-            const response = await addressService.createAddress(addressData);
+            const response = await window.addressService.createAddress(addressData);
             
             if (response.success) {
                 window.utils.showToast('آدرس با موفقیت اضافه شد', 'success');
