@@ -1,0 +1,19 @@
+{
+  "name": "presentation",
+  "version": "1.0.0",
+  "description": "- `login.html` - صفحه ورود (AuthController)\r - `register.html` - صفحه ثبت‌نام (AuthController)\r - `product.html` - صفحه محصول (ProductController + ProductReviewController)\r - `user-panel-index.html` - داشبورد کاربری\r - `user-panel-profile.html` - پروفایل کاربر\r - `user-panel-change-password.html` - تغییر رمز عبور\r - `user-panel-address.html` - مدیریت آدرس‌ها\r - `user-panel-edit-address.html` - ویرایش آدرس\r - `user-panel-order.html` - سفارشات کاربر\r - `user-panel-order-detail.html` - جزئیات سفارش\r - `user-panel-favorite.html` - علاقه‌مندی‌ها\r - `user-panel-comment.html` - نظرات کاربر\r - `user-panel-edit-comment.html` - ویرایش نظر\r - `user-panel-order-return-step-one.html` - مرحله اول مرجوعی\r - `user-panel-order-return-step-two.html` - مرحله دوم مرجوعی\r - `user-panel-order-return-step-three.html` - مرحله سوم مرجوعی\r - `user-panel-discount.html` - کوپن‌های تخفیف\r - `user-panel-last-viewd.html` - آخرین بازدیدها",
+  "main": "config.js",
+  "scripts": {
+    "start": "http-server -p 8080 -c-1 --cors",
+    "start:backend": "cd ../src/WebAPI && dotnet run --urls \"https://localhost:7025\"",
+    "start:all": "concurrently \"npm run start\" \"npm run start:backend\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "http-server": "^14.1.1"
+  }
+}

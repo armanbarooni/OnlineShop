@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست رجیستر</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .step { display: none; padding: 20px; border: 1px solid #ccc; margin: 10px 0; }
+        .step.active { display: block; }
+        button { padding: 10px 20px; margin: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>تست عملکرد دکمه مرحله بعد</h1>
+    
+    <div id="step1" class="step active">
+        <h2>مرحله 1: اطلاعات شخصی</h2>
+        <input type="text" id="first-name" placeholder="نام" value="علی">
+        <input type="text" id="last-name" placeholder="نام خانوادگی" value="احمدی">
+        <input type="text" id="mobile" placeholder="شماره موبایل" value="09123456789">
+        <br><br>
+        <button onclick="nextStep(1, 2)">مرحله بعد</button>
+    </div>
+    
+    <div id="step2" class="step">
+        <h2>مرحله 2: رمز عبور</h2>
+        <input type="password" id="password" placeholder="رمز عبور" value="123456">
+        <input type="password" id="confirm-password" placeholder="تکرار رمز عبور" value="123456">
+        <br><br>
+        <button onclick="prevStep(2, 1)">مرحله قبل</button>
+        <button onclick="nextStep(2, 3)">مرحله بعد</button>
+    </div>
+    
+    <div id="step3" class="step">
+        <h2>مرحله 3: تایید</h2>
+        <p>اطلاعات شما:</p>
+        <div id="user-info"></div>
+        <br>
+        <button onclick="prevStep(3, 2)">مرحله قبل</button>
+        <button onclick="submitForm()">ثبت نام</button>
+    </div>
+    
+    <div id="result"></div>
+
+    <script src="config.js"></script>
+    <script src="assets/js/api-client.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script>
+        let currentStep = 1;
+        let registrationData = {};
+
+        // Step change function
+        function nextStep(current, next) {
+            console.log(`Moving from step ${current} to step ${next}`);
+            
+            // Validate current step
+            if(current === 1) {
+                if (!validateStep1()) {
+                    return;
+                }
+            } else if(current === 2) {
+                if (!validateStep2()) {
+                    return;
+                }
+            }
+
+            // Hide current step
+            document.getElementById(`step${current}`).classList.remove('active');
+
+            // Show next step
+            document.getElementById(`step${next}`).classList.add('active');
+            currentStep = next;
+            
+            // Update user info in step 3
+            if(next === 3) {
+                updateUserInfo();
+            }
+        }
+
+        function prevStep(current, prev) {
+            console.log(`Moving from step ${current} to step ${prev}`);
+            
+            // Hide current step
+            document.getElementById(`step${current}`).classList.remove('active');
+
+            // Show previous step
+            document.getElementById(`step${prev}`).classList.add('active');
+            currentStep = prev;
+        }
+
+        // Validate step 1 (Personal Info)
+        function validateStep1() {
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+
+            if(!firstName || !lastName || !mobile) {
+                showMessage('لطفا تمام فیلدهای اجباری را پر کنید', 'error');
+                return false;
+            }
+
+            if(!/^09\d{9}$/.test(mobile)) {
+                showMessage('لطفا شماره موبایل معتبر وارد کنید', 'error');
+                return false;
+            }
+
+            // Store data
+            registrationData.firstName = firstName;
+            registrationData.lastName = lastName;
+            registrationData.mobile = mobile;
+
+            showMessage('مرحله 1 تایید شد', 'success');
+            return true;
+        }
+
+        // Validate step 2 (Password)
+        function validateStep2() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if(!password || !confirmPassword) {
+                showMessage('لطفا رمز عبور و تکرار آن را وارد کنید', 'error');
+                return false;
+            }
+
+            if(password !== confirmPassword) {
+                showMessage('رمز عبور و تکرار آن مطابقت ندارند', 'error');
+                return false;
+            }
+
+            // Store data
+            registrationData.password = password;
+
+            showMessage('مرحله 2 تایید شد', 'success');
+            return true;
+        }
+
+        function updateUserInfo() {
+            const userInfoDiv = document.getElementById('user-info');
+            userInfoDiv.innerHTML = `
+                <p><strong>نام:</strong> ${registrationData.firstName}</p>
+                <p><strong>نام خانوادگی:</strong> ${registrationData.lastName}</p>
+                <p><strong>شماره موبایل:</strong> ${registrationData.mobile}</p>
+            `;
+        }
+
+        function submitForm() {
+            showMessage('در حال ثبت نام...', 'info');
+            
+            // Test API connection
+            fetch('http://localhost:5000/api/health')
+                .then(response => response.json())
+                .then(data => {
+                    showMessage('اتصال به API موفق! ثبت نام انجام شد.', 'success');
+                })
+                .catch(error => {
+                    showMessage('خطا در اتصال به API: ' + error.message, 'error');
+                });
+        }
+
+        function showMessage(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<p class="${type}">${message}</p>`;
+            console.log(`${type}: ${message}`);
+        }
+
+        // Test if all scripts are loaded
+        window.addEventListener('load', function() {
+            console.log('Page loaded');
+            console.log('Config:', window.config);
+            console.log('API Client:', window.apiClient);
+            console.log('Utils:', window.utils);
+            
+            if (window.config && window.apiClient && window.utils) {
+                showMessage('همه اسکریپت‌ها با موفقیت لود شدند', 'success');
+            } else {
+                showMessage('مشکل در لود اسکریپت‌ها', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
+
+

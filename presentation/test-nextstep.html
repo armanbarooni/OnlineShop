@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست nextStep</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .step { display: none; padding: 20px; border: 1px solid #ccc; margin: 10px 0; }
+        .step.active { display: block; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>تست تابع nextStep</h1>
+    
+    <div id="step1" class="step active">
+        <h2>مرحله 1</h2>
+        <p>این مرحله اول است</p>
+        <button onclick="nextStep(1, 2)">مرحله بعد</button>
+    </div>
+    
+    <div id="step2" class="step">
+        <h2>مرحله 2</h2>
+        <p>این مرحله دوم است</p>
+        <button onclick="nextStep(2, 3)">مرحله بعد</button>
+    </div>
+    
+    <div id="step3" class="step">
+        <h2>مرحله 3</h2>
+        <p>این مرحله سوم است</p>
+        <button onclick="alert('تمام شد!')">تمام</button>
+    </div>
+    
+    <div id="result"></div>
+
+    <script src="config.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script>
+        let currentStep = 1;
+
+        // Step change function
+        function nextStep(current, next) {
+            console.log(`Moving from step ${current} to step ${next}`);
+            
+            // Hide current step
+            document.getElementById(`step${current}`).classList.remove('active');
+
+            // Show next step
+            document.getElementById(`step${next}`).classList.add('active');
+            currentStep = next;
+            
+            document.getElementById('result').innerHTML = `<p>حالا در مرحله ${next} هستید</p>`;
+        }
+
+        // Test if all scripts are loaded
+        window.addEventListener('load', function() {
+            console.log('Page loaded');
+            console.log('Config:', window.config);
+            console.log('Utils:', window.utils);
+            
+            if (window.config && window.utils) {
+                document.getElementById('result').innerHTML = '<p style="color: green;">همه اسکریپت‌ها با موفقیت لود شدند</p>';
+            } else {
+                document.getElementById('result').innerHTML = '<p style="color: red;">مشکل در لود اسکریپت‌ها</p>';
+            }
+        });
+    </script>
+</body>
+</html>

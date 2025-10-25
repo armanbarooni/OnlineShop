@@ -2,7 +2,7 @@
 window.config = {
     // API Configuration
     api: {
-        baseURL: 'https://your-api-domain.com/api', // تغییر دهید به آدرس API شما
+        baseURL: 'http://localhost:5000/api', // آدرس API محلی
         timeout: 30000,
         retryAttempts: 3
     },

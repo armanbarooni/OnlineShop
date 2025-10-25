@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست اتصال به API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>تست اتصال به API</h1>
+    
+    <button onclick="testAPI()">تست اتصال به API</button>
+    <button onclick="testRegistration()">تست ثبت نام</button>
+    
+    <div id="result"></div>
+
+    <script src="config.js"></script>
+    <script src="assets/js/api-client.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script>
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        async function testAPI() {
+            showResult('در حال تست اتصال به API...', 'info');
+            
+            try {
+                const response = await fetch('https://localhost:7025/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ API در دسترس است!<br>Status: ${data.status}<br>Message: ${data.message}`, 'success');
+                } else {
+                    showResult(`⚠️ API پاسخ داد اما با کد: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ خطا در اتصال به API: ${error.message}`, 'error');
+            }
+        }
+
+        async function testRegistration() {
+            showResult('در حال تست ثبت نام...', 'info');
+            
+            try {
+                const registrationData = {
+                    firstName: 'علی',
+                    lastName: 'احمدی',
+                    mobile: '09123456789',
+                    password: '123456'
+                };
+
+                const response = await fetch('https://localhost:7025/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(registrationData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ ثبت نام موفق!<br>Response: ${JSON.stringify(data)}`, 'success');
+                } else {
+                    const errorData = await response.json();
+                    showResult(`⚠️ خطا در ثبت نام: ${response.status}<br>Message: ${errorData.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ خطا در ثبت نام: ${error.message}`, 'error');
+            }
+        }
+
+        // Test if all scripts are loaded
+        window.addEventListener('load', function() {
+            console.log('Page loaded');
+            console.log('Config:', window.config);
+            console.log('API Client:', window.apiClient);
+            console.log('Utils:', window.utils);
+            
+            if (window.config && window.apiClient && window.utils) {
+                showResult('همه اسکریپت‌ها با موفقیت لود شدند', 'success');
+            } else {
+                showResult('مشکل در لود اسکریپت‌ها', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
+
+

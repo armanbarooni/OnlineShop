@@ -1,7 +1,7 @@
 // API Client for Online Shop
 class ApiClient {
     constructor() {
-        this.baseURL = 'https://your-api-domain.com/api'; // تغییر دهید به آدرس API شما
+        this.baseURL = window.config?.api?.baseURL || 'http://localhost:5000/api';
         this.token = localStorage.getItem('accessToken');
         this.refreshToken = localStorage.getItem('refreshToken');
     }
