@@ -1451,6 +1451,9 @@ function startCountdown() {
 }
 
 // --- Form validation for password login ---
+// DISABLED: This handler conflicts with login.html's form handler
+// Form submission is handled entirely by login.html's JavaScript
+/*
 const passwordForm = document.getElementById('password-form');
 if (passwordForm) {
     passwordForm.addEventListener('submit', function (e) {
@@ -1488,29 +1491,15 @@ if (passwordForm) {
             isValid = false;
         }
 
-        // Validate password
-        if (!password?.value) {
-            password?.classList.add('input-error');
-            if (passwordError) {
-                passwordError.textContent = 'لطفا رمز عبور را وارد کنید';
-                passwordError.classList.remove('hidden');
-            }
-            isValid = false;
-        } else if (password.value.length < 6) {
-            password?.classList.add('input-error');
-            if (passwordError) {
-                passwordError.textContent = 'رمز عبور باید حداقل ۶ کاراکتر باشد';
-                passwordError.classList.remove('hidden');
-            }
-            isValid = false;
-        }
-
-        // Submit if form is valid
-        if (isValid) {
-            alert('ورود با موفقیت انجام شد! (این یک پیام نمونه است)');
-        }
+        // Password validation is handled by login.html's form handler
+        // This handler is disabled to prevent duplicate validation
+        // Validation happens only on form submit in login.html, not during typing
+        
+        // Note: Form submission is handled by login.html's form handler
+        return false; // Prevent default form submission here
     });
 }
+*/
 
 // --- Form validation for SMS login ---
 const smsForm = document.getElementById('sms-form');
@@ -1532,16 +1521,17 @@ if (smsForm) {
                 otpError.classList.remove('hidden');
             }
             return;
-        } else if (!/^\d{5}$/.test(otpCode.value)) {
+        } else if (!/^\d{6}$/.test(otpCode.value)) {
             otpCode?.classList.add('input-error');
             if (otpError) {
-                otpError.textContent = 'کد تایید باید ۵ رقم باشد';
+                otpError.textContent = 'کد تایید باید ۶ رقم باشد';
                 otpError.classList.remove('hidden');
             }
             return;
         }
 
-        alert('ورود با موفقیت انجام شد! (این یک پیام نمونه است)');
+        // Form submission is handled by login.html's form handler
+        // alert('ورود با موفقیت انجام شد! (این یک پیام نمونه است)');
     });
 }
 

@@ -46,7 +46,22 @@ class ApiClient {
                     const retryData = await retryResponse.json();
                     
                     if (!retryResponse.ok) {
-                        throw new Error(retryData.message || `HTTP error! status: ${retryResponse.status}`);
+                        // Parse error message from different response structures
+                        let errorMessage = '';
+                        if (typeof retryData === 'string') {
+                            errorMessage = retryData;
+                        } else if (retryData?.message) {
+                            errorMessage = retryData.message;
+                        } else if (Array.isArray(retryData)) {
+                            errorMessage = retryData.join(', ');
+                        } else if (retryData?.errors && Array.isArray(retryData.errors)) {
+                            errorMessage = retryData.errors.join(', ');
+                        } else if (retryData?.title) {
+                            errorMessage = retryData.title;
+                        } else {
+                            errorMessage = `HTTP error! status: ${retryResponse.status}`;
+                        }
+                        throw new Error(errorMessage);
                     }
 
                     // Return data directly for auth endpoints, wrapped for others
@@ -62,10 +77,45 @@ class ApiClient {
                 }
             }
 
-            const data = await response.json();
+            // Parse response - handle non-JSON responses
+            let data;
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    // If JSON parsing fails, treat as text
+                    const text = await response.text();
+                    data = text || {};
+                }
+            } else {
+                const text = await response.text();
+                data = text || {};
+            }
             
             if (!response.ok) {
-                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                // Parse error message from different response structures
+                let errorMessage = '';
+                
+                if (typeof data === 'string') {
+                    errorMessage = data;
+                } else if (data?.message) {
+                    errorMessage = data.message;
+                } else if (Array.isArray(data)) {
+                    errorMessage = data.join(', ');
+                } else if (data?.errors && Array.isArray(data.errors)) {
+                    errorMessage = data.errors.join(', ');
+                } else if (data?.title) {
+                    errorMessage = data.title;
+                } else if (typeof data === 'object' && Object.keys(data).length === 0) {
+                    errorMessage = `HTTP error! status: ${response.status}`;
+                } else {
+                    // Try to extract any error information
+                    const errorText = JSON.stringify(data);
+                    errorMessage = errorText.length > 200 ? `HTTP error! status: ${response.status}` : errorText;
+                }
+                
+                throw new Error(errorMessage);
             }
 
             // Return data directly for auth endpoints, wrapped for others
@@ -80,11 +130,26 @@ class ApiClient {
             };
         } catch (error) {
             console.error('API request failed:', error);
-            return {
-                success: false,
-                error: error.message,
-                status: 0
-            };
+            // Handle network errors (Failed to fetch)
+            // In some browsers, the error might be a TypeError or have different messages
+            if (error instanceof TypeError && (
+                error.message === 'Failed to fetch' || 
+                error.message.includes('fetch') ||
+                error.message.includes('NetworkError') ||
+                error.message.includes('Network error')
+            )) {
+                throw new Error('خطا در اتصال به سرور. لطفا بررسی کنید که سرور در حال اجرا است و آدرس درست است.');
+            }
+            // Handle other network-related errors
+            if (error.message && (
+                error.message.includes('ERR_') ||
+                error.message.includes('net::') ||
+                error.message.includes('Network request failed')
+            )) {
+                throw new Error('خطا در اتصال به سرور. لطفا بررسی کنید که سرور در حال اجرا است و آدرس درست است.');
+            }
+            // Re-throw error so auth-service can handle it properly
+            throw error;
         }
     }
 
@@ -173,10 +238,40 @@ class ApiClient {
                 body: formData
             });
 
-            const data = await response.json();
+            // Parse response - handle non-JSON responses
+            let data;
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    const text = await response.text();
+                    data = text || {};
+                }
+            } else {
+                const text = await response.text();
+                data = text || {};
+            }
             
             if (!response.ok) {
-                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                // Parse error message from different response structures
+                let errorMessage = '';
+                
+                if (typeof data === 'string') {
+                    errorMessage = data;
+                } else if (data?.message) {
+                    errorMessage = data.message;
+                } else if (Array.isArray(data)) {
+                    errorMessage = data.join(', ');
+                } else if (data?.errors && Array.isArray(data.errors)) {
+                    errorMessage = data.errors.join(', ');
+                } else if (data?.title) {
+                    errorMessage = data.title;
+                } else {
+                    errorMessage = `HTTP error! status: ${response.status}`;
+                }
+                
+                throw new Error(errorMessage);
             }
 
             return {
@@ -229,17 +324,24 @@ class ApiClient {
         return !!this.token;
     }
 
-    // Handle API errors
+    // Handle API errors - compatible with fetch API
     handleError(error) {
-        if (error.response) {
-            // Server responded with error status
-            return error.response.data?.message || error.response.statusText || 'خطا در سرور';
-        } else if (error.request) {
-            // Request was made but no response received
-            return 'خطا در اتصال به سرور';
-        } else {
-            // Something else happened
+        // For fetch API, error is typically an Error object or a thrown value
+        if (error instanceof Error) {
             return error.message || 'خطای نامشخص';
+        } else if (typeof error === 'string') {
+            return error;
+        } else if (error && typeof error === 'object') {
+            // Handle structured error objects
+            if (error.message) {
+                return error.message;
+            } else if (error.errors && Array.isArray(error.errors)) {
+                return error.errors.join(', ');
+            } else {
+                return 'خطای نامشخص';
+            }
+        } else {
+            return 'خطای نامشخص';
         }
     }
 }

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تست اتصال به Backend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            direction: rtl;
+        }
+        .test-item {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>تست اتصال به Backend</h1>
+    
+    <div class="test-item info">
+        <h3>وضعیت اتصال</h3>
+        <p id="connection-status">در حال بررسی...</p>
+        <button onclick="testConnection()">تست مجدد</button>
+        <button onclick="testRegister()">تست Register Endpoint</button>
+    </div>
+    
+    <div id="test-results"></div>
+
+    <script src="config.js"></script>
+    <script>
+        const API_URL = window.config?.api?.baseURL || 'http://localhost:5000/api';
+        
+        async function testConnection() {
+            const statusEl = document.getElementById('connection-status');
+            const resultsEl = document.getElementById('test-results');
+            
+            statusEl.textContent = 'در حال تست اتصال...';
+            
+            try {
+                // Test 1: Health endpoint
+                const healthResponse = await fetch(`${API_URL.replace('/api', '')}/api/health`);
+                const healthData = await healthResponse.json();
+                
+                resultsEl.innerHTML = `
+                    <div class="test-item success">
+                        <h3>✓ تست Health Endpoint</h3>
+                        <p>Status: ${healthResponse.status}</p>
+                        <pre>${JSON.stringify(healthData, null, 2)}</pre>
+                    </div>
+                `;
+                
+                statusEl.textContent = '✓ اتصال برقرار است!';
+                statusEl.parentElement.className = 'test-item success';
+                
+            } catch (error) {
+                console.error('Connection test error:', error);
+                resultsEl.innerHTML = `
+                    <div class="test-item error">
+                        <h3>✗ خطا در اتصال</h3>
+                        <p><strong>نوع خطا:</strong> ${error.constructor.name}</p>
+                        <p><strong>پیام:</strong> ${error.message}</p>
+                        <p><strong>URL تست شده:</strong> ${API_URL.replace('/api', '')}/api/health</p>
+                        <p><strong>راهنمایی:</strong> بررسی کنید که backend با دستور 'dotnet run --urls "http://localhost:5000"' در حال اجرا باشد</p>
+                    </div>
+                `;
+                
+                statusEl.textContent = '✗ اتصال برقرار نیست!';
+                statusEl.parentElement.className = 'test-item error';
+            }
+        }
+        
+        async function testRegister() {
+            const resultsEl = document.getElementById('test-results');
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        firstName: 'Test',
+                        lastName: 'User',
+                        email: `test${Date.now()}@example.com`,
+                        phoneNumber: '09123456789',
+                        password: 'Test123!@#',
+                        confirmPassword: 'Test123!@#'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                resultsEl.innerHTML += `
+                    <div class="test-item ${response.ok ? 'success' : 'error'}">
+                        <h3>${response.ok ? '✓' : '✗'} تست Register Endpoint</h3>
+                        <p>Status: ${response.status}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultsEl.innerHTML += `
+                    <div class="test-item error">
+                        <h3>✗ خطا در تست Register</h3>
+                        <p><strong>خطا:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Test on load
+        window.addEventListener('DOMContentLoaded', testConnection);
+    </script>
+</body>
+</html>

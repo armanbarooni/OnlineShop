@@ -13,13 +13,43 @@ class AuthService {
      */
     async loginWithPassword(email, password) {
         try {
+            // Validate input
+            if (!email || !email.trim()) {
+                return {
+                    success: false,
+                    error: 'ایمیل یا نام کاربری الزامی است'
+                };
+            }
+
+            if (!password) {
+                return {
+                    success: false,
+                    error: 'رمز عبور الزامی است'
+                };
+            }
+
             const response = await this.apiClient.post('/auth/login', {
-                email: email,
+                email: email.trim(),
                 password: password
             });
 
             // Handle response structure - now API client returns data directly for auth endpoints
             let authData = response;
+
+            // Validate that we received tokens
+            if (!authData || !authData.accessToken) {
+                // Check if response contains error message
+                if (authData?.message) {
+                    return {
+                        success: false,
+                        error: authData.message
+                    };
+                }
+                return {
+                    success: false,
+                    error: 'خطا در دریافت اطلاعات احراز هویت'
+                };
+            }
 
             // Store tokens
             this.apiClient.setTokens(authData.accessToken, authData.refreshToken);
@@ -38,9 +68,11 @@ class AuthService {
             };
         } catch (error) {
             console.error('Login error:', error);
+            // api-client throws errors, so we need to handle them properly
+            const errorMessage = error instanceof Error ? error.message : (error?.message || 'خطا در ورود');
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: errorMessage
             };
         }
     }
@@ -48,11 +80,11 @@ class AuthService {
     /**
      * Send OTP to phone number
      */
-    async sendOTP(phone) {
+    async sendOTP(phone, purpose = 'login') {
         try {
             const response = await this.apiClient.post('/auth/send-otp', {
                 phoneNumber: phone,
-                purpose: 'login'
+                purpose: purpose
             });
 
             return {
@@ -111,18 +143,50 @@ class AuthService {
      */
     async register(userData) {
         try {
+            // Validate email - don't create fake email
+            if (!userData.email || !userData.email.trim()) {
+                return {
+                    success: false,
+                    error: 'ایمیل الزامی است'
+                };
+            }
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(userData.email.trim())) {
+                return {
+                    success: false,
+                    error: 'فرمت ایمیل معتبر نیست'
+                };
+            }
+            
             // Use standard register endpoint
             const response = await this.apiClient.post('/auth/register', {
                 firstName: userData.firstName,
                 lastName: userData.lastName,
                 phoneNumber: userData.phone,
-                email: userData.email || `${userData.phone}@temp.com`, // Use phone as email if no email provided
+                email: userData.email.trim(), // Use trimmed email - no fake email creation
                 password: userData.password,
                 confirmPassword: userData.password
             });
 
             // Handle response structure - now API client returns data directly for auth endpoints
             let authData = response;
+
+            // Validate that we received tokens - if not, response might be an error
+            if (!authData || !authData.accessToken) {
+                // Check if response contains error message
+                if (authData?.message) {
+                    return {
+                        success: false,
+                        error: authData.message
+                    };
+                }
+                return {
+                    success: false,
+                    error: 'خطا در دریافت اطلاعات احراز هویت'
+                };
+            }
 
             // Store tokens
             this.apiClient.setTokens(authData.accessToken, authData.refreshToken);
@@ -136,9 +200,11 @@ class AuthService {
             };
         } catch (error) {
             console.error('Registration error:', error);
+            // api-client throws errors, so we need to handle them properly
+            const errorMessage = error instanceof Error ? error.message : (error?.message || 'خطا در ثبت نام');
             return {
                 success: false,
-                error: this.apiClient.handleError(error)
+                error: errorMessage
             };
         }
     }

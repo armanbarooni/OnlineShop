@@ -63,6 +63,7 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 // CORS configuration for Frontend
 builder.Services.AddCors(options =>
 {
+    // Main policy for frontend - with credentials support
     options.AddPolicy("AllowFrontend", policy =>
         policy
             .WithOrigins(
@@ -75,20 +76,19 @@ builder.Services.AddCors(options =>
                 "http://localhost:8000",
                 "http://127.0.0.1:8000",
                 "http://localhost:5000",
-                "http://127.0.0.1:5000",
-                "file://"
+                "http://127.0.0.1:5000"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
     
-    // Fallback for development
+    // Fallback for development - allow all origins (but without credentials)
     options.AddPolicy("DefaultCors", policy =>
         policy
+            .SetIsOriginAllowed(_ => true)
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials()
-            .SetIsOriginAllowed(_ => true));
+            .AllowCredentials());
 });
 
 // JWT Authentication
@@ -149,15 +149,10 @@ if (app.Environment.IsDevelopment())
 }
 
 
-// Use specific CORS policy for frontend, fallback to default for development
-if (app.Environment.IsDevelopment())
-{
-    app.UseCors("AllowFrontend");
-}
-else
-{
-    app.UseCors("DefaultCors");
-}
+// CORS must be before UseAuthentication and UseAuthorization
+// CORS middleware must be called BEFORE UseAuthentication/UseAuthorization
+app.UseCors("AllowFrontend");
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();
 

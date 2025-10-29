@@ -47,21 +47,21 @@ namespace OnlineShop.WebAPI.Controllers
 			if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
 			{
 				_logger.LogWarning("Login failed - missing email or password for {Email}", dto.Email);
-				return Unauthorized("Email and password are required");
+				return Unauthorized(new { message = "ایمیل و رمز عبور الزامی است" });
 			}
 
 			var user = await _userManager.FindByEmailAsync(dto.Email);
 			if (user == null)
 			{
 				_logger.LogWarning("Login failed - user not found for email: {Email}", dto.Email);
-				return Unauthorized("Invalid credentials");
+				return Unauthorized(new { message = "نام کاربری یا رمز عبور اشتباه است" });
 			}
 
 			var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: false);
 			if (!result.Succeeded)
 			{
 				_logger.LogWarning("Login failed - invalid password for user: {UserId}", user.Id);
-				return Unauthorized("Invalid credentials");
+				return Unauthorized(new { message = "نام کاربری یا رمز عبور اشتباه است" });
 			}
 
 			// Update last login
@@ -85,14 +85,14 @@ namespace OnlineShop.WebAPI.Controllers
 			if (string.IsNullOrWhiteSpace(dto.RefreshToken))
 			{
 				_logger.LogWarning("Token refresh failed - missing refresh token");
-				return Unauthorized("Refresh token is required");
+				return Unauthorized(new { message = "Refresh token الزامی است" });
 			}
 
 			var tokens = await _tokenService.RefreshTokenAsync(dto.RefreshToken);
 			if (tokens == null)
 			{
 				_logger.LogWarning("Token refresh failed - invalid or expired refresh token");
-				return Unauthorized("Invalid or expired refresh token");
+				return Unauthorized(new { message = "Refresh token نامعتبر یا منقضی شده است" });
 			}
 
 			_logger.LogInformation("Token refresh successful for user: {Email}", tokens.Email);
@@ -109,14 +109,17 @@ namespace OnlineShop.WebAPI.Controllers
 			if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
 			{
 				_logger.LogWarning("Registration failed - missing email or password for {Email}", dto.Email);
-				return BadRequest("Email and password are required");
+				return BadRequest(new { message = "ایمیل و رمز عبور الزامی است" });
 			}
 
 			var existingUser = await _userManager.FindByEmailAsync(dto.Email);
 			if (existingUser != null)
 			{
 				_logger.LogWarning("Registration failed - user already exists for email: {Email}", dto.Email);
-				return BadRequest("User with this email already exists");
+				return BadRequest(new { 
+					message = "کاربری با این ایمیل قبلاً ثبت‌نام کرده است",
+					code = "EMAIL_EXISTS"
+				});
 			}
 
 			var user = new ApplicationUser
@@ -130,9 +133,14 @@ namespace OnlineShop.WebAPI.Controllers
 			var result = await _userManager.CreateAsync(user, dto.Password);
 			if (!result.Succeeded)
 			{
+				var errorMessages = result.Errors.Select(e => e.Description).ToList();
 				_logger.LogWarning("Registration failed - validation errors for {Email}: {Errors}", 
-					dto.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
-				return BadRequest(result.Errors.Select(e => e.Description));
+					dto.Email, string.Join(", ", errorMessages));
+				return BadRequest(new { 
+					message = string.Join(". ", errorMessages),
+					errors = errorMessages,
+					code = "VALIDATION_ERROR"
+				});
 			}
 
 			// Assign default role
@@ -258,14 +266,14 @@ namespace OnlineShop.WebAPI.Controllers
 			if (string.IsNullOrEmpty(userId))
 			{
 				_logger.LogWarning("GetCurrentUser failed - user ID not found in claims");
-				return Unauthorized("User ID not found");
+				return Unauthorized(new { message = "شناسه کاربر یافت نشد" });
 			}
 
 			var user = await _userManager.FindByIdAsync(userId);
 			if (user == null)
 			{
 				_logger.LogWarning("GetCurrentUser failed - user not found for ID: {UserId}", userId);
-				return Unauthorized("User not found");
+				return Unauthorized(new { message = "کاربر یافت نشد" });
 			}
 
 			var userProfile = new UserProfileDto
