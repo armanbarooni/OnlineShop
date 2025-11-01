@@ -741,6 +741,15 @@
 
             if (result.success) {
                 showRegisterSuccess('ثبت نام شما با موفقیت انجام شد!');
+                // ارسال پیامک خوش‌آمدگویی پس از ثبت‌نام موفق
+                try {
+                    if (phone) {
+                        await authService.sendOTP(phone, 'welcome');
+                        window.utils.showToast('پیامک خوش‌آمدگویی ارسال شد', 'success');
+                    }
+                } catch (_) {
+                    // در صورت خطا در ارسال پیامک، روند کار متوقف نشود
+                }
                 
                 // Clear form data after successful registration
                 clearRegistrationForm();

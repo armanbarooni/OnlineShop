@@ -219,20 +219,47 @@ class AuthGuard {
     /**
      * Check if user has required role
      */
-    hasRole(requiredRole) {
+    async hasRole(requiredRole) {
         if (!this.authService.isAuthenticated()) {
             return false;
         }
 
-        const user = this.authService.apiClient.getCurrentUser();
-        return user && user.roles && user.roles.includes(requiredRole);
+        try {
+            const user = await this.authService.getCurrentUser();
+            if (!user) {
+                return false;
+            }
+            
+            // Check if user has roles array
+            if (!user.roles) {
+                return false;
+            }
+            
+            // Handle both array and single role
+            const roles = Array.isArray(user.roles) ? user.roles : [user.roles];
+            return roles.includes(requiredRole);
+        } catch (error) {
+            console.error('Error checking role:', error);
+            // Fallback to cached user data
+            try {
+                const cachedUser = this.authService.apiClient.getCurrentUser();
+                if (cachedUser && cachedUser.roles) {
+                    const roles = Array.isArray(cachedUser.roles) ? cachedUser.roles : [cachedUser.roles];
+                    return roles.includes(requiredRole);
+                }
+            } catch (fallbackError) {
+                console.error('Error in fallback role check:', fallbackError);
+            }
+            return false;
+        }
     }
 
     /**
      * Require specific role for current page
      */
-    requireRole(requiredRole) {
-        if (!this.hasRole(requiredRole)) {
+    async requireRole(requiredRole) {
+        const hasRole = await this.hasRole(requiredRole);
+        if (!hasRole) {
             this.redirectToLogin();
             return false;
         }

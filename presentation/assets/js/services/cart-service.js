@@ -4,43 +4,98 @@
  */
 class CartService {
     constructor() {
-        this.baseUrl = '/api/cart';
+        this.apiClient = window.apiClient;
+        this.baseUrl = '/api/Cart';
     }
 
     /**
-     * Get cart items
+     * Get user cart
      */
-    async getCartItems() {
+    async getUserCart() {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/items`);
+            // Get current user ID from token
+            const user = this.apiClient.getCurrentUser();
+            if (!user || !user.id) {
+                return {
+                    success: false,
+                    error: 'کاربر احراز هویت نشده است'
+                };
+            }
+
+            const response = await this.apiClient.get(`${this.baseUrl}/user/${user.id}`);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
+            const cart = data.data || data;
+            
             return {
                 success: true,
-                data: response
+                data: cart,
+                items: cart?.items || []
             };
         } catch (error) {
-            console.error('Error getting cart items:', error);
+            console.error('Error getting user cart:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت آیتم‌های سبد خرید'
+                error: error.message || 'خطا در دریافت سبد خرید'
             };
         }
     }
 
     /**
-     * Add item to cart
+     * Get cart items (alias for getUserCart for backward compatibility)
      */
-    async addToCart(productId, quantity = 1, variantId = null) {
-        try {
-            const cartData = {
-                productId: productId,
-                quantity: quantity,
-                variantId: variantId
-            };
-
-            const response = await window.apiClient.post(`${this.baseUrl}/add`, cartData);
+    async getCartItems() {
+        const result = await this.getUserCart();
+        if (result.success && result.items) {
             return {
                 success: true,
-                data: response
+                data: result.items
+            };
+        }
+        return result;
+    }
+
+    /**
+     * Add item to cart
+     */
+    async addToCart(productId, quantity = 1, variantId = null, cartId = null) {
+        try {
+            // If cartId not provided, get user cart first
+            if (!cartId) {
+                const userCart = await this.getUserCart();
+                if (userCart.success && userCart.data) {
+                    cartId = userCart.data.id;
+                } else if (userCart.success && !userCart.data) {
+                    // Cart doesn't exist, create one
+                    const createResult = await this.createCart();
+                    if (!createResult.success) {
+                        return createResult;
+                    }
+                    cartId = createResult.data.id;
+                } else {
+                    return userCart;
+                }
+            }
+
+            const cartItem = {
+                cartId: cartId,
+                productId: productId,
+                quantity: quantity,
+                productVariantId: variantId
+            };
+
+            const response = await this.apiClient.post(`${this.baseUrl}/items`, cartItem);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
+            return {
+                success: true,
+                data: data.data || data
             };
         } catch (error) {
             console.error('Error adding to cart:', error);
@@ -52,19 +107,91 @@ class CartService {
     }
 
     /**
-     * Update cart item quantity
+     * Create cart
      */
-    async updateCartItem(cartItemId, quantity) {
+    async createCart() {
         try {
-            const updateData = {
-                quantity: quantity
+            const cartData = {
+                // Empty cart initially
             };
 
-            const response = await window.apiClient.put(`${this.baseUrl}/items/${cartItemId}`, updateData);
+            const response = await this.apiClient.post(this.baseUrl, cartData);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
             return {
                 success: true,
-                data: response
+                data: data.data || data
             };
+        } catch (error) {
+            console.error('Error creating cart:', error);
+            return {
+                success: false,
+                error: error.message || 'خطا در ایجاد سبد خرید'
+            };
+        }
+    }
+
+    /**
+     * Update cart
+     */
+    async updateCart(cartId, cartData) {
+        try {
+            const response = await this.apiClient.put(`${this.baseUrl}/${cartId}`, {
+                id: cartId,
+                ...cartData
+            });
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
+            return {
+                success: true,
+                data: data.data || data
+            };
+        } catch (error) {
+            console.error('Error updating cart:', error);
+            return {
+                success: false,
+                error: error.message || 'خطا در به‌روزرسانی سبد خرید'
+            };
+        }
+    }
+
+    /**
+     * Update cart item quantity (through cart update)
+     */
+    async updateCartItem(cartId, itemId, quantity) {
+        try {
+            // Get current cart
+            const cartResult = await this.getUserCart();
+            if (!cartResult.success) {
+                return cartResult;
+            }
+
+            const cart = cartResult.data;
+            if (!cart.items || cart.items.length === 0) {
+                return {
+                    success: false,
+                    error: 'آیتمی در سبد خرید یافت نشد'
+                };
+            }
+
+            // Update the item quantity
+            const updatedItems = cart.items.map(item => {
+                if (item.id === itemId) {
+                    return { ...item, quantity: quantity };
+                }
+                return item;
+            });
+
+            // Update cart with new items
+            return await this.updateCart(cartId, {
+                items: updatedItems
+            });
         } catch (error) {
             console.error('Error updating cart item:', error);
             return {
@@ -75,15 +202,25 @@ class CartService {
     }
 
     /**
-     * Remove item from cart
+     * Remove item from cart (through cart update)
      */
-    async removeFromCart(cartItemId) {
+    async removeFromCart(cartId, itemId) {
         try {
-            const response = await window.apiClient.delete(`${this.baseUrl}/items/${cartItemId}`);
-            return {
-                success: true,
-                data: response
-            };
+            // Get current cart
+            const cartResult = await this.getUserCart();
+            if (!cartResult.success) {
+                return cartResult;
+            }
+
+            const cart = cartResult.data;
+            
+            // Remove the item
+            const updatedItems = cart.items.filter(item => item.id !== itemId);
+
+            // Update cart
+            return await this.updateCart(cartId, {
+                items: updatedItems
+            });
         } catch (error) {
             console.error('Error removing from cart:', error);
             return {
@@ -94,15 +231,41 @@ class CartService {
     }
 
     /**
-     * Clear cart
+     * Delete cart
      */
-    async clearCart() {
+    async deleteCart(cartId) {
         try {
-            const response = await window.apiClient.delete(`${this.baseUrl}/clear`);
+            const response = await this.apiClient.delete(`${this.baseUrl}/${cartId}`);
             return {
                 success: true,
                 data: response
             };
+        } catch (error) {
+            console.error('Error deleting cart:', error);
+            return {
+                success: false,
+                error: error.message || 'خطا در حذف سبد خرید'
+            };
+        }
+    }
+
+    /**
+     * Clear cart (delete all items)
+     */
+    async clearCart() {
+        try {
+            const cartResult = await this.getUserCart();
+            if (!cartResult.success || !cartResult.data) {
+                return {
+                    success: true,
+                    data: { items: [] }
+                };
+            }
+
+            const cart = cartResult.data;
+            return await this.updateCart(cart.id, {
+                items: []
+            });
         } catch (error) {
             console.error('Error clearing cart:', error);
             return {

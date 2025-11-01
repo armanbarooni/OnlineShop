@@ -1,4 +1,4 @@
-// API Client for Online Shop
+﻿// API Client for Online Shop
 class ApiClient {
     constructor() {
         this.baseURL = window.config?.api?.baseURL || 'http://localhost:5000/api';
@@ -138,7 +138,7 @@ class ApiClient {
                 error.message.includes('NetworkError') ||
                 error.message.includes('Network error')
             )) {
-                throw new Error('خطا در اتصال به سرور. لطفا بررسی کنید که سرور در حال اجرا است و آدرس درست است.');
+                throw new Error('Ø®Ø·Ø§ Ø¯Ø± Ø§ØªØµØ§Ù„ Ø¨Ù‡ Ø³Ø±ÙˆØ±. Ù„Ø·ÙØ§ Ø¨Ø±Ø±Ø³ÛŒ Ú©Ù†ÛŒØ¯ Ú©Ù‡ Ø³Ø±ÙˆØ± Ø¯Ø± Ø­Ø§Ù„ Ø§Ø¬Ø±Ø§ Ø§Ø³Øª Ùˆ Ø¢Ø¯Ø±Ø³ Ø¯Ø±Ø³Øª Ø§Ø³Øª.');
             }
             // Handle other network-related errors
             if (error.message && (
@@ -146,7 +146,7 @@ class ApiClient {
                 error.message.includes('net::') ||
                 error.message.includes('Network request failed')
             )) {
-                throw new Error('خطا در اتصال به سرور. لطفا بررسی کنید که سرور در حال اجرا است و آدرس درست است.');
+                throw new Error('Ø®Ø·Ø§ Ø¯Ø± Ø§ØªØµØ§Ù„ Ø¨Ù‡ Ø³Ø±ÙˆØ±. Ù„Ø·ÙØ§ Ø¨Ø±Ø±Ø³ÛŒ Ú©Ù†ÛŒØ¯ Ú©Ù‡ Ø³Ø±ÙˆØ± Ø¯Ø± Ø­Ø§Ù„ Ø§Ø¬Ø±Ø§ Ø§Ø³Øª Ùˆ Ø¢Ø¯Ø±Ø³ Ø¯Ø±Ø³Øª Ø§Ø³Øª.');
             }
             // Re-throw error so auth-service can handle it properly
             throw error;
@@ -298,6 +298,22 @@ class ApiClient {
             this.refreshToken = refreshToken;
             localStorage.setItem('refreshToken', refreshToken);
         }
+
+        // Try to cache minimal user info from JWT
+        try {
+            const user = this.parseJwt(token);
+            if (user) {
+                const userData = {
+                    id: user.userId || user.sub || user.nameid || user.id || null,
+                    email: user.email || user.unique_name || null,
+                    firstName: user.given_name || user.firstName || null,
+                    lastName: user.family_name || user.lastName || null,
+                    roles: Array.isArray(user.role) ? user.role : (user.role ? [user.role] : [])
+                };
+                const key = (window.config && window.config.auth && window.config.auth.userKey) || 'userData';
+                localStorage.setItem(key, JSON.stringify(userData));
+            }
+        } catch (_) { /* ignore decode errors */ }
     }
 
     // Set tokens (plural) - for compatibility with auth-service
@@ -311,6 +327,8 @@ class ApiClient {
         this.refreshToken = null;
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        const key = (window.config && window.config.auth && window.config.auth.userKey) || 'userData';
+        localStorage.removeItem(key);
     }
 
     // Logout
@@ -324,11 +342,60 @@ class ApiClient {
         return !!this.token;
     }
 
+    // Get cached current user (decoded from token or from storage)
+    getCurrentUser() {
+        try {
+            const key = (window.config && window.config.auth && window.config.auth.userKey) || 'userData';
+            const stored = localStorage.getItem(key);
+            if (stored) {
+                return JSON.parse(stored);
+            }
+            if (this.token) {
+                const user = this.parseJwt(this.token);
+                if (user) {
+                    const userData = {
+                        id: user.userId || user.sub || user.nameid || user.id || null,
+                        email: user.email || user.unique_name || null,
+                        firstName: user.given_name || user.firstName || null,
+                        lastName: user.family_name || user.lastName || null,
+                        roles: Array.isArray(user.role) ? user.role : (user.role ? [user.role] : [])
+                    };
+                    localStorage.setItem(key, JSON.stringify(userData));
+                    return userData;
+                }
+            }
+        } catch (_) { /* ignore */ }
+        return null;
+    }
+
+    // Convenience: get current user id
+    getUserId() {
+        const u = this.getCurrentUser();
+        return u && u.id ? u.id : null;
+    }
+
+    // Decode JWT payload safely
+    parseJwt(token) {
+        try {
+            const parts = token && token.split('.') || [];
+            if (parts.length !== 3) return null;
+            const payload = parts[1]
+                .replace(/-/g, '+')
+                .replace(/_/g, '/');
+            const json = decodeURIComponent(atob(payload).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(json);
+        } catch (e) {
+            return null;
+        }
+    }
+
     // Handle API errors - compatible with fetch API
     handleError(error) {
         // For fetch API, error is typically an Error object or a thrown value
         if (error instanceof Error) {
-            return error.message || 'خطای نامشخص';
+            return error.message || 'Ø®Ø·Ø§ÛŒ Ù†Ø§Ù…Ø´Ø®Øµ';
         } else if (typeof error === 'string') {
             return error;
         } else if (error && typeof error === 'object') {
@@ -338,10 +405,10 @@ class ApiClient {
             } else if (error.errors && Array.isArray(error.errors)) {
                 return error.errors.join(', ');
             } else {
-                return 'خطای نامشخص';
+                return 'Ø®Ø·Ø§ÛŒ Ù†Ø§Ù…Ø´Ø®Øµ';
             }
         } else {
-            return 'خطای نامشخص';
+            return 'Ø®Ø·Ø§ÛŒ Ù†Ø§Ù…Ø´Ø®Øµ';
         }
     }
 }
@@ -353,3 +420,4 @@ window.apiClient = new ApiClient();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ApiClient;
 }
+

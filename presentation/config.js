@@ -1,8 +1,8 @@
-// Configuration for Online Shop Frontend
+﻿// Configuration for Online Shop Frontend
 window.config = {
     // API Configuration
     api: {
-        baseURL: 'http://localhost:5000/api', // آدرس API محلی
+        baseURL: 'http://localhost:5000/api', // Ø¢Ø¯Ø±Ø³ API Ù…Ø­Ù„ÛŒ
         timeout: 30000,
         retryAttempts: 3
     },
@@ -38,6 +38,7 @@ window.config = {
         toastDuration: 3000,
         loadingText: 'در حال بارگذاری...',
         successText: 'عملیات با موفقیت انجام شد',
-        errorText: 'خطا در انجام عملیات'
+        errorText: 'خطایی رخ داد'
     }
 };
+

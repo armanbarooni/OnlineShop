@@ -1,22 +1,62 @@
 /**
  * Comparison Service
- * Handles product comparison functionality
+ * Handles product comparison functionality - connected to API
  */
 class ComparisonService {
     constructor() {
-        this.storageKey = 'productComparison';
+        this.apiClient = window.apiClient;
+        this.baseUrl = '/api/ProductComparison';
         this.maxItems = 4; // Maximum products for comparison
+        // Keep localStorage as fallback for guest users
+        this.storageKey = 'productComparison';
     }
 
     /**
-     * Add product to comparison
+     * Add product to comparison - API version
      */
-    addToComparison(product) {
+    async addToComparison(productId) {
+        try {
+            // Check if user is authenticated
+            if (!this.apiClient.getCurrentUser()) {
+                // Fallback to localStorage for guest users
+                return this.addToComparisonLocalStorage(productId);
+            }
+
+            const response = await this.apiClient.post(`${this.baseUrl}/add`, {
+                productId: productId
+            });
+
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+
+            const data = response.data || response;
+            return {
+                success: true,
+                data: data.data || data
+            };
+        } catch (error) {
+            console.error('Error adding to comparison:', error);
+            // Fallback to localStorage if API fails
+            if (error.message && error.message.includes('401')) {
+                return this.addToComparisonLocalStorage(productId);
+            }
+            return {
+                success: false,
+                error: error.message || 'خطا در افزودن به لیست مقایسه'
+            };
+        }
+    }
+
+    /**
+     * Add product to comparison - localStorage fallback for guests
+     */
+    addToComparisonLocalStorage(productId) {
         try {
             let comparisonList = this.getComparisonList();
             
             // Check if product already exists
-            if (comparisonList.some(item => item.id === product.id)) {
+            if (comparisonList.some(item => item.id === productId)) {
                 return {
                     success: false,
                     error: 'این محصول قبلاً در لیست مقایسه موجود است'
@@ -31,16 +71,9 @@ class ComparisonService {
                 };
             }
 
-            // Add product to comparison
+            // Add product ID to comparison
             comparisonList.push({
-                id: product.id,
-                name: product.name,
-                image: product.image,
-                price: product.price,
-                originalPrice: product.originalPrice,
-                category: product.category,
-                brand: product.brand,
-                rating: product.rating,
+                id: productId,
                 addedAt: new Date().toISOString()
             });
 
@@ -60,9 +93,43 @@ class ComparisonService {
     }
 
     /**
-     * Remove product from comparison
+     * Remove product from comparison - API version
      */
-    removeFromComparison(productId) {
+    async removeFromComparison(productId) {
+        try {
+            // Check if user is authenticated
+            if (!this.apiClient.getCurrentUser()) {
+                // Fallback to localStorage
+                return this.removeFromComparisonLocalStorage(productId);
+            }
+
+            const response = await this.apiClient.delete(`${this.baseUrl}/remove/${productId}`);
+            
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+
+            return {
+                success: true,
+                data: response.data || response
+            };
+        } catch (error) {
+            console.error('Error removing from comparison:', error);
+            // Fallback to localStorage if API fails
+            if (error.message && error.message.includes('401')) {
+                return this.removeFromComparisonLocalStorage(productId);
+            }
+            return {
+                success: false,
+                error: error.message || 'خطا در حذف از لیست مقایسه'
+            };
+        }
+    }
+
+    /**
+     * Remove product from comparison - localStorage fallback
+     */
+    removeFromComparisonLocalStorage(productId) {
         try {
             let comparisonList = this.getComparisonList();
             comparisonList = comparisonList.filter(item => item.id !== productId);
@@ -82,26 +149,86 @@ class ComparisonService {
     }
 
     /**
-     * Clear comparison list
+     * Clear comparison list - API version
      */
-    clearComparison() {
+    async clearComparison() {
         try {
+            // Check if user is authenticated
+            if (!this.apiClient.getCurrentUser()) {
+                // Fallback to localStorage
+                localStorage.removeItem(this.storageKey);
+                return {
+                    success: true,
+                    data: []
+                };
+            }
+
+            const response = await this.apiClient.delete(`${this.baseUrl}/clear`);
+            
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+
+            // Also clear localStorage
             localStorage.removeItem(this.storageKey);
+
             return {
                 success: true,
                 data: []
             };
         } catch (error) {
             console.error('Error clearing comparison:', error);
+            // Fallback to localStorage
+            localStorage.removeItem(this.storageKey);
             return {
-                success: false,
-                error: 'خطا در پاک کردن لیست مقایسه'
+                success: true,
+                data: []
             };
         }
     }
 
     /**
-     * Get comparison list
+     * Get comparison list - API version
+     */
+    async getComparisonFromAPI() {
+        try {
+            if (!this.apiClient.getCurrentUser()) {
+                // Fallback to localStorage
+                return {
+                    success: true,
+                    data: this.getComparisonList()
+                };
+            }
+
+            const response = await this.apiClient.get(this.baseUrl);
+            
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+
+            const data = response.data || response;
+            return {
+                success: true,
+                data: data.data || data || []
+            };
+        } catch (error) {
+            console.error('Error getting comparison from API:', error);
+            // Fallback to localStorage
+            if (error.message && error.message.includes('401')) {
+                return {
+                    success: true,
+                    data: this.getComparisonList()
+                };
+            }
+            return {
+                success: false,
+                error: error.message || 'خطا در دریافت لیست مقایسه'
+            };
+        }
+    }
+
+    /**
+     * Get comparison list - localStorage fallback
      */
     getComparisonList() {
         try {
@@ -111,6 +238,31 @@ class ComparisonService {
             console.error('Error getting comparison list:', error);
             return [];
         }
+    }
+
+    /**
+     * Get comparison count - async method (main method)
+     */
+    async getComparisonCount() {
+        try {
+            const result = await this.getComparisonFromAPI();
+            if (result.success && Array.isArray(result.data)) {
+                return result.data.length;
+            }
+            // Fallback to localStorage count
+            return this.getComparisonList().length;
+        } catch (error) {
+            // Fallback to localStorage count on error
+            return this.getComparisonList().length;
+        }
+    }
+
+    /**
+     * Get comparison count synchronously (localStorage only - for quick UI updates)
+     * Use this only when async is not possible, otherwise use async getComparisonCount()
+     */
+    getLocalComparisonCount() {
+        return this.getComparisonList().length;
     }
 
     /**
@@ -125,13 +277,6 @@ class ComparisonService {
     }
 
     /**
-     * Get comparison count
-     */
-    getComparisonCount() {
-        return this.getComparisonList().length;
-    }
-
-    /**
      * Check if product is in comparison
      */
     isInComparison(productId) {
@@ -140,31 +285,76 @@ class ComparisonService {
     }
 
     /**
-     * Get detailed comparison data
+     * Get detailed comparison data - using API
      */
     async getDetailedComparison() {
         try {
-            const comparisonList = this.getComparisonList();
+            // Get comparison from API
+            const comparisonResult = await this.getComparisonFromAPI();
             
-            if (comparisonList.length === 0) {
+            if (!comparisonResult.success || !comparisonResult.data || comparisonResult.data.length === 0) {
                 return {
                     success: true,
                     data: []
                 };
             }
 
+            const comparisonList = comparisonResult.data;
+
+            // If user is authenticated, try to get detailed comparison from API
+            if (this.apiClient.getCurrentUser()) {
+                try {
+                    const response = await this.apiClient.get(`${this.baseUrl}/compare`);
+                    if (response.success !== undefined && !response.success) {
+                        // Fall back to getting individual products
+                        return await this.getDetailedComparisonFromProducts(comparisonList);
+                    }
+                    
+                    const data = response.data || response;
+                    const comparisonData = data.data || data;
+                    
+                    if (comparisonData && comparisonData.products) {
+                        return {
+                            success: true,
+                            data: comparisonData.products,
+                            specifications: comparisonData.specifications || []
+                        };
+                    }
+                } catch (error) {
+                    console.error('Error getting detailed comparison from API:', error);
+                    // Fall back to getting individual products
+                }
+            }
+
+            // Fallback: Get detailed product information for each product
+            return await this.getDetailedComparisonFromProducts(comparisonList);
+        } catch (error) {
+            console.error('Error getting detailed comparison:', error);
+            return {
+                success: false,
+                error: 'خطا در دریافت اطلاعات مقایسه'
+            };
+        }
+    }
+
+    /**
+     * Get detailed comparison by fetching individual products
+     */
+    async getDetailedComparisonFromProducts(comparisonList) {
+        try {
             // Get detailed product information for each product
             const detailedProducts = await Promise.all(
                 comparisonList.map(async (product) => {
                     try {
-                        const response = await window.productService.getProductById(product.id);
+                        const productId = product.id || product.productId;
+                        const response = await window.productService.getProductById(productId);
                         if (response.success) {
                             return {
                                 ...product,
                                 ...response.data,
-                                specifications: response.data.specifications || [],
+                                specifications: response.data.productDetails || [],
                                 features: response.data.features || [],
-                                images: response.data.images || []
+                                images: response.data.productImages || []
                             };
                         }
                         return product;
@@ -180,7 +370,7 @@ class ComparisonService {
                 data: detailedProducts
             };
         } catch (error) {
-            console.error('Error getting detailed comparison:', error);
+            console.error('Error getting detailed comparison from products:', error);
             return {
                 success: false,
                 error: 'خطا در دریافت اطلاعات مقایسه'

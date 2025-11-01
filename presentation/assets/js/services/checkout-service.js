@@ -4,18 +4,53 @@
  */
 class CheckoutService {
     constructor() {
-        this.baseUrl = '/api/checkout';
+        this.apiClient = window.apiClient;
+        this.baseUrl = '/api/Checkout';
     }
 
     /**
-     * Get checkout data
+     * Process checkout - main checkout method
+     */
+    async processCheckout(checkoutData) {
+        try {
+            const response = await this.apiClient.post(this.baseUrl, checkoutData);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
+            return {
+                success: true,
+                data: data.data || data
+            };
+        } catch (error) {
+            console.error('Error processing checkout:', error);
+            return {
+                success: false,
+                error: error.message || 'خطا در پردازش تسویه حساب'
+            };
+        }
+    }
+
+    /**
+     * Get checkout data - get cart and addresses for checkout
      */
     async getCheckoutData() {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/data`);
+            // Get cart and addresses
+            const [cartResult, addressesResult] = await Promise.all([
+                window.cartService.getUserCart(),
+                window.addressService.getAddresses()
+            ]);
+
             return {
                 success: true,
-                data: response
+                data: {
+                    cart: cartResult.success ? cartResult.data : null,
+                    addresses: addressesResult.success ? addressesResult.data : [],
+                    cartError: cartResult.success ? null : cartResult.error,
+                    addressesError: addressesResult.success ? null : addressesResult.error
+                }
             };
         } catch (error) {
             console.error('Error getting checkout data:', error);
@@ -127,22 +162,10 @@ class CheckoutService {
     }
 
     /**
-     * Create order
+     * Create order - alias for processCheckout
      */
     async createOrder(orderData) {
-        try {
-            const response = await window.apiClient.post(`${this.baseUrl}/create-order`, orderData);
-            return {
-                success: true,
-                data: response
-            };
-        } catch (error) {
-            console.error('Error creating order:', error);
-            return {
-                success: false,
-                error: error.message || 'خطا در ایجاد سفارش'
-            };
-        }
+        return await this.processCheckout(orderData);
     }
 
     /**

@@ -4,24 +4,78 @@
  */
 class PaymentService {
     constructor() {
-        this.baseUrl = '/api/payments';
+        this.apiClient = window.apiClient;
+        this.baseUrl = '/api/UserPayment';
     }
 
     /**
-     * Initialize payment
+     * Create payment - initialize payment
      */
     async initializePayment(paymentData) {
         try {
-            const response = await window.apiClient.post(`${this.baseUrl}/initialize`, paymentData);
+            const response = await this.apiClient.post(this.baseUrl, paymentData);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
             return {
                 success: true,
-                data: response
+                data: data.data || data
             };
         } catch (error) {
             console.error('Error initializing payment:', error);
             return {
                 success: false,
                 error: error.message || 'خطا در شروع پرداخت'
+            };
+        }
+    }
+
+    /**
+     * Get payment by ID
+     */
+    async getPaymentById(paymentId) {
+        try {
+            const response = await this.apiClient.get(`${this.baseUrl}/${paymentId}`);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
+            return {
+                success: true,
+                data: data.data || data
+            };
+        } catch (error) {
+            console.error('Error getting payment:', error);
+            return {
+                success: false,
+                error: error.message || 'خطا در دریافت اطلاعات پرداخت'
+            };
+        }
+    }
+
+    /**
+     * Get payments by order ID
+     */
+    async getPaymentsByOrderId(orderId) {
+        try {
+            const response = await this.apiClient.get(`${this.baseUrl}/order/${orderId}`);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
+            return {
+                success: true,
+                data: data.data || data
+            };
+        } catch (error) {
+            console.error('Error getting payments by order:', error);
+            return {
+                success: false,
+                error: error.message || 'خطا در دریافت اطلاعات پرداخت سفارش'
             };
         }
     }
@@ -65,22 +119,27 @@ class PaymentService {
     }
 
     /**
-     * Get payment status
+     * Get payment status - use getPaymentById
      */
     async getPaymentStatus(paymentId) {
-        try {
-            const response = await window.apiClient.get(`${this.baseUrl}/${paymentId}/status`);
+        const result = await this.getPaymentById(paymentId);
+        if (result.success && result.data) {
             return {
                 success: true,
-                data: response
-            };
-        } catch (error) {
-            console.error('Error getting payment status:', error);
-            return {
-                success: false,
-                error: error.message || 'خطا در دریافت وضعیت پرداخت'
+                data: {
+                    status: result.data.status,
+                    ...result.data
+                }
             };
         }
+        return result;
+    }
+
+    /**
+     * Get payment details - alias for getPaymentById
+     */
+    async getPaymentDetails(paymentId) {
+        return await this.getPaymentById(paymentId);
     }
 
     /**

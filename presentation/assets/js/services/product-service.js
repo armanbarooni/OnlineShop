@@ -4,7 +4,32 @@
  */
 class ProductService {
     constructor() {
-        this.baseUrl = '/api/products';
+        this.apiClient = window.apiClient;
+        this.baseUrl = '/api/Product';
+    }
+
+    /**
+     * Get all products
+     */
+    async getAllProducts() {
+        try {
+            const response = await this.apiClient.get(this.baseUrl);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
+            return {
+                success: true,
+                data: data.data || data
+            };
+        } catch (error) {
+            console.error('Error getting all products:', error);
+            return {
+                success: false,
+                error: error.message || 'خطا در دریافت محصولات'
+            };
+        }
     }
 
     /**
@@ -12,10 +37,15 @@ class ProductService {
      */
     async getProductById(productId) {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/${productId}`);
+            const response = await this.apiClient.get(`${this.baseUrl}/${productId}`);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
             return {
                 success: true,
-                data: response
+                data: data.data || data
             };
         } catch (error) {
             console.error('Error getting product:', error);
@@ -31,12 +61,31 @@ class ProductService {
      */
     async searchProducts(searchCriteria) {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/search`, {
-                params: searchCriteria
-            });
+            // Build query string from criteria
+            const params = new URLSearchParams();
+            if (searchCriteria.searchTerm) params.append('searchTerm', searchCriteria.searchTerm);
+            if (searchCriteria.categoryId) params.append('categoryId', searchCriteria.categoryId);
+            if (searchCriteria.brandId) params.append('brandId', searchCriteria.brandId);
+            if (searchCriteria.minPrice) params.append('minPrice', searchCriteria.minPrice);
+            if (searchCriteria.maxPrice) params.append('maxPrice', searchCriteria.maxPrice);
+            if (searchCriteria.inStock !== undefined && searchCriteria.inStock !== null) params.append('inStock', searchCriteria.inStock);
+            if (searchCriteria.sortBy) params.append('sortBy', searchCriteria.sortBy);
+            if (searchCriteria.sortDescending !== undefined) params.append('sortDescending', searchCriteria.sortDescending);
+            if (searchCriteria.pageNumber) params.append('pageNumber', searchCriteria.pageNumber);
+            if (searchCriteria.pageSize) params.append('pageSize', searchCriteria.pageSize);
+
+            const queryString = params.toString();
+            const url = queryString ? `${this.baseUrl}/search?${queryString}` : `${this.baseUrl}/search`;
+            
+            const response = await this.apiClient.get(url);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
             return {
                 success: true,
-                data: response
+                data: data.data || data
             };
         } catch (error) {
             console.error('Error searching products:', error);
@@ -48,20 +97,44 @@ class ProductService {
     }
 
     /**
-     * Get product categories
+     * Search products with POST (for complex criteria)
      */
-    async getCategories() {
+    async searchProductsPost(searchCriteria) {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/categories`);
+            const response = await this.apiClient.post(`${this.baseUrl}/search`, searchCriteria);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
             return {
                 success: true,
-                data: response
+                data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting categories:', error);
+            console.error('Error searching products:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت دسته‌بندی‌ها'
+                error: error.message || 'خطا در جستجوی محصولات'
+            };
+        }
+    }
+
+    /**
+     * Get products by category
+     */
+    async getProductsByCategory(categoryId, pageNumber = 1, pageSize = 20) {
+        try {
+            return await this.searchProducts({
+                categoryId: categoryId,
+                pageNumber: pageNumber,
+                pageSize: pageSize
+            });
+        } catch (error) {
+            console.error('Error getting products by category:', error);
+            return {
+                success: false,
+                error: error.message || 'خطا در دریافت محصولات دسته‌بندی'
             };
         }
     }
@@ -71,12 +144,28 @@ class ProductService {
      */
     async getProductReviews(productId, page = 1, pageSize = 10) {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/${productId}/reviews`, {
-                params: { page, pageSize }
-            });
+            const response = await this.apiClient.get(`/api/ProductReview/product/${productId}`);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
+            const reviews = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
+            
+            // Filter approved reviews only for public display
+            const approvedReviews = reviews.filter(r => r.isApproved !== false);
+            
+            // Simple pagination on client side
+            const startIndex = (page - 1) * pageSize;
+            const paginatedReviews = approvedReviews.slice(startIndex, startIndex + pageSize);
+            
             return {
                 success: true,
-                data: response
+                data: paginatedReviews,
+                totalCount: approvedReviews.length,
+                page: page,
+                pageSize: pageSize,
+                totalPages: Math.ceil(approvedReviews.length / pageSize)
             };
         } catch (error) {
             console.error('Error getting product reviews:', error);
@@ -90,17 +179,44 @@ class ProductService {
     /**
      * Get related products
      */
-    async getRelatedProducts(productId, limit = 4) {
+    async getRelatedProducts(productId, limit = 4, relationType = 'Similar') {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/${productId}/related`, {
-                params: { limit }
-            });
+            const response = await this.apiClient.get(`${this.baseUrl}/${productId}/related?limit=${limit}&relationType=${relationType}`);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
             return {
                 success: true,
-                data: response
+                data: data.data || data
             };
         } catch (error) {
             console.error('Error getting related products:', error);
+            return {
+                success: false,
+                error: error.message || 'خطا در دریافت محصولات مرتبط'
+            };
+        }
+    }
+
+    /**
+     * Get frequently bought together products
+     */
+    async getFrequentlyBoughtTogether(productId, limit = 4) {
+        try {
+            const response = await this.apiClient.get(`${this.baseUrl}/${productId}/frequently-bought-together?limit=${limit}`);
+            if (response.success !== undefined && !response.success) {
+                return response;
+            }
+            
+            const data = response.data || response;
+            return {
+                success: true,
+                data: data.data || data
+            };
+        } catch (error) {
+            console.error('Error getting frequently bought together products:', error);
             return {
                 success: false,
                 error: error.message || 'خطا در دریافت محصولات مرتبط'
@@ -147,17 +263,18 @@ class ProductService {
     }
 
     /**
-     * Get featured products
+     * Get featured products - using getAllProducts with limit
      */
     async getFeaturedProducts(limit = 8) {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/featured`, {
-                params: { limit }
-            });
-            return {
-                success: true,
-                data: response
-            };
+            const result = await this.getAllProducts();
+            if (result.success && Array.isArray(result.data)) {
+                return {
+                    success: true,
+                    data: result.data.slice(0, limit)
+                };
+            }
+            return result;
         } catch (error) {
             console.error('Error getting featured products:', error);
             return {
@@ -168,17 +285,16 @@ class ProductService {
     }
 
     /**
-     * Get best selling products
+     * Get best selling products - using search with sort
      */
     async getBestSellingProducts(limit = 8) {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/bestselling`, {
-                params: { limit }
+            return await this.searchProducts({
+                sortBy: 'Sales',
+                sortDescending: true,
+                pageNumber: 1,
+                pageSize: limit
             });
-            return {
-                success: true,
-                data: response
-            };
         } catch (error) {
             console.error('Error getting best selling products:', error);
             return {
@@ -189,17 +305,16 @@ class ProductService {
     }
 
     /**
-     * Get new products
+     * Get new products - using search with sort
      */
     async getNewProducts(limit = 8) {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/new`, {
-                params: { limit }
+            return await this.searchProducts({
+                sortBy: 'CreatedAt',
+                sortDescending: true,
+                pageNumber: 1,
+                pageSize: limit
             });
-            return {
-                success: true,
-                data: response
-            };
         } catch (error) {
             console.error('Error getting new products:', error);
             return {
@@ -210,17 +325,32 @@ class ProductService {
     }
 
     /**
-     * Get products on sale
+     * Get products on sale - filter by discount
      */
     async getSaleProducts(limit = 8) {
         try {
-            const response = await window.apiClient.get(`${this.baseUrl}/sale`, {
-                params: { limit }
+            const result = await this.searchProducts({
+                pageNumber: 1,
+                pageSize: limit
             });
-            return {
-                success: true,
-                data: response
-            };
+            
+            if (result.success && result.data && result.data.products) {
+                // Filter products that have discount
+                const saleProducts = result.data.products.filter(p => 
+                    p.discountPercent > 0 || 
+                    (p.originalPrice && p.price && p.originalPrice > p.price)
+                );
+                
+                return {
+                    success: true,
+                    data: {
+                        ...result.data,
+                        products: saleProducts.slice(0, limit)
+                    }
+                };
+            }
+            
+            return result;
         } catch (error) {
             console.error('Error getting sale products:', error);
             return {
