@@ -7,7 +7,7 @@ class Utils {
     /**
      * Format price with Persian numbers and currency
      */
-    static formatPrice(price, currency = 'ØªÙˆÙ…Ø§Ù†') {
+    static formatPrice(price, currency = 'تومان') {
         if (price === null || price === undefined) return '0 ' + currency;
         
         const formattedPrice = new Intl.NumberFormat('fa-IR').format(price);
@@ -97,7 +97,7 @@ class Utils {
     /**
      * Show loading state
      */
-    static showLoading(element, text = 'Ø¯Ø± Ø­Ø§Ù„ Ø¨Ø§Ø±Ú¯Ø°Ø§Ø±ÛŒ...') {
+    static showLoading(element, text = 'در حال بارگذاری...') {
         if (!element) return;
         
         element.disabled = true;
@@ -411,5 +411,8 @@ window.utils = Utils;
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = Utils;
 }
+
+
+
 
 

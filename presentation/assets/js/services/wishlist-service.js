@@ -13,7 +13,7 @@ class WishlistService {
      */
     async getWishlist() {
         try {
-            const response = await this.apiClient.get('/wishlist');
+            const response = await this.apiClient.get('/api/Wishlist');
             return {
                 success: true,
                 data: response.data || response
@@ -32,7 +32,7 @@ class WishlistService {
      */
     async addToWishlist(productId) {
         try {
-            const response = await this.apiClient.post('/wishlist', {
+            const response = await this.apiClient.post('/api/Wishlist', {
                 productId: productId
             });
             return {
@@ -54,7 +54,7 @@ class WishlistService {
      */
     async removeFromWishlist(wishlistId) {
         try {
-            const response = await this.apiClient.delete(`/wishlist/${wishlistId}`);
+            const response = await this.apiClient.delete(`/api/Wishlist/${wishlistId}`);
             return {
                 success: true,
                 message: 'محصول از علاقه‌مندی‌ها حذف شد'
@@ -73,7 +73,11 @@ class WishlistService {
      */
     async removeProductFromWishlist(productId) {
         try {
-            const response = await this.apiClient.delete(`/wishlist/product/${productId}`);
+            const userId = this.apiClient.getUserId();
+            if (!userId) {
+                return { success: false, error: 'ابتدا وارد حساب کاربری شوید' };
+            }
+            const response = await this.apiClient.delete(`/api/Wishlist/user/${userId}/product/${productId}`);
             return {
                 success: true,
                 message: 'محصول از علاقه‌مندی‌ها حذف شد'
@@ -92,7 +96,7 @@ class WishlistService {
      */
     async checkInWishlist(productId) {
         try {
-            const response = await this.apiClient.get(`/wishlist/check/${productId}`);
+            const response = await this.apiClient.get(`/api/Wishlist/check/${productId}`);
             return {
                 success: true,
                 data: response.data || response
@@ -134,7 +138,7 @@ class WishlistService {
      */
     async clearWishlist() {
         try {
-            const response = await this.apiClient.delete('/wishlist/clear');
+            const response = await this.apiClient.delete('/api/Wishlist/clear');
             return {
                 success: true,
                 message: 'لیست علاقه‌مندی‌ها پاک شد'
@@ -153,7 +157,7 @@ class WishlistService {
      */
     async moveToCart(wishlistId) {
         try {
-            const response = await this.apiClient.post(`/wishlist/${wishlistId}/move-to-cart`);
+            const response = await this.apiClient.post(`/api/Wishlist/${wishlistId}/move-to-cart`);
             return {
                 success: true,
                 message: 'محصول به سبد خرید اضافه شد'
@@ -172,7 +176,7 @@ class WishlistService {
      */
     async moveAllToCart() {
         try {
-            const response = await this.apiClient.post('/wishlist/move-all-to-cart');
+            const response = await this.apiClient.post('/api/Wishlist/move-all-to-cart');
             return {
                 success: true,
                 message: 'تمام محصولات به سبد خرید اضافه شدند'
@@ -191,7 +195,7 @@ class WishlistService {
      */
     async getWishlistStatistics() {
         try {
-            const response = await this.apiClient.get('/wishlist/statistics');
+            const response = await this.apiClient.get('/api/Wishlist/statistics');
             return {
                 success: true,
                 data: response.data || response
@@ -210,7 +214,7 @@ class WishlistService {
      */
     async searchWishlist(query) {
         try {
-            const response = await this.apiClient.get(`/wishlist/search?q=${encodeURIComponent(query)}`);
+            const response = await this.apiClient.get(`/api/Wishlist/search?q=${encodeURIComponent(query)}`);
             return {
                 success: true,
                 data: response.data || response
@@ -229,7 +233,7 @@ class WishlistService {
      */
     async getWishlistByCategory(categoryId) {
         try {
-            const response = await this.apiClient.get(`/wishlist/category/${categoryId}`);
+            const response = await this.apiClient.get(`/api/Wishlist/category/${categoryId}`);
             return {
                 success: true,
                 data: response.data || response
@@ -248,7 +252,7 @@ class WishlistService {
      */
     async sortWishlist(sortBy, sortOrder = 'asc') {
         try {
-            const response = await this.apiClient.get(`/wishlist/sort?sortBy=${sortBy}&sortOrder=${sortOrder}`);
+            const response = await this.apiClient.get(`/api/Wishlist/sort?sortBy=${sortBy}&sortOrder=${sortOrder}`);
             return {
                 success: true,
                 data: response.data || response
@@ -267,7 +271,7 @@ class WishlistService {
      */
     async getWishlistPaginated(pageNumber = 1, pageSize = 10) {
         try {
-            const response = await this.apiClient.get(`/wishlist?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+            const response = await this.apiClient.get(`/api/Wishlist?pageNumber=${pageNumber}&pageSize=${pageSize}`);
             return {
                 success: true,
                 data: response.data || response
@@ -352,7 +356,7 @@ class WishlistService {
      */
     async getWishlistCategories() {
         try {
-            const response = await this.apiClient.get('/wishlist/categories');
+            const response = await this.apiClient.get('/api/Wishlist/categories');
             return {
                 success: true,
                 data: response.data || response
@@ -374,3 +378,16 @@ window.wishlistService = new WishlistService();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = WishlistService;
 }
+
+/**
+ * Additional helper: getWishlistItems via pagination
+ */
+WishlistService.prototype.getWishlistItems = async function(pageNumber = 1, pageSize = 20) {
+    const res = await this.getWishlistPaginated(pageNumber, pageSize);
+    if (res && res.success) {
+        const data = res.data || {};
+        const items = data.items || data.products || (Array.isArray(data) ? data : []);
+        return { success: true, data: items };
+    }
+    return res;
+};
