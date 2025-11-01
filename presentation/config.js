@@ -2,7 +2,7 @@
 window.config = {
     // API Configuration
     api: {
-        baseURL: 'http://localhost:5000/api', // Ø¢Ø¯Ø±Ø³ API Ù…Ø­Ù„ÛŒ
+        baseURL: 'http://localhost:5000/api', // آدرس API محلی
         timeout: 30000,
         retryAttempts: 3
     },
