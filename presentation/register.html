@@ -5,16 +5,14 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>ظ‚ط§ظ„ط¨ ظپط±ط´ع¯ط§ظ‡غŒ ط¢ط±غŒظ†ظˆ</title>
-    <meta name="description" content="ظ‚ط§ظ„ط¨ ظپط±ط´ع¯ط§ظ‡غŒ ط¢ط±غŒظ†ظˆطŒ ط¨ظ‡طھط±غŒظ† ظ‚ط§ظ„ط¨ ط¨ط±ط§غŒ ظپط±ظˆط´ع¯ط§ظ‡â€Œظ‡ط§غŒ ط§غŒظ†طھط±ظ†طھغŒ ط¨ط§ ط·ط±ط§ط­غŒ ظ…ط¯ط±ظ† ظˆ ظˆط§ع©ظ†ط´â€Œع¯ط±ط§.">
-    <meta name="keywords" content="ظ‚ط§ظ„ط¨ ظپط±ظˆط´ع¯ط§ظ‡غŒ, ظ‚ط§ظ„ط¨ ط¢ط±غŒظ†ظˆ, ظپط±ظˆط´ع¯ط§ظ‡ ط§غŒظ†طھط±ظ†طھغŒ, ط·ط±ط§ط­غŒ ظˆط§ع©ظ†ط´â€Œع¯ط±ط§">
-    <meta name="robots" content="index, follow">
-    <meta name="author" content="ط¢ط±غŒظ†ظˆ">
-    <meta name="copyright" content="طھظ…ط§ظ…غŒ ط­ظ‚ظˆظ‚ ظ…طھط¹ظ„ظ‚ ط¨ظ‡ ط¢ط±غŒظ†ظˆ ط§ط³طھ.">
+    <!-- Clean meta/title for production -->
+    <title>ثبت‌نام | فروشگاه آنلاین</title>
+    <meta name="description" content="ثبت‌نام در فروشگاه آنلاین برای دسترسی به سفارش‌ها و امکانات کاربری.">
+    <meta name="author" content="فروشگاه آنلاین">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicon_io/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon_io/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon_io/favicon-16x16.png">
-    <link rel="canonical" href="https://example.com/your-page-url">
+    <!-- canonical removed to avoid incorrect SEO until domain is known -->
     <link rel="stylesheet" href="assets/js/plugin/swiper/swiper-bundle.min.css">
     <link rel="stylesheet" href="assets/css/app.css">
     <link rel="preload" href="assets/fonts/payda/PeydaWebFaNum-Medium.woff2" as="font" type="font/woff2" crossorigin>
@@ -496,7 +494,7 @@
             const submitButton = document.getElementById('sendOtpButton');
             window.utils.showLoading(submitButton, 'ط¯ط± ط­ط§ظ„ ط§ط±ط³ط§ظ„...');
 
-            const response = await window.authService.sendOtp(registrationData.mobile, 'register');
+            const response = await window.authService.sendOTP(registrationData.mobile, 'Registration');
             
             if (response.success) {
                 window.utils.showToast('ع©ط¯ طھط§غŒغŒط¯ ط§ط±ط³ط§ظ„ ط´ط¯', 'success');
@@ -551,12 +549,19 @@
             const submitButton = document.getElementById('completeRegistrationButton');
             window.utils.showLoading(submitButton, 'ط¯ط± ط­ط§ظ„ ط«ط¨طھâ€Œظ†ط§ظ…...');
 
-            const response = await window.authService.registerWithPhone({
+            // Verify OTP for Registration purpose, then register user
+            const verify = await window.authService.verifyOTP(registrationData.mobile, registrationData.otp);
+            if (!verify || verify.success !== true) {
+                window.utils.showToast((verify && verify.error) || 'کد تایید نامعتبر است.', 'error');
+                return;
+            }
+
+            const response = await window.authService.register({
                 firstName: registrationData.firstName,
                 lastName: registrationData.lastName,
-                mobile: registrationData.mobile,
-                password: registrationData.password,
-                otp: registrationData.otp
+                phone: registrationData.mobile,
+                email: (document.getElementById('email') && document.getElementById('email').value) || null,
+                password: registrationData.password
             });
 
             if (response.success) {
@@ -742,15 +747,7 @@
 
             if (result.success) {
                 showRegisterSuccess('ط«ط¨طھ ظ†ط§ظ… ط´ظ…ط§ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ظ†ط¬ط§ظ… ط´ط¯!');
-                // ط§ط±ط³ط§ظ„ ظ¾غŒط§ظ…ع© ط®ظˆط´â€Œط¢ظ…ط¯ع¯ظˆغŒغŒ ظ¾ط³ ط§ط² ط«ط¨طھâ€Œظ†ط§ظ… ظ…ظˆظپظ‚
-                try {
-                    if (phone) {
-                        await authService.sendOTP(phone, 'welcome');
-                        window.utils.showToast('ظ¾غŒط§ظ…ع© ط®ظˆط´â€Œط¢ظ…ط¯ع¯ظˆغŒغŒ ط§ط±ط³ط§ظ„ ط´ط¯', 'success');
-                    }
-                } catch (_) {
-                    // ط¯ط± طµظˆط±طھ ط®ط·ط§ ط¯ط± ط§ط±ط³ط§ظ„ ظ¾غŒط§ظ…ع©طŒ ط±ظˆظ†ط¯ ع©ط§ط± ظ…طھظˆظ‚ظپ ظ†ط´ظˆط¯
-                }
+                // OTP post-registration message removed for production simplicity
                 
                 // Clear form data after successful registration
                 clearRegistrationForm();
@@ -1010,18 +1007,19 @@
 
 
 
-            const response = await window.authService.registerWithPhone({
+            // Verify OTP for Registration purpose, then register user
+            const verify = await window.authService.verifyOTP(registrationData.mobile, registrationData.otp);
+            if (!verify || verify.success !== true) {
+                window.utils.showToast((verify && verify.error) || 'کد تایید نامعتبر است.', 'error');
+                return;
+            }
 
+            const response = await window.authService.register({
                 firstName: registrationData.firstName,
-
                 lastName: registrationData.lastName,
-
-                mobile: registrationData.mobile,
-
-                password: registrationData.password,
-
-                otp: registrationData.otp
-
+                phone: registrationData.mobile,
+                email: (document.getElementById('email') && document.getElementById('email').value) || null,
+                password: registrationData.password
             });
 
 
@@ -1304,215 +1302,11 @@
 
 
 
-    async function submitForm() {
+    
 
-        const terms = document.getElementById('terms').checked;
 
 
-
-        if(!terms) {
-
-            showRegisterError('ظ„ط·ظپط§ ط¨ط§ ظ‚ظˆط§ظ†غŒظ† ظˆ ظ…ظ‚ط±ط±ط§طھ ظ…ظˆط§ظپظ‚طھ ع©ظ†غŒط¯');
-
-            return;
-
-        }
-
-
-
-        // Get form data
-
-        const formData = {
-
-            firstName: document.getElementById('first-name').value,
-
-            lastName: document.getElementById('last-name').value,
-
-            phone: document.getElementById('mobile').value,
-
-            email: document.getElementById('email').value || null,
-
-            password: document.getElementById('password').value
-
-        };
-
-
-
-        // Show loading state
-
-        const submitBtn = document.querySelector('[onclick="submitForm()"]');
-
-        const originalText = submitBtn.innerHTML;
-
-        submitBtn.disabled = true;
-
-        submitBtn.innerHTML = `
-
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-
-            </svg>
-
-            ط¯ط± ط­ط§ظ„ ط«ط¨طھ ظ†ط§ظ…...
-
-        `;
-
-
-
-        try {
-
-            const result = await authService.register(formData);
-
-
-
-            if (result.success) {
-
-                showRegisterSuccess('ط«ط¨طھ ظ†ط§ظ… ط´ظ…ط§ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ظ†ط¬ط§ظ… ط´ط¯!');
-
-                
-
-                // Redirect to dashboard after short delay
-
-                setTimeout(() => {
-
-                    window.location.href = '/user-panel-index.html';
-
-                }, 2000);
-
-            } else {
-
-                showRegisterError(result.error || 'ط®ط·ط§ ط¯ط± ط«ط¨طھ ظ†ط§ظ…. ظ„ط·ظپط§ ط¯ظˆط¨ط§ط±ظ‡ طھظ„ط§ط´ ع©ظ†غŒط¯.');
-
-            }
-
-        } catch (error) {
-
-            console.error('Registration error:', error);
-
-            showRegisterError('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±. ظ„ط·ظپط§ ط¯ظˆط¨ط§ط±ظ‡ طھظ„ط§ط´ ع©ظ†غŒط¯.');
-
-        } finally {
-
-            // Reset button state
-
-            submitBtn.disabled = false;
-
-            submitBtn.innerHTML = originalText;
-
-        }
-
-    }
-
-
-
-    // Function to show register error message
-
-    function showRegisterError(message) {
-
-        // Remove existing error messages
-
-        const existingErrors = document.querySelectorAll('.register-error-message');
-
-        existingErrors.forEach(el => el.remove());
-
-
-
-        const errorDiv = document.createElement('div');
-
-        errorDiv.className = 'register-error-message mb-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-xl border border-red-200 dark:border-red-800';
-
-        errorDiv.innerHTML = `
-
-            <div class="flex items-center">
-
-                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-
-                </svg>
-
-                ${message}
-
-            </div>
-
-        `;
-
-
-
-        // Insert error message at the top of the form
-
-        const form = document.querySelector('.registration-form');
-
-        form.insertBefore(errorDiv, form.firstChild);
-
-
-
-        // Automatically remove error message after 5 seconds
-
-        setTimeout(() => {
-
-            errorDiv.remove();
-
-        }, 5000);
-
-    }
-
-
-
-    // Function to show register success message
-
-    function showRegisterSuccess(message) {
-
-        // Remove existing messages
-
-        const existingMessages = document.querySelectorAll('.register-success-message, .register-error-message');
-
-        existingMessages.forEach(el => el.remove());
-
-
-
-        const successDiv = document.createElement('div');
-
-        successDiv.className = 'register-success-message mb-4 p-4 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-300 rounded-xl border border-green-200 dark:border-green-800';
-
-        successDiv.innerHTML = `
-
-            <div class="flex items-center">
-
-                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-
-                </svg>
-
-                ${message}
-
-            </div>
-
-        `;
-
-
-
-        // Insert success message at the top of the form
-
-        const form = document.querySelector('.registration-form');
-
-        form.insertBefore(successDiv, form.firstChild);
-
-
-
-        // Automatically remove success message after 3 seconds
-
-        setTimeout(() => {
-
-            successDiv.remove();
-
-        }, 3000);
-
-    }
+    
 
 
 

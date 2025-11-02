@@ -7,6 +7,8 @@ using OnlineShop.Application.Features.Cart.Command.AddItem;
 using OnlineShop.Application.Features.Cart.Command.Create;
 using OnlineShop.Application.Features.Cart.Command.Update;
 using OnlineShop.Application.Features.Cart.Command.Delete;
+using OnlineShop.Application.Features.Cart.Commands.ApplyCoupon;
+using OnlineShop.Application.Features.Cart.Commands.RemoveCoupon;
 using OnlineShop.Application.Features.Cart.Queries.GetByUserId;
 using OnlineShop.Application.Features.Cart.Queries.GetAll;
 using OnlineShop.Application.Features.Cart.Queries.GetById;
@@ -105,6 +107,48 @@ namespace OnlineShop.WebAPI.Controllers
                 return BadRequest(result);
 
             return CreatedAtAction(nameof(GetByUserId), new { userId = cartItem.CartId }, result);
+        }
+
+        [HttpPost("apply-coupon")]
+        public async Task<ActionResult<Result<ApplyCouponToCartResultDto>>> ApplyCoupon([FromBody] ApplyCouponToCartRequestDto request)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || !Guid.TryParse(userId, out var userGuid))
+                return Unauthorized("User not authenticated");
+
+            var command = new ApplyCouponToCartCommand
+            {
+                UserId = userGuid,
+                Request = request
+            };
+
+            var result = await _mediator.Send(command);
+            
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpDelete("remove-coupon")]
+        public async Task<ActionResult<Result<RemoveCouponFromCartResultDto>>> RemoveCoupon([FromQuery] Guid? cartId = null)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || !Guid.TryParse(userId, out var userGuid))
+                return Unauthorized("User not authenticated");
+
+            var command = new RemoveCouponFromCartCommand
+            {
+                UserId = userGuid,
+                CartId = cartId
+            };
+
+            var result = await _mediator.Send(command);
+            
+            if (!result.IsSuccess)
+                return BadRequest(result);
+
+            return Ok(result);
         }
     }
 }

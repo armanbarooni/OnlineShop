@@ -76,6 +76,17 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void MarkAsProcessing(string? gatewayTransactionId = null)
+        {
+            if (PaymentStatus != "Pending")
+                throw new InvalidOperationException($"پرداخت در وضعیت {PaymentStatus} است و نمی‌تواند پردازش شود");
+            
+            PaymentStatus = "Processing";
+            SetTransactionId(gatewayTransactionId);
+            SetGatewayResponse("Payment is being processed");
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         public void MarkAsPaid(string? transactionId, string? gatewayResponse)
         {
             PaymentStatus = "Paid";

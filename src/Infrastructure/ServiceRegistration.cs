@@ -105,6 +105,7 @@ public static class ServiceRegistration
         // Services
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<Domain.Interfaces.Services.IInvoiceService, Infrastructure.Services.InvoiceService>();
         
         // SMS Service Configuration (runtime selection via options)
         services.Configure<SmsSettings>(configuration.GetSection("SmsSettings"));

@@ -10,6 +10,8 @@ using OnlineShop.Application.Features.UserPayment.Queries.GetById;
 using OnlineShop.Application.Features.UserPayment.Queries.GetByUserId;
 using OnlineShop.Application.Features.UserPayment.Queries.GetByOrderId;
 using OnlineShop.Application.Features.UserPayment.Queries.GetAll;
+using OnlineShop.Application.Features.UserPayment.Commands.ProcessPayment;
+using OnlineShop.Application.Features.UserPayment.Commands.VerifyPayment;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -60,6 +62,34 @@ namespace OnlineShop.WebAPI.Controllers
             return NotFound(result);
         }
 
+        [HttpGet("history")]
+        public async Task<IActionResult> GetHistory([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            _logger.LogInformation("Getting payment history for user: {UserId}, Page: {PageNumber}, PageSize: {PageSize}", currentUserGuid, pageNumber, pageSize);
+            
+            var query = new GetUserPaymentsByUserIdQuery 
+            { 
+                UserId = currentUserGuid,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+            
+            var result = await _mediator.Send(query, cancellationToken);
+            
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved payment history for user: {UserId}, Total: {TotalCount}", currentUserGuid, result.Data?.TotalCount ?? 0);
+                return Ok(result);
+            }
+            
+            _logger.LogWarning("Failed to retrieve payment history for user: {UserId}. Error: {Error}", currentUserGuid, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
         [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetByUserId(Guid userId, CancellationToken cancellationToken = default)
         {
@@ -73,11 +103,17 @@ namespace OnlineShop.WebAPI.Controllers
                 return Forbid("Access denied");
 
             _logger.LogInformation("Getting user payments for user: {UserId}", userId);
-            var result = await _mediator.Send(new GetUserPaymentsByUserIdQuery { UserId = userId }, cancellationToken);
+            var query = new GetUserPaymentsByUserIdQuery 
+            { 
+                UserId = userId,
+                PageNumber = 1,
+                PageSize = 100 // Default for backward compatibility
+            };
+            var result = await _mediator.Send(query, cancellationToken);
             
             if (result.IsSuccess)
             {
-                _logger.LogInformation("Successfully retrieved {Count} payments for user: {UserId}", result.Data?.Count() ?? 0, userId);
+                _logger.LogInformation("Successfully retrieved payments for user: {UserId}", userId);
                 return Ok(result);
             }
             
@@ -163,6 +199,88 @@ namespace OnlineShop.WebAPI.Controllers
             
             _logger.LogWarning("Failed to delete user payment: {PaymentId} by user: {UserId}. Error: {Error}", id, userId, result.ErrorMessage);
             return NotFound(result);
+        }
+
+        [HttpPost("{id}/process")]
+        public async Task<IActionResult> ProcessPayment(Guid id, [FromBody] ProcessPaymentRequest? request, CancellationToken cancellationToken = default)
+        {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            // Verify payment belongs to user
+            var paymentResult = await _mediator.Send(new GetUserPaymentByIdQuery { Id = id }, cancellationToken);
+            if (!paymentResult.IsSuccess)
+                return NotFound(paymentResult);
+
+            if (!User.IsInRole("Admin") && paymentResult.Data?.UserId != currentUserGuid)
+                return Forbid("Access denied");
+
+            _logger.LogInformation("Processing payment: {PaymentId} by user: {UserId}", id, currentUserGuid);
+
+            var command = new ProcessPaymentCommand
+            {
+                PaymentId = id,
+                GatewayTransactionId = request?.GatewayTransactionId
+            };
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Payment processed successfully: {PaymentId} by user: {UserId}", id, currentUserGuid);
+                return Ok(result);
+            }
+
+            _logger.LogWarning("Failed to process payment: {PaymentId} by user: {UserId}. Error: {Error}", id, currentUserGuid, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        [HttpPost("{id}/verify")]
+        public async Task<IActionResult> VerifyPayment(Guid id, [FromBody] VerifyPaymentRequest? request, CancellationToken cancellationToken = default)
+        {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            // Verify payment belongs to user
+            var paymentResult = await _mediator.Send(new GetUserPaymentByIdQuery { Id = id }, cancellationToken);
+            if (!paymentResult.IsSuccess)
+                return NotFound(paymentResult);
+
+            if (!User.IsInRole("Admin") && paymentResult.Data?.UserId != currentUserGuid)
+                return Forbid("Access denied");
+
+            _logger.LogInformation("Verifying payment: {PaymentId} by user: {UserId}", id, currentUserGuid);
+
+            var command = new VerifyPaymentCommand
+            {
+                PaymentId = id,
+                TransactionId = request?.TransactionId,
+                GatewayResponse = request?.GatewayResponse
+            };
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Payment verified successfully: {PaymentId} by user: {UserId}", id, currentUserGuid);
+                return Ok(result);
+            }
+
+            _logger.LogWarning("Failed to verify payment: {PaymentId} by user: {UserId}. Error: {Error}", id, currentUserGuid, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        public class ProcessPaymentRequest
+        {
+            public string? GatewayTransactionId { get; set; }
+        }
+
+        public class VerifyPaymentRequest
+        {
+            public string? TransactionId { get; set; }
+            public string? GatewayResponse { get; set; }
         }
     }
 }
