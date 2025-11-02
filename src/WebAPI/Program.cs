@@ -57,7 +57,12 @@ if (!string.IsNullOrEmpty(connectionString))
 
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+        options.JsonSerializerOptions.WriteIndented = false;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
@@ -194,6 +199,16 @@ if (!app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Ensure UTF-8 encoding for JSON responses
+app.Use(async (context, next) =>
+{
+    if (context.Response.ContentType?.StartsWith("application/json") == true)
+    {
+        context.Response.ContentType = "application/json; charset=utf-8";
+    }
+    await next();
+});
 
 app.MapControllers();
 

@@ -104,13 +104,16 @@ namespace OnlineShop.Infrastructure.Services
 ";
             }
 
+            var finalAmount = order.TotalAmount; // TotalAmount already includes all calculations
             html += $@"
             </tbody>
         </table>
         <div class='total'>
-            <p>جمع کل: {order.TotalAmount:N0} تومان</p>
+            <p>جمع جزئی: {order.SubTotal:N0} تومان</p>
             <p>تخفیف: {order.DiscountAmount:N0} تومان</p>
-            <p class='total-row'>مبلغ نهایی: {order.FinalAmount:N0} تومان</p>
+            <p>مالیات: {order.TaxAmount:N0} تومان</p>
+            <p>هزینه ارسال: {order.ShippingAmount:N0} تومان</p>
+            <p class='total-row'>مبلغ نهایی: {finalAmount:N0} تومان</p>
         </div>
     </div>
 </body>

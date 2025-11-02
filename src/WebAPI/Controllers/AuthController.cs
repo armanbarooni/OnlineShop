@@ -398,4 +398,5 @@ namespace OnlineShop.WebAPI.Controllers
 				}
 			}
 		}
-\t}\n}\n
+	}
+}
