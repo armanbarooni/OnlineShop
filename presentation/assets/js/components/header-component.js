@@ -105,7 +105,7 @@ class HeaderComponent {
                 this.renderSearchResults(Array.isArray(products) ? products : []);
             }
         } catch (error) {
-            console.error('Error searching:', error);
+            window.logger.error('Error searching:', error);
         }
     }
 
@@ -155,7 +155,7 @@ class HeaderComponent {
                 }
             }
         } catch (error) {
-            console.error('Error updating cart count:', error);
+            window.logger.error('Error updating cart count:', error);
         }
     }
 
@@ -167,7 +167,7 @@ class HeaderComponent {
             const comparisonCountEl = document.getElementById('comparisonCount');
             if (comparisonCountEl) comparisonCountEl.textContent = count || 0;
         } catch (error) {
-            console.error('Error updating comparison count:', error);
+            window.logger.error('Error updating comparison count:', error);
         }
     }
 
@@ -192,7 +192,7 @@ class HeaderComponent {
                 if (loginButton) loginButton.style.display = 'block';
             }
         } catch (error) {
-            console.error('Error updating user menu:', error);
+            window.logger.error('Error updating user menu:', error);
             if (userMenu) userMenu.style.display = 'none';
             const loginButton = document.getElementById('loginButton');
             if (loginButton) loginButton.style.display = 'block';
@@ -209,7 +209,7 @@ class HeaderComponent {
     async loadCategoryMenu() {
         try {
             if (!window.categoryService) {
-                console.warn('CategoryService not available');
+                window.logger.warn('CategoryService not available');
                 return;
             }
 
@@ -224,7 +224,7 @@ class HeaderComponent {
                 }
             }
         } catch (error) {
-            console.error('Error loading category menu:', error);
+            window.logger.error('Error loading category menu:', error);
         }
     }
 
@@ -428,3 +428,5 @@ document.addEventListener('DOMContentLoaded', () => {
         window.headerComponent = new HeaderComponent();
     }
 });
+
+

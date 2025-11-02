@@ -1,45 +1,74 @@
-﻿// Configuration for Online Shop Frontend
-window.config = {
-    // API Configuration
-    api: {
-        baseURL: 'http://localhost:5000/api', // آدرس API محلی
-        timeout: 30000,
-        retryAttempts: 3
-    },
-    
-    // Authentication
-    auth: {
-        tokenKey: 'accessToken',
-        refreshTokenKey: 'refreshToken',
-        userKey: 'userData'
-    },
-    
-    // Pagination
-    pagination: {
-        defaultPageSize: 10,
-        maxPageSize: 100
-    },
-    
-    // File Upload
-    upload: {
-        maxFileSize: 5 * 1024 * 1024, // 5MB
-        allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-    },
-    
-    // Local Storage Keys
-    storage: {
-        lastViewedProducts: 'lastViewedProducts',
-        comparisonList: 'comparisonList',
-        cartItems: 'cartItems'
-    },
-    
-    // UI Configuration
-    ui: {
-        toastDuration: 3000,
-        loadingText: 'در حال بارگذاری...',
-        successText: 'عملیات با موفقیت انجام شد',
-        errorText: 'خطایی رخ داد'
-    }
-};
+(function () {
+    const hostname = window.location?.hostname ?? 'localhost';
 
+    const detectEnvironment = (host) => {
+        const normalizedHost = (host || '').toLowerCase();
+        if (!normalizedHost || normalizedHost === 'localhost' || normalizedHost === '127.0.0.1') {
+            return 'development';
+        }
+        if (normalizedHost.includes('staging') || normalizedHost.includes('test')) {
+            return 'staging';
+        }
+        return 'production';
+    };
 
+    const environmentName = detectEnvironment(hostname);
+
+    const resolveApiBaseUrl = () => {
+        if (window.__API_BASE_URL__) {
+            return window.__API_BASE_URL__;
+        }
+
+        const metaApiBase = document.querySelector('meta[name="api-base-url"]');
+        if (metaApiBase?.content) {
+            return metaApiBase.content;
+        }
+
+        const normalizedOrigin = (window.location?.origin || '').replace(/\/$/, '');
+        if (environmentName === 'development') {
+            return 'http://localhost:5000/api';
+        }
+
+        if (normalizedOrigin) {
+            return `${normalizedOrigin}/api`;
+        }
+
+        return 'https://api.example.com/api';
+    };
+
+    window.config = {
+        environment: {
+            name: environmentName,
+            hostname
+        },
+        api: {
+            baseURL: resolveApiBaseUrl(),
+            timeout: 30000,
+            retryAttempts: 3
+        },
+        auth: {
+            tokenKey: 'accessToken',
+            refreshTokenKey: 'refreshToken',
+            userKey: 'userData'
+        },
+        pagination: {
+            defaultPageSize: 10,
+            maxPageSize: 100
+        },
+        upload: {
+            maxFileSize: 5 * 1024 * 1024,
+            allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+        },
+        storage: {
+            lastViewedProducts: 'lastViewedProducts',
+            comparisonList: 'comparisonList',
+            cartItems: 'cartItems'
+        },
+        ui: {
+            toastDuration: 3000,
+            loadingText: 'در حال بارگذاری...',
+            successText: 'عملیات با موفقیت انجام شد.',
+            errorText: 'خطایی رخ داد.'
+        }
+    };
+})();

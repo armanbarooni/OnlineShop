@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Address Service for OnlineShop Frontend
  * Handles user address operations
  */
@@ -19,7 +19,7 @@ class AddressService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching addresses:', error);
+            window.logger.error('Error fetching addresses:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -38,7 +38,7 @@ class AddressService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching address:', error);
+            window.logger.error('Error fetching address:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -55,10 +55,10 @@ class AddressService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'آدرس با موفقیت اضافه شد'
+                message: 'ط¢ط¯ط±ط³ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ط¶ط§ظپظ‡ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error creating address:', error);
+            window.logger.error('Error creating address:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -75,10 +75,10 @@ class AddressService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'آدرس با موفقیت بروزرسانی شد'
+                message: 'ط¢ط¯ط±ط³ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error updating address:', error);
+            window.logger.error('Error updating address:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -94,10 +94,10 @@ class AddressService {
             const response = await this.apiClient.delete(`/useraddress/${addressId}`);
             return {
                 success: true,
-                message: 'آدرس با موفقیت حذف شد'
+                message: 'ط¢ط¯ط±ط³ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط­ط°ظپ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error deleting address:', error);
+            window.logger.error('Error deleting address:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -113,10 +113,10 @@ class AddressService {
             const response = await this.apiClient.post(`/useraddress/${addressId}/set-default`);
             return {
                 success: true,
-                message: 'آدرس پیش‌فرض با موفقیت تنظیم شد'
+                message: 'ط¢ط¯ط±ط³ ظ¾غŒط´â€Œظپط±ط¶ ط¨ط§ ظ…ظˆظپظ‚غŒطھ طھظ†ط¸غŒظ… ط´ط¯'
             };
         } catch (error) {
-            console.error('Error setting default address:', error);
+            window.logger.error('Error setting default address:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -135,7 +135,7 @@ class AddressService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching default address:', error);
+            window.logger.error('Error fetching default address:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -150,31 +150,31 @@ class AddressService {
         const errors = {};
 
         if (!addressData.title || addressData.title.trim().length === 0) {
-            errors.title = 'عنوان آدرس الزامی است';
+            errors.title = 'ط¹ظ†ظˆط§ظ† ط¢ط¯ط±ط³ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!addressData.address || addressData.address.trim().length === 0) {
-            errors.address = 'آدرس الزامی است';
+            errors.address = 'ط¢ط¯ط±ط³ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!addressData.city || addressData.city.trim().length === 0) {
-            errors.city = 'شهر الزامی است';
+            errors.city = 'ط´ظ‡ط± ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!addressData.province || addressData.province.trim().length === 0) {
-            errors.province = 'استان الزامی است';
+            errors.province = 'ط§ط³طھط§ظ† ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!addressData.postalCode || addressData.postalCode.trim().length === 0) {
-            errors.postalCode = 'کد پستی الزامی است';
+            errors.postalCode = 'ع©ط¯ ظ¾ط³طھغŒ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         } else if (!/^\d{10}$/.test(addressData.postalCode)) {
-            errors.postalCode = 'کد پستی باید ۱۰ رقم باشد';
+            errors.postalCode = 'ع©ط¯ ظ¾ط³طھغŒ ط¨ط§غŒط¯ غ±غ° ط±ظ‚ظ… ط¨ط§ط´ط¯';
         }
 
         if (!addressData.phone || addressData.phone.trim().length === 0) {
-            errors.phone = 'شماره تلفن الزامی است';
+            errors.phone = 'ط´ظ…ط§ط±ظ‡ طھظ„ظپظ† ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         } else if (!window.utils.isValidPhone(addressData.phone)) {
-            errors.phone = 'شماره تلفن نامعتبر است';
+            errors.phone = 'ط´ظ…ط§ط±ظ‡ طھظ„ظپظ† ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ';
         }
 
         return {
@@ -194,8 +194,8 @@ class AddressService {
             address.address,
             address.city,
             address.province,
-            `کد پستی: ${address.postalCode}`,
-            `تلفن: ${address.phone}`
+            `ع©ط¯ ظ¾ط³طھغŒ: ${address.postalCode}`,
+            `طھظ„ظپظ†: ${address.phone}`
         ].filter(part => part && part.trim().length > 0);
         
         return parts.join(' - ');
@@ -206,9 +206,9 @@ class AddressService {
      */
     getAddressTypeLabel(type) {
         const typeMap = {
-            'Home': 'منزل',
-            'Work': 'محل کار',
-            'Other': 'سایر'
+            'Home': 'ظ…ظ†ط²ظ„',
+            'Work': 'ظ…ط­ظ„ ع©ط§ط±',
+            'Other': 'ط³ط§غŒط±'
         };
         
         return typeMap[type] || type;
@@ -245,7 +245,7 @@ class AddressService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error searching addresses:', error);
+            window.logger.error('Error searching addresses:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -264,7 +264,7 @@ class AddressService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching address statistics:', error);
+            window.logger.error('Error fetching address statistics:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -285,7 +285,7 @@ class AddressService {
             const address = addressResponse.data;
             const duplicatedAddress = {
                 ...address,
-                title: `${address.title} (کپی)`,
+                title: `${address.title} (ع©ظ¾غŒ)`,
                 isDefault: false
             };
 
@@ -295,7 +295,7 @@ class AddressService {
 
             return await this.createAddress(duplicatedAddress);
         } catch (error) {
-            console.error('Error duplicating address:', error);
+            window.logger.error('Error duplicating address:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -311,3 +311,4 @@ window.addressService = new AddressService();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AddressService;
 }
+

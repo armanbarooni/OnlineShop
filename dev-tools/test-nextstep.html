@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تست nextStep</title>
+    <title>طھط³طھ nextStep</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; }
         .step { display: none; padding: 20px; border: 1px solid #ccc; margin: 10px 0; }
@@ -12,29 +12,29 @@
     </style>
 </head>
 <body>
-    <h1>تست تابع nextStep</h1>
+    <h1>طھط³طھ طھط§ط¨ط¹ nextStep</h1>
     
     <div id="step1" class="step active">
-        <h2>مرحله 1</h2>
-        <p>این مرحله اول است</p>
-        <button onclick="nextStep(1, 2)">مرحله بعد</button>
+        <h2>ظ…ط±ط­ظ„ظ‡ 1</h2>
+        <p>ط§غŒظ† ظ…ط±ط­ظ„ظ‡ ط§ظˆظ„ ط§ط³طھ</p>
+        <button onclick="nextStep(1, 2)">ظ…ط±ط­ظ„ظ‡ ط¨ط¹ط¯</button>
     </div>
     
     <div id="step2" class="step">
-        <h2>مرحله 2</h2>
-        <p>این مرحله دوم است</p>
-        <button onclick="nextStep(2, 3)">مرحله بعد</button>
+        <h2>ظ…ط±ط­ظ„ظ‡ 2</h2>
+        <p>ط§غŒظ† ظ…ط±ط­ظ„ظ‡ ط¯ظˆظ… ط§ط³طھ</p>
+        <button onclick="nextStep(2, 3)">ظ…ط±ط­ظ„ظ‡ ط¨ط¹ط¯</button>
     </div>
     
     <div id="step3" class="step">
-        <h2>مرحله 3</h2>
-        <p>این مرحله سوم است</p>
-        <button onclick="alert('تمام شد!')">تمام</button>
+        <h2>ظ…ط±ط­ظ„ظ‡ 3</h2>
+        <p>ط§غŒظ† ظ…ط±ط­ظ„ظ‡ ط³ظˆظ… ط§ط³طھ</p>
+        <button onclick="alert('طھظ…ط§ظ… ط´ط¯!')">طھظ…ط§ظ…</button>
     </div>
     
     <div id="result"></div>
 
-    <script src="config.js"></script>
+    <script src="config.js"></script>`r`n<script src="assets/js/utils/logger.js"></script>
     <script src="assets/js/utils.js"></script>
     <script>
         let currentStep = 1;
@@ -50,7 +50,7 @@
             document.getElementById(`step${next}`).classList.add('active');
             currentStep = next;
             
-            document.getElementById('result').innerHTML = `<p>حالا در مرحله ${next} هستید</p>`;
+            document.getElementById('result').innerHTML = `<p>ط­ط§ظ„ط§ ط¯ط± ظ…ط±ط­ظ„ظ‡ ${next} ظ‡ط³طھغŒط¯</p>`;
         }
 
         // Test if all scripts are loaded
@@ -60,9 +60,9 @@
             console.log('Utils:', window.utils);
             
             if (window.config && window.utils) {
-                document.getElementById('result').innerHTML = '<p style="color: green;">همه اسکریپت‌ها با موفقیت لود شدند</p>';
+                document.getElementById('result').innerHTML = '<p style="color: green;">ظ‡ظ…ظ‡ ط§ط³ع©ط±غŒظ¾طھâ€Œظ‡ط§ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ظ„ظˆط¯ ط´ط¯ظ†ط¯</p>';
             } else {
-                document.getElementById('result').innerHTML = '<p style="color: red;">مشکل در لود اسکریپت‌ها</p>';
+                document.getElementById('result').innerHTML = '<p style="color: red;">ظ…ط´ع©ظ„ ط¯ط± ظ„ظˆط¯ ط§ط³ع©ط±غŒظ¾طھâ€Œظ‡ط§</p>';
             }
         });
     </script>

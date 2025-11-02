@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Coupon Service for OnlineShop Frontend
  * Handles coupon operations
  */
@@ -19,7 +19,7 @@ class CouponService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching user coupons:', error);
+            window.logger.error('Error fetching user coupons:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -38,7 +38,7 @@ class CouponService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching available coupons:', error);
+            window.logger.error('Error fetching available coupons:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -57,7 +57,7 @@ class CouponService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching coupon by code:', error);
+            window.logger.error('Error fetching coupon by code:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -79,7 +79,7 @@ class CouponService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error validating coupon:', error);
+            window.logger.error('Error validating coupon:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -99,10 +99,10 @@ class CouponService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'کوپن با موفقیت اعمال شد'
+                message: 'ع©ظˆظ¾ظ† ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ط¹ظ…ط§ظ„ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error applying coupon:', error);
+            window.logger.error('Error applying coupon:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -118,10 +118,10 @@ class CouponService {
             const response = await this.apiClient.delete(`/coupon/remove/${code}`);
             return {
                 success: true,
-                message: 'کوپن حذف شد'
+                message: 'ع©ظˆظ¾ظ† ط­ط°ظپ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error removing coupon:', error);
+            window.logger.error('Error removing coupon:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -140,7 +140,7 @@ class CouponService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching coupon statistics:', error);
+            window.logger.error('Error fetching coupon statistics:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -159,7 +159,7 @@ class CouponService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching coupon usage history:', error);
+            window.logger.error('Error fetching coupon usage history:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -183,7 +183,7 @@ class CouponService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error searching coupons:', error);
+            window.logger.error('Error searching coupons:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -202,7 +202,7 @@ class CouponService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching coupons by category:', error);
+            window.logger.error('Error fetching coupons by category:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -221,7 +221,7 @@ class CouponService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching active coupons:', error);
+            window.logger.error('Error fetching active coupons:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -240,7 +240,7 @@ class CouponService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching expired coupons:', error);
+            window.logger.error('Error fetching expired coupons:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -255,25 +255,25 @@ class CouponService {
         const errors = {};
 
         if (!couponData.code || couponData.code.trim().length === 0) {
-            errors.code = 'کد کوپن الزامی است';
+            errors.code = 'ع©ط¯ ع©ظˆظ¾ظ† ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         } else if (couponData.code.trim().length < 3) {
-            errors.code = 'کد کوپن باید حداقل ۳ کاراکتر باشد';
+            errors.code = 'ع©ط¯ ع©ظˆظ¾ظ† ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ³ ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
         }
 
         if (!couponData.discountType) {
-            errors.discountType = 'نوع تخفیف الزامی است';
+            errors.discountType = 'ظ†ظˆط¹ طھط®ظپغŒظپ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!couponData.discountValue || couponData.discountValue <= 0) {
-            errors.discountValue = 'مقدار تخفیف باید بیشتر از صفر باشد';
+            errors.discountValue = 'ظ…ظ‚ط¯ط§ط± طھط®ظپغŒظپ ط¨ط§غŒط¯ ط¨غŒط´طھط± ط§ط² طµظپط± ط¨ط§ط´ط¯';
         }
 
         if (couponData.minimumAmount && couponData.minimumAmount < 0) {
-            errors.minimumAmount = 'حداقل مبلغ نمی‌تواند منفی باشد';
+            errors.minimumAmount = 'ط­ط¯ط§ظ‚ظ„ ظ…ط¨ظ„ط؛ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ظ…ظ†ظپغŒ ط¨ط§ط´ط¯';
         }
 
         if (couponData.maximumDiscount && couponData.maximumDiscount < 0) {
-            errors.maximumDiscount = 'حداکثر تخفیف نمی‌تواند منفی باشد';
+            errors.maximumDiscount = 'ط­ط¯ط§ع©ط«ط± طھط®ظپغŒظپ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ظ…ظ†ظپغŒ ط¨ط§ط´ط¯';
         }
 
         return {
@@ -287,8 +287,8 @@ class CouponService {
      */
     formatCouponType(type) {
         const typeMap = {
-            'Percentage': 'درصدی',
-            'Fixed': 'مبلغ ثابت'
+            'Percentage': 'ط¯ط±طµط¯غŒ',
+            'Fixed': 'ظ…ط¨ظ„ط؛ ط«ط§ط¨طھ'
         };
         
         return typeMap[type] || type;
@@ -311,10 +311,10 @@ class CouponService {
      */
     formatCouponStatus(status) {
         const statusMap = {
-            'Active': 'فعال',
-            'Inactive': 'غیرفعال',
-            'Expired': 'منقضی شده',
-            'Used': 'استفاده شده'
+            'Active': 'ظپط¹ط§ظ„',
+            'Inactive': 'ط؛غŒط±ظپط¹ط§ظ„',
+            'Expired': 'ظ…ظ†ظ‚ط¶غŒ ط´ط¯ظ‡',
+            'Used': 'ط§ط³طھظپط§ط¯ظ‡ ط´ط¯ظ‡'
         };
         
         return statusMap[status] || status;
@@ -396,9 +396,9 @@ class CouponService {
         if (!coupon) return '';
         
         if (coupon.discountType === 'Percentage') {
-            return `${coupon.discountValue}% تخفیف`;
+            return `${coupon.discountValue}% طھط®ظپغŒظپ`;
         } else if (coupon.discountType === 'Fixed') {
-            return `${window.utils.formatPrice(coupon.discountValue)} تخفیف`;
+            return `${window.utils.formatPrice(coupon.discountValue)} طھط®ظپغŒظپ`;
         }
         
         return '';
@@ -413,15 +413,15 @@ class CouponService {
         const requirements = [];
         
         if (coupon.minimumAmount) {
-            requirements.push(`حداقل خرید ${window.utils.formatPrice(coupon.minimumAmount)}`);
+            requirements.push(`ط­ط¯ط§ظ‚ظ„ ط®ط±غŒط¯ ${window.utils.formatPrice(coupon.minimumAmount)}`);
         }
         
         if (coupon.maximumDiscount) {
-            requirements.push(`حداکثر تخفیف ${window.utils.formatPrice(coupon.maximumDiscount)}`);
+            requirements.push(`ط­ط¯ط§ع©ط«ط± طھط®ظپغŒظپ ${window.utils.formatPrice(coupon.maximumDiscount)}`);
         }
         
         if (coupon.usageLimit) {
-            requirements.push(`حداکثر ${coupon.usageLimit} بار استفاده`);
+            requirements.push(`ط­ط¯ط§ع©ط«ط± ${coupon.usageLimit} ط¨ط§ط± ط§ط³طھظپط§ط¯ظ‡`);
         }
         
         return requirements.join(' - ');
@@ -472,13 +472,13 @@ class CouponService {
             await window.utils.copyToClipboard(code);
             return {
                 success: true,
-                message: 'کد کوپن کپی شد'
+                message: 'ع©ط¯ ع©ظˆظ¾ظ† ع©ظ¾غŒ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error copying coupon code:', error);
+            window.logger.error('Error copying coupon code:', error);
             return {
                 success: false,
-                error: 'خطا در کپی کردن کد کوپن'
+                error: 'ط®ط·ط§ ط¯ط± ع©ظ¾غŒ ع©ط±ط¯ظ† ع©ط¯ ع©ظˆظ¾ظ†'
             };
         }
     }
@@ -491,3 +491,4 @@ window.couponService = new CouponService();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CouponService;
 }
+

@@ -30,6 +30,7 @@ namespace OnlineShop.IntegrationTests.Infrastructure
             
             // Set environment variable explicitly
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+            Environment.SetEnvironmentVariable("SEED_DEFAULT_USERS", "false");
 
             builder.ConfigureServices(services =>
             {
@@ -62,6 +63,17 @@ namespace OnlineShop.IntegrationTests.Infrastructure
 
                 // Keep the real JWT authentication for tests
                 // This allows AuthHelper to get real JWT tokens that work with the middleware
+
+                var sp = services.BuildServiceProvider();
+                using var scope = sp.CreateScope();
+                var scopedServices = scope.ServiceProvider;
+                var db = scopedServices.GetRequiredService<ApplicationDbContext>();
+                var userManager = scopedServices.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = scopedServices.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+
+                db.Database.EnsureCreated();
+                SeedTestData(roleManager, userManager).GetAwaiter().GetResult();
+                _seeded = true;
             });
         }
 
@@ -172,6 +184,9 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                     Console.WriteLine($"[CustomWebApplicationFactory] Added Admin role to existing user");
                 }
             }
+
+            var passwordValid = await userManager.CheckPasswordAsync(adminUser, "AdminPassword123!");
+            Console.WriteLine($"[CustomWebApplicationFactory] Admin password valid: {passwordValid}");
             
             // Also ensure admin can be found by email
             var adminByEmail = await userManager.FindByEmailAsync("admin@test.com");

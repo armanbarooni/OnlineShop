@@ -8,9 +8,9 @@ class FooterComponent {
         this.init();
     }
 
-    init() {
+    async init() {
         this.setupEventListeners();
-        this.loadNewsletterSubscription();
+        await this.loadNewsletterSubscription();
     }
 
     setupEventListeners() {
@@ -58,7 +58,7 @@ class FooterComponent {
         const email = emailInput.value.trim();
         if (!email) {
             if (window.utils) {
-                window.utils.showToast('Ù„Ø·ÙØ§ Ø§ÛŒÙ…ÛŒÙ„ Ø®ÙˆØ¯ Ø±Ø§ ÙˆØ§Ø±Ø¯ Ú©Ù†ÛŒØ¯', 'error');
+                window.utils.showToast('لطفاً ایمیل خود را وارد کنید.', 'error');
             }
             return;
         }
@@ -67,7 +67,7 @@ class FooterComponent {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             if (window.utils) {
-                window.utils.showToast('Ù„Ø·ÙØ§ ÛŒÚ© Ø§ÛŒÙ…ÛŒÙ„ Ù…Ø¹ØªØ¨Ø± ÙˆØ§Ø±Ø¯ Ú©Ù†ÛŒØ¯', 'error');
+                window.utils.showToast('ایمیل وارد شده معتبر نیست.', 'error');
             }
             return;
         }
@@ -78,22 +78,22 @@ class FooterComponent {
             
             // For now, just show success message
             if (window.utils) {
-                window.utils.showToast('Ø¹Ø¶ÙˆÛŒØª Ø¯Ø± Ø®Ø¨Ø±Ù†Ø§Ù…Ù‡ Ø¨Ø§ Ù…ÙˆÙÙ‚ÛŒØª Ø§Ù†Ø¬Ø§Ù… Ø´Ø¯', 'success');
+                window.utils.showToast('اشتراک خبرنامه با موفقیت انجام شد.', 'success');
             }
             emailInput.value = '';
         } catch (error) {
-            console.error('Error subscribing to newsletter:', error);
+            window.logger.error('Error subscribing to newsletter:', error);
             if (window.utils) {
-                window.utils.showToast('Ø®Ø·Ø§ Ø¯Ø± Ø¹Ø¶ÙˆÛŒØª Ø¯Ø± Ø®Ø¨Ø±Ù†Ø§Ù…Ù‡', 'error');
+                window.utils.showToast('خطایی در ثبت‌نام خبرنامه رخ داد.', 'error');
             }
         }
     }
 
-    loadNewsletterSubscription() {
+    async loadNewsletterSubscription() {
         // If there's a newsletter subscription form, we can pre-populate it with user email if logged in
         if (window.authService && window.authService.isAuthenticated()) {
             try {
-                const user = window.authService.getCurrentUser();
+                const user = await window.authService.getCurrentUser();
                 if (user && user.email) {
                     const emailInput = document.querySelector('#newsletterForm input[type="email"]');
                     if (emailInput && !emailInput.value) {
@@ -101,7 +101,7 @@ class FooterComponent {
                     }
                 }
             } catch (error) {
-                console.error('Error loading newsletter subscription:', error);
+                window.logger.error('Error loading newsletter subscription:', error);
             }
         }
     }
@@ -169,5 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.footerComponent = new FooterComponent();
     }
 });
+
 
 

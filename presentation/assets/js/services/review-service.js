@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Review Service for OnlineShop Frontend
  * Handles product review operations
  */
@@ -19,7 +19,7 @@ class ReviewService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching user reviews:', error);
+            window.logger.error('Error fetching user reviews:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -38,7 +38,7 @@ class ReviewService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching review:', error);
+            window.logger.error('Error fetching review:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -57,7 +57,7 @@ class ReviewService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching product reviews:', error);
+            window.logger.error('Error fetching product reviews:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -74,10 +74,10 @@ class ReviewService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'نظر شما با موفقیت ثبت شد'
+                message: 'ظ†ط¸ط± ط´ظ…ط§ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط«ط¨طھ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error creating review:', error);
+            window.logger.error('Error creating review:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -94,10 +94,10 @@ class ReviewService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'نظر شما با موفقیت بروزرسانی شد'
+                message: 'ظ†ط¸ط± ط´ظ…ط§ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error updating review:', error);
+            window.logger.error('Error updating review:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -113,10 +113,10 @@ class ReviewService {
             const response = await this.apiClient.delete(`/productreview/${reviewId}`);
             return {
                 success: true,
-                message: 'نظر شما حذف شد'
+                message: 'ظ†ط¸ط± ط´ظ…ط§ ط­ط°ظپ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error deleting review:', error);
+            window.logger.error('Error deleting review:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -135,7 +135,7 @@ class ReviewService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching review statistics:', error);
+            window.logger.error('Error fetching review statistics:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -160,7 +160,7 @@ class ReviewService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching paginated reviews:', error);
+            window.logger.error('Error fetching paginated reviews:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -184,7 +184,7 @@ class ReviewService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error searching reviews:', error);
+            window.logger.error('Error searching reviews:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -200,7 +200,7 @@ class ReviewService {
             const filters = { rating: rating };
             return await this.getReviewsPaginated(pageNumber, pageSize, filters);
         } catch (error) {
-            console.error('Error fetching reviews by rating:', error);
+            window.logger.error('Error fetching reviews by rating:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -216,7 +216,7 @@ class ReviewService {
             const filters = { status: status };
             return await this.getReviewsPaginated(pageNumber, pageSize, filters);
         } catch (error) {
-            console.error('Error fetching reviews by status:', error);
+            window.logger.error('Error fetching reviews by status:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -231,21 +231,21 @@ class ReviewService {
         const errors = {};
 
         if (!reviewData.productId) {
-            errors.productId = 'شناسه محصول الزامی است';
+            errors.productId = 'ط´ظ†ط§ط³ظ‡ ظ…ط­طµظˆظ„ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
-            errors.rating = 'امتیاز باید بین ۱ تا ۵ باشد';
+            errors.rating = 'ط§ظ…طھغŒط§ط² ط¨ط§غŒط¯ ط¨غŒظ† غ± طھط§ غµ ط¨ط§ط´ط¯';
         }
 
         if (!reviewData.comment || reviewData.comment.trim().length === 0) {
-            errors.comment = 'نظر الزامی است';
+            errors.comment = 'ظ†ط¸ط± ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         } else if (reviewData.comment.trim().length < 10) {
-            errors.comment = 'نظر باید حداقل ۱۰ کاراکتر باشد';
+            errors.comment = 'ظ†ط¸ط± ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ±غ° ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
         }
 
         if (reviewData.title && reviewData.title.trim().length > 100) {
-            errors.title = 'عنوان نظر نمی‌تواند بیش از ۱۰۰ کاراکتر باشد';
+            errors.title = 'ط¹ظ†ظˆط§ظ† ظ†ط¸ط± ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ط¨غŒط´ ط§ط² غ±غ°غ° ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
         }
 
         return {
@@ -259,9 +259,9 @@ class ReviewService {
      */
     formatReviewStatus(status) {
         const statusMap = {
-            'Pending': 'در انتظار تایید',
-            'Approved': 'تایید شده',
-            'Rejected': 'رد شده'
+            'Pending': 'ط¯ط± ط§ظ†طھط¸ط§ط± طھط§غŒغŒط¯',
+            'Approved': 'طھط§غŒغŒط¯ ط´ط¯ظ‡',
+            'Rejected': 'ط±ط¯ ط´ط¯ظ‡'
         };
         
         return statusMap[status] || status;
@@ -340,7 +340,7 @@ class ReviewService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching review by product and user:', error);
+            window.logger.error('Error fetching review by product and user:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -359,7 +359,7 @@ class ReviewService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error checking if user can review product:', error);
+            window.logger.error('Error checking if user can review product:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -378,7 +378,7 @@ class ReviewService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching review helpfulness:', error);
+            window.logger.error('Error fetching review helpfulness:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -394,10 +394,10 @@ class ReviewService {
             const response = await this.apiClient.post(`/productreview/${reviewId}/helpful`);
             return {
                 success: true,
-                message: 'نظر به عنوان مفید علامت‌گذاری شد'
+                message: 'ظ†ط¸ط± ط¨ظ‡ ط¹ظ†ظˆط§ظ† ظ…ظپغŒط¯ ط¹ظ„ط§ظ…طھâ€Œع¯ط°ط§ط±غŒ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error marking review as helpful:', error);
+            window.logger.error('Error marking review as helpful:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -415,10 +415,10 @@ class ReviewService {
             });
             return {
                 success: true,
-                message: 'گزارش شما ارسال شد'
+                message: 'ع¯ط²ط§ط±ط´ ط´ظ…ط§ ط§ط±ط³ط§ظ„ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error reporting review:', error);
+            window.logger.error('Error reporting review:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -434,3 +434,4 @@ window.reviewService = new ReviewService();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ReviewService;
 }
+
