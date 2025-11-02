@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تست رجیستر</title>
+    <title>طھط³طھ ط±ط¬غŒط³طھط±</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; }
         .step { display: none; padding: 20px; border: 1px solid #ccc; margin: 10px 0; }
@@ -14,38 +14,38 @@
     </style>
 </head>
 <body>
-    <h1>تست عملکرد دکمه مرحله بعد</h1>
+    <h1>طھط³طھ ط¹ظ…ظ„ع©ط±ط¯ ط¯ع©ظ…ظ‡ ظ…ط±ط­ظ„ظ‡ ط¨ط¹ط¯</h1>
     
     <div id="step1" class="step active">
-        <h2>مرحله 1: اطلاعات شخصی</h2>
-        <input type="text" id="first-name" placeholder="نام" value="علی">
-        <input type="text" id="last-name" placeholder="نام خانوادگی" value="احمدی">
-        <input type="text" id="mobile" placeholder="شماره موبایل" value="09123456789">
+        <h2>ظ…ط±ط­ظ„ظ‡ 1: ط§ط·ظ„ط§ط¹ط§طھ ط´ط®طµغŒ</h2>
+        <input type="text" id="first-name" placeholder="ظ†ط§ظ…" value="ط¹ظ„غŒ">
+        <input type="text" id="last-name" placeholder="ظ†ط§ظ… ط®ط§ظ†ظˆط§ط¯ع¯غŒ" value="ط§ط­ظ…ط¯غŒ">
+        <input type="text" id="mobile" placeholder="ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„" value="09123456789">
         <br><br>
-        <button onclick="nextStep(1, 2)">مرحله بعد</button>
+        <button onclick="nextStep(1, 2)">ظ…ط±ط­ظ„ظ‡ ط¨ط¹ط¯</button>
     </div>
     
     <div id="step2" class="step">
-        <h2>مرحله 2: رمز عبور</h2>
-        <input type="password" id="password" placeholder="رمز عبور" value="123456">
-        <input type="password" id="confirm-password" placeholder="تکرار رمز عبور" value="123456">
+        <h2>ظ…ط±ط­ظ„ظ‡ 2: ط±ظ…ط² ط¹ط¨ظˆط±</h2>
+        <input type="password" id="password" placeholder="ط±ظ…ط² ط¹ط¨ظˆط±" value="123456">
+        <input type="password" id="confirm-password" placeholder="طھع©ط±ط§ط± ط±ظ…ط² ط¹ط¨ظˆط±" value="123456">
         <br><br>
-        <button onclick="prevStep(2, 1)">مرحله قبل</button>
-        <button onclick="nextStep(2, 3)">مرحله بعد</button>
+        <button onclick="prevStep(2, 1)">ظ…ط±ط­ظ„ظ‡ ظ‚ط¨ظ„</button>
+        <button onclick="nextStep(2, 3)">ظ…ط±ط­ظ„ظ‡ ط¨ط¹ط¯</button>
     </div>
     
     <div id="step3" class="step">
-        <h2>مرحله 3: تایید</h2>
-        <p>اطلاعات شما:</p>
+        <h2>ظ…ط±ط­ظ„ظ‡ 3: طھط§غŒغŒط¯</h2>
+        <p>ط§ط·ظ„ط§ط¹ط§طھ ط´ظ…ط§:</p>
         <div id="user-info"></div>
         <br>
-        <button onclick="prevStep(3, 2)">مرحله قبل</button>
-        <button onclick="submitForm()">ثبت نام</button>
+        <button onclick="prevStep(3, 2)">ظ…ط±ط­ظ„ظ‡ ظ‚ط¨ظ„</button>
+        <button onclick="submitForm()">ط«ط¨طھ ظ†ط§ظ…</button>
     </div>
     
     <div id="result"></div>
 
-    <script src="config.js"></script>
+    <script src="config.js"></script>`r`n<script src="assets/js/utils/logger.js"></script>
     <script src="assets/js/api-client.js"></script>
     <script src="assets/js/utils.js"></script>
     <script>
@@ -98,12 +98,12 @@
             const mobile = document.getElementById('mobile').value.trim();
 
             if(!firstName || !lastName || !mobile) {
-                showMessage('لطفا تمام فیلدهای اجباری را پر کنید', 'error');
+                showMessage('ظ„ط·ظپط§ طھظ…ط§ظ… ظپغŒظ„ط¯ظ‡ط§غŒ ط§ط¬ط¨ط§ط±غŒ ط±ط§ ظ¾ط± ع©ظ†غŒط¯', 'error');
                 return false;
             }
 
             if(!/^09\d{9}$/.test(mobile)) {
-                showMessage('لطفا شماره موبایل معتبر وارد کنید', 'error');
+                showMessage('ظ„ط·ظپط§ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ظ…ط¹طھط¨ط± ظˆط§ط±ط¯ ع©ظ†غŒط¯', 'error');
                 return false;
             }
 
@@ -112,7 +112,7 @@
             registrationData.lastName = lastName;
             registrationData.mobile = mobile;
 
-            showMessage('مرحله 1 تایید شد', 'success');
+            showMessage('ظ…ط±ط­ظ„ظ‡ 1 طھط§غŒغŒط¯ ط´ط¯', 'success');
             return true;
         }
 
@@ -122,42 +122,42 @@
             const confirmPassword = document.getElementById('confirm-password').value;
 
             if(!password || !confirmPassword) {
-                showMessage('لطفا رمز عبور و تکرار آن را وارد کنید', 'error');
+                showMessage('ظ„ط·ظپط§ ط±ظ…ط² ط¹ط¨ظˆط± ظˆ طھع©ط±ط§ط± ط¢ظ† ط±ط§ ظˆط§ط±ط¯ ع©ظ†غŒط¯', 'error');
                 return false;
             }
 
             if(password !== confirmPassword) {
-                showMessage('رمز عبور و تکرار آن مطابقت ندارند', 'error');
+                showMessage('ط±ظ…ط² ط¹ط¨ظˆط± ظˆ طھع©ط±ط§ط± ط¢ظ† ظ…ط·ط§ط¨ظ‚طھ ظ†ط¯ط§ط±ظ†ط¯', 'error');
                 return false;
             }
 
             // Store data
             registrationData.password = password;
 
-            showMessage('مرحله 2 تایید شد', 'success');
+            showMessage('ظ…ط±ط­ظ„ظ‡ 2 طھط§غŒغŒط¯ ط´ط¯', 'success');
             return true;
         }
 
         function updateUserInfo() {
             const userInfoDiv = document.getElementById('user-info');
             userInfoDiv.innerHTML = `
-                <p><strong>نام:</strong> ${registrationData.firstName}</p>
-                <p><strong>نام خانوادگی:</strong> ${registrationData.lastName}</p>
-                <p><strong>شماره موبایل:</strong> ${registrationData.mobile}</p>
+                <p><strong>ظ†ط§ظ…:</strong> ${registrationData.firstName}</p>
+                <p><strong>ظ†ط§ظ… ط®ط§ظ†ظˆط§ط¯ع¯غŒ:</strong> ${registrationData.lastName}</p>
+                <p><strong>ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„:</strong> ${registrationData.mobile}</p>
             `;
         }
 
         function submitForm() {
-            showMessage('در حال ثبت نام...', 'info');
+            showMessage('ط¯ط± ط­ط§ظ„ ط«ط¨طھ ظ†ط§ظ…...', 'info');
             
             // Test API connection
             fetch('http://localhost:5000/api/health')
                 .then(response => response.json())
                 .then(data => {
-                    showMessage('اتصال به API موفق! ثبت نام انجام شد.', 'success');
+                    showMessage('ط§طھطµط§ظ„ ط¨ظ‡ API ظ…ظˆظپظ‚! ط«ط¨طھ ظ†ط§ظ… ط§ظ†ط¬ط§ظ… ط´ط¯.', 'success');
                 })
                 .catch(error => {
-                    showMessage('خطا در اتصال به API: ' + error.message, 'error');
+                    showMessage('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ API: ' + error.message, 'error');
                 });
         }
 
@@ -175,13 +175,14 @@
             console.log('Utils:', window.utils);
             
             if (window.config && window.apiClient && window.utils) {
-                showMessage('همه اسکریپت‌ها با موفقیت لود شدند', 'success');
+                showMessage('ظ‡ظ…ظ‡ ط§ط³ع©ط±غŒظ¾طھâ€Œظ‡ط§ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ظ„ظˆط¯ ط´ط¯ظ†ط¯', 'success');
             } else {
-                showMessage('مشکل در لود اسکریپت‌ها', 'error');
+                showMessage('ظ…ط´ع©ظ„ ط¯ط± ظ„ظˆط¯ ط§ط³ع©ط±غŒظ¾طھâ€Œظ‡ط§', 'error');
             }
         });
     </script>
 </body>
 </html>
+
 
 

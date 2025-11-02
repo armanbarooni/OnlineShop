@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Authentication Guard for OnlineShop Frontend
  * Protects routes and handles authentication state
  */
@@ -212,7 +212,7 @@ class AuthGuard {
                 });
             }
         } catch (error) {
-            console.error('Error updating user info:', error);
+            window.logger.error('Error updating user info:', error);
         }
     }
 
@@ -239,7 +239,7 @@ class AuthGuard {
             const roles = Array.isArray(user.roles) ? user.roles : [user.roles];
             return roles.includes(requiredRole);
         } catch (error) {
-            console.error('Error checking role:', error);
+            window.logger.error('Error checking role:', error);
             // Fallback to cached user data
             try {
                 const cachedUser = this.authService.apiClient.getCurrentUser();
@@ -248,7 +248,7 @@ class AuthGuard {
                     return roles.includes(requiredRole);
                 }
             } catch (fallbackError) {
-                console.error('Error in fallback role check:', fallbackError);
+                window.logger.error('Error in fallback role check:', fallbackError);
             }
             return false;
         }
@@ -291,3 +291,4 @@ document.addEventListener('DOMContentLoaded', () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AuthGuard;
 }
+

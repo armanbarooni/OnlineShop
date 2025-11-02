@@ -148,3 +148,18 @@ dotnet ef database update
 - **PostgreSQL باید در حال اجرا باشد** قبل از شروع پروژه
 - **پورت‌ها باید آزاد باشند** (8080 برای فرانت، 5000 برای بک)
 - **CORS تنظیم شده است** برای ارتباط فرانت و بک
+## Production Deployment
+
+1. Copy `.env.example` to `.env` (or configure environment variables in your hosting provider) and set every secret described in `ENV_VARIABLES.md`�especially `CONNECTIONSTRINGS__DEFAULTCONNECTION`, `JWT__SECRET` (32+ characters), SMS keys, and each `CORS__ALLOWFRONTEND__*` origin.
+2. Publish the backend in Release mode:
+   ```bash
+   dotnet publish src/WebAPI/OnlineShop.WebAPI.csproj -c Release -o ./publish
+   ```
+   Deploy the `publish/` output to your production host and enable HTTPS.
+3. Set `ASPNETCORE_ENVIRONMENT=Production` and verify `Cors:AllowFrontend` includes the deployed frontend domains.
+4. Host the `/presentation` static files (or your build artifacts) from a CDN/static host. If the frontend uses a different domain, expose the API URL with `window.__API_BASE_URL__` or a `<meta name="api-base-url">` tag.
+5. Run migrations against the production database before going live:
+   ```bash
+   dotnet ef database update --project src/WebAPI/OnlineShop.WebAPI.csproj --configuration Release
+   ```
+6. Perform a smoke test (authentication, placing an order, payment callback, invoice download) to validate HTTPS, JWT, and CORS configurations.

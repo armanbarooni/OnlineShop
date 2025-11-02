@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Category Service
  * Handles all category-related API calls
  */
@@ -24,10 +24,10 @@ class CategoryService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting categories:', error);
+            window.logger.error('Error getting categories:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت دسته‌بندی‌ها'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒâ€Œظ‡ط§'
             };
         }
     }
@@ -48,10 +48,10 @@ class CategoryService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting category:', error);
+            window.logger.error('Error getting category:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت اطلاعات دسته‌بندی'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒ'
             };
         }
     }
@@ -72,10 +72,10 @@ class CategoryService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting category tree:', error);
+            window.logger.error('Error getting category tree:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت درخت دسته‌بندی‌ها'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط¯ط±ط®طھ ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒâ€Œظ‡ط§'
             };
         }
     }
@@ -96,10 +96,10 @@ class CategoryService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting subcategories:', error);
+            window.logger.error('Error getting subcategories:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت زیردسته‌بندی‌ها'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط²غŒط±ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒâ€Œظ‡ط§'
             };
         }
     }
@@ -188,4 +188,5 @@ class CategoryService {
 
 // Create global instance
 window.categoryService = new CategoryService();
+
 

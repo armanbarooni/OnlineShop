@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Product Service
  * Handles all product-related API calls
  */
@@ -24,10 +24,10 @@ class ProductService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting all products:', error);
+            window.logger.error('Error getting all products:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت محصولات'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ…ط­طµظˆظ„ط§طھ'
             };
         }
     }
@@ -48,10 +48,10 @@ class ProductService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting product:', error);
+            window.logger.error('Error getting product:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت اطلاعات محصول'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ظ…ط­طµظˆظ„'
             };
         }
     }
@@ -88,10 +88,10 @@ class ProductService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error searching products:', error);
+            window.logger.error('Error searching products:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در جستجوی محصولات'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¬ط³طھط¬ظˆغŒ ظ…ط­طµظˆظ„ط§طھ'
             };
         }
     }
@@ -112,10 +112,10 @@ class ProductService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error searching products:', error);
+            window.logger.error('Error searching products:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در جستجوی محصولات'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¬ط³طھط¬ظˆغŒ ظ…ط­طµظˆظ„ط§طھ'
             };
         }
     }
@@ -131,10 +131,10 @@ class ProductService {
                 pageSize: pageSize
             });
         } catch (error) {
-            console.error('Error getting products by category:', error);
+            window.logger.error('Error getting products by category:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت محصولات دسته‌بندی'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ…ط­طµظˆظ„ط§طھ ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒ'
             };
         }
     }
@@ -168,10 +168,10 @@ class ProductService {
                 totalPages: Math.ceil(approvedReviews.length / pageSize)
             };
         } catch (error) {
-            console.error('Error getting product reviews:', error);
+            window.logger.error('Error getting product reviews:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت نظرات محصول'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ†ط¸ط±ط§طھ ظ…ط­طµظˆظ„'
             };
         }
     }
@@ -192,10 +192,10 @@ class ProductService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting related products:', error);
+            window.logger.error('Error getting related products:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت محصولات مرتبط'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ…ط­طµظˆظ„ط§طھ ظ…ط±طھط¨ط·'
             };
         }
     }
@@ -216,10 +216,10 @@ class ProductService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting frequently bought together products:', error);
+            window.logger.error('Error getting frequently bought together products:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت محصولات مرتبط'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ…ط­طµظˆظ„ط§طھ ظ…ط±طھط¨ط·'
             };
         }
     }
@@ -235,10 +235,10 @@ class ProductService {
                 data: response
             };
         } catch (error) {
-            console.error('Error getting product specifications:', error);
+            window.logger.error('Error getting product specifications:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت مشخصات محصول'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ…ط´ط®طµط§طھ ظ…ط­طµظˆظ„'
             };
         }
     }
@@ -254,10 +254,10 @@ class ProductService {
                 data: response
             };
         } catch (error) {
-            console.error('Error getting product images:', error);
+            window.logger.error('Error getting product images:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت تصاویر محصول'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ طھطµط§ظˆغŒط± ظ…ط­طµظˆظ„'
             };
         }
     }
@@ -276,10 +276,10 @@ class ProductService {
             }
             return result;
         } catch (error) {
-            console.error('Error getting featured products:', error);
+            window.logger.error('Error getting featured products:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت محصولات ویژه'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ…ط­طµظˆظ„ط§طھ ظˆغŒعکظ‡'
             };
         }
     }
@@ -296,10 +296,10 @@ class ProductService {
                 pageSize: limit
             });
         } catch (error) {
-            console.error('Error getting best selling products:', error);
+            window.logger.error('Error getting best selling products:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت پرفروش‌ترین محصولات'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ¾ط±ظپط±ظˆط´â€Œطھط±غŒظ† ظ…ط­طµظˆظ„ط§طھ'
             };
         }
     }
@@ -316,10 +316,10 @@ class ProductService {
                 pageSize: limit
             });
         } catch (error) {
-            console.error('Error getting new products:', error);
+            window.logger.error('Error getting new products:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت جدیدترین محصولات'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط¬ط¯غŒط¯طھط±غŒظ† ظ…ط­طµظˆظ„ط§طھ'
             };
         }
     }
@@ -352,10 +352,10 @@ class ProductService {
             
             return result;
         } catch (error) {
-            console.error('Error getting sale products:', error);
+            window.logger.error('Error getting sale products:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت محصولات تخفیف‌دار'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ…ط­طµظˆظ„ط§طھ طھط®ظپغŒظپâ€Œط¯ط§ط±'
             };
         }
     }
@@ -367,19 +367,19 @@ class ProductService {
         const errors = {};
 
         if (!productData.name || productData.name.trim().length < 2) {
-            errors.name = 'نام محصول باید حداقل ۲ کاراکتر باشد';
+            errors.name = 'ظ†ط§ظ… ظ…ط­طµظˆظ„ ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ² ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
         }
 
         if (!productData.price || productData.price <= 0) {
-            errors.price = 'قیمت باید بیشتر از صفر باشد';
+            errors.price = 'ظ‚غŒظ…طھ ط¨ط§غŒط¯ ط¨غŒط´طھط± ط§ط² طµظپط± ط¨ط§ط´ط¯';
         }
 
         if (!productData.categoryId) {
-            errors.categoryId = 'دسته‌بندی محصول الزامی است';
+            errors.categoryId = 'ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒ ظ…ط­طµظˆظ„ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!productData.description || productData.description.trim().length < 10) {
-            errors.description = 'توضیحات محصول باید حداقل ۱۰ کاراکتر باشد';
+            errors.description = 'طھظˆط¶غŒط­ط§طھ ظ…ط­طµظˆظ„ ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ±غ° ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
         }
 
         return {
@@ -391,3 +391,4 @@ class ProductService {
 
 // Create global instance
 window.productService = new ProductService();
+

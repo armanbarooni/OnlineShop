@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Checkout Service
  * Handles all checkout-related API calls
  */
@@ -24,10 +24,10 @@ class CheckoutService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error processing checkout:', error);
+            window.logger.error('Error processing checkout:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در پردازش تسویه حساب'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ظ¾ط±ط¯ط§ط²ط´ طھط³ظˆغŒظ‡ ط­ط³ط§ط¨'
             };
         }
     }
@@ -53,10 +53,10 @@ class CheckoutService {
                 }
             };
         } catch (error) {
-            console.error('Error getting checkout data:', error);
+            window.logger.error('Error getting checkout data:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت اطلاعات تسویه حساب'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ طھط³ظˆغŒظ‡ ط­ط³ط§ط¨'
             };
         }
     }
@@ -72,10 +72,10 @@ class CheckoutService {
                 data: response
             };
         } catch (error) {
-            console.error('Error getting addresses:', error);
+            window.logger.error('Error getting addresses:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت آدرس‌ها'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط¢ط¯ط±ط³â€Œظ‡ط§'
             };
         }
     }
@@ -91,10 +91,10 @@ class CheckoutService {
                 data: response
             };
         } catch (error) {
-            console.error('Error getting payment methods:', error);
+            window.logger.error('Error getting payment methods:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت روش‌های پرداخت'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط±ظˆط´â€Œظ‡ط§غŒ ظ¾ط±ط¯ط§ط®طھ'
             };
         }
     }
@@ -112,10 +112,10 @@ class CheckoutService {
                 data: response
             };
         } catch (error) {
-            console.error('Error getting shipping methods:', error);
+            window.logger.error('Error getting shipping methods:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت روش‌های ارسال'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط±ظˆط´â€Œظ‡ط§غŒ ط§ط±ط³ط§ظ„'
             };
         }
     }
@@ -134,10 +134,10 @@ class CheckoutService {
                 data: response
             };
         } catch (error) {
-            console.error('Error calculating shipping:', error);
+            window.logger.error('Error calculating shipping:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در محاسبه هزینه ارسال'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ظ…ط­ط§ط³ط¨ظ‡ ظ‡ط²غŒظ†ظ‡ ط§ط±ط³ط§ظ„'
             };
         }
     }
@@ -153,10 +153,10 @@ class CheckoutService {
                 data: response
             };
         } catch (error) {
-            console.error('Error validating checkout:', error);
+            window.logger.error('Error validating checkout:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در اعتبارسنجی اطلاعات تسویه حساب'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط§ط¹طھط¨ط§ط±ط³ظ†ط¬غŒ ط§ط·ظ„ط§ط¹ط§طھ طھط³ظˆغŒظ‡ ط­ط³ط§ط¨'
             };
         }
     }
@@ -179,10 +179,10 @@ class CheckoutService {
                 data: response
             };
         } catch (error) {
-            console.error('Error getting order summary:', error);
+            window.logger.error('Error getting order summary:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت خلاصه سفارش'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط®ظ„ط§طµظ‡ ط³ظپط§ط±ط´'
             };
         }
     }
@@ -200,10 +200,10 @@ class CheckoutService {
                 data: response
             };
         } catch (error) {
-            console.error('Error applying coupon to checkout:', error);
+            window.logger.error('Error applying coupon to checkout:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در اعمال کد تخفیف'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط§ط¹ظ…ط§ظ„ ع©ط¯ طھط®ظپغŒظپ'
             };
         }
     }
@@ -219,10 +219,10 @@ class CheckoutService {
                 data: response
             };
         } catch (error) {
-            console.error('Error removing coupon from checkout:', error);
+            window.logger.error('Error removing coupon from checkout:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در حذف کد تخفیف'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ع©ط¯ طھط®ظپغŒظپ'
             };
         }
     }
@@ -234,19 +234,19 @@ class CheckoutService {
         const errors = {};
 
         if (!checkoutData.addressId) {
-            errors.addressId = 'انتخاب آدرس الزامی است';
+            errors.addressId = 'ط§ظ†طھط®ط§ط¨ ط¢ط¯ط±ط³ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!checkoutData.shippingMethodId) {
-            errors.shippingMethodId = 'انتخاب روش ارسال الزامی است';
+            errors.shippingMethodId = 'ط§ظ†طھط®ط§ط¨ ط±ظˆط´ ط§ط±ط³ط§ظ„ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!checkoutData.paymentMethodId) {
-            errors.paymentMethodId = 'انتخاب روش پرداخت الزامی است';
+            errors.paymentMethodId = 'ط§ظ†طھط®ط§ط¨ ط±ظˆط´ ظ¾ط±ط¯ط§ط®طھ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (checkoutData.notes && checkoutData.notes.length > 500) {
-            errors.notes = 'توضیحات نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد';
+            errors.notes = 'طھظˆط¶غŒط­ط§طھ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ط¨غŒط´طھط± ط§ط² غµغ°غ° ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
         }
 
         return {
@@ -272,3 +272,4 @@ class CheckoutService {
 
 // Create global instance
 window.checkoutService = new CheckoutService();
+

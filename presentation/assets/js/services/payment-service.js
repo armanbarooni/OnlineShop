@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Payment Service
  * Handles all payment-related API calls
  */
@@ -24,10 +24,10 @@ class PaymentService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error initializing payment:', error);
+            window.logger.error('Error initializing payment:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در شروع پرداخت'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط´ط±ظˆط¹ ظ¾ط±ط¯ط§ط®طھ'
             };
         }
     }
@@ -48,10 +48,10 @@ class PaymentService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting payment:', error);
+            window.logger.error('Error getting payment:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت اطلاعات پرداخت'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ظ¾ط±ط¯ط§ط®طھ'
             };
         }
     }
@@ -72,10 +72,10 @@ class PaymentService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error getting payments by order:', error);
+            window.logger.error('Error getting payments by order:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت اطلاعات پرداخت سفارش'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ظ¾ط±ط¯ط§ط®طھ ط³ظپط§ط±ط´'
             };
         }
     }
@@ -91,10 +91,10 @@ class PaymentService {
                 data: response
             };
         } catch (error) {
-            console.error('Error processing payment:', error);
+            window.logger.error('Error processing payment:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در پردازش پرداخت'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ظ¾ط±ط¯ط§ط²ط´ ظ¾ط±ط¯ط§ط®طھ'
             };
         }
     }
@@ -110,10 +110,10 @@ class PaymentService {
                 data: response
             };
         } catch (error) {
-            console.error('Error verifying payment:', error);
+            window.logger.error('Error verifying payment:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در تایید پرداخت'
+                error: error.message || 'ط®ط·ط§ ط¯ط± طھط§غŒغŒط¯ ظ¾ط±ط¯ط§ط®طھ'
             };
         }
     }
@@ -153,10 +153,10 @@ class PaymentService {
                 data: response
             };
         } catch (error) {
-            console.error('Error canceling payment:', error);
+            window.logger.error('Error canceling payment:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در لغو پرداخت'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ظ„ط؛ظˆ ظ¾ط±ط¯ط§ط®طھ'
             };
         }
     }
@@ -172,10 +172,10 @@ class PaymentService {
                 data: response
             };
         } catch (error) {
-            console.error('Error getting payment methods:', error);
+            window.logger.error('Error getting payment methods:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت روش‌های پرداخت'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط±ظˆط´â€Œظ‡ط§غŒ ظ¾ط±ط¯ط§ط®طھ'
             };
         }
     }
@@ -193,10 +193,10 @@ class PaymentService {
                 data: response
             };
         } catch (error) {
-            console.error('Error getting payment history:', error);
+            window.logger.error('Error getting payment history:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت تاریخچه پرداخت‌ها'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ طھط§ط±غŒط®ع†ظ‡ ظ¾ط±ط¯ط§ط®طھâ€Œظ‡ط§'
             };
         }
     }
@@ -212,10 +212,10 @@ class PaymentService {
                 data: response
             };
         } catch (error) {
-            console.error('Error getting payment details:', error);
+            window.logger.error('Error getting payment details:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت جزئیات پرداخت'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط¬ط²ط¦غŒط§طھ ظ¾ط±ط¯ط§ط®طھ'
             };
         }
     }
@@ -231,10 +231,10 @@ class PaymentService {
                 data: response
             };
         } catch (error) {
-            console.error('Error refunding payment:', error);
+            window.logger.error('Error refunding payment:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در بازپرداخت'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¨ط§ط²ظ¾ط±ط¯ط§ط®طھ'
             };
         }
     }
@@ -246,19 +246,19 @@ class PaymentService {
         const errors = {};
 
         if (!paymentData.amount || paymentData.amount <= 0) {
-            errors.amount = 'مبلغ پرداخت باید بیشتر از صفر باشد';
+            errors.amount = 'ظ…ط¨ظ„ط؛ ظ¾ط±ط¯ط§ط®طھ ط¨ط§غŒط¯ ط¨غŒط´طھط± ط§ط² طµظپط± ط¨ط§ط´ط¯';
         }
 
         if (!paymentData.paymentMethodId) {
-            errors.paymentMethodId = 'انتخاب روش پرداخت الزامی است';
+            errors.paymentMethodId = 'ط§ظ†طھط®ط§ط¨ ط±ظˆط´ ظ¾ط±ط¯ط§ط®طھ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!paymentData.orderId) {
-            errors.orderId = 'شناسه سفارش الزامی است';
+            errors.orderId = 'ط´ظ†ط§ط³ظ‡ ط³ظپط§ط±ط´ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (paymentData.description && paymentData.description.length > 500) {
-            errors.description = 'توضیحات نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد';
+            errors.description = 'طھظˆط¶غŒط­ط§طھ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ط¨غŒط´طھط± ط§ط² غµغ°غ° ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
         }
 
         return {
@@ -286,12 +286,12 @@ class PaymentService {
      */
     getPaymentStatusText(status) {
         const statusTexts = {
-            'Pending': 'در انتظار پرداخت',
-            'Processing': 'در حال پردازش',
-            'Completed': 'تکمیل شده',
-            'Failed': 'ناموفق',
-            'Cancelled': 'لغو شده',
-            'Refunded': 'بازپرداخت شده'
+            'Pending': 'ط¯ط± ط§ظ†طھط¸ط§ط± ظ¾ط±ط¯ط§ط®طھ',
+            'Processing': 'ط¯ط± ط­ط§ظ„ ظ¾ط±ط¯ط§ط²ط´',
+            'Completed': 'طھع©ظ…غŒظ„ ط´ط¯ظ‡',
+            'Failed': 'ظ†ط§ظ…ظˆظپظ‚',
+            'Cancelled': 'ظ„ط؛ظˆ ط´ط¯ظ‡',
+            'Refunded': 'ط¨ط§ط²ظ¾ط±ط¯ط§ط®طھ ط´ط¯ظ‡'
         };
         return statusTexts[status] || status;
     }
@@ -314,3 +314,4 @@ class PaymentService {
 
 // Create global instance
 window.paymentService = new PaymentService();
+

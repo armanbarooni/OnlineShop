@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طھط³طھ API</title>
+</head>
+<body>
+    <h1>طھط³طھ ط§طھطµط§ظ„ ط¨ظ‡ API</h1>
+    <button onclick="testAPI()">طھط³طھ API</button>
+    <div id="result"></div>
+
+    <script src="config.js"></script>`r`n<script src="assets/js/utils/logger.js"></script>
+    <script src="assets/js/api-client.js"></script>
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'ط¯ط± ط­ط§ظ„ طھط³طھ...';
+            
+            try {
+                // طھط³طھ ط§طھطµط§ظ„ ط¨ظ‡ API
+                const response = await fetch('http://localhost:5000/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<p style="color: green;">âœ… API ط¯ط± ط¯ط³طھط±ط³ ط§ط³طھ!</p>';
+                } else {
+                    resultDiv.innerHTML = `<p style="color: orange;">âڑ ï¸ڈ API ظ¾ط§ط³ط® ط¯ط§ط¯ ط§ظ…ط§ ط¨ط§ ع©ط¯: ${response.status}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">â‌Œ ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ API: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+

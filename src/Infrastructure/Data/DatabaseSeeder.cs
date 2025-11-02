@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using OnlineShop.Domain.Entities;
+using OnlineShop.Infrastructure.Persistence;
 
 namespace OnlineShop.Infrastructure.Data
 {
@@ -15,42 +17,73 @@ namespace OnlineShop.Infrastructure.Data
 
             foreach (var roleName in roles)
             {
-                var roleExist = await roleManager.RoleExistsAsync(roleName);
-                if (!roleExist)
+                if (!await roleManager.RoleExistsAsync(roleName))
                 {
                     await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
                 }
             }
 
-            // Seed admin user
-            await SeedAdminUserAsync(userManager);
+            var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL") ?? "admin@test.com";
+            var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? "AdminPassword123!";
+            var adminPhone = Environment.GetEnvironmentVariable("ADMIN_PHONE") ?? "09123456789";
+
+            await EnsureUserInRoleAsync(userManager, adminEmail, adminPassword, adminPhone, "Admin", "Admin", "User");
+
+            var userEmail = Environment.GetEnvironmentVariable("SUPPORT_EMAIL") ?? "user@test.com";
+            var userPassword = Environment.GetEnvironmentVariable("SUPPORT_PASSWORD") ?? "UserPassword123!";
+            var userPhone = Environment.GetEnvironmentVariable("SUPPORT_PHONE") ?? "09987654321";
+
+            await EnsureUserInRoleAsync(userManager, userEmail, userPassword, userPhone, "User", "Regular", "User");
         }
 
-        private static async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager)
+        private static async Task EnsureUserInRoleAsync(
+            UserManager<ApplicationUser> userManager,
+            string email,
+            string password,
+            string phoneNumber,
+            string roleName,
+            string firstName,
+            string lastName)
         {
-            var adminEmail = "admin@onlineshop.com";
-            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            var normalizedEmail = email.ToLowerInvariant();
+            var existingUsers = await userManager.Users
+                .Where(u => u.Email != null && u.Email.ToLower() == normalizedEmail)
+                .ToListAsync();
 
-            if (adminUser == null)
+            var user = existingUsers.FirstOrDefault();
+
+            if (existingUsers.Count > 1)
             {
-                adminUser = new ApplicationUser
+                foreach (var duplicate in existingUsers.Skip(1))
                 {
-                    UserName = adminEmail,
-                    Email = adminEmail,
+                    await userManager.DeleteAsync(duplicate);
+                }
+            }
+
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
                     EmailConfirmed = true,
-                    FirstName = "Admin",
-                    LastName = "User",
-                    PhoneNumber = "09123456789",
+                    FirstName = firstName,
+                    LastName = lastName,
+                    PhoneNumber = phoneNumber,
                     PhoneNumberConfirmed = true
                 };
 
-                var result = await userManager.CreateAsync(adminUser, "Admin123!");
-                if (result.Succeeded)
+                var result = await userManager.CreateAsync(user, password);
+                if (!result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                    return;
                 }
+            }
+
+            if (!await userManager.IsInRoleAsync(user, roleName))
+            {
+                await userManager.AddToRoleAsync(user, roleName);
             }
         }
     }
 }
-

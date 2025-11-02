@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Order Service for OnlineShop Frontend
  * Handles order operations
  */
@@ -25,7 +25,7 @@ class OrderService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching orders:', error);
+            window.logger.error('Error fetching orders:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -44,7 +44,7 @@ class OrderService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching order:', error);
+            window.logger.error('Error fetching order:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -63,7 +63,7 @@ class OrderService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching recent orders:', error);
+            window.logger.error('Error fetching recent orders:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -82,7 +82,7 @@ class OrderService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error tracking order:', error);
+            window.logger.error('Error tracking order:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -101,7 +101,7 @@ class OrderService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching order statistics:', error);
+            window.logger.error('Error fetching order statistics:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -119,10 +119,10 @@ class OrderService {
             });
             return {
                 success: true,
-                message: 'سفارش با موفقیت لغو شد'
+                message: 'ط³ظپط§ط±ط´ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ظ„ط؛ظˆ ط´ط¯.'
             };
         } catch (error) {
-            console.error('Error cancelling order:', error);
+            window.logger.error('Error cancelling order:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -137,9 +137,7 @@ class OrderService {
         try {
             const response = await fetch(`${this.apiClient.baseURL}/userorder/${orderId}/invoice`, {
                 method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.apiClient.accessToken}`
-                }
+                headers: this.apiClient.getHeaders()
             });
 
             if (!response.ok) {
@@ -158,13 +156,13 @@ class OrderService {
 
             return {
                 success: true,
-                message: 'فاکتور با موفقیت دانلود شد'
+                message: 'طµظˆط±طھط­ط³ط§ط¨ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¯ط§ظ†ظ„ظˆط¯ ط´ط¯.'
             };
         } catch (error) {
-            console.error('Error downloading invoice:', error);
+            window.logger.error('Error downloading invoice:', error);
             return {
                 success: false,
-                error: 'خطا در دانلود فاکتور'
+                error: 'ط¯ط§ظ†ظ„ظˆط¯ طµظˆط±طھط­ط³ط§ط¨ ط¨ط§ ط®ط·ط§ ظ…ظˆط§ط¬ظ‡ ط´ط¯.'
             };
         }
     }
@@ -180,7 +178,7 @@ class OrderService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching order items:', error);
+            window.logger.error('Error fetching order items:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -199,7 +197,7 @@ class OrderService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching order status history:', error);
+            window.logger.error('Error fetching order status history:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -223,7 +221,7 @@ class OrderService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error searching orders:', error);
+            window.logger.error('Error searching orders:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -239,7 +237,7 @@ class OrderService {
             const filters = { status: status };
             return await this.getOrders(pageNumber, pageSize, filters);
         } catch (error) {
-            console.error('Error fetching orders by status:', error);
+            window.logger.error('Error fetching orders by status:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -258,7 +256,7 @@ class OrderService {
             };
             return await this.getOrders(pageNumber, pageSize, filters);
         } catch (error) {
-            console.error('Error fetching orders by date range:', error);
+            window.logger.error('Error fetching orders by date range:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -273,15 +271,15 @@ class OrderService {
         const errors = {};
 
         if (!orderData.orderNumber || orderData.orderNumber.trim().length === 0) {
-            errors.orderNumber = 'شماره سفارش الزامی است';
+            errors.orderNumber = 'ط´ظ…ط§ط±ظ‡ ط³ظپط§ط±ط´ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ.';
         }
 
         if (!orderData.status) {
-            errors.status = 'وضعیت سفارش الزامی است';
+            errors.status = 'ظˆط¶ط¹غŒطھ ط³ظپط§ط±ط´ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ.';
         }
 
         if (orderData.totalAmount && orderData.totalAmount < 0) {
-            errors.totalAmount = 'مبلغ کل نمی‌تواند منفی باشد';
+            errors.totalAmount = 'ظ…ط¨ظ„ط؛ ط³ظپط§ط±ط´ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ظ…ظ†ظپغŒ ط¨ط§ط´ط¯.';
         }
 
         return {
@@ -340,3 +338,4 @@ window.orderService = new OrderService();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = OrderService;
 }
+

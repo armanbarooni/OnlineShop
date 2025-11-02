@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Return Request Service for OnlineShop Frontend
  * Handles return request operations
  */
@@ -19,7 +19,7 @@ class ReturnService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching return requests:', error);
+            window.logger.error('Error fetching return requests:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -38,7 +38,7 @@ class ReturnService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching return request:', error);
+            window.logger.error('Error fetching return request:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -55,10 +55,10 @@ class ReturnService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'درخواست مرجوعی با موفقیت ثبت شد'
+                message: 'ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط«ط¨طھ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error creating return request:', error);
+            window.logger.error('Error creating return request:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -75,10 +75,10 @@ class ReturnService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'درخواست مرجوعی با موفقیت بروزرسانی شد'
+                message: 'ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error updating return request:', error);
+            window.logger.error('Error updating return request:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -94,10 +94,10 @@ class ReturnService {
             const response = await this.apiClient.delete(`/userreturnrequest/${returnRequestId}`);
             return {
                 success: true,
-                message: 'درخواست مرجوعی حذف شد'
+                message: 'ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ط­ط°ظپ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error deleting return request:', error);
+            window.logger.error('Error deleting return request:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -116,7 +116,7 @@ class ReturnService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching return requests by status:', error);
+            window.logger.error('Error fetching return requests by status:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -135,7 +135,7 @@ class ReturnService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching return requests by order:', error);
+            window.logger.error('Error fetching return requests by order:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -159,7 +159,7 @@ class ReturnService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error searching return requests:', error);
+            window.logger.error('Error searching return requests:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -178,7 +178,7 @@ class ReturnService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching return request statistics:', error);
+            window.logger.error('Error fetching return request statistics:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -197,7 +197,7 @@ class ReturnService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching return request status history:', error);
+            window.logger.error('Error fetching return request status history:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -215,10 +215,10 @@ class ReturnService {
             });
             return {
                 success: true,
-                message: 'درخواست مرجوعی لغو شد'
+                message: 'ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ظ„ط؛ظˆ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error cancelling return request:', error);
+            window.logger.error('Error cancelling return request:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -237,7 +237,7 @@ class ReturnService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching return request items:', error);
+            window.logger.error('Error fetching return request items:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -254,10 +254,10 @@ class ReturnService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'محصول به درخواست مرجوعی اضافه شد'
+                message: 'ظ…ط­طµظˆظ„ ط¨ظ‡ ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ط§ط¶ط§ظپظ‡ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error adding item to return request:', error);
+            window.logger.error('Error adding item to return request:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -273,10 +273,10 @@ class ReturnService {
             const response = await this.apiClient.delete(`/userreturnrequest/${returnRequestId}/items/${itemId}`);
             return {
                 success: true,
-                message: 'محصول از درخواست مرجوعی حذف شد'
+                message: 'ظ…ط­طµظˆظ„ ط§ط² ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ط­ط°ظپ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error removing item from return request:', error);
+            window.logger.error('Error removing item from return request:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -291,17 +291,17 @@ class ReturnService {
         const errors = {};
 
         if (!returnRequestData.orderId) {
-            errors.orderId = 'شناسه سفارش الزامی است';
+            errors.orderId = 'ط´ظ†ط§ط³ظ‡ ط³ظپط§ط±ط´ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!returnRequestData.reason || returnRequestData.reason.trim().length === 0) {
-            errors.reason = 'دلیل مرجوعی الزامی است';
+            errors.reason = 'ط¯ظ„غŒظ„ ظ…ط±ط¬ظˆط¹غŒ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         } else if (returnRequestData.reason.trim().length < 10) {
-            errors.reason = 'دلیل مرجوعی باید حداقل ۱۰ کاراکتر باشد';
+            errors.reason = 'ط¯ظ„غŒظ„ ظ…ط±ط¬ظˆط¹غŒ ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ±غ° ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
         }
 
         if (!returnRequestData.items || !Array.isArray(returnRequestData.items) || returnRequestData.items.length === 0) {
-            errors.items = 'حداقل یک محصول باید انتخاب شود';
+            errors.items = 'ط­ط¯ط§ظ‚ظ„ غŒع© ظ…ط­طµظˆظ„ ط¨ط§غŒط¯ ط§ظ†طھط®ط§ط¨ ط´ظˆط¯';
         }
 
         return {
@@ -344,12 +344,12 @@ class ReturnService {
      */
     getReturnRequestReasons() {
         return [
-            { value: 'defective', label: 'محصول معیوب' },
-            { value: 'wrong_item', label: 'محصول اشتباه' },
-            { value: 'not_as_described', label: 'مطابق توضیحات نبود' },
-            { value: 'changed_mind', label: 'تغییر نظر' },
-            { value: 'damaged_shipping', label: 'آسیب در حمل و نقل' },
-            { value: 'other', label: 'سایر' }
+            { value: 'defective', label: 'ظ…ط­طµظˆظ„ ظ…ط¹غŒظˆط¨' },
+            { value: 'wrong_item', label: 'ظ…ط­طµظˆظ„ ط§ط´طھط¨ط§ظ‡' },
+            { value: 'not_as_described', label: 'ظ…ط·ط§ط¨ظ‚ طھظˆط¶غŒط­ط§طھ ظ†ط¨ظˆط¯' },
+            { value: 'changed_mind', label: 'طھط؛غŒغŒط± ظ†ط¸ط±' },
+            { value: 'damaged_shipping', label: 'ط¢ط³غŒط¨ ط¯ط± ط­ظ…ظ„ ظˆ ظ†ظ‚ظ„' },
+            { value: 'other', label: 'ط³ط§غŒط±' }
         ];
     }
 
@@ -426,7 +426,7 @@ class ReturnService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching return request by order and product:', error);
+            window.logger.error('Error fetching return request by order and product:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -445,7 +445,7 @@ class ReturnService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error checking if product can be returned:', error);
+            window.logger.error('Error checking if product can be returned:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -461,3 +461,4 @@ window.returnService = new ReturnService();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ReturnService;
 }
+

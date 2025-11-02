@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Home Page (index.html) API Integration
  */
 
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof window.apiClient === 'undefined' || 
         typeof window.productService === 'undefined' || 
         typeof window.categoryService === 'undefined') {
-        console.error('Required services not loaded');
+        window.logger.error('Required services not loaded');
         return;
     }
 
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Update cart and comparison counts
         updateCartAndComparisonCounts();
     } catch (error) {
-        console.error('Error initializing home page:', error);
+        window.logger.error('Error initializing home page:', error);
     }
 });
 
@@ -46,7 +46,7 @@ async function loadCategories() {
             renderCategories(result.data);
         }
     } catch (error) {
-        console.error('Error loading categories:', error);
+        window.logger.error('Error loading categories:', error);
     }
 }
 
@@ -62,12 +62,12 @@ function renderCategories(categories) {
         <a href="shop.html?category=${category.id}" class="lg:col-span-3 sm:col-span-6 col-span-12 w-full block">
             <article class="flex py-2 px-3 rounded-xl border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800">
                 <section class="space-y-2">
-                    <h3 class="text-lg font-bold dark:text-white">${category.name || 'دسته‌بندی'}</h3>
+                    <h3 class="text-lg font-bold dark:text-white">${category.name || 'ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒ'}</h3>
                     <span class="text-xs font-light text-neutral-500">${category.description || ''}</span>
                 </section>
                 <figure>
                     <img src="${category.imageUrl || 'assets/images/category/digitall.png'}" 
-                         class="size-20" loading="lazy" alt="${category.name || 'دسته‌بندی'}">
+                         class="size-20" loading="lazy" alt="${category.name || 'ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒ'}">
                 </figure>
             </article>
         </a>
@@ -87,7 +87,7 @@ async function loadFeaturedProducts() {
             }
         }
     } catch (error) {
-        console.error('Error loading featured products:', error);
+        window.logger.error('Error loading featured products:', error);
     }
 }
 
@@ -102,7 +102,7 @@ async function loadNewProducts() {
             }
         }
     } catch (error) {
-        console.error('Error loading new products:', error);
+        window.logger.error('Error loading new products:', error);
     }
 }
 
@@ -117,7 +117,7 @@ async function loadBestSellingProducts() {
             }
         }
     } catch (error) {
-        console.error('Error loading best selling products:', error);
+        window.logger.error('Error loading best selling products:', error);
     }
 }
 
@@ -164,7 +164,7 @@ function createProductCard(product) {
     const originalPrice = product.originalPrice || price;
     const discount = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
     const productUrl = `product.html?id=${product.id}`;
-    const name = product.name || 'نام محصول';
+    const name = product.name || 'ظ†ط§ظ… ظ…ط­طµظˆظ„';
 
     return `
         <div class="swiper-slide px-1.5 py-2">
@@ -190,7 +190,7 @@ function createProductCard(product) {
                 <div class="flex items-center justify-between mt-3">
                     <div class="flex flex-col">
                         ${discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ''}
-                        <span class="text-lg font-bold text-primary">${formatPrice(price)} تومان</span>
+                        <span class="text-lg font-bold text-primary">${formatPrice(price)} طھظˆظ…ط§ظ†</span>
                     </div>
                     <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -219,7 +219,7 @@ async function loadBrands() {
             }
         }
     } catch (error) {
-        console.error('Error loading brands:', error);
+        window.logger.error('Error loading brands:', error);
     }
 }
 
@@ -233,7 +233,7 @@ function renderBrands(brands) {
         <div class="swiper-slide">
             <div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-md dark:bg-gray-800">
                 <img src="${brand.logoUrl || 'assets/images/brand/brand1-1.png'}" 
-                     alt="${brand.name || 'برند'}" class="max-h-16 object-contain">
+                     alt="${brand.name || 'ط¨ط±ظ†ط¯'}" class="max-h-16 object-contain">
             </div>
         </div>
     `).join('');
@@ -296,7 +296,7 @@ async function performSearch(query) {
             renderSearchResults(Array.isArray(products) ? products : []);
         }
     } catch (error) {
-        console.error('Error searching:', error);
+        window.logger.error('Error searching:', error);
     }
 }
 
@@ -306,7 +306,7 @@ function renderSearchResults(products) {
     if (!searchResults) return;
 
     if (products.length === 0) {
-        searchResults.innerHTML = '<div class="p-4 text-center text-gray-500">محصولی یافت نشد</div>';
+        searchResults.innerHTML = '<div class="p-4 text-center text-gray-500">ظ…ط­طµظˆظ„غŒ غŒط§ظپطھ ظ†ط´ط¯</div>';
         searchResults.classList.remove('hidden');
         return;
     }
@@ -317,10 +317,10 @@ function renderSearchResults(products) {
             : 'assets/images/product/mobile-1.png';
         return `
             <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
-                <img src="${imageUrl}" alt="${product.name || 'محصول'}" class="w-16 h-16 object-contain rounded me-3">
+                <img src="${imageUrl}" alt="${product.name || 'ظ…ط­طµظˆظ„'}" class="w-16 h-16 object-contain rounded me-3">
                 <div class="flex-1">
-                    <h4 class="font-semibold text-sm dark:text-white">${product.name || 'محصول'}</h4>
-                    <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} تومان</p>
+                    <h4 class="font-semibold text-sm dark:text-white">${product.name || 'ظ…ط­طµظˆظ„'}</h4>
+                    <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} طھظˆظ…ط§ظ†</p>
                 </div>
             </a>
         `;
@@ -341,18 +341,18 @@ window.addToCart = async function(productId) {
         const result = await window.cartService.addToCart(productId, 1);
         if (result.success) {
             if (window.utils) {
-                window.utils.showToast('محصول به سبد خرید اضافه شد', 'success');
+                window.utils.showToast('ظ…ط­طµظˆظ„ ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯ ط§ط¶ط§ظپظ‡ ط´ط¯', 'success');
             }
             updateCartAndComparisonCounts();
         } else {
             if (window.utils) {
-                window.utils.showToast(result.error || 'خطا در افزودن به سبد خرید', 'error');
+                window.utils.showToast(result.error || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯', 'error');
             }
         }
     } catch (error) {
-        console.error('Error adding to cart:', error);
+        window.logger.error('Error adding to cart:', error);
         if (window.utils) {
-            window.utils.showToast('خطا در اتصال به سرور', 'error');
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
         }
     }
 };
@@ -369,12 +369,12 @@ window.addToWishlist = async function(productId) {
             const result = await window.wishlistService.addToWishlist(productId);
             if (result.success) {
                 if (window.utils) {
-                    window.utils.showToast('به علاقه‌مندی‌ها اضافه شد', 'success');
+                    window.utils.showToast('ط¨ظ‡ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط§ط¶ط§ظپظ‡ ط´ط¯', 'success');
                 }
             }
         }
     } catch (error) {
-        console.error('Error adding to wishlist:', error);
+        window.logger.error('Error adding to wishlist:', error);
     }
 };
 
@@ -390,7 +390,7 @@ async function updateCartAndComparisonCounts() {
                 if (cartCountEl) cartCountEl.textContent = itemCount;
             }
         } catch (error) {
-            console.error('Error updating cart count:', error);
+            window.logger.error('Error updating cart count:', error);
         }
     }
 
@@ -402,7 +402,7 @@ async function updateCartAndComparisonCounts() {
             if (comparisonCountEl) comparisonCountEl.textContent = count;
         }
     } catch (error) {
-        console.error('Error updating comparison count:', error);
+        window.logger.error('Error updating comparison count:', error);
     }
 }
 
@@ -414,4 +414,5 @@ document.addEventListener('click', (e) => {
         searchResults.classList.add('hidden');
     }
 });
+
 

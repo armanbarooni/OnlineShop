@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Comparison Service
  * Handles product comparison functionality - connected to API
  */
@@ -36,14 +36,14 @@ class ComparisonService {
                 data: data.data || data
             };
         } catch (error) {
-            console.error('Error adding to comparison:', error);
+            window.logger.error('Error adding to comparison:', error);
             // Fallback to localStorage if API fails
             if (error.message && error.message.includes('401')) {
                 return this.addToComparisonLocalStorage(productId);
             }
             return {
                 success: false,
-                error: error.message || 'خطا در افزودن به لیست مقایسه'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡'
             };
         }
     }
@@ -59,7 +59,7 @@ class ComparisonService {
             if (comparisonList.some(item => item.id === productId)) {
                 return {
                     success: false,
-                    error: 'این محصول قبلاً در لیست مقایسه موجود است'
+                    error: 'ط§غŒظ† ظ…ط­طµظˆظ„ ظ‚ط¨ظ„ط§ظ‹ ط¯ط± ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡ ظ…ظˆط¬ظˆط¯ ط§ط³طھ'
                 };
             }
 
@@ -67,7 +67,7 @@ class ComparisonService {
             if (comparisonList.length >= this.maxItems) {
                 return {
                     success: false,
-                    error: `حداکثر ${this.maxItems} محصول قابل مقایسه است`
+                    error: `ط­ط¯ط§ع©ط«ط± ${this.maxItems} ظ…ط­طµظˆظ„ ظ‚ط§ط¨ظ„ ظ…ظ‚ط§غŒط³ظ‡ ط§ط³طھ`
                 };
             }
 
@@ -84,10 +84,10 @@ class ComparisonService {
                 data: comparisonList
             };
         } catch (error) {
-            console.error('Error adding to comparison:', error);
+            window.logger.error('Error adding to comparison:', error);
             return {
                 success: false,
-                error: 'خطا در افزودن به لیست مقایسه'
+                error: 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡'
             };
         }
     }
@@ -114,14 +114,14 @@ class ComparisonService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error removing from comparison:', error);
+            window.logger.error('Error removing from comparison:', error);
             // Fallback to localStorage if API fails
             if (error.message && error.message.includes('401')) {
                 return this.removeFromComparisonLocalStorage(productId);
             }
             return {
                 success: false,
-                error: error.message || 'خطا در حذف از لیست مقایسه'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ط§ط² ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡'
             };
         }
     }
@@ -140,10 +140,10 @@ class ComparisonService {
                 data: comparisonList
             };
         } catch (error) {
-            console.error('Error removing from comparison:', error);
+            window.logger.error('Error removing from comparison:', error);
             return {
                 success: false,
-                error: 'خطا در حذف از لیست مقایسه'
+                error: 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ط§ط² ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡'
             };
         }
     }
@@ -177,7 +177,7 @@ class ComparisonService {
                 data: []
             };
         } catch (error) {
-            console.error('Error clearing comparison:', error);
+            window.logger.error('Error clearing comparison:', error);
             // Fallback to localStorage
             localStorage.removeItem(this.storageKey);
             return {
@@ -212,7 +212,7 @@ class ComparisonService {
                 data: data.data || data || []
             };
         } catch (error) {
-            console.error('Error getting comparison from API:', error);
+            window.logger.error('Error getting comparison from API:', error);
             // Fallback to localStorage
             if (error.message && error.message.includes('401')) {
                 return {
@@ -222,7 +222,7 @@ class ComparisonService {
             }
             return {
                 success: false,
-                error: error.message || 'خطا در دریافت لیست مقایسه'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡'
             };
         }
     }
@@ -235,7 +235,7 @@ class ComparisonService {
             const stored = localStorage.getItem(this.storageKey);
             return stored ? JSON.parse(stored) : [];
         } catch (error) {
-            console.error('Error getting comparison list:', error);
+            window.logger.error('Error getting comparison list:', error);
             return [];
         }
     }
@@ -272,7 +272,7 @@ class ComparisonService {
         try {
             localStorage.setItem(this.storageKey, JSON.stringify(comparisonList));
         } catch (error) {
-            console.error('Error saving comparison list:', error);
+            window.logger.error('Error saving comparison list:', error);
         }
     }
 
@@ -321,7 +321,7 @@ class ComparisonService {
                         };
                     }
                 } catch (error) {
-                    console.error('Error getting detailed comparison from API:', error);
+                    window.logger.error('Error getting detailed comparison from API:', error);
                     // Fall back to getting individual products
                 }
             }
@@ -329,10 +329,10 @@ class ComparisonService {
             // Fallback: Get detailed product information for each product
             return await this.getDetailedComparisonFromProducts(comparisonList);
         } catch (error) {
-            console.error('Error getting detailed comparison:', error);
+            window.logger.error('Error getting detailed comparison:', error);
             return {
                 success: false,
-                error: 'خطا در دریافت اطلاعات مقایسه'
+                error: 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ظ…ظ‚ط§غŒط³ظ‡'
             };
         }
     }
@@ -359,7 +359,7 @@ class ComparisonService {
                         }
                         return product;
                     } catch (error) {
-                        console.error(`Error getting details for product ${product.id}:`, error);
+                        window.logger.error(`Error getting details for product ${product.id}:`, error);
                         return product;
                     }
                 })
@@ -370,10 +370,10 @@ class ComparisonService {
                 data: detailedProducts
             };
         } catch (error) {
-            console.error('Error getting detailed comparison from products:', error);
+            window.logger.error('Error getting detailed comparison from products:', error);
             return {
                 success: false,
-                error: 'خطا در دریافت اطلاعات مقایسه'
+                error: 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ظ…ظ‚ط§غŒط³ظ‡'
             };
         }
     }
@@ -429,10 +429,10 @@ class ComparisonService {
                 data: response
             };
         } catch (error) {
-            console.error('Error exporting comparison to PDF:', error);
+            window.logger.error('Error exporting comparison to PDF:', error);
             return {
                 success: false,
-                error: 'خطا در صادر کردن فایل PDF'
+                error: 'ط®ط·ط§ ط¯ط± طµط§ط¯ط± ع©ط±ط¯ظ† ظپط§غŒظ„ PDF'
             };
         }
     }
@@ -459,10 +459,10 @@ class ComparisonService {
                 data: response
             };
         } catch (error) {
-            console.error('Error sharing comparison:', error);
+            window.logger.error('Error sharing comparison:', error);
             return {
                 success: false,
-                error: 'خطا در اشتراک‌گذاری مقایسه'
+                error: 'ط®ط·ط§ ط¯ط± ط§ط´طھط±ط§ع©â€Œع¯ط°ط§ط±غŒ ظ…ظ‚ط§غŒط³ظ‡'
             };
         }
     }
@@ -474,11 +474,11 @@ class ComparisonService {
         const errors = {};
 
         if (!comparisonData.products || comparisonData.products.length === 0) {
-            errors.products = 'لیست محصولات خالی است';
+            errors.products = 'ظ„غŒط³طھ ظ…ط­طµظˆظ„ط§طھ ط®ط§ظ„غŒ ط§ط³طھ';
         }
 
         if (comparisonData.products && comparisonData.products.length > this.maxItems) {
-            errors.products = `حداکثر ${this.maxItems} محصول قابل مقایسه است`;
+            errors.products = `ط­ط¯ط§ع©ط«ط± ${this.maxItems} ظ…ط­طµظˆظ„ ظ‚ط§ط¨ظ„ ظ…ظ‚ط§غŒط³ظ‡ ط§ط³طھ`;
         }
 
         return {
@@ -490,3 +490,4 @@ class ComparisonService {
 
 // Create global instance
 window.comparisonService = new ComparisonService();
+
