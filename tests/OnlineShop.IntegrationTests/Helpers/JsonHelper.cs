@@ -1,9 +1,16 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace OnlineShop.IntegrationTests.Helpers
 {
     public static class JsonHelper
     {
+        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
         public static string? GetNestedProperty(string jsonContent, params string[] propertyPath)
         {
             if (string.IsNullOrEmpty(jsonContent))
@@ -16,7 +23,26 @@ namespace OnlineShop.IntegrationTests.Helpers
 
                 foreach (var property in propertyPath)
                 {
-                    if (!element.TryGetProperty(property, out element))
+                    // Try exact match first
+                    if (element.TryGetProperty(property, out var exactMatch))
+                    {
+                        element = exactMatch;
+                        continue;
+                    }
+
+                    // Try case-insensitive match
+                    var found = false;
+                    foreach (var prop in element.EnumerateObject())
+                    {
+                        if (string.Equals(prop.Name, property, StringComparison.OrdinalIgnoreCase))
+                        {
+                            element = prop.Value;
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
                         return null;
                 }
 
@@ -44,7 +70,26 @@ namespace OnlineShop.IntegrationTests.Helpers
 
                 foreach (var property in propertyPath)
                 {
-                    if (!element.TryGetProperty(property, out element))
+                    // Try exact match first
+                    if (element.TryGetProperty(property, out var exactMatch))
+                    {
+                        element = exactMatch;
+                        continue;
+                    }
+
+                    // Try case-insensitive match
+                    var found = false;
+                    foreach (var prop in element.EnumerateObject())
+                    {
+                        if (string.Equals(prop.Name, property, StringComparison.OrdinalIgnoreCase))
+                        {
+                            element = prop.Value;
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
                         return false;
                 }
 
@@ -53,6 +98,24 @@ namespace OnlineShop.IntegrationTests.Helpers
             catch
             {
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Deserialize JSON directly to AuthResponseDto with case-insensitive matching
+        /// </summary>
+        public static T? Deserialize<T>(string jsonContent) where T : class
+        {
+            if (string.IsNullOrEmpty(jsonContent))
+                return null;
+
+            try
+            {
+                return JsonSerializer.Deserialize<T>(jsonContent, JsonOptions);
+            }
+            catch
+            {
+                return null;
             }
         }
     }

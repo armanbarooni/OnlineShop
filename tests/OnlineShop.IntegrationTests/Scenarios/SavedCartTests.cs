@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class SavedCartTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public SavedCartTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -20,7 +22,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SaveCart_WithItems_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -57,7 +59,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetUserSavedCarts_ShouldReturnAllSavedCarts()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -74,7 +76,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task RestoreSavedCart_ShouldLoadItemsIntoCurrentCart()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -107,7 +109,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task DeleteSavedCart_WithValidId_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -124,7 +126,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task UpdateSavedCart_WithNewName_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -147,7 +149,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetSavedCartById_WithValidId_ShouldReturnCart()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -164,7 +166,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SaveMultipleCarts_ForSameUser_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -183,7 +185,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SaveCart_WhenEmpty_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -215,7 +217,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetSavedCartItems_ShouldReturnCartItems()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

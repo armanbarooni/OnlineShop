@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class UserAddressTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public UserAddressTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -20,7 +22,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CreateAddress_WithValidData_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -54,7 +56,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetUserAddresses_ShouldReturnAllUserAddresses()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -75,7 +77,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task UpdateAddress_WithValidData_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -104,7 +106,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task DeleteAddress_WithValidId_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -122,7 +124,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SetDefaultAddress_ShouldMakeAddressDefault()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -142,7 +144,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetDefaultAddress_ShouldReturnDefaultAddress()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -184,7 +186,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetAddressById_WithValidId_ShouldReturnAddress()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -202,7 +204,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CreateMultipleAddresses_ForSameUser_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -223,7 +225,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task ValidateAddress_WithInvalidPostalCode_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
     public class ConcurrentInventoryTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public ConcurrentInventoryTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -102,7 +104,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
         {
             // Arrange
             var productId = await CreateTestProductAsync(stockQuantity: 5);
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -161,7 +163,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
         {
             // Arrange
             var productId = await CreateTestProductAsync(stockQuantity: 20);
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -193,7 +195,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
             // Arrange
             var product1Id = await CreateTestProductAsync(stockQuantity: 50);
             var product2Id = await CreateTestProductAsync(stockQuantity: 30);
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -230,7 +232,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         private async Task<HttpResponseMessage> AddToCartAsync(Guid productId, int quantity)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -243,7 +245,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         private async Task<HttpResponseMessage> PlaceOrderAsync(Guid productId, int quantity)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -268,7 +270,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         private async Task<HttpResponseMessage> UpdateProductStockAsync(Guid productId, int newStock)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -280,7 +282,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         private async Task<HttpResponseMessage> CreateStockAlertAsync(Guid productId, string email)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -307,7 +309,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         private async Task<Guid> CreateTestProductAsync(int stockQuantity = 100)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -335,7 +337,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         private async Task<Guid> CreateTestCategoryAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -355,7 +357,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         private async Task<Guid> CreateTestUnitAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -374,7 +376,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         private async Task<Guid> CreateTestBrandAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -393,7 +395,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         private async Task<Guid> CreateTestAddressAsync(Guid userId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -426,7 +428,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         private async Task<Guid> GetCurrentUserIdAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
     public class PriceCalculationTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public PriceCalculationTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -22,7 +24,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
         public async Task CalculateCartTotal_WithMultipleItems_ShouldReturnCorrectTotal()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -55,7 +57,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
         public async Task CalculateCartTotal_WithProductVariants_ShouldReturnCorrectTotal()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -101,7 +103,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
         public async Task ApplyPercentageDiscount_ShouldCalculateCorrectAmount()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -134,7 +136,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
         public async Task ApplyFixedAmountDiscount_ShouldCalculateCorrectAmount()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -167,7 +169,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
         public async Task ApplyDiscount_WithMaximumDiscountLimit_ShouldNotExceedLimit()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -206,7 +208,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
         public async Task ApplyMultipleCoupons_ShouldApplyOnlyOne()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -246,7 +248,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
         public async Task CalculateOrder_WithTax_ShouldIncludeTaxInTotal()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -293,7 +295,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
         public async Task CalculateOrder_WithShippingCost_ShouldIncludeShippingInTotal()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -336,7 +338,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
         public async Task CalculateOrder_WithFreeShippingThreshold_ShouldApplyFreeShipping()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -381,7 +383,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
         public async Task CalculateComplexOrder_WithMultipleItemsDiscountTaxAndShipping_ShouldReturnCorrectTotal()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -436,7 +438,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
 
         private async Task<Guid> CreateTestProductAsync(decimal price = 100.0m)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -464,7 +466,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
 
         private async Task<Guid> CreateTestProductVariantAsync(Guid productId, decimal price = 100.0m)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -492,7 +494,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
 
         private async Task<string> CreatePercentageCouponAsync(decimal discountPercentage = 10.0m)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -523,7 +525,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
 
         private async Task<string> CreateFixedAmountCouponAsync(decimal discountAmount = 50.0m)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -554,7 +556,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
 
         private async Task<string> CreateCouponWithMaxDiscountAsync(decimal discountPercentage = 20.0m, decimal maxDiscount = 100.0m)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -585,7 +587,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
 
         private async Task<Guid> CreateTestCategoryAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -605,7 +607,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
 
         private async Task<Guid> CreateTestUnitAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -624,7 +626,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
 
         private async Task<Guid> CreateTestBrandAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -643,7 +645,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
 
         private async Task<Guid> CreateTestAddressAsync(Guid userId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -676,7 +678,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.BusinessLogic
 
         private async Task<Guid> GetCurrentUserIdAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

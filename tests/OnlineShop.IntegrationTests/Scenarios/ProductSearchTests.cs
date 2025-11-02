@@ -11,9 +11,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class ProductSearchTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public ProductSearchTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -21,7 +23,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SearchProducts_WithKeyword_ShouldReturnMatchingProducts()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -47,7 +49,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SearchProducts_WithPriceFilter_ShouldReturnFilteredProducts()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -75,7 +77,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SearchProducts_WithCategoryFilter_ShouldReturnCategoryProducts()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -102,7 +104,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SearchProducts_WithBrandFilter_ShouldReturnBrandProducts()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -126,7 +128,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SearchProducts_WithSorting_ShouldReturnSortedProducts()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -151,7 +153,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SearchProducts_WithPagination_ShouldReturnPagedResults()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -197,7 +199,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task SearchProducts_WithMultipleFilters_ShouldReturnCombinedResults()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

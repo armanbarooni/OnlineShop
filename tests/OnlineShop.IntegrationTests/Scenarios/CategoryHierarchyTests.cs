@@ -11,9 +11,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class CategoryHierarchyTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public CategoryHierarchyTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -31,7 +33,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetSubCategories_WithParentId_ShouldReturnSubCategories()
         {
             // Arrange - Create parent category
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -67,7 +69,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CreateCategory_WithParentId_ShouldCreateSubCategory()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

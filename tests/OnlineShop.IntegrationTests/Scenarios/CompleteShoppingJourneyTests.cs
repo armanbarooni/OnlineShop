@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class CompleteShoppingJourneyTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public CompleteShoppingJourneyTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -79,7 +81,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
             searchResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             // Step 4: View Product Details
-            var adminToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var adminToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
 
@@ -152,7 +154,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task ProductSearchFlow_WithFilters_ShouldReturnFilteredResults()
         {
             // Arrange
-            var adminToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var adminToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", adminToken);
 
@@ -173,7 +175,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CartManagement_AddUpdateRemove_ShouldWorkCorrectly()
         {
             // Arrange - Login
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -269,7 +271,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CompleteJourneyWithCoupon_ShouldApplyDiscountCorrectly()
         {
             // Step 1: Register and Login
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -316,7 +318,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CompleteJourneyWithMultipleProducts_ShouldHandleAllItems()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -360,7 +362,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CompleteJourneyWithProductVariants_ShouldHandleVariants()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -414,7 +416,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CompleteJourneyWithWishlistAndReviews_ShouldHandleAllFeatures()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -457,7 +459,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CompleteJourneyWithSavedCart_ShouldRestoreAndCheckout()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -526,7 +528,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CompleteJourneyWithProductComparison_ShouldCompareAndBuy()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -566,7 +568,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CompleteJourneyWithOrderTracking_ShouldTrackOrderStatus()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

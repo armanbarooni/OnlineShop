@@ -8,9 +8,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class EdgeCasesTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public EdgeCasesTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 

@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class ProductComparisonTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public ProductComparisonTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -20,7 +22,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task AddToComparison_WithValidProduct_ShouldSucceed()
         {
             // Arrange - Login
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -39,7 +41,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetUserComparison_AfterAddingProducts_ShouldReturnProducts()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -60,7 +62,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CompareProducts_WithMultipleProducts_ShouldReturnComparison()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -84,7 +86,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task RemoveFromComparison_WithExistingProduct_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -102,7 +104,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task ClearComparison_ShouldRemoveAllProducts()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

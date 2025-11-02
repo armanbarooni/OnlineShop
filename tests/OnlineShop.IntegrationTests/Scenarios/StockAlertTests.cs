@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class StockAlertTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public StockAlertTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -20,7 +22,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CreateStockAlert_ForOutOfStockProduct_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -43,7 +45,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetUserStockAlerts_ShouldReturnAllUserAlerts()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -62,7 +64,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task DeleteStockAlert_WithValidId_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -80,7 +82,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetAlertsByProduct_ShouldReturnProductAlerts()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -98,7 +100,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task NotifyAlerts_WhenStockAvailable_ShouldTriggerNotifications()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -139,7 +141,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CreateDuplicateStockAlert_ShouldHandleGracefully()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -163,7 +165,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetAlertById_WithValidId_ShouldReturnAlert()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

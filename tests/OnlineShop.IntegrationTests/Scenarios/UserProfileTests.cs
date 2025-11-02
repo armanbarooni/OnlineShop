@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class UserProfileTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public UserProfileTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -20,7 +22,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetUserProfile_WithAuthenticatedUser_ShouldReturnProfile()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -37,7 +39,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task UpdateUserProfile_WithValidData_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -60,7 +62,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task CreateUserProfile_ForNewUser_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -84,7 +86,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task DeleteUserProfile_WithValidUserId_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -101,7 +103,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task UpdateAvatar_WithNewUrl_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -135,7 +137,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task UpdateUserProfile_WithInvalidData_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -156,7 +158,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task GetAllProfiles_AsAdmin_ShouldReturnList()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -171,7 +173,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
         public async Task UpdatePhoneNumber_ShouldRequireVerification()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

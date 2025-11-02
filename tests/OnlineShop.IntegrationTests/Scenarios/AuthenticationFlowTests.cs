@@ -11,9 +11,11 @@ namespace OnlineShop.IntegrationTests.Scenarios
     public class AuthenticationFlowTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public AuthenticationFlowTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 

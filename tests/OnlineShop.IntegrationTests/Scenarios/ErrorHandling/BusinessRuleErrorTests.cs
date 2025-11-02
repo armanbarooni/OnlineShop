@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
     public class BusinessRuleErrorTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public BusinessRuleErrorTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -35,7 +37,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task AddToCart_WithInsufficientStock_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -66,7 +68,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task PlaceOrder_WithInsufficientStock_ShouldSuggestAvailableQuantity()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -108,7 +110,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task ApplyCoupon_WithExpiredCoupon_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -153,7 +155,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task ApplyCoupon_WithExpiredCoupon_ShouldSuggestActiveCoupons()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -190,7 +192,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task UpdateOrderStatus_WithInvalidTransition_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -225,7 +227,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task UpdateOrderStatus_WithValidTransition_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -252,7 +254,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task ProcessPayment_WithFailedPayment_ShouldRollbackOrder()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -281,7 +283,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task ProcessPayment_WithFailedPayment_ShouldNotifyUser()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -314,7 +316,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task CreateReturnRequest_AfterReturnDeadline_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -351,7 +353,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task CreateReturnRequest_ForNonReturnableProduct_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -386,7 +388,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task CreateReturnRequest_WithInvalidOrderStatus_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -427,7 +429,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task ApplyCoupon_WithExceededUsageLimit_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -459,7 +461,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
         public async Task ApplyCoupon_WithInsufficientPurchaseAmount_ShouldReturnBadRequest()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -493,7 +495,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<Guid> CreateTestProductAsync(int stockQuantity = 100, decimal price = 100m, bool isReturnable = true)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -522,7 +524,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<Guid> CreateTestOrderAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -555,7 +557,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<Guid> CreateTestOrderWithProductAsync(Guid productId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -587,7 +589,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<Guid> CreateTestPaymentAsync(Guid orderId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -613,7 +615,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<string> CreateExpiredCouponAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -643,7 +645,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<string> CreateActiveCouponAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -673,7 +675,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<string> CreateCouponWithUsageLimitAsync(int maxUsage)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -703,7 +705,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<string> CreateCouponWithMinimumPurchaseAsync(decimal minimumPurchase)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -733,7 +735,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<Guid> CreateTestCategoryAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -753,7 +755,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<Guid> CreateTestUnitAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -772,7 +774,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<Guid> CreateTestBrandAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -791,7 +793,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<Guid> CreateTestAddressAsync(Guid userId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -824,7 +826,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.ErrorHandling
 
         private async Task<Guid> GetCurrentUserIdAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

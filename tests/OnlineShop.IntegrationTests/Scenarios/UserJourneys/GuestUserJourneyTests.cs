@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios.UserJourneys
     public class GuestUserJourneyTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public GuestUserJourneyTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -246,7 +248,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.UserJourneys
 
         private async Task<Guid> CreateTestProductAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -274,7 +276,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.UserJourneys
 
         private async Task<Guid> CreateTestProductImageAsync(Guid productId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -301,7 +303,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.UserJourneys
 
         private async Task<Guid> CreateTestProductDetailAsync(Guid productId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -327,7 +329,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.UserJourneys
 
         private async Task<Guid> CreateTestProductVariantAsync(Guid productId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -355,7 +357,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.UserJourneys
 
         private async Task<Guid> CreateTestProductReviewAsync(Guid productId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -381,7 +383,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.UserJourneys
 
         private async Task<Guid> CreateTestCategoryAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -401,7 +403,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.UserJourneys
 
         private async Task<Guid> CreateTestBrandAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -420,7 +422,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.UserJourneys
 
         private async Task<Guid> CreateTestUnitAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -439,7 +441,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.UserJourneys
 
         private async Task<Guid> CreateTestAddressAsync(Guid userId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

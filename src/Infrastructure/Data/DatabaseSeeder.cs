@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using OnlineShop.Domain.Entities;
+using OnlineShop.Infrastructure.Persistence;
 
 namespace OnlineShop.Infrastructure.Data
 {
@@ -10,6 +12,7 @@ namespace OnlineShop.Infrastructure.Data
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
 
             string[] roles = { "Admin", "User", "Manager" };
 
@@ -23,13 +26,26 @@ namespace OnlineShop.Infrastructure.Data
             }
 
             // Seed admin user
-            await SeedAdminUserAsync(userManager);
+            await SeedAdminUserAsync(userManager, dbContext);
         }
 
-        private static async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager)
+        private static async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext)
         {
             var adminEmail = "admin@onlineshop.com";
-            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            
+            // Use direct query to avoid "Sequence contains more than one element" exception
+            // that can occur with FindByEmailAsync in In-Memory databases
+            ApplicationUser adminUser = null;
+            try
+            {
+                adminUser = await userManager.FindByEmailAsync(adminEmail);
+            }
+            catch (InvalidOperationException)
+            {
+                // If FindByEmailAsync fails (duplicate emails in In-Memory), use direct query
+                adminUser = await dbContext.Users
+                    .FirstOrDefaultAsync(u => u.Email == adminEmail);
+            }
 
             if (adminUser == null)
             {

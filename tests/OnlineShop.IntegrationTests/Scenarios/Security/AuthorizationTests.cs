@@ -10,9 +10,11 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
     public class AuthorizationTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public AuthorizationTests(CustomWebApplicationFactory<Program> factory)
         {
+                        _factory = factory;
             _client = factory.CreateClient();
         }
 
@@ -468,7 +470,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
         public async Task AdminCanAccessAllEndpoints_ShouldSucceed()
         {
             // Arrange
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -527,7 +529,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
 
         private async Task<Guid> CreateTestProductAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -555,7 +557,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
 
         private async Task<Guid> CreateTestOrderAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -588,7 +590,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
 
         private async Task<Guid> CreateTestCategoryAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -608,7 +610,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
 
         private async Task<Guid> CreateTestUnitAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -627,7 +629,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
 
         private async Task<Guid> CreateTestBrandAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -646,7 +648,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
 
         private async Task<Guid> CreateTestAddressAsync(Guid userId)
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
@@ -679,7 +681,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
 
         private async Task<Guid> GetCurrentUserIdAsync()
         {
-            var authToken = await AuthHelper.GetAdminTokenAsync(_client);
+            var authToken = await AuthHelper.GetAdminTokenAsync(_client, _factory);
             _client.DefaultRequestHeaders.Authorization = 
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 

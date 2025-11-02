@@ -85,7 +85,7 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
                                 db.Database.EnsureCreated();
-                                SeedTestData(roleManager, userManager).GetAwaiter().GetResult();
+                                SeedTestData(db, roleManager, userManager).GetAwaiter().GetResult();
                             }
                             _seeded = true;
                         }
@@ -109,11 +109,11 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                 db.Database.EnsureCreated();
 
                 // Seed roles and admin user
-                await SeedTestData(roleManager, userManager);
+                await SeedTestData(db, roleManager, userManager);
             }
         }
 
-        private static async Task SeedTestData(RoleManager<IdentityRole<Guid>> roleManager, UserManager<ApplicationUser> userManager)
+        private static async Task SeedTestData(ApplicationDbContext dbContext, RoleManager<IdentityRole<Guid>> roleManager, UserManager<ApplicationUser> userManager)
         {
             Console.WriteLine("[CustomWebApplicationFactory] Starting test data seeding...");
             
@@ -135,7 +135,19 @@ namespace OnlineShop.IntegrationTests.Infrastructure
             // Create admin user with phone number
             var adminPhoneNumber = "09123456789";
             var adminEmail = "admin@test.com";
-            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            ApplicationUser adminUser = null;
+            
+            // Use try-catch to handle "Sequence contains more than one element" exception in In-Memory databases
+            try
+            {
+                adminUser = await userManager.FindByEmailAsync(adminEmail);
+            }
+            catch (InvalidOperationException)
+            {
+                // If FindByEmailAsync fails (duplicate emails in In-Memory), use direct query
+                adminUser = await dbContext.Users
+                    .FirstOrDefaultAsync(u => u.Email == adminEmail);
+            }
             
             if (adminUser == null)
             {
@@ -174,7 +186,17 @@ namespace OnlineShop.IntegrationTests.Infrastructure
             }
             
             // Also ensure admin can be found by email
-            var adminByEmail = await userManager.FindByEmailAsync("admin@test.com");
+            ApplicationUser adminByEmail = null;
+            try
+            {
+                adminByEmail = await userManager.FindByEmailAsync("admin@test.com");
+            }
+            catch (InvalidOperationException)
+            {
+                adminByEmail = await dbContext.Users
+                    .FirstOrDefaultAsync(u => u.Email == "admin@test.com");
+            }
+            
             if (adminByEmail == null)
             {
                 Console.WriteLine($"[CustomWebApplicationFactory] WARNING: Admin user not found by email!");
@@ -187,7 +209,18 @@ namespace OnlineShop.IntegrationTests.Infrastructure
             // Create regular user with phone number
             var userPhoneNumber = "09987654321";
             var userEmail = "user@test.com";
-            var regularUser = await userManager.FindByEmailAsync(userEmail);
+            ApplicationUser regularUser = null;
+            
+            try
+            {
+                regularUser = await userManager.FindByEmailAsync(userEmail);
+            }
+            catch (InvalidOperationException)
+            {
+                // If FindByEmailAsync fails, use direct query
+                regularUser = await dbContext.Users
+                    .FirstOrDefaultAsync(u => u.Email == userEmail);
+            }
             
             if (regularUser == null)
             {

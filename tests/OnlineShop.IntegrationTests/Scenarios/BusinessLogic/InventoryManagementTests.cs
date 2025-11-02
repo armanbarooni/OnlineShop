@@ -220,7 +220,7 @@ public class InventoryManagementTests : IClassFixture<CustomWebApplicationFactor
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/productinventory/bulkupdate", bulkUpdateDto);
+        var response = await _client.PostAsJsonAsync("/api/productinventory/bulk-update", bulkUpdateDto);
 
         // Assert
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.BadRequest);
