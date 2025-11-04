@@ -138,9 +138,7 @@
             <div class="col-span-10 place-self-start">
                 <nav class="flex gap-x-9 mt-10 items-center">
                     <!-- menu -->
-                    <ul class="flex dark:text-white items-center space-x-8 tracking-tight" data-category-menu-main>
-                        <!-- Dynamic category menu will be inserted here -->
-                        <!-- Original static menu items will remain as fallback -->
+                    <ul class="flex dark:text-white items-center space-x-8 tracking-tight">
                         <li id="mega-menu-fire" class="py-2">
                             <a href="" class="flex font-bold hover:text-primary transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -2437,7 +2435,7 @@
                 </div>
             </header>
         </div>
-        <div class="grid grid-cols-12 gap-4" data-categories>
+        <div class="grid grid-cols-12 gap-4">
             <a href="" class="lg:col-span-3 sm:col-span-6 col-span-12 w-full block">
                 <article itemscope itemtype="https://schema.org/CategoryCode"
                          class="flex py-2 px-3 rounded-xl border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800">
@@ -5369,10 +5367,7 @@
                 itemtype="http://schema.org/SiteNavigationElement">
                 <a href="/" class="block" itemprop="url">صفحه اصلی</a>
             </li>
-            <!-- Dynamic category menu will be inserted here -->
-            <div data-category-menu-offcanvas></div>
-            <!-- Original static menu (will be hidden when dynamic menu loads) -->
-            <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2 hidden static-menu-item" itemscope
+            <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2" itemscope
                 itemtype="http://schema.org/SiteNavigationElement">
                 <button
                         class="flex justify-between w-full text-start"
@@ -5706,20 +5701,6 @@
 <script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
 <script src="assets/js/dependencies/swiper-script.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
-
-<!-- API Services -->
-<script src="config.js"></script>
-<script src="assets/js/utils.js"></script>
-<script src="assets/js/api-client.js"></script>
-<script src="assets/js/auth-service.js"></script>
-<script src="assets/js/auth-guard.js"></script>
-<script src="assets/js/services/category-service.js"></script>
-<script src="assets/js/services/product-service.js"></script>
-<script src="assets/js/services/cart-service.js"></script>
-<script src="assets/js/services/comparison-service.js"></script>
-<script src="assets/js/components/header-component.js"></script>
-<script src="assets/js/components/footer-component.js"></script>
-<script src="assets/js/pages/index-page.js"></script>
 
 <!-- initial story api -->
 <script>

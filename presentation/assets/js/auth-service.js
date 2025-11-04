@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Authentication Service for OnlineShop Frontend
  * Handles login, registration, and user management
  */
@@ -17,14 +17,14 @@ class AuthService {
             if (!email || !email.trim()) {
                 return {
                     success: false,
-                    error: 'ایمیل یا نام کاربری الزامی است'
+                    error: 'ط§غŒظ…غŒظ„ غŒط§ ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ'
                 };
             }
 
             if (!password) {
                 return {
                     success: false,
-                    error: 'رمز عبور الزامی است'
+                    error: 'ط±ظ…ط² ط¹ط¨ظˆط± ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ'
                 };
             }
 
@@ -47,7 +47,7 @@ class AuthService {
                 }
                 return {
                     success: false,
-                    error: 'خطا در دریافت اطلاعات احراز هویت'
+                    error: 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ط§ط­ط±ط§ط² ظ‡ظˆغŒطھ'
                 };
             }
 
@@ -67,9 +67,9 @@ class AuthService {
                 }
             };
         } catch (error) {
-            console.error('Login error:', error);
+            window.logger.error('Login error:', error);
             // api-client throws errors, so we need to handle them properly
-            const errorMessage = error instanceof Error ? error.message : (error?.message || 'خطا در ورود');
+            const errorMessage = error instanceof Error ? error.message : (error?.message || 'ط®ط·ط§ ط¯ط± ظˆط±ظˆط¯');
             return {
                 success: false,
                 error: errorMessage
@@ -89,13 +89,13 @@ class AuthService {
 
             return {
                 success: true,
-                message: 'کد تایید ارسال شد'
+                message: 'ع©ط¯ طھط§غŒغŒط¯ ط§ط±ط³ط§ظ„ ط´ط¯'
             };
         } catch (error) {
-            console.error('Send OTP error:', error);
+            window.logger.error('Send OTP error:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±'
             };
         }
     }
@@ -130,10 +130,10 @@ class AuthService {
                 }
             };
         } catch (error) {
-            console.error('Verify OTP error:', error);
+            window.logger.error('Verify OTP error:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±'
             };
         }
     }
@@ -147,7 +147,7 @@ class AuthService {
             if (!userData.email || !userData.email.trim()) {
                 return {
                     success: false,
-                    error: 'ایمیل الزامی است'
+                    error: 'ط§غŒظ…غŒظ„ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ'
                 };
             }
 
@@ -156,7 +156,7 @@ class AuthService {
             if (!emailRegex.test(userData.email.trim())) {
                 return {
                     success: false,
-                    error: 'فرمت ایمیل معتبر نیست'
+                    error: 'ظپط±ظ…طھ ط§غŒظ…غŒظ„ ظ…ط¹طھط¨ط± ظ†غŒط³طھ'
                 };
             }
             
@@ -184,7 +184,7 @@ class AuthService {
                 }
                 return {
                     success: false,
-                    error: 'خطا در دریافت اطلاعات احراز هویت'
+                    error: 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ط§ط­ط±ط§ط² ظ‡ظˆغŒطھ'
                 };
             }
 
@@ -199,9 +199,9 @@ class AuthService {
                 }
             };
         } catch (error) {
-            console.error('Registration error:', error);
+            window.logger.error('Registration error:', error);
             // api-client throws errors, so we need to handle them properly
-            const errorMessage = error instanceof Error ? error.message : (error?.message || 'خطا در ثبت نام');
+            const errorMessage = error instanceof Error ? error.message : (error?.message || 'ط®ط·ط§ ط¯ط± ط«ط¨طھ ظ†ط§ظ…');
             return {
                 success: false,
                 error: errorMessage
@@ -221,7 +221,7 @@ class AuthService {
                 });
             }
         } catch (error) {
-            console.error('Logout error:', error);
+            window.logger.error('Logout error:', error);
         } finally {
             // Always clear tokens locally
             this.apiClient.clearTokens();
@@ -245,7 +245,7 @@ class AuthService {
             const response = await this.apiClient.get('/auth/me');
             return response.data || response;
         } catch (error) {
-            console.error('Get current user error:', error);
+            window.logger.error('Get current user error:', error);
             return null;
         }
     }
@@ -276,13 +276,13 @@ class AuthService {
 
             return {
                 success: true,
-                message: 'رمز عبور با موفقیت تغییر یافت'
+                message: 'ط±ظ…ط² ط¹ط¨ظˆط± ط¨ط§ ظ…ظˆظپظ‚غŒطھ طھط؛غŒغŒط± غŒط§ظپطھ'
             };
         } catch (error) {
-            console.error('Change password error:', error);
+            window.logger.error('Change password error:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±'
             };
         }
     }
@@ -298,13 +298,13 @@ class AuthService {
 
             return {
                 success: true,
-                message: 'کد بازیابی رمز عبور به شماره موبایل شما ارسال شد'
+                message: 'ع©ط¯ ط¨ط§ط²غŒط§ط¨غŒ ط±ظ…ط² ط¹ط¨ظˆط± ط¨ظ‡ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ط´ظ…ط§ ط§ط±ط³ط§ظ„ ط´ط¯'
             };
         } catch (error) {
-            console.error('Forgot password error:', error);
+            window.logger.error('Forgot password error:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±'
             };
         }
     }
@@ -322,13 +322,13 @@ class AuthService {
 
             return {
                 success: true,
-                message: 'رمز عبور با موفقیت بازنشانی شد'
+                message: 'ط±ظ…ط² ط¹ط¨ظˆط± ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط§ط²ظ†ط´ط§ظ†غŒ ط´ط¯'
             };
         } catch (error) {
-            console.error('Reset password error:', error);
+            window.logger.error('Reset password error:', error);
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: error.message || 'ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±'
             };
         }
     }
@@ -341,3 +341,4 @@ window.authService = new AuthService();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AuthService;
 }
+

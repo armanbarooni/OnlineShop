@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تست اتصال به API</title>
+    <title>طھط³طھ ط§طھطµط§ظ„ ط¨ظ‡ API</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; }
         .result { padding: 10px; margin: 10px 0; border-radius: 5px; }
@@ -15,14 +15,14 @@
     </style>
 </head>
 <body>
-    <h1>تست اتصال به API</h1>
+    <h1>طھط³طھ ط§طھطµط§ظ„ ط¨ظ‡ API</h1>
     
-    <button onclick="testAPI()">تست اتصال به API</button>
-    <button onclick="testRegistration()">تست ثبت نام</button>
+    <button onclick="testAPI()">طھط³طھ ط§طھطµط§ظ„ ط¨ظ‡ API</button>
+    <button onclick="testRegistration()">طھط³طھ ط«ط¨طھ ظ†ط§ظ…</button>
     
     <div id="result"></div>
 
-    <script src="config.js"></script>
+    <script src="config.js"></script>`r`n<script src="assets/js/utils/logger.js"></script>
     <script src="assets/js/api-client.js"></script>
     <script src="assets/js/utils.js"></script>
     <script>
@@ -32,7 +32,7 @@
         }
 
         async function testAPI() {
-            showResult('در حال تست اتصال به API...', 'info');
+            showResult('ط¯ط± ط­ط§ظ„ طھط³طھ ط§طھطµط§ظ„ ط¨ظ‡ API...', 'info');
             
             try {
                 const response = await fetch('https://localhost:7025/api/health', {
@@ -44,22 +44,22 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    showResult(`✅ API در دسترس است!<br>Status: ${data.status}<br>Message: ${data.message}`, 'success');
+                    showResult(`âœ… API ط¯ط± ط¯ط³طھط±ط³ ط§ط³طھ!<br>Status: ${data.status}<br>Message: ${data.message}`, 'success');
                 } else {
-                    showResult(`⚠️ API پاسخ داد اما با کد: ${response.status}`, 'error');
+                    showResult(`âڑ ï¸ڈ API ظ¾ط§ط³ط® ط¯ط§ط¯ ط§ظ…ط§ ط¨ط§ ع©ط¯: ${response.status}`, 'error');
                 }
             } catch (error) {
-                showResult(`❌ خطا در اتصال به API: ${error.message}`, 'error');
+                showResult(`â‌Œ ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ API: ${error.message}`, 'error');
             }
         }
 
         async function testRegistration() {
-            showResult('در حال تست ثبت نام...', 'info');
+            showResult('ط¯ط± ط­ط§ظ„ طھط³طھ ط«ط¨طھ ظ†ط§ظ…...', 'info');
             
             try {
                 const registrationData = {
-                    firstName: 'علی',
-                    lastName: 'احمدی',
+                    firstName: 'ط¹ظ„غŒ',
+                    lastName: 'ط§ط­ظ…ط¯غŒ',
                     mobile: '09123456789',
                     password: '123456'
                 };
@@ -74,13 +74,13 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    showResult(`✅ ثبت نام موفق!<br>Response: ${JSON.stringify(data)}`, 'success');
+                    showResult(`âœ… ط«ط¨طھ ظ†ط§ظ… ظ…ظˆظپظ‚!<br>Response: ${JSON.stringify(data)}`, 'success');
                 } else {
                     const errorData = await response.json();
-                    showResult(`⚠️ خطا در ثبت نام: ${response.status}<br>Message: ${errorData.message || 'Unknown error'}`, 'error');
+                    showResult(`âڑ ï¸ڈ ط®ط·ط§ ط¯ط± ط«ط¨طھ ظ†ط§ظ…: ${response.status}<br>Message: ${errorData.message || 'Unknown error'}`, 'error');
                 }
             } catch (error) {
-                showResult(`❌ خطا در ثبت نام: ${error.message}`, 'error');
+                showResult(`â‌Œ ط®ط·ط§ ط¯ط± ط«ط¨طھ ظ†ط§ظ…: ${error.message}`, 'error');
             }
         }
 
@@ -92,13 +92,14 @@
             console.log('Utils:', window.utils);
             
             if (window.config && window.apiClient && window.utils) {
-                showResult('همه اسکریپت‌ها با موفقیت لود شدند', 'success');
+                showResult('ظ‡ظ…ظ‡ ط§ط³ع©ط±غŒظ¾طھâ€Œظ‡ط§ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ظ„ظˆط¯ ط´ط¯ظ†ط¯', 'success');
             } else {
-                showResult('مشکل در لود اسکریپت‌ها', 'error');
+                showResult('ظ…ط´ع©ظ„ ط¯ط± ظ„ظˆط¯ ط§ط³ع©ط±غŒظ¾طھâ€Œظ‡ط§', 'error');
             }
         });
     </script>
 </body>
 </html>
+
 
 

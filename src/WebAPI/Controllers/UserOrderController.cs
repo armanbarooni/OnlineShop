@@ -10,6 +10,12 @@ using OnlineShop.Application.Features.UserOrder.Queries.GetById;
 using OnlineShop.Application.Features.UserOrder.Queries.GetByUserId;
 using OnlineShop.Application.Features.UserOrder.Queries.GetAll;
 using OnlineShop.Application.Features.UserOrder.Queries.Search;
+using OnlineShop.Application.Features.UserOrder.Queries.GetOrderItems;
+using OnlineShop.Application.Features.UserOrder.Queries.GetOrderTimeline;
+using OnlineShop.Application.Features.UserOrder.Commands.CancelOrder;
+using OnlineShop.Application.Features.UserOrder.Queries.GenerateInvoice;
+using OnlineShop.Application.Features.UserOrder.Queries.GetRecentOrders;
+using OnlineShop.Application.Features.UserOrder.Queries.GetOrderStatistics;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -176,6 +182,229 @@ namespace OnlineShop.WebAPI.Controllers
             
             _logger.LogWarning("Failed to delete user order: {OrderId} by user: {UserId}. Error: {Error}", id, userId, result.ErrorMessage);
             return NotFound(result);
+        }
+
+        [HttpGet("{id}/items")]
+        public async Task<IActionResult> GetOrderItems(Guid id, CancellationToken cancellationToken = default)
+        {
+            // Check if user can access this order
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            // First verify order belongs to user (unless admin)
+            var orderResult = await _mediator.Send(new GetUserOrderByIdQuery { Id = id }, cancellationToken);
+            if (!orderResult.IsSuccess)
+                return NotFound(orderResult);
+
+            if (!User.IsInRole("Admin"))
+            {
+                if (orderResult.Data?.UserId != currentUserGuid)
+                    return Forbid("Access denied");
+            }
+
+            _logger.LogInformation("Getting order items for order: {OrderId}", id);
+            var result = await _mediator.Send(new GetUserOrderItemsQuery { OrderId = id }, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved {Count} items for order: {OrderId}", result.Data?.Count() ?? 0, id);
+                return Ok(result);
+            }
+
+            _logger.LogWarning("Failed to retrieve order items for order: {OrderId}. Error: {Error}", id, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        [HttpGet("{id}/track")]
+        public async Task<IActionResult> TrackOrder(Guid id, CancellationToken cancellationToken = default)
+        {
+            // Check if user can access this order
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            // First verify order belongs to user (unless admin)
+            var orderResult = await _mediator.Send(new GetUserOrderByIdQuery { Id = id }, cancellationToken);
+            if (!orderResult.IsSuccess)
+                return NotFound(orderResult);
+
+            if (!User.IsInRole("Admin"))
+            {
+                if (orderResult.Data?.UserId != currentUserGuid)
+                    return Forbid("Access denied");
+            }
+
+            _logger.LogInformation("Tracking order: {OrderId}", id);
+            var result = await _mediator.Send(new GetOrderTimelineQuery { OrderId = id }, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved tracking info for order: {OrderId}", id);
+                return Ok(result);
+            }
+
+            _logger.LogWarning("Failed to retrieve tracking info for order: {OrderId}. Error: {Error}", id, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        [HttpGet("{id}/status-history")]
+        public async Task<IActionResult> GetOrderStatusHistory(Guid id, CancellationToken cancellationToken = default)
+        {
+            // Check if user can access this order
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            // First verify order belongs to user (unless admin)
+            var orderResult = await _mediator.Send(new GetUserOrderByIdQuery { Id = id }, cancellationToken);
+            if (!orderResult.IsSuccess)
+                return NotFound(orderResult);
+
+            if (!User.IsInRole("Admin"))
+            {
+                if (orderResult.Data?.UserId != currentUserGuid)
+                    return Forbid("Access denied");
+            }
+
+            _logger.LogInformation("Getting status history for order: {OrderId}", id);
+            var result = await _mediator.Send(new GetOrderTimelineQuery { OrderId = id }, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved status history for order: {OrderId}", id);
+                return Ok(result);
+            }
+
+            _logger.LogWarning("Failed to retrieve status history for order: {OrderId}. Error: {Error}", id, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        [HttpGet("recent")]
+        public async Task<IActionResult> GetRecentOrders([FromQuery] int limit = 5, CancellationToken cancellationToken = default)
+        {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            _logger.LogInformation("Getting recent orders for user: {UserId}, Limit: {Limit}", currentUserGuid, limit);
+
+            var query = new GetRecentUserOrdersQuery
+            {
+                UserId = currentUserGuid,
+                Limit = limit > 0 && limit <= 20 ? limit : 5 // Max 20, default 5
+            };
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved {Count} recent orders for user: {UserId}", result.Data?.Count() ?? 0, currentUserGuid);
+                return Ok(result);
+            }
+
+            _logger.LogWarning("Failed to retrieve recent orders for user: {UserId}. Error: {Error}", currentUserGuid, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        [HttpGet("statistics")]
+        public async Task<IActionResult> GetOrderStatistics(CancellationToken cancellationToken = default)
+        {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            _logger.LogInformation("Getting order statistics for user: {UserId}", currentUserGuid);
+
+            var query = new GetUserOrderStatisticsQuery { UserId = currentUserGuid };
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Successfully retrieved order statistics for user: {UserId}", currentUserGuid);
+                return Ok(result);
+            }
+
+            _logger.LogWarning("Failed to retrieve order statistics for user: {UserId}. Error: {Error}", currentUserGuid, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        [HttpPost("{id}/cancel")]
+        public async Task<IActionResult> CancelOrder(Guid id, [FromBody] CancelOrderRequest? request, CancellationToken cancellationToken = default)
+        {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            // First verify order belongs to user (unless admin)
+            var orderResult = await _mediator.Send(new GetUserOrderByIdQuery { Id = id }, cancellationToken);
+            if (!orderResult.IsSuccess)
+                return NotFound(orderResult);
+
+            if (!User.IsInRole("Admin"))
+            {
+                if (orderResult.Data?.UserId != currentUserGuid)
+                    return Forbid("Access denied");
+            }
+
+            _logger.LogInformation("Cancelling order: {OrderId} by user: {UserId}", id, currentUserGuid);
+            
+            var command = new CancelOrderCommand
+            {
+                OrderId = id,
+                CancellationReason = request?.Reason,
+                UpdatedBy = currentUserId
+            };
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Order cancelled successfully: {OrderId} by user: {UserId}", id, currentUserGuid);
+                return Ok(result);
+            }
+
+            _logger.LogWarning("Failed to cancel order: {OrderId} by user: {UserId}. Error: {Error}", id, currentUserGuid, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        [HttpGet("{id}/invoice")]
+        public async Task<IActionResult> GetInvoice(Guid id, CancellationToken cancellationToken = default)
+        {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            // First verify order belongs to user (unless admin)
+            var orderResult = await _mediator.Send(new GetUserOrderByIdQuery { Id = id }, cancellationToken);
+            if (!orderResult.IsSuccess)
+                return NotFound(orderResult);
+
+            if (!User.IsInRole("Admin"))
+            {
+                if (orderResult.Data?.UserId != currentUserGuid)
+                    return Forbid("Access denied");
+            }
+
+            _logger.LogInformation("Generating invoice for order: {OrderId}", id);
+
+            var query = new GenerateOrderInvoiceQuery { OrderId = id };
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Invoice generated successfully for order: {OrderId}", id);
+                // For now return HTML, can be changed to PDF later
+                return File(result.Data!, "text/html", $"invoice-{id}.html");
+            }
+
+            _logger.LogWarning("Failed to generate invoice for order: {OrderId}. Error: {Error}", id, result.ErrorMessage);
+            return BadRequest(result);
+        }
+
+        public class CancelOrderRequest
+        {
+            public string? Reason { get; set; }
         }
     }
 }

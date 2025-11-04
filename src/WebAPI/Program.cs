@@ -8,21 +8,40 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Serilog;
 using Serilog.Events;
+using Microsoft.Extensions.Hosting;
+
+var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
+var isDevelopmentEnvironment = environmentName.Equals(Environments.Development, StringComparison.OrdinalIgnoreCase);
+var minimumLogLevel = isDevelopmentEnvironment ? LogEventLevel.Debug : LogEventLevel.Information;
+
+LoggerConfiguration BuildLoggerConfiguration(LogEventLevel minimumLevel, string? postgresConnectionString = null)
+{
+    var loggerConfiguration = new LoggerConfiguration()
+        .MinimumLevel.Is(minimumLevel)
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+        .MinimumLevel.Override("System", LogEventLevel.Warning)
+        .Enrich.FromLogContext()
+        .Enrich.WithEnvironmentName()
+        .Enrich.WithProcessId()
+        .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+        .WriteTo.File("logs/log-.txt",
+            rollingInterval: RollingInterval.Day,
+            retainedFileCountLimit: 30,
+            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}");
+
+    if (!string.IsNullOrEmpty(postgresConnectionString))
+    {
+        loggerConfiguration = loggerConfiguration.WriteTo.PostgreSQL(
+            postgresConnectionString,
+            "logs",
+            needAutoCreateTable: true);
+    }
+
+    return loggerConfiguration;
+}
 
 // Configure Serilog
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-    .MinimumLevel.Override("System", LogEventLevel.Warning)
-    .Enrich.FromLogContext()
-    .Enrich.WithEnvironmentName()
-    .Enrich.WithProcessId()
-    .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
-    .WriteTo.File("logs/log-.txt", 
-        rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 30,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
-    .CreateLogger();
+Log.Logger = BuildLoggerConfiguration(minimumLogLevel).CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,62 +52,59 @@ builder.Host.UseSerilog();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (!string.IsNullOrEmpty(connectionString))
 {
-    Log.Logger = new LoggerConfiguration()
-        .MinimumLevel.Debug()
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-        .MinimumLevel.Override("System", LogEventLevel.Warning)
-        .Enrich.FromLogContext()
-        .Enrich.WithEnvironmentName()
-        .Enrich.WithProcessId()
-        .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
-        .WriteTo.File("logs/log-.txt", 
-            rollingInterval: RollingInterval.Day,
-            retainedFileCountLimit: 30,
-            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
-        .WriteTo.PostgreSQL(connectionString, "logs", 
-            needAutoCreateTable: true)
-        .CreateLogger();
+    Log.Logger = BuildLoggerConfiguration(minimumLogLevel, connectionString).CreateLogger();
 }
 
 
 
-
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+        options.JsonSerializerOptions.WriteIndented = false;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+var frontendOrigins = builder.Configuration.GetSection("Cors:AllowFrontend").Get<string[]>() ?? Array.Empty<string>();
+
 // CORS configuration for Frontend
 builder.Services.AddCors(options =>
 {
     // Main policy for frontend - with credentials support
     options.AddPolicy("AllowFrontend", policy =>
-        policy
-            .WithOrigins(
-                "http://localhost:3000",
-                "http://127.0.0.1:3000", 
-                "http://localhost:5500",
-                "http://127.0.0.1:5500",
-                "http://localhost:8080",
-                "http://127.0.0.1:8080",
-                "http://localhost:8000",
-                "http://127.0.0.1:8000",
-                "http://localhost:5000",
-                "http://127.0.0.1:5000"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials());
-    
+    {
+        if (frontendOrigins.Length == 0)
+        {
+            Log.Warning("No frontend origins configured in Cors:AllowFrontend; falling back to allow any origin without credentials.");
+            policy
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+        else
+        {
+            policy
+                .WithOrigins(frontendOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
+    });
+
     // Fallback for development - allow all origins (but without credentials)
-    options.AddPolicy("DefaultCors", policy =>
-        policy
-            .SetIsOriginAllowed(_ => true)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials());
+    if (builder.Environment.IsDevelopment())
+    {
+        options.AddPolicy("DefaultCors", policy =>
+            policy
+                .SetIsOriginAllowed(_ => true)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials());
+    }
 });
 
 // JWT Authentication
@@ -96,7 +112,12 @@ var jwtSection = builder.Configuration.GetSection("Jwt");
 var issuer = jwtSection["Issuer"];
 var audience = jwtSection["Audience"];
 var secret = jwtSection["Secret"];
-var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret ?? string.Empty));
+var secretBytes = string.IsNullOrWhiteSpace(secret) ? Array.Empty<byte>() : Encoding.UTF8.GetBytes(secret);
+if (secretBytes.Length < 32)
+{
+    Log.Warning("JWT secret is not configured or shorter than 32 bytes. Ensure JWT__SECRET environment variable is set in production.");
+}
+var key = new SymmetricSecurityKey(secretBytes.Length == 0 ? Encoding.UTF8.GetBytes("development-secret-placeholder-change-me") : secretBytes);
 
 builder.Services
     .AddAuthentication(options =>
@@ -106,7 +127,7 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = false;
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -124,34 +145,43 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+var shouldSeedDefaults = !string.Equals(
+    Environment.GetEnvironmentVariable("SEED_DEFAULT_USERS"),
+    "false",
+    StringComparison.OrdinalIgnoreCase);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Online Shop API V1");
-        c.RoutePrefix = string.Empty; 
+        c.RoutePrefix = string.Empty;
     });
+}
 
+if (app.Environment.IsDevelopment())
+{
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        
-        // Only run migrations if using a relational database provider (not InMemory)
+
         if (db.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
         {
             db.Database.Migrate();
         }
-        
-        // Seed roles
-        await OnlineShop.Infrastructure.Data.DatabaseSeeder.SeedRolesAsync(scope.ServiceProvider);
+
+        if (shouldSeedDefaults)
+        {
+            await OnlineShop.Infrastructure.Data.DatabaseSeeder.SeedRolesAsync(scope.ServiceProvider);
+        }
     }
 }
 
 
 // CORS must be before UseAuthentication and UseAuthorization
 // CORS middleware must be called BEFORE UseAuthentication/UseAuthorization
-app.UseCors("AllowFrontend");
+app.UseCors(app.Environment.IsDevelopment() ? "DefaultCors" : "AllowFrontend");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();
@@ -162,10 +192,23 @@ app.UseStaticFiles();
 // Serve default files (index.html) for SPA routing
 app.UseDefaultFiles();
 
-// app.UseHttpsRedirection(); // Disabled for HTTP-only development
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Ensure UTF-8 encoding for JSON responses
+app.Use(async (context, next) =>
+{
+    if (context.Response.ContentType?.StartsWith("application/json") == true)
+    {
+        context.Response.ContentType = "application/json; charset=utf-8";
+    }
+    await next();
+});
 
 app.MapControllers();
 
@@ -174,4 +217,3 @@ app.Run();
 
 // Make the implicit Program class public so test projects can access it
 public partial class Program { }
-

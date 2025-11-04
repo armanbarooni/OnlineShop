@@ -129,7 +129,7 @@ class ApiClient {
                 status: response.status
             };
         } catch (error) {
-            console.error('API request failed:', error);
+            window.logger.error('API request failed:', error);
             // Handle network errors (Failed to fetch)
             // In some browsers, the error might be a TypeError or have different messages
             if (error instanceof TypeError && (
@@ -183,7 +183,7 @@ class ApiClient {
                 return false;
             }
         } catch (error) {
-            console.error('Token refresh failed:', error);
+            window.logger.error('Token refresh failed:', error);
             this.logout();
             return false;
         }
@@ -280,7 +280,7 @@ class ApiClient {
                 status: response.status
             };
         } catch (error) {
-            console.error('File upload failed:', error);
+            window.logger.error('File upload failed:', error);
             return {
                 success: false,
                 error: error.message,
@@ -420,4 +420,5 @@ window.apiClient = new ApiClient();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ApiClient;
 }
+
 

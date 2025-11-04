@@ -70,6 +70,8 @@ namespace OnlineShop.Application.Mapping
                 .ForMember(d => d.UpdatedBy, opt => opt.Ignore())
                 .ForMember(d => d.LastModifiedAt, opt => opt.Ignore())
                 .ForMember(d => d.LastModifiedBy, opt => opt.Ignore());
+            
+            CreateMap<UserOrderItem, UserOrderItemDto>();
         }
     }
 }

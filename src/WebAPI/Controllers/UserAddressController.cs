@@ -10,6 +10,8 @@ using OnlineShop.Application.Features.UserAddress.Command.Delete;
 using OnlineShop.Application.Features.UserAddress.Queries.GetByUserId;
 using OnlineShop.Application.Features.UserAddress.Queries.GetAll;
 using OnlineShop.Application.Features.UserAddress.Queries.GetById;
+using OnlineShop.Application.Features.UserAddress.Queries.GetDefaultAddress;
+using OnlineShop.Application.Features.UserAddress.Queries.SearchUserAddresses;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -110,6 +112,36 @@ namespace OnlineShop.WebAPI.Controllers
                 return NotFound(result);
 
             return NoContent();
+        }
+
+        [HttpGet("default")]
+        public async Task<ActionResult<Result<UserAddressDto>>> GetDefault()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || !Guid.TryParse(userId, out var userGuid))
+                return Unauthorized("User not authenticated");
+
+            var result = await _mediator.Send(new GetDefaultUserAddressQuery { UserId = userGuid });
+            if (!result.IsSuccess)
+                return NotFound(result);
+
+            return Ok(result);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<Result<IEnumerable<UserAddressDto>>>> Search([FromQuery] string? q)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || !Guid.TryParse(userId, out var userGuid))
+                return Unauthorized("User not authenticated");
+
+            var result = await _mediator.Send(new SearchUserAddressesQuery 
+            { 
+                UserId = userGuid,
+                SearchQuery = q
+            });
+            
+            return Ok(result);
         }
     }
 }

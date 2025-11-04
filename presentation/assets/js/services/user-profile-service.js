@@ -1,4 +1,4 @@
-/**
+﻿/**
  * User Profile Service for OnlineShop Frontend
  * Handles user profile operations
  */
@@ -19,7 +19,7 @@ class UserProfileService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching user profile:', error);
+            window.logger.error('Error fetching user profile:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -36,10 +36,10 @@ class UserProfileService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'پروفایل با موفقیت بروزرسانی شد'
+                message: 'ظ¾ط±ظˆظپط§غŒظ„ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error updating profile:', error);
+            window.logger.error('Error updating profile:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -58,10 +58,10 @@ class UserProfileService {
             });
             return {
                 success: true,
-                message: 'رمز عبور با موفقیت تغییر یافت'
+                message: 'ط±ظ…ط² ط¹ط¨ظˆط± ط¨ط§ ظ…ظˆظپظ‚غŒطھ طھط؛غŒغŒط± غŒط§ظپطھ'
             };
         } catch (error) {
-            console.error('Error changing password:', error);
+            window.logger.error('Error changing password:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -93,13 +93,13 @@ class UserProfileService {
             return {
                 success: true,
                 data: data,
-                message: 'تصویر پروفایل با موفقیت آپلود شد'
+                message: 'طھطµظˆغŒط± ظ¾ط±ظˆظپط§غŒظ„ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¢ظ¾ظ„ظˆط¯ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error uploading profile picture:', error);
+            window.logger.error('Error uploading profile picture:', error);
             return {
                 success: false,
-                error: 'خطا در آپلود تصویر پروفایل'
+                error: 'ط®ط·ط§ ط¯ط± ط¢ظ¾ظ„ظˆط¯ طھطµظˆغŒط± ظ¾ط±ظˆظپط§غŒظ„'
             };
         }
     }
@@ -128,7 +128,7 @@ class UserProfileService {
                 }
             };
         } catch (error) {
-            console.error('Error fetching user statistics:', error);
+            window.logger.error('Error fetching user statistics:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -147,7 +147,7 @@ class UserProfileService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching user activity:', error);
+            window.logger.error('Error fetching user activity:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -166,7 +166,7 @@ class UserProfileService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching notifications:', error);
+            window.logger.error('Error fetching notifications:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -182,10 +182,10 @@ class UserProfileService {
             const response = await this.apiClient.put(`/userprofile/notifications/${notificationId}/read`);
             return {
                 success: true,
-                message: 'اعلان به عنوان خوانده شده علامت‌گذاری شد'
+                message: 'ط§ط¹ظ„ط§ظ† ط¨ظ‡ ط¹ظ†ظˆط§ظ† ط®ظˆط§ظ†ط¯ظ‡ ط´ط¯ظ‡ ط¹ظ„ط§ظ…طھâ€Œع¯ط°ط§ط±غŒ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error marking notification as read:', error);
+            window.logger.error('Error marking notification as read:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -201,10 +201,10 @@ class UserProfileService {
             const response = await this.apiClient.delete(`/userprofile/notifications/${notificationId}`);
             return {
                 success: true,
-                message: 'اعلان حذف شد'
+                message: 'ط§ط¹ظ„ط§ظ† ط­ط°ظپ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error deleting notification:', error);
+            window.logger.error('Error deleting notification:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -221,10 +221,10 @@ class UserProfileService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'تنظیمات با موفقیت بروزرسانی شد'
+                message: 'طھظ†ط¸غŒظ…ط§طھ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error updating preferences:', error);
+            window.logger.error('Error updating preferences:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -243,7 +243,7 @@ class UserProfileService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching preferences:', error);
+            window.logger.error('Error fetching preferences:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -258,19 +258,19 @@ class UserProfileService {
         const errors = {};
 
         if (data.firstName && data.firstName.trim().length < 2) {
-            errors.firstName = 'نام باید حداقل ۲ کاراکتر باشد';
+            errors.firstName = 'ظ†ط§ظ… ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ² ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
         }
 
         if (data.lastName && data.lastName.trim().length < 2) {
-            errors.lastName = 'نام خانوادگی باید حداقل ۲ کاراکتر باشد';
+            errors.lastName = 'ظ†ط§ظ… ط®ط§ظ†ظˆط§ط¯ع¯غŒ ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ² ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
         }
 
         if (data.email && !window.utils.isValidEmail(data.email)) {
-            errors.email = 'ایمیل نامعتبر است';
+            errors.email = 'ط§غŒظ…غŒظ„ ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ';
         }
 
         if (data.phone && !window.utils.isValidPhone(data.phone)) {
-            errors.phone = 'شماره موبایل نامعتبر است';
+            errors.phone = 'ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ';
         }
 
         return {
@@ -290,7 +290,7 @@ class UserProfileService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching wallet balance:', error);
+            window.logger.error('Error fetching wallet balance:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -309,7 +309,7 @@ class UserProfileService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching wallet transactions:', error);
+            window.logger.error('Error fetching wallet transactions:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -326,10 +326,10 @@ class UserProfileService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'واریز با موفقیت انجام شد'
+                message: 'ظˆط§ط±غŒط² ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ظ†ط¬ط§ظ… ط´ط¯'
             };
         } catch (error) {
-            console.error('Error depositing to wallet:', error);
+            window.logger.error('Error depositing to wallet:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -346,10 +346,10 @@ class UserProfileService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'برداشت با موفقیت انجام شد'
+                message: 'ط¨ط±ط¯ط§ط´طھ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ظ†ط¬ط§ظ… ط´ط¯'
             };
         } catch (error) {
-            console.error('Error withdrawing from wallet:', error);
+            window.logger.error('Error withdrawing from wallet:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -365,3 +365,4 @@ window.userProfileService = new UserProfileService();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = UserProfileService;
 }
+

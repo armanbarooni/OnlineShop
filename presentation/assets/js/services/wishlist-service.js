@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Wishlist Service for OnlineShop Frontend
  * Handles wishlist operations
  */
@@ -19,7 +19,7 @@ class WishlistService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching wishlist:', error);
+            window.logger.error('Error fetching wishlist:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -38,10 +38,10 @@ class WishlistService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'محصول به علاقه‌مندی‌ها اضافه شد'
+                message: 'ظ…ط­طµظˆظ„ ط¨ظ‡ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط§ط¶ط§ظپظ‡ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error adding to wishlist:', error);
+            window.logger.error('Error adding to wishlist:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -57,10 +57,10 @@ class WishlistService {
             const response = await this.apiClient.delete(`/api/Wishlist/${wishlistId}`);
             return {
                 success: true,
-                message: 'محصول از علاقه‌مندی‌ها حذف شد'
+                message: 'ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error removing from wishlist:', error);
+            window.logger.error('Error removing from wishlist:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -75,15 +75,15 @@ class WishlistService {
         try {
             const userId = this.apiClient.getUserId();
             if (!userId) {
-                return { success: false, error: 'ابتدا وارد حساب کاربری شوید' };
+                return { success: false, error: 'ط§ط¨طھط¯ط§ ظˆط§ط±ط¯ ط­ط³ط§ط¨ ع©ط§ط±ط¨ط±غŒ ط´ظˆغŒط¯' };
             }
             const response = await this.apiClient.delete(`/api/Wishlist/user/${userId}/product/${productId}`);
             return {
                 success: true,
-                message: 'محصول از علاقه‌مندی‌ها حذف شد'
+                message: 'ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error removing product from wishlist:', error);
+            window.logger.error('Error removing product from wishlist:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -102,7 +102,7 @@ class WishlistService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error checking wishlist:', error);
+            window.logger.error('Error checking wishlist:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -125,7 +125,7 @@ class WishlistService {
             }
             return response;
         } catch (error) {
-            console.error('Error getting wishlist count:', error);
+            window.logger.error('Error getting wishlist count:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -141,10 +141,10 @@ class WishlistService {
             const response = await this.apiClient.delete('/api/Wishlist/clear');
             return {
                 success: true,
-                message: 'لیست علاقه‌مندی‌ها پاک شد'
+                message: 'ظ„غŒط³طھ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ظ¾ط§ع© ط´ط¯'
             };
         } catch (error) {
-            console.error('Error clearing wishlist:', error);
+            window.logger.error('Error clearing wishlist:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -160,10 +160,10 @@ class WishlistService {
             const response = await this.apiClient.post(`/api/Wishlist/${wishlistId}/move-to-cart`);
             return {
                 success: true,
-                message: 'محصول به سبد خرید اضافه شد'
+                message: 'ظ…ط­طµظˆظ„ ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯ ط§ط¶ط§ظپظ‡ ط´ط¯'
             };
         } catch (error) {
-            console.error('Error moving to cart:', error);
+            window.logger.error('Error moving to cart:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -179,10 +179,10 @@ class WishlistService {
             const response = await this.apiClient.post('/api/Wishlist/move-all-to-cart');
             return {
                 success: true,
-                message: 'تمام محصولات به سبد خرید اضافه شدند'
+                message: 'طھظ…ط§ظ… ظ…ط­طµظˆظ„ط§طھ ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯ ط§ط¶ط§ظپظ‡ ط´ط¯ظ†ط¯'
             };
         } catch (error) {
-            console.error('Error moving all to cart:', error);
+            window.logger.error('Error moving all to cart:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -201,7 +201,7 @@ class WishlistService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching wishlist statistics:', error);
+            window.logger.error('Error fetching wishlist statistics:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -220,7 +220,7 @@ class WishlistService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error searching wishlist:', error);
+            window.logger.error('Error searching wishlist:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -239,7 +239,7 @@ class WishlistService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching wishlist by category:', error);
+            window.logger.error('Error fetching wishlist by category:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -258,7 +258,7 @@ class WishlistService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error sorting wishlist:', error);
+            window.logger.error('Error sorting wishlist:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -277,7 +277,7 @@ class WishlistService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching paginated wishlist:', error);
+            window.logger.error('Error fetching paginated wishlist:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -292,7 +292,7 @@ class WishlistService {
         const errors = {};
 
         if (!wishlistData.productId) {
-            errors.productId = 'شناسه محصول الزامی است';
+            errors.productId = 'ط´ظ†ط§ط³ظ‡ ظ…ط­طµظˆظ„ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         return {
@@ -362,7 +362,7 @@ class WishlistService {
                 data: response.data || response
             };
         } catch (error) {
-            console.error('Error fetching wishlist categories:', error);
+            window.logger.error('Error fetching wishlist categories:', error);
             return {
                 success: false,
                 error: this.apiClient.handleError(error)
@@ -391,3 +391,4 @@ WishlistService.prototype.getWishlistItems = async function(pageNumber = 1, page
     }
     return res;
 };
+
