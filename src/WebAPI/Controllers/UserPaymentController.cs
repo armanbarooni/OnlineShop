@@ -140,9 +140,12 @@ namespace OnlineShop.WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserPaymentDto dto, CancellationToken cancellationToken = default)
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null || !Guid.TryParse(userId, out var userGuid))
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userGuid))
+            {
+                _logger.LogWarning("Create payment unauthorized: NameIdentifier claim missing or invalid. RawClaimValue='{RawUserId}'", userIdClaim ?? "<null>");
                 return Unauthorized("User not authenticated");
+            }
 
             dto.UserId = userGuid;
             _logger.LogInformation("Creating user payment for user: {UserId}", userGuid);

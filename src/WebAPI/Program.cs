@@ -6,6 +6,7 @@ using OnlineShop.Application.Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Security.Claims;
 using Serilog;
 using Serilog.Events;
 using Microsoft.Extensions.Hosting;
@@ -117,6 +118,11 @@ if (secretBytes.Length < 32)
 {
     Log.Warning("JWT secret is not configured or shorter than 32 bytes. Ensure JWT__SECRET environment variable is set in production.");
 }
+Log.Information("Loaded JWT settings for {Environment}: Issuer='{Issuer}', Audience='{Audience}', SecretLength={SecretLength}",
+    builder.Environment.EnvironmentName,
+    string.IsNullOrWhiteSpace(issuer) ? "<empty>" : issuer,
+    string.IsNullOrWhiteSpace(audience) ? "<empty>" : audience,
+    secretBytes.Length);
 var key = new SymmetricSecurityKey(secretBytes.Length == 0 ? Encoding.UTF8.GetBytes("development-secret-placeholder-change-me") : secretBytes);
 
 builder.Services
@@ -129,6 +135,7 @@ builder.Services
     {
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         options.SaveToken = true;
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -137,7 +144,9 @@ builder.Services
             ValidIssuer = issuer,
             ValidAudience = audience,
             IssuerSigningKey = key,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role
         };
     });
 

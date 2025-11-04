@@ -47,7 +47,7 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                 // Use a shared database name for all tests to maintain seed data
                 services.AddDbContext<ApplicationDbContext>(options =>
                 {
-                    options.UseInMemoryDatabase("InMemoryDb_SharedForTests");
+                    options.UseInMemoryDatabase(_databaseName);
                 });
 
                 // Replace ISmsService with TestSmsService
@@ -72,7 +72,7 @@ namespace OnlineShop.IntegrationTests.Infrastructure
                 var roleManager = scopedServices.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
                 db.Database.EnsureCreated();
-                SeedTestData(roleManager, userManager).GetAwaiter().GetResult();
+                SeedTestData(db, roleManager, userManager).GetAwaiter().GetResult();
                 _seeded = true;
             });
         }

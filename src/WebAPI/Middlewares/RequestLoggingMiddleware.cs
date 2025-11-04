@@ -19,12 +19,16 @@ namespace OnlineShop.WebAPI.Middlewares
             var requestId = Guid.NewGuid().ToString("N")[..8];
             
             // Log request
-            _logger.LogInformation("Request {RequestId}: {Method} {Path} from {RemoteIp} - UserAgent: {UserAgent}",
+            var hasAuthHeader = context.Request.Headers.ContainsKey("Authorization") &&
+                                !string.IsNullOrWhiteSpace(context.Request.Headers.Authorization);
+
+            _logger.LogInformation("Request {RequestId}: {Method} {Path} from {RemoteIp} - UserAgent: {UserAgent} - AuthHeaderPresent: {HasAuthHeader}",
                 requestId,
                 context.Request.Method,
                 context.Request.Path,
                 context.Connection.RemoteIpAddress?.ToString(),
-                context.Request.Headers.UserAgent.ToString());
+                context.Request.Headers.UserAgent.ToString(),
+                hasAuthHeader);
 
             // Add request ID to response headers
             context.Response.Headers.Append("X-Request-ID", requestId);
