@@ -104,7 +104,7 @@ namespace OnlineShop.WebAPI.Controllers
 
             // Users can only see their own orders unless they're admin
             if (currentUserGuid != userId && !User.IsInRole("Admin"))
-                return Forbid("Access denied");
+                return Forbid();
 
             _logger.LogInformation("Getting user orders for user: {UserId}", userId);
             var result = await _mediator.Send(new GetUserOrdersByUserIdQuery { UserId = userId }, cancellationToken);
@@ -200,7 +200,7 @@ namespace OnlineShop.WebAPI.Controllers
             if (!User.IsInRole("Admin"))
             {
                 if (orderResult.Data?.UserId != currentUserGuid)
-                    return Forbid("Access denied");
+                    return Forbid();
             }
 
             _logger.LogInformation("Getting order items for order: {OrderId}", id);
@@ -232,7 +232,7 @@ namespace OnlineShop.WebAPI.Controllers
             if (!User.IsInRole("Admin"))
             {
                 if (orderResult.Data?.UserId != currentUserGuid)
-                    return Forbid("Access denied");
+                    return Forbid();
             }
 
             _logger.LogInformation("Tracking order: {OrderId}", id);
@@ -264,7 +264,7 @@ namespace OnlineShop.WebAPI.Controllers
             if (!User.IsInRole("Admin"))
             {
                 if (orderResult.Data?.UserId != currentUserGuid)
-                    return Forbid("Access denied");
+                    return Forbid();
             }
 
             _logger.LogInformation("Getting status history for order: {OrderId}", id);
@@ -344,7 +344,7 @@ namespace OnlineShop.WebAPI.Controllers
             if (!User.IsInRole("Admin"))
             {
                 if (orderResult.Data?.UserId != currentUserGuid)
-                    return Forbid("Access denied");
+                    return Forbid();
             }
 
             _logger.LogInformation("Cancelling order: {OrderId} by user: {UserId}", id, currentUserGuid);
@@ -383,7 +383,7 @@ namespace OnlineShop.WebAPI.Controllers
             if (!User.IsInRole("Admin"))
             {
                 if (orderResult.Data?.UserId != currentUserGuid)
-                    return Forbid("Access denied");
+                    return Forbid();
             }
 
             _logger.LogInformation("Generating invoice for order: {OrderId}", id);

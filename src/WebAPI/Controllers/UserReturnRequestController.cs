@@ -107,7 +107,7 @@ namespace OnlineShop.WebAPI.Controllers
 
             // Users can only see their own return requests unless they're admin
             if (currentUserGuid != userId && !User.IsInRole("Admin"))
-                return Forbid("Access denied");
+                return Forbid();
 
             _logger.LogInformation("Getting user return requests for user: {UserId}", userId);
             var result = await _mediator.Send(new GetUserReturnRequestsByUserIdQuery { UserId = userId }, cancellationToken);
@@ -154,7 +154,7 @@ namespace OnlineShop.WebAPI.Controllers
 
             // Users can only update their own return requests unless they're admin
             if (dto.UserId != userGuid && !User.IsInRole("Admin"))
-                return Forbid("Access denied");
+                return Forbid();
 
             dto.Id = id;
             _logger.LogInformation("Updating user return request: {RequestId} by user: {UserId}", id, userGuid);

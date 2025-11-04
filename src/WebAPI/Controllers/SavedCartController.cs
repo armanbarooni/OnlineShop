@@ -70,7 +70,7 @@ namespace OnlineShop.WebAPI.Controllers
 
             // Users can only see their own saved carts unless they're admin
             if (currentUserGuid != userId && !User.IsInRole("Admin"))
-                return Forbid("Access denied");
+                return Forbid();
 
             _logger.LogInformation("Getting saved carts for user: {UserId}", userId);
             var result = await _mediator.Send(new GetSavedCartsByUserIdQuery { UserId = userId }, cancellationToken);
@@ -95,7 +95,7 @@ namespace OnlineShop.WebAPI.Controllers
 
             // Users can only see their own favorite carts unless they're admin
             if (currentUserGuid != userId && !User.IsInRole("Admin"))
-                return Forbid("Access denied");
+                return Forbid();
 
             _logger.LogInformation("Getting favorite saved carts for user: {UserId}", userId);
             var result = await _mediator.Send(new GetFavoriteSavedCartsQuery { UserId = userId }, cancellationToken);
@@ -142,7 +142,7 @@ namespace OnlineShop.WebAPI.Controllers
 
             // Users can only update their own saved carts unless they're admin
             if (dto.UserId != userGuid && !User.IsInRole("Admin"))
-                return Forbid("Access denied");
+                return Forbid();
 
             dto.Id = id;
             _logger.LogInformation("Updating saved cart: {SavedCartId} by user: {UserId}", id, userGuid);

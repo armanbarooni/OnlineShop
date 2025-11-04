@@ -100,7 +100,7 @@ namespace OnlineShop.WebAPI.Controllers
 
             // Users can only see their own payments unless they're admin
             if (currentUserGuid != userId && !User.IsInRole("Admin"))
-                return Forbid("Access denied");
+                return Forbid();
 
             _logger.LogInformation("Getting user payments for user: {UserId}", userId);
             var query = new GetUserPaymentsByUserIdQuery 
@@ -217,7 +217,7 @@ namespace OnlineShop.WebAPI.Controllers
                 return NotFound(paymentResult);
 
             if (!User.IsInRole("Admin") && paymentResult.Data?.UserId != currentUserGuid)
-                return Forbid("Access denied");
+                return Forbid();
 
             _logger.LogInformation("Processing payment: {PaymentId} by user: {UserId}", id, currentUserGuid);
 
@@ -252,7 +252,7 @@ namespace OnlineShop.WebAPI.Controllers
                 return NotFound(paymentResult);
 
             if (!User.IsInRole("Admin") && paymentResult.Data?.UserId != currentUserGuid)
-                return Forbid("Access denied");
+                return Forbid();
 
             _logger.LogInformation("Verifying payment: {PaymentId} by user: {UserId}", id, currentUserGuid);
 
