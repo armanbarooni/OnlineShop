@@ -14,7 +14,7 @@ namespace OnlineShop.IntegrationTests.Scenarios.Concurrency
 
         public ConcurrentInventoryTests(CustomWebApplicationFactory<Program> factory)
         {
-                        _factory = factory;
+            _factory = factory;
             _client = factory.CreateClient();
         }
 

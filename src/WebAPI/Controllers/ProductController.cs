@@ -132,7 +132,7 @@ namespace OnlineShop.WebAPI.Controllers
             {
                 _logger.LogInformation("Product created successfully: {ProductId} by user: {UserId}", 
                     result.Data?.Id, userId);
-                return Ok(result);
+                return CreatedAtAction(nameof(GetById), new { id = result.Data?.Id }, result);
             }
             
             _logger.LogWarning("Failed to create product: {ProductName} by user: {UserId}. Error: {Error}", 
@@ -149,8 +149,28 @@ namespace OnlineShop.WebAPI.Controllers
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             _logger.LogInformation("Updating product: {ProductId} by user: {UserId}", id, userId);
-            
+            // If client provided only partial fields (e.g. StockQuantity), preserve existing values for other fields
             dto.Id = id;
+            try
+            {
+                var existing = await _mediator.Send(new GetProductByIdQuery { Id = id }, cancellationToken);
+                if (existing.IsSuccess && existing.Data != null)
+                {
+                    // Fill missing or default values from existing product
+                    if (string.IsNullOrWhiteSpace(dto.Name))
+                        dto.Name = existing.Data.Name ?? string.Empty;
+                    if (string.IsNullOrWhiteSpace(dto.Description))
+                        dto.Description = existing.Data.Description ?? string.Empty;
+                    if (dto.Price <= 0)
+                        dto.Price = existing.Data.Price;
+                    // Note: StockQuantity may be intentionally provided by caller
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to fetch existing product while preparing update for {ProductId}", id);
+            }
+
             var command = new UpdateProductCommand { Product = dto };
             var result = await _mediator.Send(command, cancellationToken);
 

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Domain.Interfaces.Repositories;
 
@@ -35,34 +36,63 @@ namespace OnlineShop.Application.Services
 
         public async Task ReserveStockForOrder(Guid orderId, List<(Guid ProductId, int Quantity)> items, CancellationToken cancellationToken)
         {
-            foreach (var (productId, quantity) in items)
+            const int maxRetries = 3;
+            var attempt = 0;
+            System.Console.Error.WriteLine($"[InventoryService] ReserveStockForOrder order={orderId} items={string.Join(", ", items.Select(i => $"{i.ProductId}:{i.Quantity}"))}");
+            while (true)
             {
-                var inventory = await _inventoryRepository.GetByProductIdAsync(productId, cancellationToken);
-                if (inventory == null)
-                    throw new InvalidOperationException($"موجودی محصول {productId} یافت نشد");
+                attempt++;
+                try
+                {
+                    var reserved = await _inventoryRepository.TryReserveMultipleAsync(items, cancellationToken);
+                    if (!reserved)
+                    {
+                        // Insufficient stock for at least one item
+                        throw new InvalidOperationException("موجودی کافی برای تکمیل سفارش وجود ندارد");
+                    }
 
-                inventory.ReserveQuantity(quantity);
-                await _inventoryRepository.UpdateAsync(inventory, cancellationToken);
+                    break; // success
+                }
+                catch (DbUpdateConcurrencyException) when (attempt < maxRetries)
+                {
+                    // optimistic concurrency conflict - retry entire order reservation
+                    await Task.Delay(50, cancellationToken);
+                    continue;
+                }
             }
         }
 
         public async Task ReleaseStockForCancelledOrder(Guid orderId, CancellationToken cancellationToken)
         {
             var orderItems = await _orderItemRepository.GetByOrderIdAsync(orderId, cancellationToken);
-            
+
+            const int maxRetries = 3;
             foreach (var item in orderItems)
             {
-                var inventory = await _inventoryRepository.GetByProductIdAsync(item.ProductId, cancellationToken);
-                if (inventory != null)
+                var attempt = 0;
+                while (true)
                 {
+                    attempt++;
+                    var inventory = await _inventoryRepository.GetByProductIdAsync(item.ProductId, cancellationToken);
+                    if (inventory == null)
+                        break;
+
                     try
                     {
                         inventory.ReleaseReservedQuantity(item.Quantity);
                         await _inventoryRepository.UpdateAsync(inventory, cancellationToken);
+                        break; // success
+                    }
+                    catch (DbUpdateConcurrencyException) when (attempt < maxRetries)
+                    {
+                        // optimistic concurrency conflict - retry
+                        await Task.Delay(50, cancellationToken);
+                        continue;
                     }
                     catch
                     {
                         // Log error but continue with other items
+                        break;
                     }
                 }
             }

@@ -4,14 +4,16 @@ using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.DTOs.Checkout;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Domain.Interfaces.Repositories;
+using OnlineShop.Application.Services;
 
 namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
 {
     public class ProcessCheckoutCommandHandler : IRequestHandler<ProcessCheckoutCommand, Result<CheckoutResultDto>>
     {
-        private readonly ICartRepository _cartRepository;
-        private readonly IProductRepository _productRepository;
-        private readonly IProductInventoryRepository _inventoryRepository;
+    private readonly ICartRepository _cartRepository;
+    private readonly IProductRepository _productRepository;
+    private readonly IProductInventoryRepository _inventoryRepository;
+    private readonly IInventoryService _inventoryService;
         private readonly IUserOrderRepository _orderRepository;
         private readonly IUserOrderItemRepository _orderItemRepository;
         private readonly IUserAddressRepository _addressRepository;
@@ -23,6 +25,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
             ICartRepository cartRepository,
             IProductRepository productRepository,
             IProductInventoryRepository inventoryRepository,
+            IInventoryService inventoryService,
             IUserOrderRepository orderRepository,
             IUserOrderItemRepository orderItemRepository,
             IUserAddressRepository addressRepository,
@@ -33,6 +36,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
             _cartRepository = cartRepository;
             _productRepository = productRepository;
             _inventoryRepository = inventoryRepository;
+            _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
             _addressRepository = addressRepository;
@@ -77,9 +81,9 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 billingAddressId = request.Request.ShippingAddressId;
             }
 
-            // 4. Validate inventory and reserve stock
+            // 4. Validate inventory and reserve stock (use InventoryService for atomic multi-item reservation)
             decimal subtotal = 0;
-            var inventoryUpdates = new List<(Domain.Entities.ProductInventory inventory, int quantity)>();
+            var reservationItems = new List<(Guid ProductId, int Quantity)>();
 
             foreach (var item in cartItems)
             {
@@ -90,26 +94,18 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 if (!product.IsActive)
                     return Result<CheckoutResultDto>.Failure($"محصول {product.Name} غیرفعال است");
 
-                var inventory = await _inventoryRepository.GetByProductIdAsync(item.ProductId, cancellationToken);
-                if (inventory == null)
-                    return Result<CheckoutResultDto>.Failure($"موجودی محصول {product.Name} یافت نشد");
-
-                var availableStock = inventory.GetAvailableStock();
-                if (availableStock < item.Quantity)
-                    return Result<CheckoutResultDto>.Failure($"موجودی کافی برای محصول {product.Name} وجود ندارد. موجودی: {availableStock}، درخواستی: {item.Quantity}");
-
-                // Reserve inventory
-                try
-                {
-                    inventory.ReserveQuantity(item.Quantity);
-                    inventoryUpdates.Add((inventory, item.Quantity));
-                }
-                catch (Exception ex)
-                {
-                    return Result<CheckoutResultDto>.Failure($"خطا در رزرو موجودی: {ex.Message}");
-                }
-
+                reservationItems.Add((item.ProductId, item.Quantity));
                 subtotal += item.TotalPrice;
+            }
+
+            // Attempt atomic reservation for all items in the cart
+            try
+            {
+                await _inventoryService.ReserveStockForOrder(Guid.Empty, reservationItems, cancellationToken);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Result<CheckoutResultDto>.Failure(ex.Message);
             }
 
             // 5. Validate and apply coupon if provided
@@ -213,11 +209,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 });
             }
 
-            // 11. Update inventory
-            foreach (var (inventory, quantity) in inventoryUpdates)
-            {
-                await _inventoryRepository.UpdateAsync(inventory, cancellationToken);
-            }
+            // 11. Inventory was already reserved atomically by InventoryService
 
             // 12. Clear cart
             await _cartRepository.ClearCartAsync(cart.Id, cancellationToken);

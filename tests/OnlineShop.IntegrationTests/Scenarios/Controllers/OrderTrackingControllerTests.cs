@@ -38,8 +38,8 @@ public class OrderTrackingControllerTests : IClassFixture<CustomWebApplicationFa
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var orderContent = await createResponse.Content.ReadAsStringAsync();
-        var order = JsonSerializer.Deserialize<JsonElement>(orderContent);
-        var orderId = order.GetProperty("id").GetString();
+        var orderId = JsonHelper.GetNestedProperty(orderContent, "data", "id")
+            ?? throw new InvalidOperationException("Create user order response did not contain data.id");
 
         // Act
         var response = await _client.GetAsync($"/api/ordertracking/{orderId}");
@@ -114,8 +114,8 @@ public class OrderTrackingControllerTests : IClassFixture<CustomWebApplicationFa
         createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var orderContent = await createResponse.Content.ReadAsStringAsync();
-        var order = JsonSerializer.Deserialize<JsonElement>(orderContent);
-        var orderId = order.GetProperty("id").GetString();
+        var orderId = JsonHelper.GetNestedProperty(orderContent, "data", "id")
+            ?? throw new InvalidOperationException("Create user order response did not contain data.id");
 
         var statusUpdateDto = new
         {

@@ -40,9 +40,10 @@ public class InventoryManagementTests : IClassFixture<CustomWebApplicationFactor
         var productResponse = await _client.PostAsJsonAsync("/api/product", productDto);
         productResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
-        var productContent = await productResponse.Content.ReadAsStringAsync();
-        var product = JsonSerializer.Deserialize<JsonElement>(productContent);
-        var productId = product.GetProperty("id").GetString();
+    var productContent = await productResponse.Content.ReadAsStringAsync();
+    // Use JsonHelper to support wrapped responses (e.g. { data: { id: ... } })
+    var productId = JsonHelper.GetNestedProperty(productContent, "data", "id")
+            ?? JsonHelper.GetNestedProperty(productContent, "id");
 
         // Act: Update inventory
         var inventoryDto = new
@@ -79,9 +80,9 @@ public class InventoryManagementTests : IClassFixture<CustomWebApplicationFactor
         var productResponse = await _client.PostAsJsonAsync("/api/product", productDto);
         productResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
-        var productContent = await productResponse.Content.ReadAsStringAsync();
-        var product = JsonSerializer.Deserialize<JsonElement>(productContent);
-        var productId = product.GetProperty("id").GetString();
+    var productContent = await productResponse.Content.ReadAsStringAsync();
+    var productId = JsonHelper.GetNestedProperty(productContent, "data", "id")
+            ?? JsonHelper.GetNestedProperty(productContent, "id");
 
         // Act: Update inventory
         var inventoryDto = new

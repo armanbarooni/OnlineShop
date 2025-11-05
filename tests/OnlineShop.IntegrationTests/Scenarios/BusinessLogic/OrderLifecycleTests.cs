@@ -41,8 +41,8 @@ public class OrderLifecycleTests : IClassFixture<CustomWebApplicationFactory<Pro
         productResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var productContent = await productResponse.Content.ReadAsStringAsync();
-        var product = JsonSerializer.Deserialize<JsonElement>(productContent);
-        var productId = product.GetProperty("id").GetString();
+        var productId = JsonHelper.GetNestedProperty(productContent, "data", "id")
+            ?? throw new InvalidOperationException("Create product response did not contain data.id");
 
         // Step 2: Add product to cart
         var cartDto = new
@@ -66,8 +66,8 @@ public class OrderLifecycleTests : IClassFixture<CustomWebApplicationFactory<Pro
         orderResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var orderContent = await orderResponse.Content.ReadAsStringAsync();
-        var order = JsonSerializer.Deserialize<JsonElement>(orderContent);
-        var orderId = order.GetProperty("id").GetString();
+        var orderId = JsonHelper.GetNestedProperty(orderContent, "data", "id")
+            ?? throw new InvalidOperationException("Create order response did not contain data.id");
 
         // Step 4: Update order status to Processing
         var processingDto = new
@@ -123,8 +123,8 @@ public class OrderLifecycleTests : IClassFixture<CustomWebApplicationFactory<Pro
         orderResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var orderContent = await orderResponse.Content.ReadAsStringAsync();
-        var order = JsonSerializer.Deserialize<JsonElement>(orderContent);
-        var orderId = order.GetProperty("id").GetString();
+        var orderId = JsonHelper.GetNestedProperty(orderContent, "data", "id")
+            ?? throw new InvalidOperationException("Create order response did not contain data.id");
 
         // Act: Cancel the order
         var cancelDto = new
@@ -158,8 +158,8 @@ public class OrderLifecycleTests : IClassFixture<CustomWebApplicationFactory<Pro
         orderResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var orderContent = await orderResponse.Content.ReadAsStringAsync();
-        var order = JsonSerializer.Deserialize<JsonElement>(orderContent);
-        var orderId = order.GetProperty("id").GetString();
+        var orderId = JsonHelper.GetNestedProperty(orderContent, "data", "id")
+            ?? throw new InvalidOperationException("Create order response did not contain data.id");
 
         // Mark order as delivered
         var deliveredDto = new
@@ -203,8 +203,8 @@ public class OrderLifecycleTests : IClassFixture<CustomWebApplicationFactory<Pro
         orderResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var orderContent = await orderResponse.Content.ReadAsStringAsync();
-        var order = JsonSerializer.Deserialize<JsonElement>(orderContent);
-        var orderId = order.GetProperty("id").GetString();
+        var orderId = JsonHelper.GetNestedProperty(orderContent, "data", "id")
+            ?? throw new InvalidOperationException("Create order response did not contain data.id");
 
         // Act: Process refund
         var refundDto = new
@@ -239,8 +239,8 @@ public class OrderLifecycleTests : IClassFixture<CustomWebApplicationFactory<Pro
         orderResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var orderContent = await orderResponse.Content.ReadAsStringAsync();
-        var order = JsonSerializer.Deserialize<JsonElement>(orderContent);
-        var orderId = order.GetProperty("id").GetString();
+        var orderId = JsonHelper.GetNestedProperty(orderContent, "data", "id")
+            ?? throw new InvalidOperationException("Create order response did not contain data.id");
 
         // Act: Try invalid transition (from Created to Delivered)
         var invalidDto = new
@@ -274,8 +274,8 @@ public class OrderLifecycleTests : IClassFixture<CustomWebApplicationFactory<Pro
         orderResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var orderContent = await orderResponse.Content.ReadAsStringAsync();
-        var order = JsonSerializer.Deserialize<JsonElement>(orderContent);
-        var orderId = order.GetProperty("id").GetString();
+        var orderId = JsonHelper.GetNestedProperty(orderContent, "data", "id")
+            ?? throw new InvalidOperationException("Create order response did not contain data.id");
 
         // Act: Get tracking info
         var trackingResponse = await _client.GetAsync($"/api/ordertracking/{orderId}");
@@ -303,8 +303,8 @@ public class OrderLifecycleTests : IClassFixture<CustomWebApplicationFactory<Pro
         orderResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var orderContent = await orderResponse.Content.ReadAsStringAsync();
-        var order = JsonSerializer.Deserialize<JsonElement>(orderContent);
-        var orderId = order.GetProperty("id").GetString();
+        var orderId = JsonHelper.GetNestedProperty(orderContent, "data", "id")
+            ?? throw new InvalidOperationException("Create order response did not contain data.id");
 
         // Act: Get order history
         var historyResponse = await _client.GetAsync($"/api/ordertracking/{orderId}/history");
@@ -332,8 +332,8 @@ public class OrderLifecycleTests : IClassFixture<CustomWebApplicationFactory<Pro
         orderResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         
         var orderContent = await orderResponse.Content.ReadAsStringAsync();
-        var order = JsonSerializer.Deserialize<JsonElement>(orderContent);
-        var orderId = order.GetProperty("id").GetString();
+        var orderId = JsonHelper.GetNestedProperty(orderContent, "data", "id")
+            ?? throw new InvalidOperationException("Create order response did not contain data.id");
 
         // Act: Modify order
         var modifyDto = new

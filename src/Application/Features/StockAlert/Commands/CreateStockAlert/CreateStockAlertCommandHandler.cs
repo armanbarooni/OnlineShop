@@ -37,15 +37,19 @@ namespace OnlineShop.Application.Features.StockAlert.Commands.CreateStockAlert
                     return Result<StockAlertResultDto>.Failure("تنوع محصول یافت نشد");
             }
 
-            // Check if alert already exists
-            var existingAlert = await _stockAlertRepository.ExistsAsync(
-                request.ProductId, 
-                request.ProductVariantId, 
-                request.UserId, 
-                cancellationToken);
+            // Check if alert already exists for same user or same contact (email/phone)
+            var existingAlerts = await _stockAlertRepository.GetByProductIdAsync(request.ProductId, cancellationToken);
 
-            if (existingAlert)
-                return Result<StockAlertResultDto>.Failure("هشدار موجودی برای این محصول قبلاً ثبت شده است");
+            // Treat as duplicate only when contact information matches (email or phone).
+            // Allow the same user to register multiple alerts for the same product with different contact methods.
+            var duplicate = existingAlerts.Any(a =>
+                a.ProductVariantId == request.ProductVariantId && !a.Deleted && (!a.Notified) && (
+                    (!string.IsNullOrEmpty(request.Email) && !string.IsNullOrEmpty(a.Email) && string.Equals(a.Email, request.Email, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(request.PhoneNumber) && !string.IsNullOrEmpty(a.PhoneNumber) && a.PhoneNumber == request.PhoneNumber)
+                ));
+
+            if (duplicate)
+                return Result<StockAlertResultDto>.Failure("هشدار موجودی برای این محصول قبلاً با همان اطلاعات تماس ثبت شده است");
 
             // Create stock alert
             var stockAlert = Domain.Entities.StockAlert.Create(
