@@ -15,10 +15,10 @@ namespace OnlineShop.Application.Validators.Product
                 .MaximumLength(1000).WithMessage("Description must not exceed 1000 characters.");
 
             RuleFor(x => x.Price)
-                .GreaterThan(0).WithMessage("Price must be greater than zero.");
+                .GreaterThan(0).WithMessage("price must be greater than zero.");
 
             RuleFor(x => x.StockQuantity)
-                .GreaterThanOrEqualTo(0).WithMessage("Stock quantity cannot be negative.");
+                .GreaterThanOrEqualTo(0).WithMessage("stock quantity cannot be negative.");
         }
     }
 }

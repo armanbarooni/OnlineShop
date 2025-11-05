@@ -58,6 +58,16 @@ namespace OnlineShop.API.Middleware
                     message = ua.Message;
                     break;
 
+                case ArgumentException ae:
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    message = ae.Message;
+                    break;
+
+                case InvalidOperationException ioe:
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    message = ioe.Message;
+                    break;
+
                 default:
                     statusCode = (int)HttpStatusCode.InternalServerError;
                     message = "خطای غیرمنتظره‌ای رخ داده است.";

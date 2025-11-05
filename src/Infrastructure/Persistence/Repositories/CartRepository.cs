@@ -25,14 +25,14 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.Carts
                 .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.UserId == userId && c.IsActive && !c.IsExpired(), cancellationToken);
+                .FirstOrDefaultAsync(c => c.UserId == userId && c.IsActive && (!c.ExpiresAt.HasValue || c.ExpiresAt.Value > DateTime.UtcNow), cancellationToken);
         }
 
         public async Task<Cart?> GetCartBySessionIdAsync(string sessionId, CancellationToken cancellationToken)
         {
             return await _context.Carts
                 .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.SessionId == sessionId && c.IsActive && !c.IsExpired(), cancellationToken);
+                .FirstOrDefaultAsync(c => c.SessionId == sessionId && c.IsActive && (!c.ExpiresAt.HasValue || c.ExpiresAt.Value > DateTime.UtcNow), cancellationToken);
         }
 
         public async Task<IEnumerable<Cart>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)

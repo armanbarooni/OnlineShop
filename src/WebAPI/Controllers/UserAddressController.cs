@@ -47,6 +47,13 @@ namespace OnlineShop.WebAPI.Controllers
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<Result<IEnumerable<UserAddressDto>>>> GetByUserId(Guid userId)
         {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserId == null || !Guid.TryParse(currentUserId, out var currentUserGuid))
+                return Unauthorized("User not authenticated");
+
+            if (!User.IsInRole("Admin") && userId != currentUserGuid)
+                return Forbid();
+
             var result = await _mediator.Send(new GetUserAddressesByUserIdQuery { UserId = userId });
             return Ok(result);
         }

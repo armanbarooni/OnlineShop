@@ -30,8 +30,22 @@ namespace OnlineShop.Application.Features.Season.Commands.Create
                     return Result<SeasonDto>.Failure("فصل با این نام قبلاً وجود دارد");
                 }
 
-                // Create new season
-                var season = Domain.Entities.Season.Create(request.Season.Name, request.Season.Code);
+                // Create new season (auto-generate code if not provided)
+                var code = string.IsNullOrWhiteSpace(request.Season.Code)
+                    ? new string((request.Season.Name ?? string.Empty)
+                        .Trim()
+                        .ToUpperInvariant()
+                        .Replace(' ', '-')
+                        .Where(char.IsLetterOrDigit)
+                        .ToArray())
+                    : request.Season.Code;
+
+                if (string.IsNullOrWhiteSpace(code))
+                {
+                    code = $"SEASON-{Guid.NewGuid().ToString("N")[..6].ToUpperInvariant()}";
+                }
+
+                var season = Domain.Entities.Season.Create(request.Season.Name, code);
                 
                 await _repository.AddAsync(season, cancellationToken);
 

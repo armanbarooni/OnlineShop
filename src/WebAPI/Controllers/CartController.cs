@@ -27,11 +27,22 @@ namespace OnlineShop.WebAPI.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Result<IEnumerable<CartDto>>>> GetAll()
         {
             var result = await _mediator.Send(new GetAllCartsQuery());
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<Result<CartDto?>>> GetOwn()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || !Guid.TryParse(userId, out var userGuid))
+                return Unauthorized("User not authenticated");
+
+            var result = await _mediator.Send(new GetCartByUserIdQuery { UserId = userGuid });
             return Ok(result);
         }
 

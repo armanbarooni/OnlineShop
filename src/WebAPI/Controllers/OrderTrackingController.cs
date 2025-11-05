@@ -31,8 +31,16 @@ namespace OnlineShop.WebAPI.Controllers
             if (result.IsSuccess)
                 return Ok(result.Data);
             
-            return BadRequest(result);
+            return NotFound(result);
         }
+
+        // Alias route expected by tests: GET /api/ordertracking/{orderId}
+        [HttpGet("{orderId}")]
+        public Task<IActionResult> GetOrderTracking(Guid orderId) => GetOrderTimeline(orderId);
+
+        // Alias route expected by tests: GET /api/ordertracking/{orderId}/history
+        [HttpGet("{orderId}/history")]
+        public Task<IActionResult> GetOrderHistory(Guid orderId) => GetOrderTimeline(orderId);
 
         /// <summary>
         /// Update order status (Admin only)

@@ -108,6 +108,11 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
 
             var productId = await CreateTestProductAsync();
 
+            // Re-apply user token because helpers switch the client to admin
+            authToken = await AuthHelper.GetUserTokenAsync(_client);
+            _client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+
             var inventoryDto = new
             {
                 ProductId = productId,
@@ -132,6 +137,11 @@ namespace OnlineShop.IntegrationTests.Scenarios.Security
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
             var orderId = await CreateTestOrderAsync();
+
+            // Re-apply user token because helpers switch the client to admin
+            authToken = await AuthHelper.GetUserTokenAsync(_client);
+            _client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
             var updateDto = new
             {

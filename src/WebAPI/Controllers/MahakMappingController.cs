@@ -86,7 +86,7 @@ namespace OnlineShop.WebAPI.Controllers
             }
             
             _logger.LogWarning("Failed to update Mahak mapping: {Id}. Error: {Error}", id, result.ErrorMessage);
-            return BadRequest(result);
+            return NotFound(result);
         }
 
         [HttpDelete("{id}")]

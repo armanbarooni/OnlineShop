@@ -120,6 +120,10 @@ namespace OnlineShop.IntegrationTests.Scenarios.Controllers
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
 
             var productId = await CreateTestProductAsync();
+            // Re-apply user token because helpers set admin token on the shared client
+            authToken = await AuthHelper.GetUserTokenAsync(_client);
+            _client.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
             var productImageDto = new
             {
                 ProductId = productId,

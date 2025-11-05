@@ -40,6 +40,7 @@ namespace OnlineShop.WebAPI.Controllers
         /// Create a new coupon (Admin only)
         /// </summary>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCoupon([FromBody] CreateCouponDto couponDto)
         {
             var command = new CreateCouponCommand { CouponDto = couponDto };

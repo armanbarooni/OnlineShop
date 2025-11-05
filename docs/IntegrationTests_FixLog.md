@@ -47,3 +47,30 @@ For each iteration we record:
 
 > Future iterations: append a new section with date, summary, commands, test counts, and TODOs. Keep the most recent entry on top for quick reference.
 
+---
+
+## 2025-11-04 — Targeted Fixes Round 1 (Codex)
+
+Context
+- Focused on authorization/route mismatches highlighted in the audit.
+- Ran targeted suites to validate: Coupon + Authorization tests.
+
+Changes
+- CouponController: add Admin guard to Create endpoint.
+- CartController: introduce user “own cart” GET route and move admin list to `GET /api/cart/all`.
+- UserAddressController: enforce self-access (non-admin users cannot read others’ addresses).
+- UserOrderController: restrict Update (`PUT /api/userorder/{id}`) to Admin.
+- CartRepository: avoid non-translatable method in EF predicate (replace `!c.IsExpired()` with `(ExpiresAt is null) or > UtcNow`).
+- Tests (Authorization): re-apply user token after admin-seeded helpers to avoid leaking admin Authorization header during negative checks.
+
+Commands
+- `dotnet test --filter "FullyQualifiedName~CouponTests" --verbosity minimal`
+- `dotnet test --filter "FullyQualifiedName~AuthorizationTests" --verbosity minimal`
+
+Results
+- Coupon tests: 10/10 passed.
+- Authorization tests: 27/27 passed (previously 23/27).
+
+Notes / Next
+- Broader Integration suite still has other failing groups (see initial audit). Next targets: validation error cases and business-rule endpoints.
+
