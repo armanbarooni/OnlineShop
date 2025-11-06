@@ -68,6 +68,13 @@ namespace OnlineShop.WebAPI.Controllers
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSeasonDto dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Updating season: {SeasonId}", id);
+            
+            // Validate ID mismatch
+            if (dto.Id != Guid.Empty && dto.Id != id)
+            {
+                return BadRequest(new { isSuccess = false, message = "شناسه در مسیر و بدنه درخواست مطابقت ندارد" });
+            }
+            
             dto.Id = id;
             var command = new UpdateSeasonCommand { Season = dto };
             var result = await _mediator.Send(command, cancellationToken);

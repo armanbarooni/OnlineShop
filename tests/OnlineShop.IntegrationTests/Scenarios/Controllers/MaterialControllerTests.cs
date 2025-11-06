@@ -149,11 +149,14 @@ namespace OnlineShop.IntegrationTests.Scenarios.Controllers
         public async Task UpdateMaterial_AsUser_ShouldReturnForbidden()
         {
             // Arrange
-            var authToken = await AuthHelper.GetUserTokenAsync(_client);
-            _client.DefaultRequestHeaders.Authorization = 
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
-
+            // First create material as admin
             var materialId = await CreateTestMaterialAsync();
+            
+            // Then set user token for the update attempt
+            var userToken = await AuthHelper.GetUserTokenAsync(_client);
+            _client.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", userToken);
+
             var updateDto = new
             {
                 Id = materialId,
@@ -190,11 +193,13 @@ namespace OnlineShop.IntegrationTests.Scenarios.Controllers
         public async Task DeleteMaterial_AsUser_ShouldReturnForbidden()
         {
             // Arrange
-            var authToken = await AuthHelper.GetUserTokenAsync(_client);
-            _client.DefaultRequestHeaders.Authorization = 
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
-
+            // First create material as admin
             var materialId = await CreateTestMaterialAsync();
+            
+            // Then set user token for the delete attempt
+            var userToken = await AuthHelper.GetUserTokenAsync(_client);
+            _client.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", userToken);
 
             // Act
             var response = await _client.DeleteAsync($"/api/material/{materialId}");

@@ -68,6 +68,13 @@ namespace OnlineShop.WebAPI.Controllers
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateMaterialDto dto, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Updating material: {MaterialId}", id);
+            
+            // Validate ID mismatch
+            if (dto.Id != Guid.Empty && dto.Id != id)
+            {
+                return BadRequest(new { isSuccess = false, message = "شناسه در مسیر و بدنه درخواست مطابقت ندارد" });
+            }
+            
             dto.Id = id;
             var command = new UpdateMaterialCommand { Material = dto };
             var result = await _mediator.Send(command, cancellationToken);
