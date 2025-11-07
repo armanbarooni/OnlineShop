@@ -70,6 +70,15 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// Localization (set default culture to fa-IR, support fa and en)
+var supportedCultures = new[] { new System.Globalization.CultureInfo("fa-IR"), new System.Globalization.CultureInfo("en-US") };
+builder.Services.Configure<Microsoft.AspNetCore.Builder.RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("fa-IR");
+    options.SupportedCultures = supportedCultures.ToList();
+    options.SupportedUICultures = supportedCultures.ToList();
+});
+
 var frontendOrigins = builder.Configuration.GetSection("Cors:AllowFrontend").Get<string[]>() ?? Array.Empty<string>();
 
 // CORS configuration for Frontend
@@ -195,6 +204,9 @@ app.UseCors(app.Environment.IsDevelopment() ? "DefaultCors" : "AllowFrontend");
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();
 
+// Apply request localization
+app.UseRequestLocalization();
+
 // Serve static files from wwwroot
 app.UseStaticFiles();
 
@@ -209,15 +221,34 @@ if (!app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Ensure UTF-8 encoding for JSON responses
+// Ensure UTF-8 encoding and Persian language headers where applicable
 app.Use(async (context, next) =>
 {
-    if (context.Response.ContentType?.StartsWith("application/json") == true)
+    context.Response.OnStarting(() =>
     {
-        context.Response.ContentType = "application/json; charset=utf-8";
-    }
+        var path = context.Request.Path.Value ?? string.Empty;
+        var acceptLang = context.Request.Headers["Accept-Language"].ToString();
+
+        if (context.Response.ContentType?.StartsWith("application/json") == true)
+        {
+            context.Response.ContentType = "application/json; charset=utf-8";
+        }
+        else if (context.Response.ContentType?.StartsWith("text/html") == true)
+        {
+            context.Response.ContentType = "text/html; charset=utf-8";
+        }
+
+        if (path.StartsWith("/fa", StringComparison.OrdinalIgnoreCase) || acceptLang.StartsWith("fa", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Response.Headers["Content-Language"] = "fa-IR";
+        }
+        return Task.CompletedTask;
+    });
     await next();
 });
+
+// Inject global RTL CSS/meta for Farsi pages
+app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RtlLocalizationMiddleware>();
 
 app.MapControllers();
 

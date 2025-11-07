@@ -1,0 +1,74 @@
+/* Global RTL and Persian font defaults injected site-wide for Farsi pages */
+@font-face {
+  font-family: 'PeydaWebFaNum';
+  src: url('/fa/assets/fonts/payda/PeydaWebFaNum-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PeydaWebFaNum';
+  src: url('/fa/assets/fonts/payda/PeydaWebFaNum-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PeydaWebFaNum';
+  src: url('/fa/assets/fonts/payda/PeydaWebFaNum-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PeydaWebFaNum';
+  src: url('/fa/assets/fonts/payda/PeydaWebFaNum-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DanaFaNum';
+  src: url('/fa/assets/fonts/dana/dana-fanum-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DanaFaNum';
+  src: url('/fa/assets/fonts/dana/dana-fanum-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+html {
+  direction: rtl;
+  unicode-bidi: isolate-override;
+}
+body {
+  text-align: right;
+  font-family: 'PeydaWebFaNum', 'DanaFaNum', Tahoma, 'Segoe UI', Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Inputs and form controls */
+input, textarea, select {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Tables and common components */
+table { direction: rtl; }
+th, td { text-align: right; }
+
+/* Avoid breaking LTR fragments (e.g., URLs, codes) inside RTL text */
+[dir="rtl"] .ltr, .ltr { direction: ltr; unicode-bidi: isolate; text-align: left; }
+
+/* Basic reset for floats in RTL */
+.pull-start { float: right; }
+.pull-end { float: left; }
+
+/* Keep numbers readable in mixed contexts */
+body { font-variant-numeric: tabular-nums; }
