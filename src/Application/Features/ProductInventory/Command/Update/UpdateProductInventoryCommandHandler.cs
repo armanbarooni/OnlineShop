@@ -27,12 +27,21 @@ namespace OnlineShop.Application.Features.ProductInventory.Command.Update
             if (productInventory == null)
                 return Result<ProductInventoryDto>.Failure("ProductInventory not found");
 
+            // Preserve existing values when fields are not provided (null)
+            var newAvailable = request.ProductInventory.AvailableQuantity
+                                ?? request.ProductInventory.Quantity
+                                ?? productInventory.AvailableQuantity;
+            var newReserved = request.ProductInventory.ReservedQuantity ?? productInventory.ReservedQuantity;
+            var newSold = request.ProductInventory.SoldQuantity ?? productInventory.SoldQuantity;
+            var newCost = request.ProductInventory.CostPrice ?? productInventory.CostPrice;
+            var newSelling = request.ProductInventory.SellingPrice ?? productInventory.SellingPrice;
+
             productInventory.UpdateInventory(
-                request.ProductInventory.AvailableQuantity,
-                request.ProductInventory.ReservedQuantity,
-                request.ProductInventory.SoldQuantity,
-                request.ProductInventory.CostPrice,
-                request.ProductInventory.SellingPrice,
+                newAvailable,
+                newReserved,
+                newSold,
+                newCost,
+                newSelling,
                 null
             );
 

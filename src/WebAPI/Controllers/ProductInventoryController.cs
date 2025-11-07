@@ -224,12 +224,13 @@ namespace OnlineShop.WebAPI.Controllers
             var updateDto = new UpdateProductInventoryDto
             {
                 Id = current.Id,
+                // Use new nullable semantics to only change what's needed
                 AvailableQuantity = newAvailable,
                 ReservedQuantity = current.ReservedQuantity,
-                // ProductInventoryDto does not expose SoldQuantity/CostPrice; use safe defaults
-                SoldQuantity = 0,
+                // Keep other values intact by leaving them null
+                SoldQuantity = null,
                 CostPrice = null,
-                SellingPrice = current.UnitPrice
+                SellingPrice = null
             };
 
             var updateCommand = new UpdateProductInventoryCommand { ProductInventory = updateDto };
@@ -284,6 +285,41 @@ namespace OnlineShop.WebAPI.Controllers
             
             _logger.LogWarning("Failed to delete product inventory: {InventoryId} by user: {UserId}. Error: {Error}", id, userId, result.ErrorMessage);
             return NotFound(result);
+        }
+
+        // PATCH: api/productinventory/{id}/quantity
+        // Minimal endpoint to update only available quantity (keeps other fields intact)
+        [HttpPatch("{id}/quantity")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateQuantity(Guid id, [FromBody] OnlineShop.Application.DTOs.ProductInventory.UpdateInventoryQuantityDto dto, CancellationToken cancellationToken = default)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            _logger.LogInformation("Patching inventory quantity: {InventoryId} -> {Quantity} by user: {UserId}", id, dto?.Quantity, userId);
+
+            if (dto == null)
+                return BadRequest(Result<object>.Failure("Invalid payload"));
+            if (dto.Quantity < 0)
+                return BadRequest(Result<object>.Failure("Quantity cannot be negative"));
+
+            var command = new UpdateProductInventoryCommand
+            {
+                ProductInventory = new UpdateProductInventoryDto
+                {
+                    Id = id,
+                    Quantity = dto.Quantity,
+                    Notes = dto.Notes
+                }
+            };
+
+            var result = await _mediator.Send(command, cancellationToken);
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation("Quantity patched successfully for inventory: {InventoryId}", id);
+                return Ok(result);
+            }
+
+            _logger.LogWarning("Failed to patch quantity for inventory: {InventoryId}. Error: {Error}", id, result.ErrorMessage);
+            return BadRequest(result);
         }
     }
 }
