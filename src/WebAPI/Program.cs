@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Serilog;
 using Serilog.Events;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.DataProtection;
 
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
 var isDevelopmentEnvironment = environmentName.Equals(Environments.Development, StringComparison.OrdinalIgnoreCase);
@@ -161,6 +162,16 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// Configure DataProtection for Production (persist keys to disk instead of in-memory)
+if (!builder.Environment.IsDevelopment())
+{
+    var keysPath = Path.Combine(builder.Environment.ContentRootPath, "keys");
+    Directory.CreateDirectory(keysPath);
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+        .SetApplicationName("OnlineShop");
+}
+
 var app = builder.Build();
 
 var shouldSeedDefaults = !string.Equals(
@@ -207,13 +218,16 @@ app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();
 // Apply request localization
 app.UseRequestLocalization();
 
-// Serve static files from wwwroot
-app.UseStaticFiles();
-
-// Serve default files (index.html) for SPA routing
+// Serve default files (index.html) for SPA routing - MUST be before UseStaticFiles
 app.UseDefaultFiles();
 
-if (!app.Environment.IsDevelopment())
+// Serve static files from wwwroot - MUST be after UseDefaultFiles
+app.UseStaticFiles();
+
+// HTTPS Redirection - only enable if HTTPS is properly configured
+// On IIS with HTTPS binding, this will work automatically
+// For HTTP-only deployments, this causes warnings but won't break functionality
+if (!app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("EnableHttpsRedirection", false))
 {
     app.UseHttpsRedirection();
 }
