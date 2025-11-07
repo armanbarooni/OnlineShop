@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using OnlineShop.Application.DTOs.Auth;
 using OnlineShop.Application.DTOs.UserProfile;
@@ -267,6 +268,107 @@ namespace OnlineShop.WebAPI.Controllers
 
 			_logger.LogWarning("Failed to login with phone {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
 			return Unauthorized(result);
+		}
+
+		/// <summary>
+		/// Forgot password - send OTP to phone number
+		/// </summary>
+		[HttpPost("forgot-password")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto, CancellationToken cancellationToken = default)
+		{
+			_logger.LogInformation("Forgot password request for phone: {PhoneNumber}", dto.PhoneNumber);
+
+			if (string.IsNullOrWhiteSpace(dto.PhoneNumber))
+			{
+				return BadRequest(new { message = "شماره تلفن الزامی است" });
+			}
+
+			// Check if user exists with this phone number
+			var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == dto.PhoneNumber);
+			if (user == null)
+			{
+				// Don't reveal that user doesn't exist for security reasons
+				_logger.LogWarning("Forgot password request for non-existent phone: {PhoneNumber}", dto.PhoneNumber);
+				return Ok(new { message = "در صورت وجود حساب کاربری با این شماره، کد بازیابی ارسال شد" });
+			}
+
+			// Send OTP for password reset
+			var sendOtpDto = new SendOtpDto
+			{
+				PhoneNumber = dto.PhoneNumber,
+				Purpose = "PasswordReset"
+			};
+
+			var command = new SendOtpCommand { Request = sendOtpDto };
+			var result = await _mediator.Send(command, cancellationToken);
+
+			if (result.IsSuccess)
+			{
+				_logger.LogInformation("Password reset OTP sent successfully to {PhoneNumber}", dto.PhoneNumber);
+				return Ok(new { message = "کد بازیابی رمز عبور به شماره موبایل شما ارسال شد" });
+			}
+
+			_logger.LogWarning("Failed to send password reset OTP to {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
+			return BadRequest(new { message = result.ErrorMessage ?? "خطا در ارسال کد بازیابی" });
+		}
+
+		/// <summary>
+		/// Reset password with OTP
+		/// </summary>
+		[HttpPost("reset-password")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto, CancellationToken cancellationToken = default)
+		{
+			_logger.LogInformation("Reset password request for phone: {PhoneNumber}", dto.PhoneNumber);
+
+			if (string.IsNullOrWhiteSpace(dto.PhoneNumber) || string.IsNullOrWhiteSpace(dto.OtpCode) || string.IsNullOrWhiteSpace(dto.NewPassword))
+			{
+				return BadRequest(new { message = "شماره تلفن، کد تایید و رمز عبور جدید الزامی است" });
+			}
+
+			// Verify OTP
+			var verifyOtpDto = new VerifyOtpDto
+			{
+				PhoneNumber = dto.PhoneNumber,
+				Code = dto.OtpCode
+			};
+
+			var verifyCommand = new VerifyOtpCommand { Request = verifyOtpDto };
+			var verifyResult = await _mediator.Send(verifyCommand, cancellationToken);
+
+			if (!verifyResult.IsSuccess)
+			{
+				_logger.LogWarning("OTP verification failed for password reset: {Error}", verifyResult.ErrorMessage);
+				return BadRequest(new { message = verifyResult.ErrorMessage ?? "کد تایید نامعتبر است" });
+			}
+
+			// Find user by phone number
+			var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == dto.PhoneNumber);
+			if (user == null)
+			{
+				_logger.LogWarning("User not found for phone number: {PhoneNumber}", dto.PhoneNumber);
+				return BadRequest(new { message = "کاربری با این شماره تلفن یافت نشد" });
+			}
+
+			// Reset password
+			var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+			var result = await _userManager.ResetPasswordAsync(user, token, dto.NewPassword);
+
+			if (result.Succeeded)
+			{
+				_logger.LogInformation("Password reset successful for user: {UserId}", user.Id);
+				return Ok(new { message = "رمز عبور با موفقیت تغییر یافت" });
+			}
+
+			var errors = result.Errors.Select(e => e.Description).ToList();
+			_logger.LogWarning("Password reset failed for user {UserId}: {Errors}", user.Id, string.Join(", ", errors));
+			return BadRequest(new { 
+				message = "خطا در تغییر رمز عبور",
+				errors = errors 
+			});
 		}
 
 		/// <summary>

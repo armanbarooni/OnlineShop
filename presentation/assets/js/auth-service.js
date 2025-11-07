@@ -201,7 +201,25 @@ class AuthService {
         } catch (error) {
             window.logger.error('Registration error:', error);
             // api-client throws errors, so we need to handle them properly
-            const errorMessage = error instanceof Error ? error.message : (error?.message || 'ط®ط·ط§ ط¯ط± ط«ط¨طھ ظ†ط§ظ…');
+            let errorMessage = 'خطا در ثبت‌نام';
+            
+            if (error instanceof Error) {
+                errorMessage = error.message;
+                
+                // Parse specific error messages
+                if (errorMessage.includes('EMAIL_EXISTS') || errorMessage.includes('ایمیل قبلاً') || errorMessage.includes('کاربری با این ایمیل')) {
+                    errorMessage = 'کاربری با این ایمیل قبلاً ثبت‌نام کرده است';
+                } else if (errorMessage.includes('PHONE_EXISTS') || errorMessage.includes('شماره تلفن') || errorMessage.includes('شماره موبایل')) {
+                    errorMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
+                } else if (errorMessage.includes('VALIDATION_ERROR') || errorMessage.includes('اعتبارسنجی')) {
+                    errorMessage = errorMessage.replace('VALIDATION_ERROR:', '').trim();
+                } else if (errorMessage.includes('405') || errorMessage.includes('Method Not Allowed')) {
+                    errorMessage = 'خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.';
+                }
+            } else if (error?.message) {
+                errorMessage = error.message;
+            }
+            
             return {
                 success: false,
                 error: errorMessage

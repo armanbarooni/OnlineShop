@@ -32,8 +32,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
             </div>
-            <h2 class="text-3xl font-bold mb-4">ط¨ظ‡ ط³ط§غŒطھ ظ…ط§ ط®ظˆط´ ط¢ظ…ط¯غŒط¯</h2>
-            <p class="text-lg mb-6">ط¨ط§ ط«ط¨طھ ظ†ط§ظ… ط¯ط± ط¢ط±غŒظ†ظˆ ع©ط§ظ„ط§ ط§ط² ط¨ظ‡طھط±غŒظ† طھط¬ط±ط¨ظ‡ ط®ط±غŒط¯ ط¢ظ†ظ„ط§غŒظ† ظ„ط°طھ ط¨ط¨ط±غŒط¯. ط¯ط³طھط±ط³غŒ ط¨ظ‡ ظ‡ط²ط§ط±ط§ظ† ظ…ط­طµظˆظ„ ط¨ط§ ع©غŒظپغŒطھ ظˆ ظ‚غŒظ…طھ ظ…ظ†ط§ط³ط¨.</p>
+            <h2 class="text-3xl font-bold mb-4">به سایت ما خوش آمدید</h2>
+            <p class="text-lg mb-6">با ثبت نام در بمب بوتیک کالا از بهترین تجربه خرید آنلاین لذت ببرید. دسترسی به هزاران محصول با کیفیت و قیمت مناسب.</p>
         </div>
     </div>
 
@@ -47,7 +47,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                 </div>
-                <h1 class="ms-3 text-xl font-bold text-dark dark:text-light">ظ‚ط§ظ„ط¨<span class="text-primary"> ط¢ط±غŒظ†ظˆ </span></h1>
+                <h1 class="ms-3 text-xl font-bold text-dark dark:text-light"><span class="text-primary">بمب بوتیک</span></h1>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-soft dark:shadow-soft-dark p-8 border border-gray-100 dark:border-gray-700 fade-in">
@@ -79,7 +79,7 @@
                                 </svg>
                             </div>
                         </div>
-                        <p class="error-message hidden" id="username-error">ظ„ط·ظپط§ ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ غŒط§ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ظ…ط¹طھط¨ط± ظˆط§ط±ط¯ ع©ظ†غŒط¯</p>
+                        <p class="error-message hidden" id="username-error">لطفا نام کاربری یا شماره موبایل معتبر وارد کنید</p>
                     </div>
 
                     <!-- ط±ظ…ط² ط¹ط¨ظˆط± -->
@@ -96,7 +96,7 @@
                                 </svg>
                             </button>
                         </div>
-                        <p class="error-message hidden" id="password-error">ظ„ط·ظپط§ ط±ظ…ط² ط¹ط¨ظˆط± ط±ط§ ظˆط§ط±ط¯ ع©ظ†غŒط¯</p>
+                        <p class="error-message hidden" id="password-error">لطفا رمز عبور را وارد کنید</p>
                     </div>
 
                     <!-- Password reminder and login button -->
@@ -134,7 +134,7 @@
                                 </svg>
                             </div>
                         </div>
-                        <p class="error-message hidden" id="mobile-error">ظ„ط·ظپط§ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ظ…ط¹طھط¨ط± ظˆط§ط±ط¯ ع©ظ†غŒط¯</p>
+                        <p class="error-message hidden" id="mobile-error">لطفا شماره موبایل معتبر وارد کنید</p>
                     </div>
 
                     <!-- Verification code -->
@@ -149,7 +149,7 @@
                             </div>
                         </div>
                         <div class="flex items-center justify-between mt-2">
-                            <p class="error-message hidden" id="otp-error">ع©ط¯ طھط§غŒغŒط¯ ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ</p>
+                            <p class="error-message hidden" id="otp-error">کد تایید نامعتبر است</p>
                             <div id="countdown" class="text-sm text-gray-500 dark:text-gray-400 hidden">
                                 ط§ط±ط³ط§ظ„ ظ…ط¬ط¯ط¯ ع©ط¯ ظ¾ط³ ط§ط² <span id="countdown-time">120</span> ط«ط§ظ†غŒظ‡
                             </div>
@@ -379,7 +379,7 @@
                 // Show success message
                 showLoginSuccess(result.message || 'ع©ط¯ طھط§غŒغŒط¯ ط§ط±ط³ط§ظ„ ط´ط¯');
             } else {
-                showLoginError(result.error || 'ط®ط·ط§ ط¯ط± ط§ط±ط³ط§ظ„ ع©ط¯ طھط§غŒغŒط¯');
+                showLoginError(result.error || 'خطا در ارسال کد تایید');
             }
         } catch (error) {
             console.error('Send OTP error:', error);
@@ -448,14 +448,14 @@
         // Validate username or mobile
         if(!username.value) {
             username.classList.add('input-error');
-            usernameError.textContent = 'ظ„ط·ظپط§ ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ غŒط§ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ط±ط§ ظˆط§ط±ط¯ ع©ظ†غŒط¯';
+            usernameError.textContent = 'لطفا نام کاربری یا شماره موبایل را وارد کنید';
             usernameError.classList.remove('hidden');
             isValid = false;
         } else if(/^09\d{9}$/.test(username.value)) {
             // Valid mobile number
         } else if(username.value.length < 3) {
             username.classList.add('input-error');
-            usernameError.textContent = 'ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ³ ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
+            usernameError.textContent = 'نام کاربری باید حداقل ۳ کاراکتر باشد';
             usernameError.classList.remove('hidden');
             isValid = false;
         }
@@ -463,7 +463,7 @@
         // Validate password
         if(!password.value) {
             password.classList.add('input-error');
-            passwordError.textContent = 'ظ„ط·ظپط§ ط±ظ…ط² ط¹ط¨ظˆط± ط±ط§ ظˆط§ط±ط¯ ع©ظ†غŒط¯';
+            passwordError.textContent = 'لطفا رمز عبور را وارد کنید';
             passwordError.classList.remove('hidden');
             isValid = false;
         }
@@ -499,13 +499,13 @@
                         window.location.href = 'user-panel-index.html';
                     }, 1500);
                 } else {
-                    showLoginError(result.error || 'ط®ط·ط§ ط¯ط± ظˆط±ظˆط¯. ظ„ط·ظپط§ ط¯ظˆط¨ط§ط±ظ‡ طھظ„ط§ط´ ع©ظ†غŒط¯.');
+                    showLoginError(result.error || 'نام کاربری یا رمز عبور اشتباه است. لطفاً دوباره تلاش کنید.');
                     // Clear password on error
                     document.getElementById('password').value = '';
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showLoginError('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±. ظ„ط·ظپط§ ط¯ظˆط¨ط§ط±ظ‡ طھظ„ط§ط´ ع©ظ†غŒط¯.');
+                showLoginError('خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.');
             } finally {
                 // Reset button state
                 submitBtn.disabled = false;
@@ -569,7 +569,7 @@
                     window.location.href = 'user-panel-index.html';
                 }, 1500);
             } else {
-                showLoginError(result.error || 'ع©ط¯ طھط§غŒغŒط¯ ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ');
+                showLoginError(result.error || 'کد تایید نامعتبر است');
                 // Clear OTP code on error
                 document.getElementById('otp-code').value = '';
             }
@@ -598,7 +598,7 @@
                 <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                 </svg>
-                ${message || 'ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ غŒط§ ط±ظ…ط² ط¹ط¨ظˆط± ط§ط´طھط¨ط§ظ‡ ط§ط³طھ'}
+                ${message || 'نام کاربری یا رمز عبور اشتباه است'}
             </div>
         `;
 

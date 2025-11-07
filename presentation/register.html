@@ -45,7 +45,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                 </div>
-                <h1 class="ms-3 text-xl font-bold text-dark dark:text-light">ظ‚ط§ظ„ط¨ <span class="text-primary">ط¢ط±غŒظ†ظˆ </span></h1>
+                <h1 class="ms-3 text-xl font-bold text-dark dark:text-light"><span class="text-primary">بمب بوتیک</span></h1>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-soft dark:shadow-soft-dark p-8 border border-gray-100 dark:border-gray-700">
@@ -781,6 +781,20 @@
         const existingErrors = document.querySelectorAll('.register-error-message');
         existingErrors.forEach(el => el.remove());
 
+        // Parse error message to show specific errors
+        let displayMessage = message || 'خطا در ثبت‌نام';
+        
+        // Check for specific error types
+        if (message && (message.includes('EMAIL_EXISTS') || message.includes('ایمیل قبلاً') || message.includes('کاربری با این ایمیل'))) {
+            displayMessage = 'کاربری با این ایمیل قبلاً ثبت‌نام کرده است';
+        } else if (message && (message.includes('PHONE_EXISTS') || message.includes('شماره تلفن') || message.includes('شماره موبایل'))) {
+            displayMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
+        } else if (message && (message.includes('405') || message.includes('Method Not Allowed'))) {
+            displayMessage = 'خطا در ارسال درخواست. لطفاً صفحه را رفرش کنید و دوباره تلاش کنید.';
+        } else if (message && (message.includes('VALIDATION_ERROR') || message.includes('اعتبارسنجی'))) {
+            displayMessage = message.replace('VALIDATION_ERROR:', '').trim() || 'اطلاعات وارد شده معتبر نیست';
+        }
+
         const errorDiv = document.createElement('div');
         errorDiv.className = 'register-error-message mb-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-xl border border-red-200 dark:border-red-800';
         errorDiv.innerHTML = `
@@ -788,7 +802,7 @@
                 <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                 </svg>
-                ${message}
+                ${displayMessage}
             </div>
         `;
 

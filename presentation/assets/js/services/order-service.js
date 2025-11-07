@@ -211,11 +211,34 @@ class OrderService {
     async searchOrders(query, filters = {}) {
         try {
             const searchCriteria = {
-                searchTerm: query,
-                ...filters
+                pageNumber: filters.page || filters.pageNumber || 1,
+                pageSize: filters.pageSize || 10,
+                orderStatus: filters.status || filters.orderStatus || null,
+                startDate: filters.startDate || null,
+                endDate: filters.endDate || null,
+                minAmount: filters.minAmount || null,
+                maxAmount: filters.maxAmount || null,
+                sortBy: filters.sortBy || 'OrderDate',
+                sortDescending: filters.sortDescending !== false
             };
 
+            // Remove null/undefined values
+            Object.keys(searchCriteria).forEach(key => {
+                if (searchCriteria[key] === null || searchCriteria[key] === undefined) {
+                    delete searchCriteria[key];
+                }
+            });
+
             const response = await this.apiClient.post('/userorder/search', searchCriteria);
+            
+            // Handle Result<T> wrapper
+            if (response.isSuccess !== undefined) {
+                return {
+                    success: response.isSuccess,
+                    data: response.data || response.data?.data
+                };
+            }
+            
             return {
                 success: true,
                 data: response.data || response

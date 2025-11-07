@@ -5,11 +5,22 @@ namespace OnlineShop.IntegrationTests.Helpers
 {
     public static class JsonHelper
     {
-        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        // Options for deserializing PascalCase (ASP.NET Core default)
+        private static readonly JsonSerializerOptions PascalCaseOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            // No PropertyNamingPolicy = uses PascalCase (default)
+        };
+        
+        // Options for deserializing camelCase
+        private static readonly JsonSerializerOptions CamelCaseOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
+        
+        // Default options (try camelCase first, then PascalCase)
+        private static readonly JsonSerializerOptions JsonOptions = PascalCaseOptions;
 
         public static string? GetNestedProperty(string jsonContent, params string[] propertyPath)
         {
@@ -102,7 +113,8 @@ namespace OnlineShop.IntegrationTests.Helpers
         }
 
         /// <summary>
-        /// Deserialize JSON directly to AuthResponseDto with case-insensitive matching
+        /// Deserialize JSON directly to T with case-insensitive matching
+        /// Tries both PascalCase (ASP.NET Core default) and camelCase
         /// </summary>
         public static T? Deserialize<T>(string jsonContent) where T : class
         {
@@ -111,11 +123,25 @@ namespace OnlineShop.IntegrationTests.Helpers
 
             try
             {
-                return JsonSerializer.Deserialize<T>(jsonContent, JsonOptions);
+                // Try PascalCase first (ASP.NET Core default)
+                var result = JsonSerializer.Deserialize<T>(jsonContent, PascalCaseOptions);
+                if (result != null)
+                    return result;
+                
+                // Fallback to camelCase
+                return JsonSerializer.Deserialize<T>(jsonContent, CamelCaseOptions);
             }
             catch
             {
-                return null;
+                // If deserialization fails with PascalCase, try camelCase
+                try
+                {
+                    return JsonSerializer.Deserialize<T>(jsonContent, CamelCaseOptions);
+                }
+                catch
+                {
+                    return null;
+                }
             }
         }
     }

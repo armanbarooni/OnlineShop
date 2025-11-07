@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: onlineshop-db-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-OnlineShop}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+      - ./deploy/backups:/backups
+    ports:
+      - "127.0.0.1:5432:5432"  # Only accessible from localhost
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - onlineshop-network-prod
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  api:
+    image: ${DOCKER_IMAGE:-ghcr.io/${GITHUB_REPOSITORY:-yourusername}/onlineshop:latest}
+    container_name: onlineshop-api-prod
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB:-OnlineShop};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD};Include Error Detail=false
+      - JWT__Issuer=${JWT__ISSUER:-OnlineShop}
+      - JWT__Audience=${JWT__AUDIENCE:-OnlineShopClient}
+      - JWT__Secret=${JWT__SECRET}
+      - SMSSETTINGS__Provider=${SMSSETTINGS__PROVIDER:-SmsIr}
+      - SMSSETTINGS__ApiKey=${SMSSETTINGS__APIKEY}
+      - SMSSETTINGS__Sender=${SMSSETTINGS__SENDER}
+      - SMSSETTINGS__OtpTemplate=${SMSSETTINGS__OTPTEMPLATE}
+      - SMSIR__ApiKey=${SMSIR__APIKEY}
+      - SMSIR__TemplateId=${SMSIR__TEMPLATEID:-325822}
+      - SMSIR__UseSandbox=${SMSIR__USESANDBOX:-false}
+      - SEED_DEFAULT_USERS=false
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./logs:/app/logs
+      - ./deploy/backups:/app/backups
+    networks:
+      - onlineshop-network-prod
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  postgres_data_prod:
+    driver: local
+
+networks:
+  onlineshop-network-prod:
+    driver: bridge
+

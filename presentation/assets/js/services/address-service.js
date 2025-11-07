@@ -13,7 +13,20 @@ class AddressService {
      */
     async getAddresses() {
         try {
-            const response = await this.apiClient.get('/useraddress');
+            // Get current user ID from token
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                return {
+                    success: false,
+                    error: 'User not authenticated'
+                };
+            }
+
+            // Decode token to get user ID
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const userId = payload.sub || payload.nameid;
+
+            const response = await this.apiClient.get(`/useraddress/user/${userId}`);
             return {
                 success: true,
                 data: response.data || response
@@ -153,16 +166,20 @@ class AddressService {
             errors.title = 'ط¹ظ†ظˆط§ظ† ط¢ط¯ط±ط³ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
-        if (!addressData.address || addressData.address.trim().length === 0) {
-            errors.address = 'ط¢ط¯ط±ط³ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+        if (!addressData.firstName || addressData.firstName.trim().length === 0) {
+            errors.firstName = 'ظ†ط§ظ… ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+        }
+
+        if (!addressData.addressLine1 || addressData.addressLine1.trim().length === 0) {
+            errors.addressLine1 = 'ط¢ط¯ط±ط³ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!addressData.city || addressData.city.trim().length === 0) {
             errors.city = 'ط´ظ‡ط± ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
-        if (!addressData.province || addressData.province.trim().length === 0) {
-            errors.province = 'ط§ط³طھط§ظ† ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+        if (!addressData.state || addressData.state.trim().length === 0) {
+            errors.state = 'ط§ط³طھط§ظ† ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
         }
 
         if (!addressData.postalCode || addressData.postalCode.trim().length === 0) {
@@ -171,10 +188,8 @@ class AddressService {
             errors.postalCode = 'ع©ط¯ ظ¾ط³طھغŒ ط¨ط§غŒط¯ غ±غ° ط±ظ‚ظ… ط¨ط§ط´ط¯';
         }
 
-        if (!addressData.phone || addressData.phone.trim().length === 0) {
-            errors.phone = 'ط´ظ…ط§ط±ظ‡ طھظ„ظپظ† ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
-        } else if (!window.utils.isValidPhone(addressData.phone)) {
-            errors.phone = 'ط´ظ…ط§ط±ظ‡ طھظ„ظپظ† ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ';
+        if (addressData.phoneNumber && !window.utils.isValidPhone(addressData.phoneNumber)) {
+            errors.phoneNumber = 'ط´ظ…ط§ط±ظ‡ طھظ„ظپظ† ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ';
         }
 
         return {
@@ -189,16 +204,21 @@ class AddressService {
     formatAddress(address) {
         if (!address) return '';
         
+        const addressLine = address.addressLine1 + (address.addressLine2 ? ` - ${address.addressLine2}` : '');
         const parts = [
             address.title,
-            address.address,
+            `${address.firstName} ${address.lastName}`,
+            addressLine,
             address.city,
-            address.province,
-            `ع©ط¯ ظ¾ط³طھغŒ: ${address.postalCode}`,
-            `طھظ„ظپظ†: ${address.phone}`
-        ].filter(part => part && part.trim().length > 0);
+            address.state,
+            `ع©ط¯ ظ¾ط³طھغŒ: ${address.postalCode}`
+        ];
         
-        return parts.join(' - ');
+        if (address.phoneNumber) {
+            parts.push(`طھظ„ظپظ†: ${address.phoneNumber}`);
+        }
+        
+        return parts.filter(part => part && part.trim().length > 0).join(' - ');
     }
 
     /**

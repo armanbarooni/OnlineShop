@@ -13,7 +13,20 @@ class WishlistService {
      */
     async getWishlist() {
         try {
-            const response = await this.apiClient.get('/api/Wishlist');
+            // Get current user ID from token
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                return {
+                    success: false,
+                    error: 'User not authenticated'
+                };
+            }
+
+            // Decode token to get user ID
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const userId = payload.sub || payload.nameid;
+
+            const response = await this.apiClient.get(`/wishlist/user/${userId}`);
             return {
                 success: true,
                 data: response.data || response
@@ -32,9 +45,19 @@ class WishlistService {
      */
     async addToWishlist(productId) {
         try {
-            const response = await this.apiClient.post('/api/Wishlist', {
+            const response = await this.apiClient.post('/wishlist', {
                 productId: productId
             });
+            
+            // Handle Result<T> wrapper
+            if (response.isSuccess !== undefined) {
+                return {
+                    success: response.isSuccess,
+                    data: response.data || response.data?.data,
+                    message: 'ظ…ط­طµظˆظ„ ط¨ظ‡ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط§ط¶ط§ظپظ‡ ط´ط¯'
+                };
+            }
+            
             return {
                 success: true,
                 data: response.data || response,
@@ -50,11 +73,20 @@ class WishlistService {
     }
 
     /**
-     * Remove product from wishlist
+     * Remove product from wishlist by wishlist item ID
      */
     async removeFromWishlist(wishlistId) {
         try {
-            const response = await this.apiClient.delete(`/api/Wishlist/${wishlistId}`);
+            const response = await this.apiClient.delete(`/wishlist/${wishlistId}`);
+            
+            // Handle Result<T> wrapper
+            if (response.isSuccess !== undefined) {
+                return {
+                    success: response.isSuccess,
+                    message: 'ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯'
+                };
+            }
+            
             return {
                 success: true,
                 message: 'ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯'
@@ -73,11 +105,26 @@ class WishlistService {
      */
     async removeProductFromWishlist(productId) {
         try {
-            const userId = this.apiClient.getUserId();
-            if (!userId) {
+            // Get current user ID from token
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
                 return { success: false, error: 'ط§ط¨طھط¯ط§ ظˆط§ط±ط¯ ط­ط³ط§ط¨ ع©ط§ط±ط¨ط±غŒ ط´ظˆغŒط¯' };
             }
-            const response = await this.apiClient.delete(`/api/Wishlist/user/${userId}/product/${productId}`);
+
+            // Decode token to get user ID
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const userId = payload.sub || payload.nameid;
+
+            const response = await this.apiClient.delete(`/wishlist/user/${userId}/product/${productId}`);
+            
+            // Handle Result<T> wrapper
+            if (response.isSuccess !== undefined) {
+                return {
+                    success: response.isSuccess,
+                    message: 'ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯'
+                };
+            }
+            
             return {
                 success: true,
                 message: 'ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯'
@@ -380,15 +427,59 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 /**
- * Additional helper: getWishlistItems via pagination
+ * Additional helper: getWishlistItems with search/filter support
  */
-WishlistService.prototype.getWishlistItems = async function(pageNumber = 1, pageSize = 20) {
-    const res = await this.getWishlistPaginated(pageNumber, pageSize);
-    if (res && res.success) {
-        const data = res.data || {};
-        const items = data.items || data.products || (Array.isArray(data) ? data : []);
-        return { success: true, data: items };
+WishlistService.prototype.getWishlistItems = async function(criteria = {}) {
+    try {
+        // Get user wishlist
+        const response = await this.getWishlist();
+        
+        if (!response.success) {
+            return response;
+        }
+        
+        let items = response.data;
+        
+        // Handle different response structures
+        if (items && items.data) {
+            items = Array.isArray(items.data) ? items.data : (items.data.items || []);
+        } else if (!Array.isArray(items)) {
+            items = items.items || [];
+        }
+        
+        // Apply filters if provided
+        if (criteria.searchTerm) {
+            const searchTerm = criteria.searchTerm.toLowerCase();
+            items = items.filter(item => {
+                const product = item.product || item;
+                const name = (product.name || '').toLowerCase();
+                return name.includes(searchTerm);
+            });
+        }
+        
+        // Pagination
+        const pageNumber = criteria.pageNumber || criteria.page || 1;
+        const pageSize = criteria.pageSize || 20;
+        const startIndex = (pageNumber - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedItems = items.slice(startIndex, endIndex);
+        
+        return {
+            success: true,
+            data: {
+                items: paginatedItems,
+                totalCount: items.length,
+                pageNumber: pageNumber,
+                pageSize: pageSize,
+                totalPages: Math.ceil(items.length / pageSize)
+            }
+        };
+    } catch (error) {
+        window.logger.error('Error getting wishlist items:', error);
+        return {
+            success: false,
+            error: this.apiClient.handleError(error)
+        };
     }
-    return res;
 };
 

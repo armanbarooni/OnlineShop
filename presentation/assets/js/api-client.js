@@ -97,6 +97,12 @@ class ApiClient {
                 // Parse error message from different response structures
                 let errorMessage = '';
                 
+                // Handle 405 Method Not Allowed specifically
+                if (response.status === 405) {
+                    errorMessage = 'متد درخواست اشتباه است. لطفاً صفحه را رفرش کنید و دوباره تلاش کنید.';
+                    throw new Error(errorMessage);
+                }
+                
                 if (typeof data === 'string') {
                     errorMessage = data;
                 } else if (data?.message) {
@@ -113,6 +119,23 @@ class ApiClient {
                     // Try to extract any error information
                     const errorText = JSON.stringify(data);
                     errorMessage = errorText.length > 200 ? `HTTP error! status: ${response.status}` : errorText;
+                }
+                
+                // Add status code to error message for debugging
+                if (response.status >= 400 && response.status < 500) {
+                    if (response.status === 400) {
+                        errorMessage = errorMessage || 'درخواست نامعتبر است';
+                    } else if (response.status === 401) {
+                        errorMessage = errorMessage || 'احراز هویت ناموفق';
+                    } else if (response.status === 403) {
+                        errorMessage = errorMessage || 'دسترسی غیرمجاز';
+                    } else if (response.status === 404) {
+                        errorMessage = errorMessage || 'منبع یافت نشد';
+                    } else if (response.status === 405) {
+                        errorMessage = 'متد درخواست اشتباه است. لطفاً صفحه را رفرش کنید و دوباره تلاش کنید.';
+                    }
+                } else if (response.status >= 500) {
+                    errorMessage = errorMessage || 'خطای سرور. لطفاً بعداً تلاش کنید.';
                 }
                 
                 throw new Error(errorMessage);

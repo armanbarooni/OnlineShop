@@ -44,9 +44,12 @@ namespace OnlineShop.IntegrationTests.Helpers
                     await factory.SeedDatabaseAsync();
                 }
 
+                // Clear any existing authorization headers
+                client.DefaultRequestHeaders.Authorization = null;
+
                 // Try actual login with hardcoded admin credentials
                 var token = await TryHardcodedAdminLoginAsync(client);
-                if (!string.IsNullOrEmpty(token))
+                if (!string.IsNullOrEmpty(token) && token.Length > 50) // Valid JWT tokens are typically > 50 chars
                 {
                     Console.WriteLine($"[AuthHelper] Admin login successful: Token retrieved ({token.Length} chars)");
                     return token;
@@ -54,7 +57,7 @@ namespace OnlineShop.IntegrationTests.Helpers
 
                 // Fallback: try OTP-based login
                 token = await TryLoginAsync(client, factory);
-                if (!string.IsNullOrEmpty(token))
+                if (!string.IsNullOrEmpty(token) && token.Length > 50)
                 {
                     Console.WriteLine($"[AuthHelper] Admin OTP login successful: Token retrieved ({token.Length} chars)");
                     return token;
@@ -62,23 +65,22 @@ namespace OnlineShop.IntegrationTests.Helpers
 
                 // Fallback: try registration
                 token = await TryRegisterAsync(client, factory);
-                if (!string.IsNullOrEmpty(token))
+                if (!string.IsNullOrEmpty(token) && token.Length > 50)
                 {
                     Console.WriteLine($"[AuthHelper] Admin registration successful: Token retrieved ({token.Length} chars)");
                     return token;
                 }
 
-                Console.WriteLine($"[AuthHelper] WARNING: All authentication methods failed, returning empty string");
-                return string.Empty;
+                Console.WriteLine($"[AuthHelper] WARNING: All authentication methods failed");
+                Console.WriteLine($"[AuthHelper] Last token attempt result: {(string.IsNullOrEmpty(token) ? "NULL/EMPTY" : $"Length: {token.Length}")}");
+                throw new InvalidOperationException("Failed to obtain admin authentication token. All authentication methods failed.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[AuthHelper] Critical Authentication Error: {ex.Message}");
                 Console.WriteLine($"[AuthHelper] Stack Trace: {ex.StackTrace}");
+                throw; // Re-throw to fail tests clearly
             }
-
-            Console.WriteLine($"[AuthHelper] WARNING: Unable to obtain authentication token, returning empty string");
-            return string.Empty;
         }
 
         private static async Task<string> TryLoginAsync(HttpClient client, CustomWebApplicationFactory<Program> factory)
@@ -331,9 +333,12 @@ namespace OnlineShop.IntegrationTests.Helpers
                     await factory.SeedDatabaseAsync();
                 }
 
+                // Clear any existing authorization headers
+                client.DefaultRequestHeaders.Authorization = null;
+
                 // Try actual login with hardcoded user credentials
                 var token = await TryHardcodedUserLoginAsync(client);
-                if (!string.IsNullOrEmpty(token))
+                if (!string.IsNullOrEmpty(token) && token.Length > 50)
                 {
                     Console.WriteLine($"[AuthHelper] User login successful: Token retrieved ({token.Length} chars)");
                     return token;
@@ -341,7 +346,7 @@ namespace OnlineShop.IntegrationTests.Helpers
 
                 // Fallback: try OTP-based login
                 token = await TryUserLoginAsync(client, factory);
-                if (!string.IsNullOrEmpty(token))
+                if (!string.IsNullOrEmpty(token) && token.Length > 50)
                 {
                     Console.WriteLine($"[AuthHelper] User OTP login successful: Token retrieved ({token.Length} chars)");
                     return token;
@@ -349,20 +354,22 @@ namespace OnlineShop.IntegrationTests.Helpers
 
                 // Fallback: try registration
                 token = await TryUserRegistrationAsync(client, factory);
-                if (!string.IsNullOrEmpty(token))
+                if (!string.IsNullOrEmpty(token) && token.Length > 50)
                 {
                     Console.WriteLine($"[AuthHelper] User registration successful: Token retrieved ({token.Length} chars)");
                     return token;
                 }
 
-                Console.WriteLine($"[AuthHelper] WARNING: All user authentication methods failed, returning empty string");
-                return string.Empty;
+                Console.WriteLine($"[AuthHelper] WARNING: All user authentication methods failed");
+                Console.WriteLine($"[AuthHelper] Last token attempt result: {(string.IsNullOrEmpty(token) ? "NULL/EMPTY" : $"Length: {token.Length}")}");
+                throw new InvalidOperationException("Failed to obtain user authentication token. All authentication methods failed.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[AuthHelper] User authentication exception: {ex.Message}");
+                Console.WriteLine($"[AuthHelper] Stack Trace: {ex.StackTrace}");
+                throw; // Re-throw to fail tests clearly
             }
-            return null;
         }
 
         private static async Task<string> TryHardcodedUserLoginAsync(HttpClient client)
@@ -375,47 +382,62 @@ namespace OnlineShop.IntegrationTests.Helpers
                     Email = "user@test.com", 
                     Password = "UserPassword123!" 
                 };
+                
+                Console.WriteLine($"[AuthHelper] Attempting user login with Email: {hardcodedLoginDto.Email}");
                 var loginResponse = await client.PostAsJsonAsync("/api/auth/login", hardcodedLoginDto);
 
+                Console.WriteLine($"[AuthHelper] User login response status: {loginResponse.StatusCode}");
+                
                 if (loginResponse.IsSuccessStatusCode)
                 {
                     var content = await loginResponse.Content.ReadAsStringAsync();
-                    Console.WriteLine($"[AuthHelper] User login response: {content}");
+                    Console.WriteLine($"[AuthHelper] User login response content (first 200 chars): {content.Substring(0, Math.Min(200, content.Length))}");
                     
-                    var token = JsonHelper.GetNestedProperty(content, "accessToken")
-                                ?? JsonHelper.GetNestedProperty(content, "AccessToken")
-                                ?? JsonHelper.GetNestedProperty(content, "access_token")
-                                ?? JsonHelper.GetNestedProperty(content, "data", "accessToken")
-                                ?? JsonHelper.GetNestedProperty(content, "data", "AccessToken");
-                    
-                    // Backup: Try direct deserialization
-                    if (string.IsNullOrEmpty(token))
+                    // Try direct deserialization first (most reliable)
+                    var authResponse = JsonHelper.Deserialize<AuthResponseDto>(content);
+                    if (authResponse != null && !string.IsNullOrEmpty(authResponse.AccessToken))
                     {
-                        var authResponse = JsonHelper.Deserialize<AuthResponseDto>(content);
-                        if (authResponse != null && !string.IsNullOrEmpty(authResponse.AccessToken))
-                        {
-                            token = authResponse.AccessToken;
-                        }
+                        Console.WriteLine($"[AuthHelper] User token extracted via direct deserialization (length: {authResponse.AccessToken.Length})");
+                        return authResponse.AccessToken;
                     }
+                    
+                    // Try property extraction (handles PascalCase/camelCase variations)
+                    var token = JsonHelper.GetNestedProperty(content, "AccessToken")  // PascalCase (default)
+                                ?? JsonHelper.GetNestedProperty(content, "accessToken")  // camelCase
+                                ?? JsonHelper.GetNestedProperty(content, "access_token")  // snake_case
+                                ?? JsonHelper.GetNestedProperty(content, "data", "AccessToken")  // Wrapped
+                                ?? JsonHelper.GetNestedProperty(content, "data", "accessToken");  // Wrapped (camelCase)
                     
                     if (!string.IsNullOrEmpty(token))
                     {
-                        Console.WriteLine($"[AuthHelper] Hardcoded User Login Successful: Token retrieved");
+                        Console.WriteLine($"[AuthHelper] Hardcoded User Login Successful: Token retrieved ({token.Length} chars)");
                         return token;
                     }
-                    else
+                    
+                    // Last attempt: Check if wrapped in Result<T> structure
+                    var dataElement = JsonHelper.GetNestedProperty(content, "data");
+                    if (!string.IsNullOrEmpty(dataElement))
                     {
-                        Console.WriteLine($"[AuthHelper] User token not found in response. Full response: {content}");
+                        var nestedAuthResponse = JsonHelper.Deserialize<AuthResponseDto>(dataElement);
+                        if (nestedAuthResponse != null && !string.IsNullOrEmpty(nestedAuthResponse.AccessToken))
+                        {
+                            Console.WriteLine($"[AuthHelper] User token extracted from Result wrapper (length: {nestedAuthResponse.AccessToken.Length})");
+                            return nestedAuthResponse.AccessToken;
+                        }
                     }
+                    
+                    Console.WriteLine($"[AuthHelper] ERROR: User token not found in response. Full response: {content}");
                 }
                 else 
                 {
-                    Console.WriteLine($"[AuthHelper] Hardcoded User Login Failed ({loginResponse.StatusCode}): {await loginResponse.Content.ReadAsStringAsync()}");
+                    var errorContent = await loginResponse.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[AuthHelper] Hardcoded User Login Failed ({loginResponse.StatusCode}): {errorContent}");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[AuthHelper] Hardcoded User Login Exception: {ex.Message}");
+                Console.WriteLine($"[AuthHelper] Stack Trace: {ex.StackTrace}");
             }
             return null;
         }
@@ -555,59 +577,57 @@ namespace OnlineShop.IntegrationTests.Helpers
                     Email = "admin@test.com", 
                     Password = "AdminPassword123!" 
                 };
+                
+                Console.WriteLine($"[AuthHelper] Attempting login with Email: {hardcodedLoginDto.Email}");
                 var loginResponse = await client.PostAsJsonAsync("/api/auth/login", hardcodedLoginDto);
 
+                Console.WriteLine($"[AuthHelper] Login response status: {loginResponse.StatusCode}");
+                
                 if (loginResponse.IsSuccessStatusCode)
                 {
                     var content = await loginResponse.Content.ReadAsStringAsync();
-                    Console.WriteLine($"[AuthHelper] Login response: {content}");
+                    Console.WriteLine($"[AuthHelper] Login response content (first 200 chars): {content.Substring(0, Math.Min(200, content.Length))}");
                     
-                    // Try direct property extraction first (handles camelCase/UpperCase variations)
-                    var token = JsonHelper.GetNestedProperty(content, "accessToken")
-                                ?? JsonHelper.GetNestedProperty(content, "AccessToken")
-                                ?? JsonHelper.GetNestedProperty(content, "access_token")
-                                ?? JsonHelper.GetNestedProperty(content, "data", "accessToken")
-                                ?? JsonHelper.GetNestedProperty(content, "data", "AccessToken");
-                    
-                    // Backup: Try direct deserialization to AuthResponseDto
-                    if (string.IsNullOrEmpty(token))
+                    // Try direct deserialization first (most reliable)
+                    var authResponse = JsonHelper.Deserialize<AuthResponseDto>(content);
+                    if (authResponse != null && !string.IsNullOrEmpty(authResponse.AccessToken))
                     {
-                        var authResponse = JsonHelper.Deserialize<AuthResponseDto>(content);
-                        if (authResponse != null && !string.IsNullOrEmpty(authResponse.AccessToken))
-                        {
-                            token = authResponse.AccessToken;
-                            Console.WriteLine($"[AuthHelper] Token extracted via direct deserialization");
-                        }
+                        Console.WriteLine($"[AuthHelper] Token extracted via direct deserialization (length: {authResponse.AccessToken.Length})");
+                        return authResponse.AccessToken;
                     }
                     
-                    // Also check if wrapped in Result<T> structure
-                    if (string.IsNullOrEmpty(token))
-                    {
-                        var dataElement = JsonHelper.GetNestedProperty(content, "data");
-                        if (!string.IsNullOrEmpty(dataElement))
-                        {
-                            var nestedAuthResponse = JsonHelper.Deserialize<AuthResponseDto>(dataElement);
-                            if (nestedAuthResponse != null && !string.IsNullOrEmpty(nestedAuthResponse.AccessToken))
-                            {
-                                token = nestedAuthResponse.AccessToken;
-                                Console.WriteLine($"[AuthHelper] Token extracted from Result wrapper");
-                            }
-                        }
-                    }
+                    // Try property extraction (handles PascalCase/camelCase variations)
+                    // Note: ASP.NET Core default is PascalCase (AccessToken), not camelCase
+                    var token = JsonHelper.GetNestedProperty(content, "AccessToken")  // PascalCase (default)
+                                ?? JsonHelper.GetNestedProperty(content, "accessToken")  // camelCase (if configured)
+                                ?? JsonHelper.GetNestedProperty(content, "access_token")  // snake_case
+                                ?? JsonHelper.GetNestedProperty(content, "data", "AccessToken")  // Wrapped in Result
+                                ?? JsonHelper.GetNestedProperty(content, "data", "accessToken");  // Wrapped in Result (camelCase)
                     
                     if (!string.IsNullOrEmpty(token))
                     {
                         Console.WriteLine($"[AuthHelper] Hardcoded Admin Login Successful: Token retrieved ({token.Length} chars)");
                         return token;
                     }
-                    else
+                    
+                    // Last attempt: Check if wrapped in Result<T> structure
+                    var dataElement = JsonHelper.GetNestedProperty(content, "data");
+                    if (!string.IsNullOrEmpty(dataElement))
                     {
-                        Console.WriteLine($"[AuthHelper] Token not found in response. Full response: {content}");
+                        var nestedAuthResponse = JsonHelper.Deserialize<AuthResponseDto>(dataElement);
+                        if (nestedAuthResponse != null && !string.IsNullOrEmpty(nestedAuthResponse.AccessToken))
+                        {
+                            Console.WriteLine($"[AuthHelper] Token extracted from Result wrapper (length: {nestedAuthResponse.AccessToken.Length})");
+                            return nestedAuthResponse.AccessToken;
+                        }
                     }
+                    
+                    Console.WriteLine($"[AuthHelper] ERROR: Token not found in response. Full response: {content}");
                 }
                 else 
                 {
-                    Console.WriteLine($"[AuthHelper] Hardcoded Admin Login Failed ({loginResponse.StatusCode}): {await loginResponse.Content.ReadAsStringAsync()}");
+                    var errorContent = await loginResponse.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[AuthHelper] Hardcoded Admin Login Failed ({loginResponse.StatusCode}): {errorContent}");
                 }
             }
             catch (Exception ex)

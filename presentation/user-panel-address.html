@@ -573,7 +573,7 @@
             </div>
 
             <!-- List of addresses -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div id="addressesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- address one -default -->
                 <div class="bg-white dark:bg-card-dark rounded-xl shadow-soft dark:shadow-soft-dark p-6 border-2 border-primary dark:border-primary-dark relative">
                     <div class="absolute top-4 end-4">
@@ -1167,9 +1167,12 @@
         const container = document.getElementById('addressesContainer');
         if (!container) return;
 
-        if (!Array.isArray(addresses) || addresses.length === 0) {
+        // Extract data from response if it's wrapped
+        const addressList = Array.isArray(addresses) ? addresses : (addresses?.data || []);
+
+        if (!Array.isArray(addressList) || addressList.length === 0) {
             container.innerHTML = `
-                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <div class="col-span-2 text-center py-8 text-gray-500 dark:text-gray-400">
                     <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -1183,40 +1186,50 @@
             return;
         }
 
-        container.innerHTML = addresses.map(address => `
-            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2 space-x-reverse mb-2">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${address.title}</h3>
-                            ${address.isDefault ? '<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">ظ¾غŒط´â€Œظپط±ط¶</span>' : ''}
+        container.innerHTML = addressList.map(address => {
+            const addressText = address.addressLine1 + (address.addressLine2 ? ` - ${address.addressLine2}` : '');
+            const borderClass = address.isDefault ? 'border-2 border-primary dark:border-primary-dark' : 'border border-gray-200 dark:border-gray-700';
+            
+            return `
+                <div class="bg-white dark:bg-card-dark rounded-xl shadow-soft dark:shadow-soft-dark p-6 ${borderClass} relative">
+                    ${address.isDefault ? `
+                        <div class="absolute top-4 end-4">
+                            <span class="px-2 py-1 text-xs rounded-full bg-primary text-white dark:bg-primary-dark">ظ¾غŒط´â€Œظپط±ط¶</span>
                         </div>
-                        <p class="text-gray-600 dark:text-gray-300 mb-2">${address.address}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                            ${address.city} - ${address.province} - ع©ط¯ ظ¾ط³طھغŒ: ${address.postalCode}
-                        </p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">طھظ„ظپظ†: ${address.phone}</p>
+                    ` : ''}
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-medium text-dark dark:text-light mb-2">${address.title || 'ط¢ط¯ط±ط³'}</h3>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                <p>${address.firstName} ${address.lastName}</p>
+                                <p>${addressText}</p>
+                                <p>${address.city} - ${address.state} - ع©ط¯ ظ¾ط³طھغŒ: ${address.postalCode}</p>
+                                ${address.phoneNumber ? `<p>طھظ„ظپظ†: ${address.phoneNumber}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <button onclick="editAddress('${address.id}')" class="text-primary dark:text-primary-dark hover:text-primary/80 dark:hover:text-primary-dark/80">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                            <button onclick="deleteAddress('${address.id}')" class="text-danger dark:text-danger-dark hover:text-danger/80 dark:hover:text-danger-dark/80">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-2 space-x-reverse">
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
                         ${!address.isDefault ? `
-                            <button onclick="setAsDefault('${address.id}')" class="text-blue-600 hover:text-blue-800 text-sm">
+                            <button onclick="setAsDefault('${address.id}')" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                                 طھظ†ط¸غŒظ… ط¨ظ‡ ط¹ظ†ظˆط§ظ† ظ¾غŒط´â€Œظپط±ط¶
                             </button>
                         ` : ''}
-                        <button onclick="editAddress('${address.id}')" class="text-gray-600 hover:text-gray-800">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                        </button>
-                        <button onclick="deleteAddress('${address.id}')" class="text-red-600 hover:text-red-800">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
-                        </button>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // Set address as default
@@ -1265,49 +1278,77 @@
         }
     }
 
-    // Handle add address form submission
-    document.getElementById('addAddressForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const addressData = {
-            title: formData.get('title'),
-            address: formData.get('address'),
-            city: formData.get('city'),
-            province: formData.get('province'),
-            postalCode: formData.get('postalCode'),
-            phone: formData.get('phone'),
-            type: formData.get('type'),
-            isDefault: formData.get('isDefault') === 'on'
-        };
+    // Handle address modal form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('addressModal');
+        if (modal) {
+            const saveButton = modal.querySelector('button.bg-primary');
+            if (saveButton) {
+                saveButton.addEventListener('click', async function() {
+                    const title = document.getElementById('addressTitle')?.value || '';
+                    const province = document.getElementById('province')?.value || '';
+                    const city = document.getElementById('city')?.value || '';
+                    const address = document.getElementById('address')?.value || '';
+                    const postalCode = document.getElementById('postalCode')?.value || '';
+                    const receiverName = document.getElementById('receiverName')?.value || '';
+                    const phone = document.getElementById('phone')?.value || '';
+                    const isDefault = document.getElementById('defaultAddress')?.checked || false;
 
-        // Validate address data
-        const validation = window.addressService.validateAddressData(addressData);
-        if (!validation.isValid) {
-            displayValidationErrors(validation.errors);
-            return;
-        }
+                    // Split receiver name
+                    const nameParts = receiverName.trim().split(' ');
+                    const firstName = nameParts[0] || '';
+                    const lastName = nameParts.slice(1).join(' ') || '';
 
-        try {
-            const submitButton = this.querySelector('button[type="submit"]');
-            window.utils.showLoading(submitButton, 'ط¯ط± ط­ط§ظ„ ط°ط®غŒط±ظ‡...');
-            
-            const response = await window.addressService.createAddress(addressData);
-            
-            if (response.success) {
-                window.utils.showToast('ط¢ط¯ط±ط³ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ط¶ط§ظپظ‡ ط´ط¯', 'success');
-                this.reset();
-                closeAddressModal();
-                await loadAddresses(); // Reload addresses
-            } else {
-                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¢ط¯ط±ط³', 'error');
+                    const addressData = {
+                        title: title,
+                        firstName: firstName,
+                        lastName: lastName,
+                        addressLine1: address,
+                        city: city,
+                        state: province,
+                        postalCode: postalCode,
+                        phoneNumber: phone,
+                        country: 'Iran',
+                        isDefault: isDefault,
+                        isShippingAddress: true,
+                        isBillingAddress: isDefault
+                    };
+
+                    // Validate address data
+                    const validation = window.addressService.validateAddressData(addressData);
+                    if (!validation.isValid) {
+                        displayValidationErrors(validation.errors);
+                        return;
+                    }
+
+                    try {
+                        window.utils.showToast('ط¯ط± ط­ط§ظ„ ط°ط®غŒط±ظ‡...', 'info');
+                        
+                        const response = await window.addressService.createAddress(addressData);
+                        
+                        if (response.success) {
+                            window.utils.showToast('ط¢ط¯ط±ط³ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ط¶ط§ظپظ‡ ط´ط¯', 'success');
+                            closeAddressModal();
+                            await loadAddresses(); // Reload addresses
+                            
+                            // Reset form
+                            document.getElementById('addressTitle').value = '';
+                            document.getElementById('province').value = '';
+                            document.getElementById('city').value = '';
+                            document.getElementById('address').value = '';
+                            document.getElementById('postalCode').value = '';
+                            document.getElementById('receiverName').value = '';
+                            document.getElementById('phone').value = '';
+                            document.getElementById('defaultAddress').checked = false;
+                        } else {
+                            window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¢ط¯ط±ط³', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error creating address:', error);
+                        window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+                    }
+                });
             }
-        } catch (error) {
-            console.error('Error creating address:', error);
-            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
-        } finally {
-            const submitButton = this.querySelector('button[type="submit"]');
-            window.utils.hideLoading(submitButton);
         }
     });
 
