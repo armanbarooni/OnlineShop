@@ -154,7 +154,7 @@ class Utils {
         if (bytes === 0) return '0 Ø¨Ø§ÛŒØª';
         
         const k = 1024;
-        const sizes = ['Ø¨Ø§ÛŒØª', 'Ú©ÛŒÙ„ÙˆØ¨Ø§ÛŒØª', 'Ù…Ú¯Ø§Ø¨Ø§ÛŒØª', 'Ú¯ÛŒÚ¯Ø§Ø¨Ø§ÛŒØª'];
+        const sizes = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
@@ -214,7 +214,7 @@ class Utils {
     static async copyToClipboard(text) {
         try {
             await navigator.clipboard.writeText(text);
-            this.showToast('Ú©Ù¾ÛŒ Ø´Ø¯', 'success');
+            this.showToast('کپی شد', 'success');
         } catch (err) {
             // Fallback for older browsers
             const textArea = document.createElement('textarea');
@@ -223,7 +223,7 @@ class Utils {
             textArea.select();
             document.execCommand('copy');
             document.body.removeChild(textArea);
-            this.showToast('Ú©Ù¾ÛŒ Ø´Ø¯', 'success');
+            this.showToast('کپی شد', 'success');
         }
     }
 
@@ -244,12 +244,12 @@ class Utils {
      */
     static formatOrderStatus(status) {
         const statusMap = {
-            'Pending': 'Ø¯Ø± Ø§Ù†ØªØ¸Ø§Ø±',
-            'Processing': 'Ø¯Ø± Ø­Ø§Ù„ Ù¾Ø±Ø¯Ø§Ø²Ø´',
-            'Shipped': 'Ø§Ø±Ø³Ø§Ù„ Ø´Ø¯Ù‡',
-            'Delivered': 'ØªØ­ÙˆÛŒÙ„ Ø¯Ø§Ø¯Ù‡ Ø´Ø¯Ù‡',
-            'Cancelled': 'Ù„ØºÙˆ Ø´Ø¯Ù‡',
-            'Returned': 'Ù…Ø±Ø¬ÙˆØ¹ Ø´Ø¯Ù‡'
+            'Pending': 'در انتظار',
+            'Processing': 'در حال پردازش',
+            'Shipped': 'ارسال شده',
+            'Delivered': 'تحویل داده شده',
+            'Cancelled': 'لغو شده',
+            'Returned': 'مرجوع شده'
         };
         
         return statusMap[status] || status;
@@ -276,11 +276,11 @@ class Utils {
      */
     static formatReturnStatus(status) {
         const statusMap = {
-            'Pending': 'Ø¯Ø± Ø§Ù†ØªØ¸Ø§Ø± Ø¨Ø±Ø±Ø³ÛŒ',
-            'Approved': 'ØªØ§ÛŒÛŒØ¯ Ø´Ø¯Ù‡',
-            'Rejected': 'Ø±Ø¯ Ø´Ø¯Ù‡',
-            'Processing': 'Ø¯Ø± Ø­Ø§Ù„ Ù¾Ø±Ø¯Ø§Ø²Ø´',
-            'Completed': 'ØªÚ©Ù…ÛŒÙ„ Ø´Ø¯Ù‡'
+            'Pending': 'در انتظار بررسی',
+            'Approved': 'تأیید شده',
+            'Rejected': 'رد شده',
+            'Processing': 'در حال پردازش',
+            'Completed': 'تکمیل شده'
         };
         
         return statusMap[status] || status;
