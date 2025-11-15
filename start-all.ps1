@@ -2,6 +2,57 @@
 
 Write-Host "Starting OnlineShop project..."
 
+function Sync-PresentationAssets {
+    param(
+        [string]$PresentationPath = "presentation",
+        [string]$DestinationPath = "src/WebAPI/wwwroot/fa"
+    )
+
+    if (-not (Test-Path $PresentationPath)) {
+        Write-Host "Presentation folder not found: $PresentationPath" -ForegroundColor Yellow
+        return
+    }
+
+    if (-not (Test-Path $DestinationPath)) {
+        Write-Host "Destination folder not found. Creating $DestinationPath ..."
+        New-Item -ItemType Directory -Path $DestinationPath | Out-Null
+    }
+
+    Write-Host "Syncing presentation assets into $DestinationPath ..." -ForegroundColor Cyan
+
+    # Copy HTML files
+    Get-ChildItem -Path $PresentationPath -Filter *.html -File | ForEach-Object {
+        Copy-Item -Path $_.FullName -Destination (Join-Path $DestinationPath $_.Name) -Force
+    }
+
+    # Copy config.js if exists
+    $configFile = Join-Path $PresentationPath "config.js"
+    if (Test-Path $configFile) {
+        Copy-Item -Path $configFile -Destination (Join-Path $DestinationPath "config.js") -Force
+    }
+
+    # Mirror assets directory
+    $sourceAssets = Join-Path $PresentationPath "assets"
+    $destinationAssets = Join-Path $DestinationPath "assets"
+    if (Test-Path $sourceAssets) {
+        if (-not (Test-Path $destinationAssets)) {
+            New-Item -ItemType Directory -Path $destinationAssets | Out-Null
+        }
+        $robocopyArgs = @(
+            $sourceAssets,
+            $destinationAssets,
+            "/MIR",
+            "/NFL","/NDL","/NJH","/NJS","/NP"
+        )
+        $robocopyResult = Start-Process -FilePath "robocopy" -ArgumentList $robocopyArgs -Wait -NoNewWindow -PassThru
+        if ($robocopyResult.ExitCode -ge 8) {
+            Write-Host "Robocopy failed with exit code $($robocopyResult.ExitCode)" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "Presentation assets folder not found: $sourceAssets" -ForegroundColor Yellow
+    }
+}
+
 # Check Node.js
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
     Write-Host "Node.js is not installed! Skipping frontend startup." -ForegroundColor Yellow
@@ -40,6 +91,9 @@ if (-not $skipFrontend) {
         Set-Location ".."
     }
 }
+
+# Sync presentation assets into ASP.NET static folder
+Sync-PresentationAssets
 
 # Database migration
 Write-Host "Running database migration..."

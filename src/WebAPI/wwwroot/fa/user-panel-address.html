@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -1119,6 +1119,259 @@
 
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/address-service.js"></script>
+
+<script>
+    // Load addresses when page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadAddresses();
+    });
+
+    // Load user addresses
+    async function loadAddresses() {
+        try {
+            window.utils.showLoading(document.getElementById('addressesContainer'), 'ط¯ط± ط­ط§ظ„ ط¨ط§ط±ع¯ط°ط§ط±غŒ...');
+            
+            const response = await window.addressService.getAddresses();
+            
+            if (response.success && response.data) {
+                displayAddresses(response.data);
+            } else {
+                window.utils.showToast('ط®ط·ط§ ط¯ط± ط¨ط§ط±ع¯ط°ط§ط±غŒ ط¢ط¯ط±ط³â€Œظ‡ط§', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading addresses:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+        } finally {
+            window.utils.hideLoading(document.getElementById('addressesContainer'));
+        }
+    }
+
+    // Display addresses in the UI
+    function displayAddresses(addresses) {
+        const container = document.getElementById('addressesContainer');
+        if (!container) return;
+
+        // Extract data from response if it's wrapped
+        const addressList = Array.isArray(addresses) ? addresses : (addresses?.data || []);
+
+        if (!Array.isArray(addressList) || addressList.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-2 text-center py-8 text-gray-500 dark:text-gray-400">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <p>ظ‡ظ†ظˆط² ط¢ط¯ط±ط³غŒ ط«ط¨طھ ظ†ع©ط±ط¯ظ‡â€Œط§غŒط¯</p>
+                    <button onclick="openAddressModal()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">
+                        ط§ظپط²ظˆط¯ظ† ط¢ط¯ط±ط³ ط¬ط¯غŒط¯
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = addressList.map(address => {
+            const addressText = address.addressLine1 + (address.addressLine2 ? ` - ${address.addressLine2}` : '');
+            const borderClass = address.isDefault ? 'border-2 border-primary dark:border-primary-dark' : 'border border-gray-200 dark:border-gray-700';
+            
+            return `
+                <div class="bg-white dark:bg-card-dark rounded-xl shadow-soft dark:shadow-soft-dark p-6 ${borderClass} relative">
+                    ${address.isDefault ? `
+                        <div class="absolute top-4 end-4">
+                            <span class="px-2 py-1 text-xs rounded-full bg-primary text-white dark:bg-primary-dark">ظ¾غŒط´â€Œظپط±ط¶</span>
+                        </div>
+                    ` : ''}
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-medium text-dark dark:text-light mb-2">${address.title || 'ط¢ط¯ط±ط³'}</h3>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                <p>${address.firstName} ${address.lastName}</p>
+                                <p>${addressText}</p>
+                                <p>${address.city} - ${address.state} - ع©ط¯ ظ¾ط³طھغŒ: ${address.postalCode}</p>
+                                ${address.phoneNumber ? `<p>طھظ„ظپظ†: ${address.phoneNumber}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <button onclick="editAddress('${address.id}')" class="text-primary dark:text-primary-dark hover:text-primary/80 dark:hover:text-primary-dark/80">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                            <button onclick="deleteAddress('${address.id}')" class="text-danger dark:text-danger-dark hover:text-danger/80 dark:hover:text-danger-dark/80">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        ${!address.isDefault ? `
+                            <button onclick="setAsDefault('${address.id}')" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                                طھظ†ط¸غŒظ… ط¨ظ‡ ط¹ظ†ظˆط§ظ† ظ¾غŒط´â€Œظپط±ط¶
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Set address as default
+    async function setAsDefault(addressId) {
+        try {
+            const response = await window.addressService.setDefaultAddress(addressId);
+            
+            if (response.success) {
+                window.utils.showToast('ط¢ط¯ط±ط³ ظ¾غŒط´â€Œظپط±ط¶ ط¨ط§ ظ…ظˆظپظ‚غŒطھ طھظ†ط¸غŒظ… ط´ط¯', 'success');
+                await loadAddresses(); // Reload addresses
+            } else {
+                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± طھظ†ط¸غŒظ… ط¢ط¯ط±ط³ ظ¾غŒط´â€Œظپط±ط¶', 'error');
+            }
+        } catch (error) {
+            console.error('Error setting default address:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+        }
+    }
+
+    // Edit address
+    function editAddress(addressId) {
+        // Store address ID for editing
+        sessionStorage.setItem('editingAddressId', addressId);
+        // Redirect to edit page
+        window.location.href = 'user-panel-edit-address.html';
+    }
+
+    // Delete address
+    async function deleteAddress(addressId) {
+        if (!confirm('ط¢غŒط§ ظ…ط·ظ…ط¦ظ† ظ‡ط³طھغŒط¯ ع©ظ‡ ظ…غŒâ€Œط®ظˆط§ظ‡غŒط¯ ط§غŒظ† ط¢ط¯ط±ط³ ط±ط§ ط­ط°ظپ ع©ظ†غŒط¯طں')) {
+            return;
+        }
+
+        try {
+            const response = await window.addressService.deleteAddress(addressId);
+            
+            if (response.success) {
+                window.utils.showToast('ط¢ط¯ط±ط³ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط­ط°ظپ ط´ط¯', 'success');
+                await loadAddresses(); // Reload addresses
+            } else {
+                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ط¢ط¯ط±ط³', 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting address:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+        }
+    }
+
+    // Handle address modal form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('addressModal');
+        if (modal) {
+            const saveButton = modal.querySelector('button.bg-primary');
+            if (saveButton) {
+                saveButton.addEventListener('click', async function() {
+                    const title = document.getElementById('addressTitle')?.value || '';
+                    const province = document.getElementById('province')?.value || '';
+                    const city = document.getElementById('city')?.value || '';
+                    const address = document.getElementById('address')?.value || '';
+                    const postalCode = document.getElementById('postalCode')?.value || '';
+                    const receiverName = document.getElementById('receiverName')?.value || '';
+                    const phone = document.getElementById('phone')?.value || '';
+                    const isDefault = document.getElementById('defaultAddress')?.checked || false;
+
+                    // Split receiver name
+                    const nameParts = receiverName.trim().split(' ');
+                    const firstName = nameParts[0] || '';
+                    const lastName = nameParts.slice(1).join(' ') || '';
+
+                    const addressData = {
+                        title: title,
+                        firstName: firstName,
+                        lastName: lastName,
+                        addressLine1: address,
+                        city: city,
+                        state: province,
+                        postalCode: postalCode,
+                        phoneNumber: phone,
+                        country: 'Iran',
+                        isDefault: isDefault,
+                        isShippingAddress: true,
+                        isBillingAddress: isDefault
+                    };
+
+                    // Validate address data
+                    const validation = window.addressService.validateAddressData(addressData);
+                    if (!validation.isValid) {
+                        displayValidationErrors(validation.errors);
+                        return;
+                    }
+
+                    try {
+                        window.utils.showToast('ط¯ط± ط­ط§ظ„ ط°ط®غŒط±ظ‡...', 'info');
+                        
+                        const response = await window.addressService.createAddress(addressData);
+                        
+                        if (response.success) {
+                            window.utils.showToast('ط¢ط¯ط±ط³ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ط¶ط§ظپظ‡ ط´ط¯', 'success');
+                            closeAddressModal();
+                            await loadAddresses(); // Reload addresses
+                            
+                            // Reset form
+                            document.getElementById('addressTitle').value = '';
+                            document.getElementById('province').value = '';
+                            document.getElementById('city').value = '';
+                            document.getElementById('address').value = '';
+                            document.getElementById('postalCode').value = '';
+                            document.getElementById('receiverName').value = '';
+                            document.getElementById('phone').value = '';
+                            document.getElementById('defaultAddress').checked = false;
+                        } else {
+                            window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¢ط¯ط±ط³', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error creating address:', error);
+                        window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+                    }
+                });
+            }
+        }
+    });
+
+    // Display validation errors
+    function displayValidationErrors(errors) {
+        // Clear previous errors
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+        // Display new errors
+        Object.keys(errors).forEach(field => {
+            const input = document.getElementById(field);
+            if (input) {
+                input.classList.add('input-error');
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message text-red-500 text-sm mt-1';
+                errorDiv.textContent = errors[field];
+                
+                input.parentNode.appendChild(errorDiv);
+            }
+        });
+    }
+
+    // Close modal
+    function closeAddressModal() {
+        const modal = document.getElementById('addressModal');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+</script>
 
 </body>
 </html>
+
+

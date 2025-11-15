@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -994,6 +994,274 @@
 
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/user-profile-service.js"></script>
+
+<script>
+    // Load user profile data when page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadUserProfile();
+    });
+
+    // Open settings modal
+    function openSettings() {
+        window.utils.showToast('طھظ†ط¸غŒظ…ط§طھ ط¯ط± ط­ط§ظ„ طھظˆط³ط¹ظ‡ ط§ط³طھ', 'info');
+    }
+
+    // Logout function
+    async function logout() {
+        try {
+            // Clear tokens from localStorage
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('userData');
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Even if there's an error, clear local data and redirect
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+    }
+
+    // Toggle user dropdown
+    function toggleUserDropdown() {
+        const dropdown = document.getElementById('user-dropdown-menu');
+        const icon = document.getElementById('user-dropdown-icon');
+        
+        if (dropdown && icon) {
+            dropdown.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('user-dropdown');
+        const dropdownMenu = document.getElementById('user-dropdown-menu');
+        
+        if (dropdown && dropdownMenu && !dropdown.contains(event.target)) {
+            dropdownMenu.classList.add('hidden');
+            const icon = document.getElementById('user-dropdown-icon');
+            if (icon) {
+                icon.classList.remove('rotate-180');
+            }
+        }
+    });
+
+    // Load user profile data
+    async function loadUserProfile() {
+        try {
+            window.utils.showLoading(document.getElementById('profileForm'), 'ط¯ط± ط­ط§ظ„ ط¨ط§ط±ع¯ط°ط§ط±غŒ...');
+            
+            const response = await window.userProfileService.getUserProfile();
+            
+            if (response.success && response.data) {
+                populateProfileForm(response.data);
+            } else {
+                window.utils.showToast('ط®ط·ط§ ط¯ط± ط¨ط§ط±ع¯ط°ط§ط±غŒ ط§ط·ظ„ط§ط¹ط§طھ ظ¾ط±ظˆظپط§غŒظ„', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+        } finally {
+            window.utils.hideLoading(document.getElementById('profileForm'));
+        }
+    }
+
+    // Populate profile form with user data
+    function populateProfileForm(profile) {
+        // Update form fields
+        const firstNameInput = document.getElementById('firstName');
+        const lastNameInput = document.getElementById('lastName');
+        const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('phone');
+        const birthDateInput = document.getElementById('birthDate');
+        const genderSelect = document.getElementById('gender');
+        const addressTextarea = document.getElementById('address');
+
+        if (firstNameInput) firstNameInput.value = profile.firstName || '';
+        if (lastNameInput) lastNameInput.value = profile.lastName || '';
+        if (emailInput) emailInput.value = profile.email || profile.userEmail || '';
+        if (phoneInput) phoneInput.value = profile.phone || '';
+        if (birthDateInput) birthDateInput.value = profile.birthDate || '';
+        if (genderSelect) genderSelect.value = profile.gender || '';
+        if (addressTextarea) addressTextarea.value = profile.address || '';
+
+        // Update profile image if available
+        if (profile.profileImage) {
+            const profileImage = document.getElementById('profileImage');
+            if (profileImage) {
+                profileImage.src = profile.profileImage;
+            }
+        }
+
+        // Update user info display
+        updateUserInfoDisplay(profile);
+    }
+
+    // Update user info display
+    function updateUserInfoDisplay(profile) {
+        const nameElement = document.querySelector('[data-user="name"]');
+        const emailElement = document.querySelector('[data-user="email"]');
+        
+        if (nameElement) {
+            nameElement.textContent = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+        }
+        
+        if (emailElement) {
+            emailElement.textContent = profile.email || profile.userEmail || '';
+        }
+    }
+
+    // Handle profile form submission
+    document.getElementById('profileForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const profileData = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            birthDate: formData.get('birthDate'),
+            gender: formData.get('gender'),
+            address: formData.get('address')
+        };
+
+        // Validate profile data
+        const validation = window.userProfileService.validateProfileData(profileData);
+        if (!validation.isValid) {
+            displayValidationErrors(validation.errors);
+            return;
+        }
+
+        try {
+            window.utils.showLoading(this.querySelector('button[type="submit"]'), 'ط¯ط± ط­ط§ظ„ ط°ط®غŒط±ظ‡...');
+            
+            const response = await window.userProfileService.updateProfile(profileData);
+            
+            if (response.success) {
+                window.utils.showToast('ظ¾ط±ظˆظپط§غŒظ„ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯', 'success');
+                updateUserInfoDisplay(profileData);
+            } else {
+                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ظ¾ط±ظˆظپط§غŒظ„', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+        } finally {
+            window.utils.hideLoading(this.querySelector('button[type="submit"]'));
+        }
+    });
+
+    // Display validation errors
+    function displayValidationErrors(errors) {
+        // Clear previous errors
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+        // Display new errors
+        Object.keys(errors).forEach(field => {
+            const input = document.getElementById(field);
+            if (input) {
+                input.classList.add('input-error');
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message text-red-500 text-sm mt-1';
+                errorDiv.textContent = errors[field];
+                
+                input.parentNode.appendChild(errorDiv);
+            }
+        });
+    }
+
+    // Handle profile image upload
+    document.getElementById('profileImageInput').addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            window.utils.showToast('ظ„ط·ظپط§ غŒع© ظپط§غŒظ„ طھطµظˆغŒط±غŒ ط§ظ†طھط®ط§ط¨ ع©ظ†غŒط¯', 'error');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            window.utils.showToast('ط­ط¬ظ… ظپط§غŒظ„ ظ†ط¨ط§غŒط¯ ط¨غŒط´ ط§ط² غµ ظ…ع¯ط§ط¨ط§غŒطھ ط¨ط§ط´ط¯', 'error');
+            return;
+        }
+
+        try {
+            window.utils.showLoading(this, 'ط¯ط± ط­ط§ظ„ ط¢ظ¾ظ„ظˆط¯...');
+            
+            const response = await window.userProfileService.uploadProfilePicture(file);
+            
+            if (response.success) {
+                window.utils.showToast('طھطµظˆغŒط± ظ¾ط±ظˆظپط§غŒظ„ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¢ظ¾ظ„ظˆط¯ ط´ط¯', 'success');
+                
+                // Update profile image display
+                const profileImage = document.getElementById('profileImage');
+                if (profileImage) {
+                    profileImage.src = response.data.imageUrl;
+                }
+            } else {
+                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط¢ظ¾ظ„ظˆط¯ طھطµظˆغŒط±', 'error');
+            }
+        } catch (error) {
+            console.error('Error uploading profile picture:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط¢ظ¾ظ„ظˆط¯ طھطµظˆغŒط±', 'error');
+        } finally {
+            window.utils.hideLoading(this);
+        }
+    });
+
+    // Handle password change form
+    document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // Validate passwords
+        if (newPassword !== confirmPassword) {
+            window.utils.showToast('ط±ظ…ط² ط¹ط¨ظˆط± ط¬ط¯غŒط¯ ظˆ طھط§غŒغŒط¯ ط¢ظ† ظ…ط·ط§ط¨ظ‚طھ ظ†ط¯ط§ط±ظ†ط¯', 'error');
+            return;
+        }
+
+        if (!window.utils.isValidPassword(newPassword)) {
+            window.utils.showToast('ط±ظ…ط² ط¹ط¨ظˆط± ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ¶ ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯', 'error');
+            return;
+        }
+
+        try {
+            window.utils.showLoading(this.querySelector('button[type="submit"]'), 'ط¯ط± ط­ط§ظ„ طھط؛غŒغŒط±...');
+            
+            const response = await window.userProfileService.changePassword(currentPassword, newPassword);
+            
+            if (response.success) {
+                window.utils.showToast('ط±ظ…ط² ط¹ط¨ظˆط± ط¨ط§ ظ…ظˆظپظ‚غŒطھ طھط؛غŒغŒط± غŒط§ظپطھ', 'success');
+                this.reset();
+            } else {
+                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± طھط؛غŒغŒط± ط±ظ…ط² ط¹ط¨ظˆط±', 'error');
+            }
+        } catch (error) {
+            console.error('Error changing password:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+        } finally {
+            window.utils.hideLoading(this.querySelector('button[type="submit"]'));
+        }
+    });
+</script>
 
 </body>
 </html>
+
+

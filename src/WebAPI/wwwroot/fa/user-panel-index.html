@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -1528,7 +1528,389 @@
     }
 
 </script>
+<script src="config.js"></script>
+<script src="assets/js/utils/logger.js"></script>
+<script src="assets/js/plugin/chart-js/chart.js"></script>
+<script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/user-profile-service.js"></script>
+<script src="assets/js/services/order-service.js"></script>
+<script src="assets/js/services/wishlist-service.js"></script>
+
+<!-- chart -->
+<script>
+    // Display the current date in Persian format
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('fa-IR');
+
+    // Load dashboard data when page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadDashboardData();
+    });
+
+    // Logout function
+    async function logout() {
+        try {
+            // Clear tokens from localStorage
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('userData');
+            
+            // Redirect to login page
+            window.location.href = 'login.html';
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Even if there's an error, clear local data and redirect
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+    }
+
+    // Load dashboard data from API
+    async function loadDashboardData() {
+        try {
+            // Show loading state
+            showLoadingState();
+
+            // Load user profile
+            const userProfileResponse = await window.userProfileService.getUserProfile();
+            
+            // Load recent orders
+            const ordersResponse = await window.orderService.getRecentOrders(5);
+            
+            // Load wishlist count
+            const wishlistResponse = await window.wishlistService.getWishlistCount();
+            
+            // Load user statistics
+            const statsResponse = await window.userProfileService.getUserStatistics();
+            
+            // Load notifications
+            const notificationsResponse = await window.userProfileService.getNotifications();
+
+            const dashboardData = {
+                success: true,
+                userProfile: userProfileResponse.success ? userProfileResponse.data : null,
+                recentOrders: ordersResponse.success ? ordersResponse.data : [],
+                wishlistCount: wishlistResponse.success ? wishlistResponse.count : 0,
+                statistics: statsResponse.success ? statsResponse.data : null,
+                notifications: notificationsResponse.success ? notificationsResponse.data : []
+            };
+            
+                updateDashboardUI(dashboardData);
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+            showError('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±');
+        }
+    }
+
+    // Update dashboard UI with real data
+    function updateDashboardUI(data) {
+        // Update user profile info
+        if (data.userProfile) {
+            updateUserProfile(data.userProfile);
+        }
+
+        // Update recent orders
+        if (data.recentOrders) {
+            updateRecentOrders(data.recentOrders);
+        }
+
+        // Update wishlist count
+        if (data.wishlistCount !== undefined) {
+            updateWishlistCount(data.wishlistCount);
+        }
+
+        // Update notifications
+        if (data.notifications) {
+            updateNotifications(data.notifications);
+        }
+
+        // Update statistics cards
+        if (data.statistics) {
+            updateStatisticsCards(data.statistics);
+        }
+    }
+
+    // Update user profile information
+    function updateUserProfile(profile) {
+        const nameElement = document.querySelector('[data-user="name"]');
+        const emailElement = document.querySelector('[data-user="email"]');
+        
+        if (nameElement && profile.firstName && profile.lastName) {
+            nameElement.textContent = `${profile.firstName} ${profile.lastName}`;
+        }
+        
+        if (emailElement && profile.email) {
+            emailElement.textContent = profile.email;
+        }
+    }
+
+    // Update statistics cards
+    function updateStatisticsCards(statistics) {
+        // Update total orders
+        const totalOrdersElement = document.getElementById('totalOrders');
+        if (totalOrdersElement && statistics.totalOrders !== undefined) {
+            totalOrdersElement.textContent = statistics.totalOrders;
+        }
+
+        // Update total wishlist
+        const totalWishlistElement = document.getElementById('totalWishlist');
+        if (totalWishlistElement && statistics.totalWishlist !== undefined) {
+            totalWishlistElement.textContent = statistics.totalWishlist;
+        }
+
+        // Update total reviews
+        const totalReviewsElement = document.getElementById('totalReviews');
+        if (totalReviewsElement && statistics.totalReviews !== undefined) {
+            totalReviewsElement.textContent = statistics.totalReviews;
+        }
+    }
+
+    // Update recent orders section
+    function updateRecentOrders(orders) {
+        const ordersContainer = document.getElementById('recent-orders-container');
+        if (!ordersContainer || !Array.isArray(orders)) return;
+
+        if (orders.length === 0) {
+            ordersContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <p>ظ‡ظ†ظˆط² ط³ظپط§ط±ط´غŒ ط«ط¨طھ ظ†ع©ط±ط¯ظ‡â€Œط§غŒط¯</p>
+                </div>
+            `;
+            return;
+        }
+
+        ordersContainer.innerHTML = orders.map(order => `
+            <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">ط³ظپط§ط±ط´ #${order.id}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">${formatDate(order.orderDate)}</p>
+                    </div>
+                </div>
+                <div class="text-left">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">${formatPrice(order.totalAmount)}</p>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}">
+                        ${getStatusText(order.status)}
+                    </span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Update wishlist count
+    function updateWishlistCount(count) {
+        const wishlistElements = document.querySelectorAll('[data-wishlist-count]');
+        wishlistElements.forEach(el => {
+            el.textContent = count;
+        });
+    }
+
+    // Update notifications
+    function updateNotifications(notifications) {
+        const notificationsContainer = document.getElementById('notifications-container');
+        if (!notificationsContainer || !Array.isArray(notifications)) return;
+
+        if (notifications.length === 0) {
+            notificationsContainer.innerHTML = `
+                <div class="text-center py-4 text-gray-500 dark:text-gray-400">
+                    <p class="text-sm">ظ‡غŒع† ط§ط¹ظ„ط§ظ†غŒ ظ†ط¯ط§ط±غŒط¯</p>
+                </div>
+            `;
+            return;
+        }
+
+        notificationsContainer.innerHTML = notifications.map(notification => `
+            <div class="flex items-start space-x-3 space-x-reverse p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg">
+                <div class="w-2 h-2 bg-primary-500 rounded-full mt-2"></div>
+                <div class="flex-1">
+                    <p class="text-sm text-gray-900 dark:text-white">${notification.title}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">${formatDate(notification.createdAt)}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Load user statistics
+    async function loadUserStatistics() {
+        try {
+            const stats = await dashboardService.getUserStatistics();
+            if (stats.success) {
+                updateStatisticsCards(stats);
+            }
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+        }
+    }
+
+    // Update statistics cards
+    function updateStatisticsCards(stats) {
+        const totalOrdersElement = document.querySelector('[data-stat="total-orders"]');
+        const totalWishlistElement = document.querySelector('[data-stat="total-wishlist"]');
+        const totalReviewsElement = document.querySelector('[data-stat="total-reviews"]');
+
+        if (totalOrdersElement) totalOrdersElement.textContent = stats.totalOrders;
+        if (totalWishlistElement) totalWishlistElement.textContent = stats.totalWishlist;
+        if (totalReviewsElement) totalReviewsElement.textContent = stats.totalReviews;
+    }
+
+    // Show loading state
+    function showLoadingState() {
+        const loadingElements = document.querySelectorAll('[data-loading]');
+        loadingElements.forEach(el => {
+            el.innerHTML = `
+                <div class="flex items-center justify-center">
+                    <svg class="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="mr-2">ط¯ط± ط­ط§ظ„ ط¨ط§ط±ع¯ط°ط§ط±غŒ...</span>
+                </div>
+            `;
+        });
+    }
+
+    // Show error message
+    function showError(message) {
+        const errorContainer = document.getElementById('error-container');
+        if (errorContainer) {
+            errorContainer.innerHTML = `
+                <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-600 dark:text-red-400 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="text-red-600 dark:text-red-400">${message}</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Utility functions
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fa-IR');
+    }
+
+    function formatPrice(amount) {
+        return new Intl.NumberFormat('fa-IR').format(amount) + ' طھظˆظ…ط§ظ†';
+    }
+
+    function getStatusColor(status) {
+        const statusColors = {
+            'Pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+            'Processing': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+            'Shipped': 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+            'Delivered': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+            'Cancelled': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+        };
+        return statusColors[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+    }
+
+    function getStatusText(status) {
+        const statusTexts = {
+            'Pending': 'ط¯ط± ط§ظ†طھط¸ط§ط±',
+            'Processing': 'ط¯ط± ط­ط§ظ„ ظ¾ط±ط¯ط§ط²ط´',
+            'Shipped': 'ط§ط±ط³ط§ظ„ ط´ط¯ظ‡',
+            'Delivered': 'طھط­ظˆغŒظ„ ط¯ط§ط¯ظ‡ ط´ط¯ظ‡',
+            'Cancelled': 'ظ„ط؛ظˆ ط´ط¯ظ‡'
+        };
+        return statusTexts[status] || status;
+    }
+
+    // General settings for Chart.js to support RTL
+    Chart.defaults.font.family = 'payda, sans-serif';
+    Chart.defaults.layout.padding = {
+        right: 20
+    };
+
+    // Create the chart
+    const ctx = document.getElementById('userActivityChart').getContext('2d');
+    const userActivityChart = new Chart(ctx, {
+        type: 'bar', // Chart type (bar, line, pie, etc.)
+        data: {
+            labels: ['ط¯غŒط¯ظ† ظ…ط­طµظˆظ„', 'ط§ط¶ط§ظپظ‡ ع©ط±ط¯ظ† ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯', 'ط®ط±غŒط¯', 'ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ط¹ظ„ط§ظ‚ظ‡ ظ…ظ†ط¯غŒ', 'ظ†ط¸ط±'],
+            datasets: [{
+                label: 'ظپط¹ط§ظ„غŒطھ ظ‡ط§غŒ غŒع© ظ‡ظپطھظ‡ ع¯ط°ط´طھظ‡ ط´ظ…ط§',
+                data: [12, 8, 5, 7, 3],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.7)',
+                    'rgba(16, 185, 129, 0.7)',
+                    'rgba(245, 158, 11, 0.7)',
+                    'rgba(239, 68, 68, 0.7)',
+                    'rgba(139, 92, 246, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(139, 92, 246, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'ظپط¹ط§ظ„غŒطھ ظ‡ط§غŒ ط´ظ…ط§',
+                    font: {
+                        size: 16
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            return context[0].label;
+                        },
+                        label: function(context) {
+                            return 'طھط¹ط¯ط§ط¯: ' + context.raw;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Function to change the chart type dynamically
+    function changeChartType(type) {
+        userActivityChart.config.type = type;
+        userActivityChart.update();
+    }
+
+</script>
 
 
 </body>
 </html>
+
+

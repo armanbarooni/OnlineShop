@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -1094,6 +1094,42 @@
 
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
-
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="config.js"></script>
+<script src="assets/js/utils/logger.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/coupon-service.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await window.couponService.getUserCoupons();
+    const cont = document.getElementById('userCoupons');
+    if (res.success) {
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+      if (!list || list.length === 0) {
+        cont.insertAdjacentHTML('beforeend', '<div class="p-4 text-center text-gray-500">ع©ظˆظ¾ظ†غŒ غŒط§ظپطھ ظ†ط´ط¯</div>');
+      } else {
+        const html = list.map(c => `
+          <div class="border rounded p-3 my-2">
+            <div class="font-bold">${c.code || ''}</div>
+            <div class="text-sm text-gray-600">${c.title || ''}</div>
+            <div>ظ…ظ‚ط¯ط§ط±: ${c.discountAmount ?? c.percent ?? 0}</div>
+            <div>طھط§ط±غŒط® ط§ظ†ظ‚ط¶ط§: ${c.expireAt ? Utils.formatPersianDate(c.expireAt) : '-'}</div>
+          </div>
+        `).join('');
+        cont.insertAdjacentHTML('beforeend', html);
+      }
+    } else {
+      window.utils?.showToast(res.error || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ع©ظˆظ¾ظ†â€Œظ‡ط§', 'error');
+    }
+  } catch (e) {
+    window.utils?.showToast('ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ع©ظˆظ¾ظ†â€Œظ‡ط§', 'error');
+  }
+});
+</script>
 </body>
 </html>
+
+

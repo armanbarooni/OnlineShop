@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -1018,7 +1018,6 @@
         </div>
     </div>
 </div>
-
 <script>
     // Delete modal management
     const deleteModal = document.getElementById('deleteModal');
@@ -1047,6 +1046,183 @@
 
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/address-service.js"></script>
+
+<script>
+    let currentAddressId = null;
+
+    // Load address data when page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+        currentAddressId = sessionStorage.getItem('editingAddressId');
+        
+        if (!currentAddressId) {
+            window.utils.showToast('آدرس مورد نظر یافت نشد', 'error');
+            setTimeout(() => {
+                window.location.href = 'user-panel-address.html';
+            }, 2000);
+            return;
+        }
+
+        await loadAddressData();
+    });
+
+    // Load address data for editing
+    async function loadAddressData() {
+        try {
+            window.utils.showLoading(document.getElementById('editAddressForm'), 'در حال بارگذاری...');
+            
+            const response = await addressService.getAddressById(currentAddressId);
+            
+            if (response.success && response.data) {
+                populateForm(response.data);
+            } else {
+                window.utils.showToast('خطا در بارگذاری اطلاعات آدرس', 'error');
+                setTimeout(() => {
+                    window.location.href = 'user-panel-address.html';
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error loading address data:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+            setTimeout(() => {
+                window.location.href = 'user-panel-address.html';
+            }, 2000);
+        } finally {
+            window.utils.hideLoading(document.getElementById('editAddressForm'));
+        }
+    }
+
+    // Populate form with address data
+    function populateForm(address) {
+        document.getElementById('title').value = address.title || '';
+        document.getElementById('address').value = address.address || '';
+        document.getElementById('city').value = address.city || '';
+        document.getElementById('province').value = address.province || '';
+        document.getElementById('postalCode').value = address.postalCode || '';
+        document.getElementById('phone').value = address.phone || '';
+        document.getElementById('type').value = address.type || 'home';
+        document.getElementById('isDefault').checked = address.isDefault || false;
+    }
+
+    // Handle edit address form submission
+    document.getElementById('editAddressForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const addressData = {
+            title: formData.get('title'),
+            address: formData.get('address'),
+            city: formData.get('city'),
+            province: formData.get('province'),
+            postalCode: formData.get('postalCode'),
+            phone: formData.get('phone'),
+            type: formData.get('type'),
+            isDefault: formData.get('isDefault') === 'on'
+        };
+
+        // Validate address data
+        const validation = addressService.validateAddressData(addressData);
+        if (!validation.isValid) {
+            displayValidationErrors(validation.errors);
+            return;
+        }
+
+        try {
+            const submitButton = this.querySelector('button[type="submit"]');
+            window.utils.showLoading(submitButton, 'در حال ذخیره...');
+            
+            const response = await addressService.updateAddress(currentAddressId, addressData);
+            
+            if (response.success) {
+                window.utils.showToast('آدرس با موفقیت ویرایش شد', 'success');
+                setTimeout(() => {
+                    window.location.href = 'user-panel-address.html';
+                }, 1500);
+            } else {
+                window.utils.showToast(response.error || 'خطا در ویرایش آدرس', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating address:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        } finally {
+            const submitButton = this.querySelector('button[type="submit"]');
+            window.utils.hideLoading(submitButton);
+        }
+    });
+
+    // Handle delete address
+    async function confirmDelete() {
+        if (!confirm('آیا مطمئن هستید که می‌خواهید این آدرس را حذف کنید؟')) {
+            return;
+        }
+
+        try {
+            const response = await addressService.deleteAddress(currentAddressId);
+            
+            if (response.success) {
+                window.utils.showToast('آدرس با موفقیت حذف شد', 'success');
+                setTimeout(() => {
+                    window.location.href = 'user-panel-address.html';
+                }, 1500);
+            } else {
+                window.utils.showToast(response.error || 'خطا در حذف آدرس', 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting address:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        }
+    }
+
+    // Display validation errors
+    function displayValidationErrors(errors) {
+        // Clear previous errors
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+        // Display new errors
+        Object.keys(errors).forEach(field => {
+            const input = document.getElementById(field);
+            if (input) {
+                input.classList.add('input-error');
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message text-red-500 text-sm mt-1';
+                errorDiv.textContent = errors[field];
+                
+                input.parentNode.appendChild(errorDiv);
+            }
+        });
+    }
+
+    // Toggle password visibility
+    function togglePasswordVisibility(fieldId) {
+        const field = document.getElementById(fieldId);
+        const toggleButton = document.querySelector(`[onclick="togglePasswordVisibility('${fieldId}')"]`);
+        
+        if (field && toggleButton) {
+            if (field.type === 'password') {
+                field.type = 'text';
+                toggleButton.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
+                    </svg>
+                `;
+            } else {
+                field.type = 'password';
+                toggleButton.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                `;
+            }
+        }
+    }
+</script>
 
 </body>
 </html>
