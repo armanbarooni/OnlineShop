@@ -1,11 +1,11 @@
 ﻿<!doctype html>
-<html lang="en" dir="rtl">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>قالب فرشگاهی آرینو</title>
+    <title>ثبت نام | آرینو کالا</title>
     <meta name="description" content="قالب فرشگاهی آرینو، بهترین قالب برای فروشگاه‌های اینترنتی با طراحی مدرن و واکنش‌گرا.">
     <meta name="keywords" content="قالب فروشگاهی, قالب آرینو, فروشگاه اینترنتی, طراحی واکنش‌گرا">
     <meta name="robots" content="index, follow">
@@ -98,7 +98,7 @@
                         <div>
                             <label for="mobile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره موبایل</label>
                             <div class="relative">
-                                <input type="tel" id="mobile" class="w-full ps-4 pe-10 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="09xxxxxxxxx" required>
+                                <input type="tel" id="mobile" class="w-full ps-4 pe-12 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="09xxxxxxxxx" required inputmode="numeric" pattern="09[0-9]{9}" maxlength="11" dir="ltr">
                                 <div class="absolute input-icon top-1/2 transform -translate-y-1/2 text-gray-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -268,7 +268,7 @@
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-500 dark:text-gray-400">
                         قبلاً حساب کاربری دارید؟
-                        <a href="#" class="font-medium text-primary dark:text-primary-dark hover:underline">وارد شوید</a>
+                        <a href="login.html" class="font-medium text-primary dark:text-primary-dark hover:underline">وارد شوید</a>
                     </p>
                 </div>
             </div>
@@ -276,207 +276,8 @@
     </div>
 </div>
 
-<script src="assets/js/dependencies/app.js"></script>
 
 
-<script>
-    // Step change function
-    function nextStep(current, next) {
-        // Validate current step
-        if(current === 1) {
-            const firstName = document.getElementById('first-name').value;
-            const lastName = document.getElementById('last-name').value;
-            const mobile = document.getElementById('mobile').value;
-
-            if(!firstName || !lastName || !mobile) {
-                alert('لطفا تمام فیلدهای اجباری را پر کنید');
-                return;
-            }
-
-            if(!/^09\d{9}$/.test(mobile)) {
-                alert('لطفا شماره موبایل معتبر وارد کنید');
-                return;
-            }
-        } else if(current === 2) {
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-
-            if(!password || !confirmPassword) {
-                alert('لطفا رمز عبور و تکرار آن را وارد کنید');
-                return;
-            }
-
-            if(password !== confirmPassword) {
-                alert('رمز عبور و تکرار آن مطابقت ندارند');
-                return;
-            }
-
-            // Check password strength
-            const strength = checkPasswordStrength(true);
-            if(strength < 3) {
-                alert('لطفا رمز عبور قوی‌تری انتخاب کنید');
-                return;
-            }
-        }
-
-        // Hide current step
-        document.getElementById(`step${current}`).classList.remove('active');
-
-        // Show next step
-        document.getElementById(`step${next}`).classList.add('active');
-
-        // Update step indicator
-        updateStepIndicator(current, next);
-
-        // If next step is review, show the info
-        if(next === 3) {
-            updateReviewSection();
-        }
-    }
-
-    function prevStep(current, prev) {
-        // Hide current step
-        document.getElementById(`step${current}`).classList.remove('active');
-
-        // Show previous step
-        document.getElementById(`step${prev}`).classList.add('active');
-
-        // Update step indicator
-        updateStepIndicator(current, prev, false);
-    }
-
-    function updateStepIndicator(current, next, isNext = true) {
-        // Update step circle
-        document.querySelector(`.step-circle[data-step="${next}"]`).classList.remove('inactive');
-        document.querySelector(`.step-circle[data-step="${next}"]`).classList.add('active');
-
-        // Update connecting line
-        if(isNext) {
-            document.querySelectorAll('.step-line')[current-1].classList.add('active');
-        } else {
-            document.querySelectorAll('.step-line')[next-1].classList.remove('active');
-            document.querySelector(`.step-circle[data-step="${current}"]`).classList.remove('active');
-            document.querySelector(`.step-circle[data-step="${current}"]`).classList.add('inactive');
-        }
-    }
-
-    function updateReviewSection() {
-        document.getElementById('review-name').textContent =
-            `${document.getElementById('first-name').value} ${document.getElementById('last-name').value}`;
-
-        document.getElementById('review-mobile').textContent =
-            document.getElementById('mobile').value;
-
-        document.getElementById('review-email').textContent =
-            document.getElementById('email').value || 'وارد نشده';
-    }
-
-    function submitForm() {
-        const terms = document.getElementById('terms').checked;
-
-        if(!terms) {
-            alert('لطفا با قوانین و مقررات موافقت کنید');
-            return;
-        }
-
-        // You can send form data to the server here
-        alert('ثبت نام شما با موفقیت انجام شد!');
-        // window.location.href = '/dashboard'; // Redirect to dashboard
-    }
-
-    // Show/hide password function
-    function togglePassword(id) {
-        const passwordInput = document.getElementById(id);
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-    }
-
-    // Password strength checker function
-    function checkPasswordStrength(silent = false) {
-        const password = document.getElementById('password').value;
-        const strengthBar = document.getElementById('password-strength-bar');
-
-        // Check password conditions
-        const hasMinLength = password.length >= 8;
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasNumber = /[0-9]/.test(password);
-        const hasSpecialChar = /[!@#$%^&*]/.test(password);
-
-        // Update requirement indicators
-        updateRequirement('req-length', hasMinLength);
-        updateRequirement('req-uppercase', hasUpperCase);
-        updateRequirement('req-lowercase', hasLowerCase);
-        updateRequirement('req-number', hasNumber);
-        updateRequirement('req-special', hasSpecialChar);
-
-        // Calculate password strength
-        let strength = 0;
-        if(hasMinLength) strength++;
-        if(hasUpperCase) strength++;
-        if(hasLowerCase) strength++;
-        if(hasNumber) strength++;
-        if(hasSpecialChar) strength++;
-
-        // Update strength bar
-        strengthBar.className = 'password-strength-bar';
-
-        if(password.length === 0) {
-            strengthBar.style.width = '0';
-        } else {
-            switch(strength) {
-                case 1:
-                    strengthBar.classList.add('password-strength-weak');
-                    break;
-                case 2:
-                    strengthBar.classList.add('password-strength-weak');
-                    break;
-                case 3:
-                    strengthBar.classList.add('password-strength-medium');
-                    break;
-                case 4:
-                    strengthBar.classList.add('password-strength-medium');
-                    break;
-                case 5:
-                    strengthBar.classList.add('password-strength-strong');
-                    break;
-                default:
-                    strengthBar.style.width = '0';
-            }
-        }
-
-        // Check if password matches
-        checkPasswordMatch();
-
-        return strength;
-    }
-
-    function updateRequirement(id, isValid) {
-        const element = document.getElementById(id);
-        element.classList.remove('valid', 'invalid');
-        element.classList.add(isValid ? 'valid' : 'invalid');
-    }
-
-    // Password match checker function
-    function checkPasswordMatch() {
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
-        const messageElement = document.getElementById('password-match-message');
-
-        if(password && confirmPassword) {
-            if(password === confirmPassword) {
-                messageElement.textContent = 'رمز عبورها مطابقت دارند';
-                messageElement.style.color = '#10B981';
-            } else {
-                messageElement.textContent = 'رمز عبورها مطابقت ندارند';
-                messageElement.style.color = '#EF4444';
-            }
-        } else {
-            messageElement.textContent = '';
-        }
-    }
-
-</script>
 <script src="config.js"></script>
 <script src="assets/js/utils/logger.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
@@ -1688,17 +1489,11 @@
         if(password && confirmPassword) {
 
             if(password === confirmPassword) {
-
-                messageElement.textContent = 'ط±ظ…ط² ط¹ط¨ظˆط±ظ‡ط§ ظ…ط·ط§ط¨ظ‚طھ ط¯ط§ط±ظ†ط¯';
-
+                messageElement.textContent = 'رمز عبورها مطابقت دارند';
                 messageElement.style.color = '#10B981';
-
             } else {
-
-                messageElement.textContent = 'ط±ظ…ط² ط¹ط¨ظˆط±ظ‡ط§ ظ…ط·ط§ط¨ظ‚طھ ظ†ط¯ط§ط±ظ†ط¯';
-
+                messageElement.textContent = 'رمز عبورها مطابقت ندارند';
                 messageElement.style.color = '#EF4444';
-
             }
 
         } else {
@@ -1718,7 +1513,6 @@
 </body>
 
 </html>
-
 
 
 

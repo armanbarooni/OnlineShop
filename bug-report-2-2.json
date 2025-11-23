@@ -1,0 +1,91 @@
+{
+  "Sheet1": [
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "لینک وارد شوید",
+      "object location": "پایین صفحه",
+      "code location": "<div class=\"mt-6 text-center\">",
+      "object problem": "لینک اشتباه عدم کار",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "متن کد اضافه",
+      "object location": "زیر صفحه",
+      "code location": "آخر <body>",
+      "object problem": "مشکل نمایش کد جاوااسکریپت",
+      "code problem": "کد درون هیچ المنتی نیست "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "دکمه مرحله بعد",
+      "object location": "پایین ورودی اطلاعات ",
+      "code location": "<div class=\"pt-4\">",
+      "object problem": "ارور با متن به هم ریخته بعد از کلیک",
+      "etc": "کد بعد از طی چند ثانیه محو میشود و در سورس کد خود سایت هم نیست "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "placeholder",
+      "object location": "تکس باکس شماره موبایل",
+      "code location": "<div class=\"relative\">",
+      "object problem": "اورلپ هلدر با ایکون تلفن",
+      "code problem": "<input type=\"tel\" id=\"mobile\" class=\"w-full ps-4 pe-10 py-3 border rounded-xl focu...."
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "تکس باکس",
+      "object location": "تمام تکس باکس های این قسمت",
+      "code location": "<form class=\"space-y-5\">",
+      "object problem": "در صورت استفاده از اطلاعات ذخیره شده های گوگل تکس باکس رنگ عوض میکند و سفید میشود و سفید می مانند"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "تکس باکس شماره تماس",
+      "object location": "سومین تکس باکس این قسمت",
+      "code location": "<div class=\"relative\">",
+      "object problem": "اورلپ نوشته با ایکون تلفن"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "دکمه مرحله بعد فاز 2",
+      "object location": "پایین ووردی اطلاعات ",
+      "code location": "<div class=\"pt-4 flex space-x-3\">",
+      "object problem": "ارور با متن به هم ریخته بعد از کلیک"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "دکمه هیدن اضافه",
+      "object location": "تکس باکس پسسورد و تکرار پسسورد",
+      "code location": "<input type=\"password\" id=\"password\"",
+      "object problem": "وجود دکمه هیدن اضافه در سمت چپ"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "دکمه ثبت نام ",
+      "object location": "پایین",
+      "code location": "<div class=\"pt-4 flex space-x-3\">",
+      "object problem": "به هنگام تایید نکردن قوانین و ... ارور متن به هم ریحته بعد از کلیک"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "تکس باکس ایمیل در فاز2",
+      "object location": "بالا",
+      "code location": "<input type=\"email\" id=\"email\"",
+      "object problem": "تاثیر نداشتن وجود یا نبود @gmail.com به هنگام رد شدن از این مرحله"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "ارور مچ بودن یا نبودن  دو پسسورد",
+      "object location": "زیر اخرین تکس باکس",
+      "code location": "<div class=\"relative\">",
+      "object problem": "به هم ریختگی متن در دو حالت "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/register.html",
+      "object/name": "دکمه ثبت نام فاز سوم  ",
+      "object location": "پایین",
+      "object problem": "به هم ریختگی متن بعد از کلیک و تریگر کردن پیغام حاوی متن به هم ریخته "
+    }
+  ]
+}
