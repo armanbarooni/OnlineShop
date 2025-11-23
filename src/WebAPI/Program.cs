@@ -179,6 +179,16 @@ var shouldSeedDefaults = !string.Equals(
     "false",
     StringComparison.OrdinalIgnoreCase);
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    if (db.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+    {
+        db.Database.Migrate();
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -194,11 +204,6 @@ if (app.Environment.IsDevelopment())
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        if (db.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
-        {
-            db.Database.Migrate();
-        }
 
         if (shouldSeedDefaults)
         {
