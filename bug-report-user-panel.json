@@ -1,0 +1,535 @@
+{
+  "Sheet1": [
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "site tab name and addrese bar",
+      "object location in page": "<head> section",
+      "code location": "line 1 to 21",
+      "object problem": "name"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "search bar",
+      "object location in page": "top",
+      "code location": "line 486",
+      "object problem": "not working",
+      "code problem": "idk",
+      "etc": "مشکل اینه نه با اینتر واکنش میده اون ذره بین بغلشم صرفا ایکون خالیه بهتره فانکشن اینتر رو انجام بده "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "notification slidbar (delete needed)",
+      "object location in page": "top left",
+      "code location": "line 1255 to 1329",
+      "object problem": "delete button not working in the slid bar notification menu dissfunction",
+      "code problem": "idk"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "messege slidbar (delete needed)",
+      "object location in page": "top left",
+      "code location": "1173 to 1251",
+      "object problem": "delete button not working in the slid bar notification menu dissfunction",
+      "code problem": "dik"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "دکمه افزودن موجودی",
+      "object location in page": "top left",
+      "code location": "line 586 to 593",
+      "object problem": "not working",
+      "code problem": "not linked",
+      "etc": "اصلا برام مشخص نیست این دکمه میخواد چیکار کنه "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "profile drop down menu ( top left )",
+      "object location in page": "drop down menu",
+      "code location": "profile link 538 to 547",
+      "object problem": "not working",
+      "code problem": "href=\"#\"",
+      "etc": "سه دکمه لیست لینک نشدن "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object location in page": "drop down menu",
+      "code location": "settings link 549 to 560",
+      "object problem": "not working",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object location in page": "drop down menu",
+      "code location": "logout link 562 to 575",
+      "object problem": "not working",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object location in page": "drop down menu",
+      "code location": "(settings icon) line 550 to 551",
+      "object problem": "looks wrong",
+      "code problem": "overlap maybe?",
+      "etc": "ایکون ستینگ در لیست شبیه اورلپ دو ایکون است در صورت ایگنور ایراد های بنی اسراییلی کلا دس به کد نزنید"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "scrollbars",
+      "object location in page": "on the menu and left",
+      "code location": "page content",
+      "object problem": "theme mismatch",
+      "etc": "در صورت توان پس زمینه اسکرول بار را ترنسپرنت یا به رنگ پس زمینه نزدیک خودش در بیارید"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "div موجودی کیف پول",
+      "object location in page": "top right",
+      "code location": "line 598 to 616",
+      "object problem": "no need for it now",
+      "code problem": "delete required  "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "دکمه مشاهده همه در سفارشات فعال ",
+      "object location in page": "top right",
+      "code location": "line 632",
+      "object problem": "not linked",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "دکمه مشاهده همه در علاقه مندی ها ",
+      "object location in page": "top left",
+      "code location": "line 650",
+      "object problem": "not linked",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "div امتیاز شما از صد",
+      "object location in page": "top left",
+      "code location": "line 654 to 675",
+      "object problem": "no need for it now",
+      "code problem": "delete required  "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "div x2 (chart and transactions )",
+      "object location in page": "middle",
+      "code location": "line 678 to 772",
+      "object problem": "no need for it now",
+      "code problem": "delete required  "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "دکمه مشاهده همه در سفارشات اخیر",
+      "object location in page": "middle",
+      "code location": "line 777 to 778",
+      "object problem": "not linked",
+      "code problem": "href=\"#\"",
+      "etc": "این قسمت رو ببین میخوای یا نه تو ویدیعو اسکرول نکردی پایین اگر نمیخوایش سکشن      <!-- Recent orders --> رو کامل پاک کن"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "دکمه های جزعیات در سفارشات اخیر (X3)",
+      "object location in page": "middle",
+      "code location": "line 808 and 827 and 846",
+      "object problem": "not linked",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "div محصولات پیشنهادی برای شما",
+      "object location in page": "bottom",
+      "code location": "line 859 to 1170",
+      "object problem": "به نظرم برای این قسمت نیازی نیست.",
+      "etc": "در صورت نخواستن دلیت کن. اگر نه باگاش پایینه"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "دکمه مشاهده همه در محصولات پیشنهادی برای شما",
+      "object location in page": "bottom",
+      "code location": "line 863 to 864",
+      "object problem": "not linked",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "کالا های قسمت محصولات پیشنهادی x4",
+      "object location in page": "bottom",
+      "code location": "line 870 to 1170",
+      "object problem": "No webpage was found for the web address: http://130.185.73.167:8080/product/......",
+      "etc": "در صورت کلیک به صفحه خود کالا نمیره و چیزی تعریف نشده یا تعریف شده ولی اشتباه وصل شده ضمنا همشون به یه ادرس وصلن"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "دکمه های افزودن به علاقه مندی x4",
+      "object location in page": "bottom",
+      "code location": "line 870 to 1170",
+      "object problem": "کاری نمیکنه یا فانکشن براش تعریف نشده"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "دکمه های مشاهده جزعیات x4",
+      "object location in page": "bottom",
+      "code location": "line 870 to 1170"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "دکمه های مقایسه محصول x4",
+      "object location in page": "bottom",
+      "code location": "line 870 to 1170"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "رنگ بندی کالا ها x4",
+      "object location in page": "bottom",
+      "code location": "line 870 to 1170",
+      "object problem": "نمیدونم پویا هستن یا نه فقط نمان",
+      "etc": "منظور اینه از طریق پنل کاربری بتونی شخصی سازی کنی و رنگاش کامل باشه"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "دکمه خرید یا افرودن به سبد خرید x4",
+      "object location in page": "bottom",
+      "code location": "line 870 to 1170",
+      "object problem": "یه دونه تول تیپ بذار براش موس میاد روش بدونیم چی هست اصلا و اینکه کاری نمیکنه ",
+      "etc": "دکمه نارنجی بغل کالاهاس که شبیه کیف خریده"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-index.html#",
+      "object/name": "id mismatch ",
+      "object location in page": "top right and top left",
+      "code location": "line 528 and 583 and 452",
+      "object problem": "همه به عنوان مریم محمدی میرن داخل",
+      "etc": "کلا انگار یه پنل کاربری هست همه ریدایرکت میشیم رو اون "
+    },
+    {
+      "object/name": "پایان قسمت پیشخوان و پیشفرض پنل"
+    },
+    {
+      "object/name": "قسمت پروفایل دقت داشته باش ادرس پیج عوض میشه "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object/name": "kickout bug ",
+      "object location in page": "...",
+      "code location": "...",
+      "object problem": "...",
+      "code problem": "به هنگام کلیک روی این قسمت کیک شدیم بیرون از پنل کاربری",
+      "etc": "ساعت 3:49 دقیقه این اتفاق افتاد و سایت ( قسمت پنل کاربری ) حدودا 2 ساعت و 50 دقیقه باز بود رو سیستم"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object/name": "dashboard bug",
+      "object location in page": "top right",
+      "code location": "line 44 to 54",
+      "object problem": "به صورت داعم سلکت شده و نارنجی که یه نقطه هم کنارشه",
+      "etc": "من به عنوان یوزر حس میکنم این افکت بعد از سلکت کردنه که گیر کرده روی این...یا کلا برش دارید یا هر گزینه ای تو داشبورد سلکت شد و توش بودیم نارنجی بشه با اون نقطه کنارش مث نشانگر اینکه تو کدوم قسمتیم "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object/name": "unknown error",
+      "object location in page": "top right",
+      "code location": "script part",
+      "object problem": "بعد از 3 ثانیه از کلیک روی تب پروفایل توی داشبورد یه ارور میاد که متنش به هم ریختس و معلوم نیست بابت چی میاد.",
+      "code problem": "ارور بعد از چند ثانیه غیب میشه نمیشه دید دقیق کجاس ولی هر چی هست تو قسمت اسکریپ پایین کده. اسکرین چیزی که میسازه رو گذاشتم "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object/name": "profile drop down",
+      "object location in page": "top left",
+      "code location": "line 535 to 537",
+      "object problem": "وقتی در قسمت پروفایل هستیم کار نمیکنه",
+      "code problem": "کدش ناقصه به نسبت اونی که کار میکنه تو قسمت پیشخوان"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object/name": "دکمه تنظیمات",
+      "object location in page": "top left",
+      "code location": "line 587 to 592",
+      "object problem": "کار نمیکنه باید حذف شه"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object/name": "div وضعیت حساب ",
+      "object location in page": "left side",
+      "code location": "line  671 to 716",
+      "object problem": "حذف باید شه "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object/name": " اطلاعات شخصی",
+      "object location in page": "نام",
+      "code location": "line 629 to 632",
+      "object problem": "value=\"مریم\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object location in page": "نام خانوادگی",
+      "code location": "line 633 to 636",
+      "object problem": "value=\"محمدی\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object location in page": "پست الکترونیکی ",
+      "code location": "line 638 to 641",
+      "object problem": "value=\"maryam.mohammadi@example.com\">",
+      "code problem": "فکر کنم ولیو باید مجهولی باشه که از طریق فانکشن با مشخصات ما پر شه این تو کد پیش فرض پر کرده"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object location in page": "شماره موبایل",
+      "code location": "line 643 to 646",
+      "object problem": "value=\"09123456789\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object location in page": "تاریخ تولد",
+      "code location": "line 647 to 650",
+      "object problem": "value=\"1370/05/12\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object location in page": "کد ملی",
+      "code location": "line 652 to 655",
+      "object problem": " value=\"1234567890\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object location in page": "دکمه ذخیره تغییرات ",
+      "code location": "line 657 to 660",
+      "object problem": "کار نمیکنه چیزی براش تعریف نشده "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object location in page": "لینک تغییر تصویر",
+      "code location": "line 622 to 624",
+      "object problem": "کار نمیکنه و چیزی تعریف نشده براش در واقع این دکمس و یه نوشته زیرشه لینک نیست ",
+      "code problem": "این دوتا در واقع باید یه پنل باز کنن که ما عکس بدیم به سایت "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-profile.html",
+      "object location in page": "ایکون لینک تغییر تصویر",
+      "code location": "line 616 to 621",
+      "object problem": "کار نمیکنه و چیزی براش تعریف نشده "
+    },
+    {
+      "object/name": "پایان قسمت پروفایل"
+    },
+    {
+      "object/name": "قسمت سفارش ها ( لیست سفارش ها ) دقت کن ادرس پیج عوض میشه"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object/name": "unknown error ",
+      "object location in page": "top left ",
+      "code location": "script part",
+      "object problem": "همون ارور که بعد 3 ثانیه ناپدید میشه و متنش به هم ریختس ",
+      "code problem": "مورد مشابه خط 33 اکسل"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object/name": "filter section div (delete)",
+      "object location in page": "top",
+      "code location": "line 580 to 636",
+      "object problem": "no need for it ",
+      "code problem": "delete"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object/name": "بخش سفارشات اخیر",
+      "object location in page": "دکمه همه",
+      "code location": "line 642",
+      "object problem": "دکمه ها کار نمیکنن مث که چیزی براشون تعریف نشده. ",
+      "etc": "سلکتور گیر کرده رو همه و حتی اگر عملکرد بقیه دکمه ها هم کار کنه من نمیفهمم "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object location in page": "دکمه درحال پردازش",
+      "code location": "line 643"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object location in page": "دکمه ارسال شده",
+      "code location": "line 644"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object location in page": "نبود نمونه سفارش",
+      "code location": "...",
+      "object problem": "یه چند تا نمونه سفارش باید اینجا باشه تا چیدمان و عملکردشو بشه دید"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object location in page": "متن به هم ریخته وسط کار",
+      "code location": "line 658 to 767",
+      "object problem": "این در واقع یه قسمتی از یه جدوله که با تگ <tbody> باز و بسته شده و لود نشده درست این اومده جدول رو گروپ کنه که بدون اسکرول خود صفحه بشه جدول رو اسکرول کرد",
+      "etc": "<!-- List of orders -->"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object location in page": "نوشته نمایش صفحه",
+      "code location": "line 771",
+      "object problem": "بهش نمیخوره پویا باشه مثلا اگر سالم بود و ما 1 سفارش داشتیم باید بگه صفحه 1 از 1  ضمنا اگر گروپ شدن که جدول راحت اسکرول بخوره دیگه صفحه بندی برا چیشه ؟؟؟",
+      "etc": "یا یه تیکه باشه اسکرول بخوره یا تعداد مشخص نشون بده صفحه بندی شه"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object location in page": "دکمه قبلی",
+      "code location": "line 772 to 785",
+      "object problem": "دکمه ها کار نمیکنن و سلکتور لاک شده روی دکمه قبلی دکمه های عددی هم باید پوبا باشن در صورت لزوم مثلا اگر تعداد رفت بالا اعداد و دکمه اتومات اضاف شه  "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object location in page": "دکمه 1 و 2"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object location in page": "دکمه بعدی"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object/name": "Order tracking section div (delete)",
+      "object location in page": "mid page",
+      "code location": "line 789 to 798",
+      "object problem": "no need for it ",
+      "code problem": "delete"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-order.html",
+      "object/name": "Order status guide section div (delete)",
+      "object location in page": "bottom",
+      "code location": "line 800 to 833",
+      "object problem": "no need for it ",
+      "code problem": "delete"
+    },
+    {
+      "object/name": "kickout bug",
+      "object problem": "بعد از حدود 1 ساعت و 40 دقیقه تو این قسمت کل سایت باگ میخوره رو هر تبی از داشبورد بزنی میری برا لوگین دوباره بعد بک بزنی میری تو پنل تا اینکه بعد چند دقیقه دیگه کلا بک هم نمیتونی بزنی و مجبور به لوگین دوباره میشی جالب اینه تو او فاصله که این اتفاق میوفته قسمت هایی که میپرن گاهی میمونن ولی بعد از چند بار رفت و امد کلا میندازدت بیرون"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object/name": "قسمت علاقه مندی ها دقت کن ادرس پیج عوض شد "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object/name": "دکمه حذف انتخاب شده ها",
+      "object location in page": "top left",
+      "code location": "line 587 to 592",
+      "object problem": "کار نمیکنه"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object/name": "دکمه افزودن همه به سبد خرید",
+      "object location in page": "top left",
+      "code location": "line 593 to 598",
+      "object problem": "کار نمیکنه اما یه نکته اگر اضاف میکنه به سبد خرید خود قسمت سبد خرید دقیقا کجاس ؟ به نظرم باید یه قسمت جدا داشته باشیم برای سبد خرید"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object/name": "Filters and sorting div با توجه به توضیحات قبلی احتمالا نمیخوایش",
+      "object location in page": "قسمت فیلتر علاقه مندی ها",
+      "code location": "line 602 to 651",
+      "object problem": "شبیه قسمت فیلتر تو بخش سفارشاته اونو نمیخواستی یحتمل اینم نمیخوای"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object/name": "قسمت اصلی علاقه مندی",
+      "object location in page": "کالا ها لینک نیستن",
+      "code location": "p1=  line 680 to 686",
+      "object problem": "تو این قسمت 3 پروداکت هست که نه عکس نه اسم لینک نیست به صفحه خود کالا مثلا کالا رو زدی تو علاقه مندی دوباره بخوای برگردی مشخصات چک کنی نمیتونی"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "code location": "p2= line 721 to 728"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "code location": "p3= line 761 to 767"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object location in page": "قسمت وضعیت کالا ها رو نمیدونم ریسپانس دارن یا نه یعنی بسته به موجود بودن یا نبودن عوض میشن یا نه  ",
+      "code location": "line 694 and 734 and 744",
+      "object problem": " <span class=\"px-2 py-1 text-xs rounded-full bg-danger/10 text-danger dark:text-danger-dark\">"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object location in page": "قیمت ها هم به همین صورت نمیدونم طبق کالا عوض میشن یا نه",
+      "code location": "line 690 and 691 also 731 and 771",
+      "object problem": "<div class=\"text-sm text-dark dark:text-light\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object location in page": "دکمه اضافه به سبد خرید و علاقه مندی انتهای هر کالا کار نمیکنن",
+      "code location": "اینا یه سری path هستن که توی svg هستن که توی یه button تعریف شدن این باعث شده کد کمی شلوغ بشه برای هر کالا تکرار میشه تو این سکشنان <!-- Product 1 --><!-- Product 2 --><!-- Product 3 -->"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object location in page": "نوشته نمایش صفحه",
+      "code location": "<!-- Pagination --> line 798 to 806",
+      "object problem": "نوشته نمایش 1 تا 3 از 12 محصول اصلا یعنی چی ؟ این یا باید نباشه کار یه تیکه شه اسکرول شه یا بشه صفحه فلان از فلان که تعداد نمایش رو باید محدود کنی"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object location in page": "دکمه قبلی و 1و 2و 3و بعدی کار نمیکنن",
+      "code location": "<!-- Pagination --> line 808 to 824",
+      "object problem": "دکمه ها کار نمیکنن و سلکتور لاک شده روی دکمه قبلی دکمه های عددی هم باید پوبا باشن در صورت لزوم مثلا اگر تعداد رفت بالا اعداد و دکمه اتومات اضاف شه  "
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object/name": "unknown error ",
+      "object location in page": "top left ",
+      "code location": "script part",
+      "object problem": "همون ارور که بعد 3 ثانیه ناپدید میشه و متنش به هم ریختس ",
+      "code problem": "مورد مشابه خط 33 اکسل"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object/name": "div محصولات پیشنهادی برای شما",
+      "object location in page": "bottom",
+      "code location": "دقیقه همین قسمت رو تو پیشخوان داشتیم ارور های همونو اوردم فقط جای کد فرق داره line 828 to 1140 <!-- Suggested products --> ",
+      "object problem": "به نظرم برای این قسمت نیازی نیست.",
+      "etc": "در صورت نخواستن دلیت کن. اگر نه باگاش پایینه"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/user-panel-favorite.html",
+      "object/name": "دکمه مشاهده همه در محصولات پیشنهادی برای شما",
+      "object location in page": "bottom",
+      "object problem": "not linked",
+      "code problem": "href=\"#\""
+    },
+    {
+      "object/name": "کالا های قسمت محصولات پیشنهادی x4",
+      "object location in page": "bottom",
+      "object problem": "No webpage was found for the web address: http://130.185.73.167:8080/product/......",
+      "etc": "در صورت کلیک به صفحه خود کالا نمیره و چیزی تعریف نشده یا تعریف شده ولی اشتباه وصل شده ضمنا همشون به یه ادرس وصلن"
+    },
+    {
+      "object/name": "دکمه های افزودن به علاقه مندی x4",
+      "object location in page": "bottom",
+      "object problem": "کاری نمیکنه یا فانکشن براش تعریف نشده"
+    },
+    {
+      "object/name": "دکمه های مشاهده جزعیات x4",
+      "object location in page": "bottom"
+    },
+    {
+      "object/name": "دکمه های مقایسه محصول x4",
+      "object location in page": "bottom"
+    },
+    {
+      "object/name": "رنگ بندی کالا ها x4",
+      "object location in page": "bottom",
+      "object problem": "نمیدونم پویا هستن یا نه فقط نمان",
+      "etc": "منظور اینه از طریق پنل کاربری بتونی شخصی سازی کنی و رنگاش کامل باشه"
+    },
+    {
+      "object/name": "دکمه خرید یا افرودن به سبد خرید x4",
+      "object location in page": "bottom",
+      "object problem": "یه دونه تول تیپ بذار براش موس میاد روش بدونیم چی هست اصلا و اینکه کاری نمیکنه ",
+      "etc": "دکمه نارنجی بغل کالاهاس که شبیه کیف خریده"
+    }
+  ]
+}

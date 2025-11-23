@@ -6574,8 +6574,13 @@
   html[dir="ltr"] header svg.h-5.w-5.text-gray-500 {
     transform: rotate(180deg);
   }
-  html[dir="ltr"] .absolute.input-icon.top-1\/2.transform.-translate-y-1\/2.text-gray-400, [dir="ltr"] button.absolute.password-toggle.top-1\/2.transform.-translate-y-1\/2.text-gray-400 {
-    left: 90%;
+  html[dir="ltr"] .absolute.input-icon.top-1\/2.transform.-translate-y-1\/2.text-gray-400 {
+    left: 12px;
+    right: auto;
+  }
+  [dir="ltr"] button.absolute.password-toggle.top-1\/2.transform.-translate-y-1\/2.text-gray-400 {
+    right: 12px;
+    left: auto;
   }
   html[dir="ltr"] .slider-pagination-bg {
     --tw-translate-x: calc(1 / 2 * 100%);
@@ -7171,8 +7176,9 @@
     background-repeat: no-repeat;
   }
   .input-icon {
-    left: 12px;
-    right: auto;
+    right: 12px;
+    left: auto;
+    pointer-events: none;
   }
   .password-toggle {
     left: 12px;
