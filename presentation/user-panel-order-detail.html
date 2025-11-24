@@ -1123,14 +1123,18 @@
                 currentOrder = response.data;
                 displayOrderDetails(response.data);
             } else {
-                window.utils.showToast('خطا در بارگذاری جزئیات سفارش', 'error');
+                // Show error message but don't crash
+                const errorMsg = response.error || 'سفارش مورد نظر یافت نشد';
+                window.utils.showToast(errorMsg, 'warning');
                 setTimeout(() => {
                     window.location.href = 'user-panel-order.html';
                 }, 2000);
             }
         } catch (error) {
             console.error('Error loading order details:', error);
-            window.utils.showToast('خطا در اتصال به سرور', 'error');
+            // Handle error gracefully
+            const errorMsg = error.response?.status === 404 ? 'سفارش مورد نظر یافت نشد' : 'خطا در اتصال به سرور';
+            window.utils.showToast(errorMsg, 'warning');
             setTimeout(() => {
                 window.location.href = 'user-panel-order.html';
             }, 2000);

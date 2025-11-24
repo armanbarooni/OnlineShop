@@ -107,6 +107,15 @@ public static class ServiceRegistration
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<Domain.Interfaces.Services.IInvoiceService, Infrastructure.Services.InvoiceService>();
         
+        // Payment Gateway Configuration
+        services.Configure<OnlineShop.Infrastructure.PaymentGateways.Sadad.Configuration.SadadGatewayConfig>(
+            configuration.GetSection("SadadGateway"));
+        
+        // Register Payment Gateway Service
+        services.AddHttpClient();
+        services.AddScoped<Domain.Interfaces.Services.IPaymentGateway, 
+            OnlineShop.Infrastructure.PaymentGateways.Sadad.SadadGatewayService>();
+        
         // SMS Service Configuration (runtime selection via options)
         services.Configure<SmsSettings>(configuration.GetSection("SmsSettings"));
         services.Configure<OnlineShop.Application.Settings.SmsIrSettings>(configuration.GetSection("SmsIr"));

@@ -10,6 +10,7 @@ using OnlineShop.Application.Features.UserPayment.Queries.GetById;
 using OnlineShop.Application.Features.UserPayment.Queries.GetByUserId;
 using OnlineShop.Application.Features.UserPayment.Queries.GetByOrderId;
 using OnlineShop.Application.Features.UserPayment.Queries.GetAll;
+using OnlineShop.Application.Features.UserPayment.Queries.GetByTransactionId;
 using OnlineShop.Application.Features.UserPayment.Commands.ProcessPayment;
 using OnlineShop.Application.Features.UserPayment.Commands.VerifyPayment;
 
@@ -284,6 +285,53 @@ namespace OnlineShop.WebAPI.Controllers
         {
             public string? TransactionId { get; set; }
             public string? GatewayResponse { get; set; }
+        }
+
+        [HttpPost("callback")]
+        [AllowAnonymous]
+        public async Task<IActionResult> PaymentCallback([FromQuery] string? token, [FromQuery] string? resCode, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Payment callback received. Token: {Token}, ResCode: {ResCode}", token, resCode);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                _logger.LogWarning("Payment callback received without token");
+                return Redirect("/fa/fail-payment.html?error=missing_token");
+            }
+
+            // Find payment by TransactionId (Token)
+            var paymentQuery = new GetUserPaymentByTransactionIdQuery { TransactionId = token };
+            var paymentResult = await _mediator.Send(paymentQuery, cancellationToken);
+            
+            if (!paymentResult.IsSuccess || paymentResult.Data == null)
+            {
+                _logger.LogWarning("Payment not found for token: {Token}", token);
+                return Redirect("/fa/fail-payment.html?error=payment_not_found");
+            }
+
+            var payment = paymentResult.Data;
+
+            // Verify payment
+            var verifyCommand = new VerifyPaymentCommand
+            {
+                PaymentId = payment.Id,
+                TransactionId = token,
+                GatewayResponse = $"ResCode: {resCode}"
+            };
+
+            var verifyResult = await _mediator.Send(verifyCommand, cancellationToken);
+
+            if (verifyResult.IsSuccess && verifyResult.Data?.PaymentStatus == "Paid")
+            {
+                _logger.LogInformation("Payment verified successfully. PaymentId: {PaymentId}", payment.Id);
+                return Redirect($"/fa/success-payment.html?paymentId={payment.Id}&orderId={payment.OrderId}");
+            }
+            else
+            {
+                _logger.LogWarning("Payment verification failed. PaymentId: {PaymentId}, Error: {Error}", 
+                    payment.Id, verifyResult.ErrorMessage);
+                return Redirect($"/fa/fail-payment.html?paymentId={payment.Id}&error={Uri.EscapeDataString(verifyResult.ErrorMessage ?? "verification_failed")}");
+            }
         }
     }
 }

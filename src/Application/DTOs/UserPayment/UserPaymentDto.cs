@@ -26,5 +26,6 @@ namespace OnlineShop.Application.DTOs.UserPayment
         public string? RefundReason { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string? PaymentUrl { get; set; }
     }
 }

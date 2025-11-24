@@ -48,15 +48,13 @@ class ApiClient {
                     if (!retryResponse.ok) {
                         // Parse error message from different response structures
                         let errorMessage = '';
-                    if (typeof retryData === 'string') {
-                        errorMessage = retryData;
-                    } else if (retryData?.message) {
-                        errorMessage = retryData.message;
-                    } else if (retryData?.errorMessage) {
-                        errorMessage = retryData.errorMessage;
-                    } else if (Array.isArray(retryData)) {
-                        errorMessage = retryData.join(', ');
-                    } else if (retryData?.errors && Array.isArray(retryData.errors)) {
+                        if (typeof retryData === 'string') {
+                            errorMessage = retryData;
+                        } else if (retryData?.message) {
+                            errorMessage = retryData.message;
+                        } else if (Array.isArray(retryData)) {
+                            errorMessage = retryData.join(', ');
+                        } else if (retryData?.errors && Array.isArray(retryData.errors)) {
                             errorMessage = retryData.errors.join(', ');
                         } else if (retryData?.title) {
                             errorMessage = retryData.title;
@@ -109,8 +107,6 @@ class ApiClient {
                     errorMessage = data;
                 } else if (data?.message) {
                     errorMessage = data.message;
-                } else if (data?.errorMessage) {
-                    errorMessage = data.errorMessage;
                 } else if (Array.isArray(data)) {
                     errorMessage = data.join(', ');
                 } else if (data?.errors && Array.isArray(data.errors)) {

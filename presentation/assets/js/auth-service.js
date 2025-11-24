@@ -316,13 +316,13 @@ class AuthService {
 
             return {
                 success: true,
-                message: 'ع©ط¯ ط¨ط§ط²غŒط§ط¨غŒ ط±ظ…ط² ط¹ط¨ظˆط± ط¨ظ‡ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ط´ظ…ط§ ط§ط±ط³ط§ظ„ ط´ط¯'
+                message: 'کد بازیابی رمز عبور به شماره موبایل شما ارسال شد'
             };
         } catch (error) {
             window.logger.error('Forgot password error:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±'
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }
@@ -340,13 +340,13 @@ class AuthService {
 
             return {
                 success: true,
-                message: 'ط±ظ…ط² ط¹ط¨ظˆط± ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط§ط²ظ†ط´ط§ظ†غŒ ط´ط¯'
+                message: 'رمز عبور با موفقیت بازنشانی شد'
             };
         } catch (error) {
             window.logger.error('Reset password error:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±'
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }

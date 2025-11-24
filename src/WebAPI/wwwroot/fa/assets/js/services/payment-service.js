@@ -14,20 +14,30 @@ class PaymentService {
     async initializePayment(paymentData) {
         try {
             const response = await this.apiClient.post(this.baseUrl, paymentData);
+            
+            // Handle the new API response format from backend
             if (response.success !== undefined && !response.success) {
                 return response;
             }
             
+            // Backend returns Result<UserPaymentDto> format
+            // The response structure: { success: true, data: { id, paymentUrl, ... } }
             const data = response.data || response;
+            const paymentDto = data.data || data;
+            
+            // Ensure PaymentUrl is accessible (support both camelCase and PascalCase)
+            const paymentUrl = paymentDto.paymentUrl || paymentDto.PaymentUrl;
+            
             return {
                 success: true,
-                data: data.data || data
+                data: paymentDto,
+                paymentUrl: paymentUrl
             };
         } catch (error) {
             window.logger.error('Error initializing payment:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط´ط±ظˆط¹ ظ¾ط±ط¯ط§ط®طھ'
+                error: error.message || 'خطا در شروع پرداخت'
             };
         }
     }
@@ -124,10 +134,12 @@ class PaymentService {
     async getPaymentStatus(paymentId) {
         const result = await this.getPaymentById(paymentId);
         if (result.success && result.data) {
+            // Support both 'status' and 'paymentStatus' field names
+            const status = result.data.status || result.data.paymentStatus || result.data.PaymentStatus;
             return {
                 success: true,
                 data: {
-                    status: result.data.status,
+                    status: status,
                     ...result.data
                 }
             };
@@ -268,16 +280,14 @@ class PaymentService {
     }
 
     /**
-     * Format payment data
+     * Format payment data for API
      */
     formatPaymentData(formData) {
         return {
-            amount: parseFloat(formData.get('amount')),
-            paymentMethodId: parseInt(formData.get('paymentMethodId')),
-            orderId: formData.get('orderId'),
-            description: formData.get('description') || '',
-            returnUrl: formData.get('returnUrl') || window.location.origin + '/success-payment.html',
-            cancelUrl: formData.get('cancelUrl') || window.location.origin + '/fail-payment.html'
+            amount: parseFloat(formData.get('amount') || formData.amount || 0),
+            paymentMethod: formData.get('paymentMethod') || formData.paymentMethod || 'online',
+            orderId: formData.get('orderId') || formData.orderId || null,
+            currency: formData.get('currency') || formData.currency || 'IRR'
         };
     }
 

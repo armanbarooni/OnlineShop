@@ -1091,8 +1091,14 @@
        const amount = parseFloat(amountInput.value||0);
        if(!amount || amount<=0){ window.utils?.showToast('مبلغ نامعتبر است','error'); return; }
        try{
-         const res = await window.paymentService.initializePayment({ amount, description:'افزایش موجودی کیف پول' });
-         if(res.success && res.data && res.data.paymentUrl){ window.location.href = res.data.paymentUrl; }
+         const res = await window.paymentService.initializePayment({ 
+           amount, 
+           paymentMethod: 'online',
+           currency: 'IRR'
+         });
+         if(res.success && res.data && (res.data.paymentUrl || res.paymentUrl)){ 
+           window.location.href = res.data.paymentUrl || res.paymentUrl; 
+         }
          else { window.utils?.showToast(res.error||'خطا در شروع پرداخت','error'); }
        }catch(err){ window.utils?.showToast('خطا در شروع پرداخت','error'); }
      });

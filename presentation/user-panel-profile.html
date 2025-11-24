@@ -43,25 +43,25 @@
                 <nav class="space-y-1">
                     <!-- Dashboard -->
                     <a href="user-panel-index.html"
-                       class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+                       class="block px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M3 12l9-7 9 7v7a2 2 0 01-2 2h-4a2 2 0 01-2-2v-3H9v3a2 2 0 01-2 2H3a2 2 0 01-2-2v-7z"/>
                         </svg>
                         پیشخوان
-                        <span class="ms-auto w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-400"></span>
                     </a>
 
                     <!-- Profile -->
                     <a href="user-panel-profile.html"
-                       class="block px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                       class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 21a8 8 0 1116 0H4z"/>
                         </svg>
                         پروفایل
+                        <span class="ms-auto w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-400"></span>
                     </a>
 
                     <!-- Interests -->
@@ -536,7 +536,7 @@
                     <div id="user-dropdown-menu"
                          class="absolute end-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg z-10 shadow-lg hidden">
                         <!-- Profile Link -->
-                        <a href="#"
+                        <a href="user-panel-profile.html"
                            class="flex items-center px-4 py-2 text-sm text-gray-700 space-x-1 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
                                  stroke-width="1.5" stroke="currentColor">
@@ -546,21 +546,8 @@
                             <span>پروفایل</span>
                         </a>
 
-                        <!-- Settings Link -->
-                        <a href="#"
-                           class="flex items-center px-4 py-2 text-sm text-gray-700 space-x-1 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
-                                 stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281a1.125 1.125 0 0 0 .865.997l1.437.553a1.125 1.125 0 0 1 .51 1.685l-1.004.827a1.125 1.125 0 0 0 0 1.742l1.004.827a1.125 1.125 0 0 1-.51 1.685l-1.437.553a1.125 1.125 0 0 0-.865.997l-.213 1.281a1.125 1.125 0 0 1-1.11.94h-2.593a1.125 1.125 0 0 1-1.11-.94l-.213-1.281a1.125 1.125 0 0 0-.865-.997l-1.437-.553a1.125 1.125 0 0 1-.51-1.685l1.004-.827a1.125 1.125 0 0 0 0-1.742l-1.004-.827a1.125 1.125 0 0 1 .51-1.685l1.437-.553a1.125 1.125 0 0 0 .865-.997l.213-1.281Z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                            </svg>
-                            <span>تنظیمات</span>
-                        </a>
-
                         <!-- Logout Link -->
-                        <a href="#"
+                        <a href="#" id="logoutButton"
                            class="flex items-center px-4 py-2 text-sm text-gray-700 space-x-1 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
                                  stroke-width="1.5" stroke="currentColor">
@@ -1259,6 +1246,22 @@
             window.utils.hideLoading(this.querySelector('button[type="submit"]'));
         }
     });
+
+    // Logout functionality
+    const logoutButton = document.getElementById('logoutButton');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (window.authService) {
+                window.authService.logout();
+            } else {
+                // Fallback if authService is not loaded
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                window.location.href = 'login.html';
+            }
+        });
+    }
 </script>
 
 </body>

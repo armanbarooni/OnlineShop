@@ -199,14 +199,14 @@ class AuthGuard {
             const user = await this.authService.getCurrentUser();
             if (user) {
                 // Update user name/email in UI
-                const nameElements = document.querySelectorAll('[data-user="name"], [data-user-name]');
+                const nameElements = document.querySelectorAll('[data-user="name"]');
                 nameElements.forEach(el => {
                     el.textContent = user.firstName && user.lastName 
                         ? `${user.firstName} ${user.lastName}` 
                         : user.email;
                 });
 
-                const emailElements = document.querySelectorAll('[data-user="email"], [data-user-email]');
+                const emailElements = document.querySelectorAll('[data-user="email"]');
                 emailElements.forEach(el => {
                     el.textContent = user.email;
                 });
@@ -270,7 +270,7 @@ class AuthGuard {
      * Add logout functionality to logout buttons
      */
     setupLogoutButtons() {
-        const logoutButtons = document.querySelectorAll('[data-action="logout"], #logout, #logoutButton, .logout-btn, .logout-button');
+        const logoutButtons = document.querySelectorAll('[data-action="logout"]');
         logoutButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
