@@ -25,12 +25,15 @@
         }
 
         const normalizedOrigin = (window.location?.origin || '').replace(/\/$/, '');
-        if (environmentName === 'development') {
-            return 'http://localhost:5000/api';
-        }
-
+        
+        // Always use current origin + /api
         if (normalizedOrigin) {
             return `${normalizedOrigin}/api`;
+        }
+
+        // Fallback for development
+        if (environmentName === 'development') {
+            return 'http://localhost:5000/api';
         }
 
         return 'https://api.example.com/api';

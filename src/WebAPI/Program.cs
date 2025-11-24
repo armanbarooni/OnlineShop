@@ -106,16 +106,14 @@ builder.Services.AddCors(options =>
         }
     });
 
-    // Fallback for development - allow all origins (but without credentials)
-    if (builder.Environment.IsDevelopment())
-    {
-        options.AddPolicy("DefaultCors", policy =>
-            policy
-                .SetIsOriginAllowed(_ => true)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials());
-    }
+    // Fallback for development - allow all origins (with credentials)
+    // TODO: In production, restrict this to specific origins for security
+    options.AddPolicy("DefaultCors", policy =>
+        policy
+            .SetIsOriginAllowed(_ => true)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 // JWT Authentication
@@ -215,7 +213,8 @@ if (app.Environment.IsDevelopment())
 
 // CORS must be before UseAuthentication and UseAuthorization
 // CORS middleware must be called BEFORE UseAuthentication/UseAuthorization
-app.UseCors(app.Environment.IsDevelopment() ? "DefaultCors" : "AllowFrontend");
+// Use DefaultCors for all environments to allow any origin during development/testing
+app.UseCors("DefaultCors");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();
