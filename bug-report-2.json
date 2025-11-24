@@ -1,0 +1,98 @@
+{
+  "Sheet1": [
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "دکمه ثبت نام کنید",
+      "object location": "پایین صفحه",
+      "code location": "<div class=\"mt-6 text-center\">",
+      "object problem": "لینک اشتباه عدم کار",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "دکمه تویتر",
+      "object location": "پایین صفحه",
+      "code location": "<div class=\"mt-6 grid grid-cols-3 gap-3\">",
+      "object problem": "لینک اشتباه عدم کار نیاز به حذف",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "دکمه ضربدر",
+      "object location": "پایین صفحه",
+      "code location": "<div class=\"mt-6 grid grid-cols-3 gap-3\">",
+      "object problem": "لینک اشتباه عدم کار نیاز به حذف",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "دکمه گیت هاب",
+      "object location": "پایین صفحه",
+      "code location": "<div class=\"mt-6 grid grid-cols-3 gap-3\">",
+      "object problem": "لینک اشتباه عدم کار نیاز به حذف",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "ایکون اضافه هیدن پسسورد",
+      "object location": "تکس باکس پسسورد",
+      "code location": "<div class=\"relative\"> id=password",
+      "object problem": "اضافه میباشد",
+      "code problem": "<div class=\"absolute input-icon top-1/2 transform -translate-y-1/2 text-gray-400\"></div>",
+      "etc": "یک دکمه اضافه در تکس باکس پسسورد به هنگام تایپ در سمت چپ ظاهر شده که در صورت استفاده از هیدن باتن سمت چپ از بین میرود مشکل ممکن است ناشی از المنت خالی دیو یا کامند سی اس اس اینپوت ایکون نیز باشد"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "دکمه ورود به حساب",
+      "object location": "اخر فرم ورود",
+      "code location": "<form class=\"space-y-5\" id=\"password-form\">",
+      "object problem": "به هم ریختگی متن بعد از کلیک"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "لینک فراموشی رمز عبور",
+      "object location": "در فرم ورود",
+      "code location": "<div class=\"text-sm\">",
+      "object problem": "لینک اشتباه عدم کار",
+      "code problem": "href=\"#\""
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "متن ارور تکس باکس خالی",
+      "object location": "در قسمت ورود با پیامک",
+      "code location": "<p class=\"error-message\" id=\"mobile-error\">",
+      "object problem": "به هم ریختگی متن"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "placeholder",
+      "object location": "در قسمت ورود با پیامک",
+      "code location": "<input type=\"tel\" id=\"mobile\"",
+      "object problem": "اورلپ کردن واترمارک با ایکون تلفن ",
+      "code problem": "<input type=\"tel\" id=\"mobile\" class=\"w-full pe-12 ps-4 py-3 border rounded-xl focu"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "تکس باکس شماره تماس",
+      "object location": "در قسمت ورود با پیامک",
+      "code location": "<input type=\"tel\" id=\"mobile\"",
+      "object problem": "اورلپ کردن نوشته داخل تکس باکس با ایکون تلفن"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object/name": "دکمه دریافت کد تایید",
+      "object location": "در قسمت ورود با پیامک",
+      "code location": "<button type=\"button\" id=\"send-otp-btn\"",
+      "object problem": "{\"isSuccess\":false,\"data\":null,\"errorMessage\":\"خطا در ارسال پیامک. لطفاً دوباره تلاش کنید\",\"backGroundTasks\":null,\"eventMessages\":null,\"eventLogMessages\":null,\"socketMessages\":null",
+      "code problem": "IDK"
+    },
+    {
+      "page": "http://130.185.73.167:8080/fa/login.html",
+      "object problem": "site ist not responsive",
+      "etc": "سایت در سیستم اندروید به درستی مشاهده نشده و قسمت به سایت ما خوش امدید لود نمیشود"
+    },
+    {
+      "object problem": "site tab name "
+    }
+  ]
+}

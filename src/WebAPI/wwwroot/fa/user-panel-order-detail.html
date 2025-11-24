@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -1086,9 +1086,394 @@
 ></div>
 
 <!-- /canvas responsive menu -->
-
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/order-service.js"></script>
+
+<script>
+    let currentOrder = null;
+
+    // Load order details when page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+        const orderId = sessionStorage.getItem('viewingOrderId');
+        
+        if (!orderId) {
+        window.utils.showToast('سفارش مورد نظر یافت نشد', 'error');
+            setTimeout(() => {
+                window.location.href = 'user-panel-order.html';
+            }, 2000);
+            return;
+        }
+
+        await loadOrderDetails(orderId);
+    });
+
+    // Load order details
+    async function loadOrderDetails(orderId) {
+        try {
+        window.utils.showLoading(document.getElementById('orderDetailsContainer'), 'در حال بارگذاری...');
+            
+            const response = await orderService.getOrderById(orderId);
+            
+            if (response.success && response.data) {
+                currentOrder = response.data;
+                displayOrderDetails(response.data);
+            } else {
+                window.utils.showToast('خطا در بارگذاری جزئیات سفارش', 'error');
+                setTimeout(() => {
+                    window.location.href = 'user-panel-order.html';
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error loading order details:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+            setTimeout(() => {
+                window.location.href = 'user-panel-order.html';
+            }, 2000);
+        } finally {
+            window.utils.hideLoading(document.getElementById('orderDetailsContainer'));
+        }
+    }
+
+    // Display order details
+    function displayOrderDetails(order) {
+        // Update order header
+        document.getElementById('orderNumber').textContent = order.orderNumber;
+        document.getElementById('orderDate').textContent = window.utils.formatDate(order.orderDate);
+        document.getElementById('orderStatus').textContent = getStatusText(order.status);
+        document.getElementById('orderStatus').className = `px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(order.status)}`;
+        document.getElementById('totalAmount').textContent = window.utils.formatPrice(order.totalAmount);
+
+        // Display order items
+        displayOrderItems(order.items || []);
+
+        // Display shipping information
+        displayShippingInfo(order.shippingAddress, order.trackingCode);
+
+        // Display payment information
+        displayPaymentInfo(order.paymentMethod, order.paymentStatus);
+
+        // Display order timeline
+        displayOrderTimeline(order.status, order.orderDate);
+
+        // Show/hide return button based on order status
+        const returnButton = document.getElementById('returnButton');
+        if (returnButton) {
+            if (canReturnOrder(order)) {
+                returnButton.style.display = 'block';
+                returnButton.onclick = () => returnOrder(order.id);
+            } else {
+                returnButton.style.display = 'none';
+            }
+        }
+    }
+
+    // Display order items
+    function displayOrderItems(items) {
+        const container = document.getElementById('orderItemsContainer');
+        if (!container) return;
+
+        if (!Array.isArray(items) || items.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-center py-4">آیتمی یافت نشد</p>';
+            return;
+        }
+
+        container.innerHTML = items.map(item => `
+            <div class="flex items-center space-x-4 space-x-reverse p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div class="flex-shrink-0">
+                    <img src="${item.productImage || '/assets/images/product-45.jpeg'}" 
+                         alt="${item.productName}" 
+                         class="w-16 h-16 object-cover rounded-lg">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        ${item.productName}
+                    </h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        ØªØ¹Ø¯Ø§Ø¯: ${item.quantity} Ø¹Ø¯Ø¯
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        قیمت واحد: ${window.utils.formatPrice(item.unitPrice)} تومان
+                    </p>
+                </div>
+                <div class="text-left">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                        ${window.utils.formatPrice(item.totalPrice)} تومان
+                    </p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Display shipping information
+    function displayShippingInfo(shippingAddress, trackingCode) {
+        const container = document.getElementById('shippingInfoContainer');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="space-y-4">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">آدرس ارسال:</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                        ${shippingAddress ? `
+                            ${shippingAddress.title}<br>
+                            ${shippingAddress.address}<br>
+                            ${shippingAddress.city} - ${shippingAddress.province}<br>
+                            کد پستی: ${shippingAddress.postalCode}<br>
+                            تلفن: ${shippingAddress.phone}
+                        ` : 'آدرس ارسال ثبت نشده'}
+                    </p>
+                </div>
+                ${trackingCode ? `
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">کد پیگیری:</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 font-mono">${trackingCode}</p>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    // Display payment information
+    function displayPaymentInfo(paymentMethod, paymentStatus) {
+        const container = document.getElementById('paymentInfoContainer');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="space-y-4">
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">روش پرداخت:</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">${paymentMethod || 'نامشخص'}</p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">وضعیت پرداخت:</h4>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full ${getPaymentStatusColor(paymentStatus)}">
+                        ${getPaymentStatusText(paymentStatus)}
+                    </span>
+                </div>
+            </div>
+        `;
+    }
+
+    // Display order timeline
+    function displayOrderTimeline(status, orderDate) {
+        const container = document.getElementById('orderTimelineContainer');
+        if (!container) return;
+
+        const timeline = getOrderTimeline(status, orderDate);
+        
+        container.innerHTML = `
+            <div class="space-y-4">
+                ${timeline.map(step => `
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center ${step.completed ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">${step.title}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">${step.date}</p>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // Get order timeline
+    function getOrderTimeline(status, orderDate) {
+        const timeline = [
+            {
+                title: 'سفارش ثبت شد',
+                date: window.utils.formatDate(orderDate),
+                completed: true
+            }
+        ];
+
+        if (['Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'].includes(status)) {
+            timeline.push({
+                title: 'در حال پردازش',
+                date: window.utils.formatDate(orderDate),
+                completed: true
+            });
+        }
+
+        if (['Shipped', 'Delivered', 'Returned'].includes(status)) {
+            timeline.push({
+                title: 'ارسال شد',
+                date: window.utils.formatDate(orderDate),
+                completed: true
+            });
+        }
+
+        if (['Delivered', 'Returned'].includes(status)) {
+            timeline.push({
+                title: 'تحویل داده شد',
+                date: window.utils.formatDate(orderDate),
+                completed: true
+            });
+        }
+
+        if (status === 'Returned') {
+            timeline.push({
+                title: 'مرجوع شد',
+                date: window.utils.formatDate(orderDate),
+                completed: true
+            });
+        }
+
+        return timeline;
+    }
+
+    // Get status color class
+    function getStatusColor(status) {
+        const statusColors = {
+            'Pending': 'bg-yellow-100 text-yellow-800',
+            'Processing': 'bg-blue-100 text-blue-800',
+            'Shipped': 'bg-purple-100 text-purple-800',
+            'Delivered': 'bg-green-100 text-green-800',
+            'Cancelled': 'bg-red-100 text-red-800',
+            'Returned': 'bg-gray-100 text-gray-800'
+        };
+        return statusColors[status] || 'bg-gray-100 text-gray-800';
+    }
+
+    // Get status text
+    function getStatusText(status) {
+        const statusTexts = {
+            'Pending': 'در انتظار',
+            'Processing': 'در حال پردازش',
+            'Shipped': 'ارسال شده',
+            'Delivered': 'تحویل داده شده',
+            'Cancelled': 'لغو شده',
+            'Returned': 'مرجوع شده'
+        };
+        return statusTexts[status] || status;
+    }
+
+    // Get payment status color
+    function getPaymentStatusColor(status) {
+        const statusColors = {
+            'Pending': 'bg-yellow-100 text-yellow-800',
+            'Paid': 'bg-green-100 text-green-800',
+            'Failed': 'bg-red-100 text-red-800',
+            'Refunded': 'bg-gray-100 text-gray-800'
+        };
+        return statusColors[status] || 'bg-gray-100 text-gray-800';
+    }
+
+    // Get payment status text
+    function getPaymentStatusText(status) {
+        const statusTexts = {
+            'Pending': 'در انتظار پرداخت',
+            'Paid': 'پرداخت شده',
+            'Failed': 'پرداخت ناموفق',
+            'Refunded': 'بازگردانده شده'
+        };
+        return statusTexts[status] || status;
+    }
+
+    // Check if order can be returned
+    function canReturnOrder(order) {
+        const returnableStatuses = ['Delivered'];
+        const maxReturnDays = 7; // 7 days after delivery
+        
+        if (!returnableStatuses.includes(order.status)) {
+            return false;
+        }
+        
+        if (order.orderDate) {
+            const orderDate = new Date(order.orderDate);
+            const now = new Date();
+            const daysDiff = Math.floor((now - orderDate) / (1000 * 60 * 60 * 24));
+            return daysDiff <= maxReturnDays;
+        }
+        
+        return false;
+    }
+
+    // Return order
+    function returnOrder(orderId) {
+        sessionStorage.setItem('returningOrderId', orderId);
+        window.location.href = 'user-panel-order-return-step-one.html';
+    }
+
+    // Print order
+    function printOrder() {
+        window.print();
+    }
+
+    // Download invoice
+    function downloadInvoice() {
+        if (!currentOrder) return;
+        
+        // Create a simple invoice HTML
+        const invoiceHTML = `
+            <html>
+                <head>
+                    <title>فاکتور سفارش ${currentOrder.orderNumber}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; direction: rtl; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .order-info { margin-bottom: 20px; }
+                        .items-table { width: 100%; border-collapse: collapse; }
+                        .items-table th, .items-table td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+                        .total { font-weight: bold; font-size: 18px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>فاکتور سفارش</h1>
+                        <p>شماره سفارش: ${currentOrder.orderNumber}</p>
+                        <p>ØªØ§Ø±ÛŒØ®: ${window.utils.formatDate(currentOrder.orderDate)}</p>
+                    </div>
+                    <div class="order-info">
+                        <h3>جزئیات سفارش</h3>
+                        <p>وضعیت: ${getStatusText(currentOrder.status)}</p>
+                        <p>مبلغ کل: ${window.utils.formatPrice(currentOrder.totalAmount)} تومان</p>
+                    </div>
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>نام محصول</th>
+                                <th>ØªØ¹Ø¯Ø§Ø¯</th>
+                                <th>قیمت واحد</th>
+                                <th>مجموع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${(currentOrder.items || []).map(item => `
+                                <tr>
+                                    <td>${item.productName}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${window.utils.formatPrice(item.unitPrice)}</td>
+                                    <td>${window.utils.formatPrice(item.totalPrice)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </body>
+            </html>
+        `;
+
+        const blob = new Blob([invoiceHTML], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `invoice-${currentOrder.orderNumber}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
 
 </body>
 </html>

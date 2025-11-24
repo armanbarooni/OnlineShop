@@ -161,7 +161,7 @@ class ApiClient {
                 error.message.includes('NetworkError') ||
                 error.message.includes('Network error')
             )) {
-                throw new Error('Ø®Ø·Ø§ Ø¯Ø± Ø§ØªØµØ§Ù„ Ø¨Ù‡ Ø³Ø±ÙˆØ±. Ù„Ø·ÙØ§ Ø¨Ø±Ø±Ø³ÛŒ Ú©Ù†ÛŒØ¯ Ú©Ù‡ Ø³Ø±ÙˆØ± Ø¯Ø± Ø­Ø§Ù„ Ø§Ø¬Ø±Ø§ Ø§Ø³Øª Ùˆ Ø¢Ø¯Ø±Ø³ Ø¯Ø±Ø³Øª Ø§Ø³Øª.');
+                throw new Error('خطا در اتصال به سرور. لطفاً بررسی کنید که سرور در حال اجرا است و آدرس درست است.');
             }
             // Handle other network-related errors
             if (error.message && (
@@ -169,7 +169,7 @@ class ApiClient {
                 error.message.includes('net::') ||
                 error.message.includes('Network request failed')
             )) {
-                throw new Error('Ø®Ø·Ø§ Ø¯Ø± Ø§ØªØµØ§Ù„ Ø¨Ù‡ Ø³Ø±ÙˆØ±. Ù„Ø·ÙØ§ Ø¨Ø±Ø±Ø³ÛŒ Ú©Ù†ÛŒØ¯ Ú©Ù‡ Ø³Ø±ÙˆØ± Ø¯Ø± Ø­Ø§Ù„ Ø§Ø¬Ø±Ø§ Ø§Ø³Øª Ùˆ Ø¢Ø¯Ø±Ø³ Ø¯Ø±Ø³Øª Ø§Ø³Øª.');
+                throw new Error('خطا در اتصال به سرور. لطفاً بررسی کنید که سرور در حال اجرا است و آدرس درست است.');
             }
             // Re-throw error so auth-service can handle it properly
             throw error;
@@ -418,7 +418,7 @@ class ApiClient {
     handleError(error) {
         // For fetch API, error is typically an Error object or a thrown value
         if (error instanceof Error) {
-            return error.message || 'Ø®Ø·Ø§ÛŒ Ù†Ø§Ù…Ø´Ø®Øµ';
+            return error.message || 'خطای نامشخص';
         } else if (typeof error === 'string') {
             return error;
         } else if (error && typeof error === 'object') {
@@ -428,10 +428,10 @@ class ApiClient {
             } else if (error.errors && Array.isArray(error.errors)) {
                 return error.errors.join(', ');
             } else {
-                return 'Ø®Ø·Ø§ÛŒ Ù†Ø§Ù…Ø´Ø®Øµ';
+                return 'خطای نامشخص';
             }
         } else {
-            return 'Ø®Ø·Ø§ÛŒ Ù†Ø§Ù…Ø´Ø®Øµ';
+            return 'خطای نامشخص';
         }
     }
 }

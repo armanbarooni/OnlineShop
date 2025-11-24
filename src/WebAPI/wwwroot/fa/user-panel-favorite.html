@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -1412,6 +1412,367 @@
 
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/wishlist-service.js"></script>
+<script src="assets/js/services/cart-service.js"></script>
+
+<script>
+    let currentPage = 1;
+    let totalPages = 1;
+    let currentFilters = {};
+
+    // Load wishlist items when page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadWishlistItems();
+        setupEventListeners();
+    });
+
+    // Setup event listeners
+    function setupEventListeners() {
+        // Search form
+        const searchForm = document.getElementById('searchForm');
+        if (searchForm) {
+            searchForm.addEventListener('submit', handleSearch);
+        }
+
+        // Filter buttons
+        const filterButtons = document.querySelectorAll('[data-filter]');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', handleFilter);
+        });
+
+        // Pagination
+        const paginationContainer = document.getElementById('pagination');
+        if (paginationContainer) {
+            paginationContainer.addEventListener('click', handlePagination);
+        }
+    }
+
+    // Load wishlist items
+    async function loadWishlistItems(filters = {}) {
+        try {
+            window.utils.showLoading(document.getElementById('wishlistContainer'), 'ط¯ط± ط­ط§ظ„ ط¨ط§ط±ع¯ط°ط§ط±غŒ...');
+            
+            const searchCriteria = {
+                page: currentPage,
+                pageSize: 12,
+                ...filters
+            };
+
+            const response = await window.wishlistService.getWishlistItems(searchCriteria);
+            
+            if (response.success && response.data) {
+                // Handle different response structures
+                let items = [];
+                let totalPages = 1;
+                let totalCount = 0;
+                
+                if (response.data.items) {
+                    items = response.data.items;
+                    totalPages = response.data.totalPages || 1;
+                    totalCount = response.data.totalCount || items.length;
+                } else if (Array.isArray(response.data)) {
+                    items = response.data;
+                    totalCount = items.length;
+                } else if (response.data.data) {
+                    items = Array.isArray(response.data.data) ? response.data.data : [];
+                    totalCount = items.length;
+                }
+                
+                displayWishlistItems(items);
+                updatePagination(totalPages);
+                updateWishlistStats(totalCount);
+            } else {
+                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط¨ط§ط±ع¯ط°ط§ط±غŒ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading wishlist items:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+        } finally {
+            window.utils.hideLoading(document.getElementById('wishlistContainer'));
+        }
+    }
+
+    // Display wishlist items
+    function displayWishlistItems(items) {
+        const container = document.getElementById('wishlistContainer');
+        if (!container) return;
+
+        if (!Array.isArray(items) || items.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">ظ„غŒط³طھ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط®ط§ظ„غŒ ط§ط³طھ</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-4">ظ‡ظ†ظˆط² ظ…ط­طµظˆظ„غŒ ط¨ظ‡ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§غŒطھط§ظ† ط§ط¶ط§ظپظ‡ ظ†ع©ط±ط¯ظ‡â€Œط§غŒط¯</p>
+                    <a href="/" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+                        </svg>
+                        ط´ط±ظˆط¹ ط®ط±غŒط¯
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                ${items.map(item => {
+                    // Handle different response structures
+                    const productId = item.productId || item.id;
+                    const productName = item.productName || 'محصول';
+                                    const productImage = item.productImageUrl || item.productImage || `assets/images/product/product-${Math.floor(Math.random() * 50) + 1}.jpeg`;
+                    const productPrice = item.productPrice || item.price || 0;
+                    const addedAt = item.addedAt || item.createdAt || item.addedDate;
+                    const wishlistId = item.id;
+                    
+                    return `
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow">
+                            <div class="relative">
+                                <img src="${productImage}" 
+                                     alt="${productName}" 
+                                     class="w-full h-48 object-cover"
+                                     onerror="this.src='/assets/images/product-5.jpeg'">
+                                <button onclick="removeFromWishlist('${wishlistId}')" 
+                                        class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-2 line-clamp-2">
+                                    ${productName}
+                                </h3>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-lg font-bold text-gray-900 dark:text-white">
+                                        ${window.utils.formatPrice(productPrice)} طھظˆظ…ط§ظ†
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        اضافه شده در: ${window.utils.formatDate(addedAt)}
+                                    </span>
+                                </div>
+                                <div class="mt-4 flex space-x-2 space-x-reverse">
+                                    <button onclick="addToCart('${productId}')" 
+                                            class="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
+                                        ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯
+                                    </button>
+                                    <button onclick="viewProduct('${productId}')" 
+                                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    // Update wishlist statistics
+    function updateWishlistStats(totalCount) {
+        const statsContainer = document.getElementById('wishlistStats');
+        if (statsContainer) {
+            statsContainer.innerHTML = `
+                <div class="bg-primary/10 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <svg class="w-8 h-8 text-primary ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">ظ„غŒط³طھ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">${totalCount} ظ…ط­طµظˆظ„ ط¯ط± ظ„غŒط³طھ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§غŒطھط§ظ†</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Remove item from wishlist
+    async function removeFromWishlist(itemId) {
+        if (!confirm('ط¢غŒط§ ظ…ط·ظ…ط¦ظ† ظ‡ط³طھغŒط¯ ع©ظ‡ ظ…غŒâ€Œط®ظˆط§ظ‡غŒط¯ ط§غŒظ† ظ…ط­طµظˆظ„ ط±ط§ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ع©ظ†غŒط¯طں')) {
+            return;
+        }
+
+        try {
+            const response = await window.wishlistService.removeFromWishlist(itemId);
+            
+            if (response.success) {
+                window.utils.showToast('ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯', 'success');
+                await loadWishlistItems(currentFilters); // Reload items
+            } else {
+                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ظ…ط­طµظˆظ„', 'error');
+            }
+        } catch (error) {
+            console.error('Error removing from wishlist:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+        }
+    }
+
+    // Add product to cart
+    async function addToCart(productId) {
+        try {
+            window.utils.showToast('ط¯ط± ط­ط§ظ„ ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯...', 'info');
+            
+            const response = await window.cartService.addToCart(productId, 1);
+            
+            if (response.success) {
+                window.utils.showToast('ظ…ط­طµظˆظ„ ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯ ط§ط¶ط§ظپظ‡ ط´ط¯', 'success');
+            } else {
+                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯', 'error');
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+        }
+    }
+
+    // View product details
+    function viewProduct(productId) {
+        window.location.href = `product.html?id=${productId}`;
+    }
+
+    // Handle search
+    async function handleSearch(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        const filters = {
+            searchTerm: formData.get('searchTerm'),
+            category: formData.get('category'),
+            priceRange: formData.get('priceRange'),
+            sortBy: formData.get('sortBy')
+        };
+
+        // Remove empty filters
+        Object.keys(filters).forEach(key => {
+            if (!filters[key]) {
+                delete filters[key];
+            }
+        });
+
+        currentFilters = filters;
+        currentPage = 1;
+        await loadWishlistItems(filters);
+    }
+
+    // Handle filter buttons
+    async function handleFilter(e) {
+        const filter = e.target.dataset.filter;
+        
+        if (filter === 'all') {
+            currentFilters = {};
+        } else if (filter === 'onSale') {
+            currentFilters = { onSale: true };
+        } else if (filter === 'recent') {
+            currentFilters = { sortBy: 'addedDate' };
+        }
+        
+        currentPage = 1;
+        await loadWishlistItems(currentFilters);
+    }
+
+    // Handle pagination
+    async function handlePagination(e) {
+        if (e.target.classList.contains('page-link')) {
+            e.preventDefault();
+            const page = parseInt(e.target.dataset.page);
+            if (page && page !== currentPage) {
+                currentPage = page;
+                await loadWishlistItems(currentFilters);
+            }
+        }
+    }
+
+    // Update pagination
+    function updatePagination(totalPages) {
+        const container = document.getElementById('pagination');
+        if (!container) return;
+
+        this.totalPages = totalPages;
+        
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let paginationHTML = '<nav class="flex items-center justify-center space-x-1 space-x-reverse">';
+        
+        // Previous button
+        if (currentPage > 1) {
+            paginationHTML += `
+                <button class="page-link px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50" 
+                        data-page="${currentPage - 1}">
+                    ظ‚ط¨ظ„غŒ
+                </button>
+            `;
+        }
+
+        // Page numbers
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const isActive = i === currentPage;
+            paginationHTML += `
+                <button class="page-link px-3 py-2 text-sm font-medium ${isActive ? 
+                    'text-white bg-primary border-primary' : 
+                    'text-gray-500 bg-white border-gray-300 hover:bg-gray-50'
+                } border rounded-lg" data-page="${i}">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // Next button
+        if (currentPage < totalPages) {
+            paginationHTML += `
+                <button class="page-link px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50" 
+                        data-page="${currentPage + 1}">
+                    ط¨ط¹ط¯غŒ
+                </button>
+            `;
+        }
+
+        paginationHTML += '</nav>';
+        container.innerHTML = paginationHTML;
+    }
+
+    // Clear all wishlist items
+    async function clearAllWishlist() {
+        if (!confirm('ط¢غŒط§ ظ…ط·ظ…ط¦ظ† ظ‡ط³طھغŒط¯ ع©ظ‡ ظ…غŒâ€Œط®ظˆط§ظ‡غŒط¯ طھظ…ط§ظ… ظ…ط­طµظˆظ„ط§طھ ط±ط§ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ع©ظ†غŒط¯طں')) {
+            return;
+        }
+
+        try {
+            const response = await window.wishlistService.clearWishlist();
+            
+            if (response.success) {
+                window.utils.showToast('طھظ…ط§ظ… ظ…ط­طµظˆظ„ط§طھ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯ظ†ط¯', 'success');
+                await loadWishlistItems(); // Reload items
+            } else {
+                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ظ¾ط§ع© ع©ط±ط¯ظ† ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§', 'error');
+            }
+        } catch (error) {
+            console.error('Error clearing wishlist:', error);
+            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+        }
+    }
+</script>
 
 </body>
 </html>
+
+

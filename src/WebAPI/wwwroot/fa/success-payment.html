@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -112,44 +112,40 @@
         <p>© ۱۴۰۲ فروشگاه اینترنتی. تمام حقوق محفوظ است.</p>
     </div>
 </div>
-
-<script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
-<script src="assets/js/dependencies/swiper-script.js"></script>
-
-
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/services/payment-service.js"></script>
+<script src="assets/js/utils.js"></script>
 <script>
-    // Dark mode toggle
-    const themeToggle = document.getElementById('themeToggle');
-    const sunIcon = document.getElementById('sunIcon');
-    const moonIcon = document.getElementById('moonIcon');
+    document.addEventListener('DOMContentLoaded', async () => {
+        const url = new URL(window.location.href);
+        const paymentId = url.searchParams.get('paymentId');
+        const orderId = url.searchParams.get('orderId');
+        const statusEl = document.getElementById('statusText');
 
-    // Check for saved user preference or system preference
-    if (localStorage.getItem('theme') === 'dark' ||
-        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-        sunIcon.classList.add('hidden');
-        moonIcon.classList.remove('hidden');
-    } else {
-        document.documentElement.classList.remove('dark');
-        sunIcon.classList.remove('hidden');
-        moonIcon.classList.add('hidden');
-    }
+        try {
+            let result;
+            if (paymentId) {
+                result = await window.paymentService.getPaymentStatus(paymentId);
+            } else if (orderId) {
+                const res = await window.paymentService.getPaymentsByOrderId(orderId);
+                if (res.success && Array.isArray(res.data) && res.data.length) {
+                    result = await window.paymentService.getPaymentStatus(res.data[0].id || res.data[0].paymentId);
+                } else {
+                    statusEl.textContent = 'سفارش یافت نشد، اما پرداخت ثبت شد.';
+                    return;
+                }
+            }
 
-    // Toggle button click handler
-    themeToggle.addEventListener('click', function() {
-        if (document.documentElement.classList.contains('dark')) {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-            sunIcon.classList.remove('hidden');
-            moonIcon.classList.add('hidden');
-        } else {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-            sunIcon.classList.add('hidden');
-            moonIcon.classList.remove('hidden');
+            if (result && result.success) {
+                statusEl.textContent = 'پرداخت تأیید شد.';
+            } else {
+                statusEl.textContent = 'پرداخت ثبت شد، وضعیت نامشخص.';
+            }
+        } catch (e) {
+            statusEl.textContent = 'امکان بازیابی وضعیت پرداخت نبود.';
         }
     });
 </script>
-
 </body>
 </html>
+

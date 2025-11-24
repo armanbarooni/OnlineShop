@@ -78,9 +78,25 @@ public class SmsIrSmsService : ISmsService
 
     private static string Normalize(string phone)
     {
-        // convert 09xxxxxxxxx to 9xxxxxxxxx for SMSIR if needed
-        if (string.IsNullOrWhiteSpace(phone)) return phone;
-        return phone.StartsWith("0") ? phone.Substring(1) : phone;
+		// Normalize to Iranian local format: 09xxxxxxxxx
+		if (string.IsNullOrWhiteSpace(phone)) return phone;
+
+		var trimmed = phone.Trim();
+
+		// Convert +98xxxxxxxxxx to 09xxxxxxxxx
+		if (trimmed.StartsWith("+98") && trimmed.Length >= 13)
+		{
+			return "0" + trimmed.Substring(3);
+		}
+
+		// Convert 98xxxxxxxxxx to 09xxxxxxxxx
+		if (trimmed.StartsWith("98") && trimmed.Length >= 12)
+		{
+			return "0" + trimmed.Substring(2);
+		}
+
+		// Keep as-is if already starting with 0 (11 digits typical)
+		return trimmed;
     }
 }
 

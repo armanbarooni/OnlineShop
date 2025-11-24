@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CITY SELECTOR MODULE v1
  * Designed by Amir Rezae
  * Features:
@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const content = document.getElementById(tabId);
 
             if (!content) {
-                // console.error('Content element not found for tab:', tabId);
+                // window.logger.error('Content element not found for tab:', tabId);
                 return;
             }
 
@@ -546,10 +546,10 @@ function toggleText() {
     // Check the current display state of the extra text
     if (extraText.style.display === "none") {
         extraText.style.display = "inline"; // Show the extra text
-        btn.textContent = "بستن ادامه مطلب"; // Update button text to "Close Read More"
+        btn.textContent = "ط¨ط³طھظ† ط§ط¯ط§ظ…ظ‡ ظ…ط·ظ„ط¨"; // Update button text to "Close Read More"
     } else {
         extraText.style.display = "none"; // Hide the extra text
-        btn.textContent = "ادامه مطلب"; // Update button text to "Read More"
+        btn.textContent = "ط§ط¯ط§ظ…ظ‡ ظ…ط·ظ„ط¨"; // Update button text to "Read More"
     }
 }
 
@@ -816,7 +816,7 @@ if (inputField && copyButton) {
 
         document.execCommand('copy'); // Copy the text to clipboard
 
-        alert('کپی شد!'); // User feedback (optional)
+        alert('ع©ظ¾غŒ ط´ط¯!'); // User feedback (optional)
     });
 }
 /**
@@ -950,7 +950,7 @@ function changeTab(tabId) {
     activeTab.classList.remove('bg-white', 'dark:bg-gray-700', 'border', 'border-gray-200', 'dark:border-gray-600');
 
     // You can add the logic for filtering notifications based on the selected tab here
-    console.log(`Tab ${tabId} selected`);
+    window.logger.log(`Tab ${tabId} selected`);
 }
 
 // Mark notification as read
@@ -959,7 +959,7 @@ function markAsRead(button) {
     if (notification) {
         notification.classList.remove('bg-blue-50', 'dark:bg-blue-900/20'); // Remove unread styles
     }
-    button.textContent = 'خوانده شده'; // Update button text
+    button.textContent = 'ط®ظˆط§ظ†ط¯ظ‡ ط´ط¯ظ‡'; // Update button text
     button.classList.remove('text-gray-500', 'dark:text-gray-400');
     button.classList.add('text-success', 'dark:text-success-dark'); // Change button color to indicate it's read
 }
@@ -973,7 +973,7 @@ function markAllAsRead() {
 
     // Update all buttons to indicate they have been read
     document.querySelectorAll('[onclick="markAsRead(this)"]').forEach(button => {
-        button.textContent = 'خوانده شده';
+        button.textContent = 'ط®ظˆط§ظ†ط¯ظ‡ ط´ط¯ظ‡';
         button.classList.remove('text-gray-500', 'dark:text-gray-400');
         button.classList.add('text-success', 'dark:text-success-dark');
     });
@@ -992,7 +992,7 @@ function deleteAllNotifications() {
     const notificationsContainer = document.querySelector('.border.rounded-xl.overflow-hidden');
     if (notificationsContainer) {
         // Clear all notifications and display a message indicating no notifications
-        notificationsContainer.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400">هیچ اطلاعیه‌ای وجود ندارد</div>';
+        notificationsContainer.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400">ظ‡غŒع† ط§ط·ظ„ط§ط¹غŒظ‡â€Œط§غŒ ظˆط¬ظˆط¯ ظ†ط¯ط§ط±ط¯</div>';
     }
 }
 
@@ -1090,8 +1090,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Display the amounts
-        feeAmountElement.textContent = feeAmount.toLocaleString() + " تومان";
-        totalAmountElement.textContent = totalAmount.toLocaleString() + " تومان";
+        feeAmountElement.textContent = feeAmount.toLocaleString() + " طھظˆظ…ط§ظ†";
+        totalAmountElement.textContent = totalAmount.toLocaleString() + " طھظˆظ…ط§ظ†";
     }
 
     // Search for receiver
@@ -1203,13 +1203,13 @@ function copyComponentCode(btn) {
     const codeBlock = block ? block.querySelector('code') : null;
 
     if (!codeBlock) {
-        alert('کدی برای کپی پیدا نشد!');
+        alert('ع©ط¯غŒ ط¨ط±ط§غŒ ع©ظ¾غŒ ظ¾غŒط¯ط§ ظ†ط´ط¯!');
         return;
     }
 
     navigator.clipboard.writeText(codeBlock.textContent.trim())
-        .then(() => alert('کد با موفقیت کپی شد!'))
-        .catch(() => alert('کپی کردن کد با خطا مواجه شد!'));
+        .then(() => alert('ع©ط¯ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ع©ظ¾غŒ ط´ط¯!'))
+        .catch(() => alert('ع©ظ¾غŒ ع©ط±ط¯ظ† ع©ط¯ ط¨ط§ ط®ط·ط§ ظ…ظˆط§ط¬ظ‡ ط´ط¯!'));
 }
 
 
@@ -1240,16 +1240,16 @@ function initializeLiveSearch() {
 
     // Sample product data
     const products = [
-        { id: 1, name: "لپ تاپ ایسوس مدل ROG", category: "لپ تاپ و کامپیوتر" },
-        { id: 2, name: "گوشی سامسونگ گلکسی S23", category: "موبایل و تبلت" },
-        { id: 3, name: "هدفون بی سیم سونی", category: "لوازم جانبی" },
-        { id: 4, name: "ماوس گیمینگ رزر", category: "لوازم جانبی" },
-        { id: 5, name: "تلویزیون ال جی 55 اینچ", category: "صوتی و تصویری" },
-        { id: 6, name: "کتاب صوتی موفقیت در کسب و کار", category: "کتاب و رسانه" },
-        { id: 7, name: "کفش ورزشی نایک", category: "پوشاک و ورزش" },
-        { id: 8, name: "دستگاه غذاساز فیلیپس", category: "لوازم خانگی" },
-        { id: 9, name: "دوربین کانن EOS R5", category: "عکاسی" },
-        { id: 10, name: "کنسول بازی پلی استیشن 5", category: "بازی و سرگرمی" }
+        { id: 1, name: "ظ„ظ¾ طھط§ظ¾ ط§غŒط³ظˆط³ ظ…ط¯ظ„ ROG", category: "ظ„ظ¾ طھط§ظ¾ ظˆ ع©ط§ظ…ظ¾غŒظˆطھط±" },
+        { id: 2, name: "ع¯ظˆط´غŒ ط³ط§ظ…ط³ظˆظ†ع¯ ع¯ظ„ع©ط³غŒ S23", category: "ظ…ظˆط¨ط§غŒظ„ ظˆ طھط¨ظ„طھ" },
+        { id: 3, name: "ظ‡ط¯ظپظˆظ† ط¨غŒ ط³غŒظ… ط³ظˆظ†غŒ", category: "ظ„ظˆط§ط²ظ… ط¬ط§ظ†ط¨غŒ" },
+        { id: 4, name: "ظ…ط§ظˆط³ ع¯غŒظ…غŒظ†ع¯ ط±ط²ط±", category: "ظ„ظˆط§ط²ظ… ط¬ط§ظ†ط¨غŒ" },
+        { id: 5, name: "طھظ„ظˆغŒط²غŒظˆظ† ط§ظ„ ط¬غŒ 55 ط§غŒظ†ع†", category: "طµظˆطھغŒ ظˆ طھطµظˆغŒط±غŒ" },
+        { id: 6, name: "ع©طھط§ط¨ طµظˆطھغŒ ظ…ظˆظپظ‚غŒطھ ط¯ط± ع©ط³ط¨ ظˆ ع©ط§ط±", category: "ع©طھط§ط¨ ظˆ ط±ط³ط§ظ†ظ‡" },
+        { id: 7, name: "ع©ظپط´ ظˆط±ط²ط´غŒ ظ†ط§غŒع©", category: "ظ¾ظˆط´ط§ع© ظˆ ظˆط±ط²ط´" },
+        { id: 8, name: "ط¯ط³طھع¯ط§ظ‡ ط؛ط°ط§ط³ط§ط² ظپغŒظ„غŒظ¾ط³", category: "ظ„ظˆط§ط²ظ… ط®ط§ظ†ع¯غŒ" },
+        { id: 9, name: "ط¯ظˆط±ط¨غŒظ† ع©ط§ظ†ظ† EOS R5", category: "ط¹ع©ط§ط³غŒ" },
+        { id: 10, name: "ع©ظ†ط³ظˆظ„ ط¨ط§ط²غŒ ظ¾ظ„غŒ ط§ط³طھغŒط´ظ† 5", category: "ط¨ط§ط²غŒ ظˆ ط³ط±ع¯ط±ظ…غŒ" }
     ];
 
     // Search function
@@ -1262,7 +1262,7 @@ function initializeLiveSearch() {
         // Show loading status
         searchResults.innerHTML = `
                     <div class="p-4 text-center text-gray-600 dark:text-gray-300">
-                        <div class="loading">در حال جستجو</div>
+                        <div class="loading">ط¯ط± ط­ط§ظ„ ط¬ط³طھط¬ظˆ</div>
                     </div>
                 `;
         searchResults.classList.remove('hidden');
@@ -1283,7 +1283,7 @@ function initializeLiveSearch() {
         if (results.length === 0) {
             searchResults.innerHTML = `
                         <div class="p-4 text-center text-gray-600 dark:text-gray-300">
-                            نتیجه‌ای یافت نشد
+                            ظ†طھغŒط¬ظ‡â€Œط§غŒ غŒط§ظپطھ ظ†ط´ط¯
                         </div>
                     `;
             return;
@@ -1340,7 +1340,7 @@ function initializeLiveSearch() {
         if (e.key === 'Enter') {
             const searchTerm = this.value.trim();
             if (searchTerm) {
-                alert(`جستجو برای: ${searchTerm} (این قسمت به صفحه نتایج جستجو هدایت می‌کند)`);
+                alert(`ط¬ط³طھط¬ظˆ ط¨ط±ط§غŒ: ${searchTerm} (ط§غŒظ† ظ‚ط³ظ…طھ ط¨ظ‡ طµظپط­ظ‡ ظ†طھط§غŒط¬ ط¬ط³طھط¬ظˆ ظ‡ط¯ط§غŒطھ ظ…غŒâ€Œع©ظ†ط¯)`);
             }
         }
     });
@@ -1404,19 +1404,19 @@ function sendOTP() {
 
     if (!mobile.value) {
         mobile.classList.add('input-error');
-        mobileError.textContent = 'لطفا شماره موبایل را وارد کنید';
+        mobileError.textContent = 'ظ„ط·ظپط§ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ط±ط§ ظˆط§ط±ط¯ ع©ظ†غŒط¯';
         mobileError.classList.remove('hidden');
         return;
     } else if (!/^09\d{9}$/.test(mobile.value)) {
         mobile.classList.add('input-error');
-        mobileError.textContent = 'شماره موبایل معتبر نیست';
+        mobileError.textContent = 'ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ظ…ط¹طھط¨ط± ظ†غŒط³طھ';
         mobileError.classList.remove('hidden');
         return;
     }
 
     // Simulate sending OTP
     // In real case, this should send a request to the server
-    console.log('کد تایید برای شماره ' + mobile.value + ' ارسال شد');
+    window.logger.log('ع©ط¯ طھط§غŒغŒط¯ ط¨ط±ط§غŒ ط´ظ…ط§ط±ظ‡ ' + mobile.value + ' ط§ط±ط³ط§ظ„ ط´ط¯');
 
     // Show OTP section
     otpSection.classList.remove('hidden');
@@ -1451,6 +1451,9 @@ function startCountdown() {
 }
 
 // --- Form validation for password login ---
+// DISABLED: This handler conflicts with login.html's form handler
+// Form submission is handled entirely by login.html's JavaScript
+/*
 const passwordForm = document.getElementById('password-form');
 if (passwordForm) {
     passwordForm.addEventListener('submit', function (e) {
@@ -1473,7 +1476,7 @@ if (passwordForm) {
         if (!username?.value) {
             username?.classList.add('input-error');
             if (usernameError) {
-                usernameError.textContent = 'لطفا نام کاربری یا شماره موبایل را وارد کنید';
+                usernameError.textContent = 'ظ„ط·ظپط§ ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ غŒط§ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ط±ط§ ظˆط§ط±ط¯ ع©ظ†غŒط¯';
                 usernameError.classList.remove('hidden');
             }
             isValid = false;
@@ -1482,35 +1485,21 @@ if (passwordForm) {
         } else if (username.value.length < 3) {
             username?.classList.add('input-error');
             if (usernameError) {
-                usernameError.textContent = 'نام کاربری باید حداقل ۳ کاراکتر باشد';
+                usernameError.textContent = 'ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ³ ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
                 usernameError.classList.remove('hidden');
             }
             isValid = false;
         }
 
-        // Validate password
-        if (!password?.value) {
-            password?.classList.add('input-error');
-            if (passwordError) {
-                passwordError.textContent = 'لطفا رمز عبور را وارد کنید';
-                passwordError.classList.remove('hidden');
-            }
-            isValid = false;
-        } else if (password.value.length < 6) {
-            password?.classList.add('input-error');
-            if (passwordError) {
-                passwordError.textContent = 'رمز عبور باید حداقل ۶ کاراکتر باشد';
-                passwordError.classList.remove('hidden');
-            }
-            isValid = false;
-        }
-
-        // Submit if form is valid
-        if (isValid) {
-            alert('ورود با موفقیت انجام شد! (این یک پیام نمونه است)');
-        }
+        // Password validation is handled by login.html's form handler
+        // This handler is disabled to prevent duplicate validation
+        // Validation happens only on form submit in login.html, not during typing
+        
+        // Note: Form submission is handled by login.html's form handler
+        return false; // Prevent default form submission here
     });
 }
+*/
 
 // --- Form validation for SMS login ---
 const smsForm = document.getElementById('sms-form');
@@ -1528,31 +1517,32 @@ if (smsForm) {
         if (!otpCode?.value) {
             otpCode?.classList.add('input-error');
             if (otpError) {
-                otpError.textContent = 'لطفا کد تایید را وارد کنید';
+                otpError.textContent = 'ظ„ط·ظپط§ ع©ط¯ طھط§غŒغŒط¯ ط±ط§ ظˆط§ط±ط¯ ع©ظ†غŒط¯';
                 otpError.classList.remove('hidden');
             }
             return;
-        } else if (!/^\d{5}$/.test(otpCode.value)) {
+        } else if (!/^\d{6}$/.test(otpCode.value)) {
             otpCode?.classList.add('input-error');
             if (otpError) {
-                otpError.textContent = 'کد تایید باید ۵ رقم باشد';
+                otpError.textContent = 'ع©ط¯ طھط§غŒغŒط¯ ط¨ط§غŒط¯ غ¶ ط±ظ‚ظ… ط¨ط§ط´ط¯';
                 otpError.classList.remove('hidden');
             }
             return;
         }
 
-        alert('ورود با موفقیت انجام شد! (این یک پیام نمونه است)');
+        // Form submission is handled by login.html's form handler
+        // alert('ظˆط±ظˆط¯ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ظ†ط¬ط§ظ… ط´ط¯! (ط§غŒظ† غŒع© ظ¾غŒط§ظ… ظ†ظ…ظˆظ†ظ‡ ط§ط³طھ)');
     });
 }
 
 // --- Function to show login error message ---
 function showLoginError(message) {
     const loginForm = document.getElementById('login-form');
-    if (!loginForm) return; // اگر فرم وجود نداشت خطا نده
+    if (!loginForm) return; // ط§ع¯ط± ظپط±ظ… ظˆط¬ظˆط¯ ظ†ط¯ط§ط´طھ ط®ط·ط§ ظ†ط¯ظ‡
 
     const errorDiv = document.createElement('div');
     errorDiv.className = 'mb-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-xl';
-    errorDiv.textContent = message || 'نام کاربری یا رمز عبور اشتباه است';
+    errorDiv.textContent = message || 'ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ غŒط§ ط±ظ…ط² ط¹ط¨ظˆط± ط§ط´طھط¨ط§ظ‡ ط§ط³طھ';
 
     loginForm.insertBefore(errorDiv, loginForm.firstChild);
 
@@ -1560,3 +1550,5 @@ function showLoginError(message) {
         errorDiv.remove();
     }, 5000);
 }
+
+

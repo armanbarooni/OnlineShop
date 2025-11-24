@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.DTOs.Wishlist;
@@ -9,6 +10,7 @@ using OnlineShop.Application.Features.Wishlist.Command.Update;
 using OnlineShop.Application.Features.Wishlist.Queries.GetByUserId;
 using OnlineShop.Application.Features.Wishlist.Queries.GetAll;
 using OnlineShop.Application.Features.Wishlist.Queries.GetById;
+using OnlineShop.Domain.Entities;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -18,10 +20,12 @@ namespace OnlineShop.WebAPI.Controllers
     public class WishlistController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public WishlistController(IMediator mediator)
+        public WishlistController(IMediator mediator, UserManager<ApplicationUser> userManager)
         {
             _mediator = mediator;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -42,8 +46,25 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpGet("user/{userId}")]
-        public async Task<ActionResult<Result<IEnumerable<WishlistDto>>>> GetByUserId(Guid userId)
+        public async Task<ActionResult<Result<IEnumerable<WishlistDto>>>> GetByUserId([FromRoute(Name = "userId")] string userIdentifier)
         {
+            if (string.IsNullOrWhiteSpace(userIdentifier))
+            {
+                return BadRequest(Result<IEnumerable<WishlistDto>>.Failure("User identifier is required"));
+            }
+
+            Guid userId;
+            if (!Guid.TryParse(userIdentifier, out userId))
+            {
+                var user = await _userManager.FindByEmailAsync(userIdentifier);
+                if (user == null)
+                {
+                    return NotFound(Result<IEnumerable<WishlistDto>>.Failure("User not found"));
+                }
+
+                userId = user.Id;
+            }
+
             var result = await _mediator.Send(new GetWishlistByUserIdQuery { UserId = userId });
             return Ok(result);
         }

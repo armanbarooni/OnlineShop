@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -1486,7 +1486,6 @@
 ></div>
 
 <!-- /canvas responsive menu -->
-
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
 
@@ -1560,25 +1559,25 @@
         const personalMessage = document.getElementById('personalMessage').value;
 
         if (!friendEmail) {
-            alert('لطفا ایمیل دوست خود را وارد کنید');
+        alert('لطفاً ایمیل دوست خود را وارد کنید');
             return;
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(friendEmail)) {
-            alert('لطفا یک ایمیل معتبر وارد کنید');
+        alert('لطفاً یک ایمیل معتبر وارد کنید');
             return;
         }
 
         // Here you can add the code to send to the server
-        console.log('در حال ارسال کارت هدیه به دوست:', {
+    console.log('در حال ارسال کارت هدیه به دوست:', {
             giftCode,
             friendName,
             friendEmail,
             personalMessage
         });
 
-        alert(`کارت هدیه با کد ${giftCode} برای ${friendEmail} ارسال شد`);
+    alert(`کارت هدیه با کد ${giftCode} برای ${friendEmail} ارسال شد`);
 
         // Close modal
         document.querySelector('.fixed.inset-0').remove();
@@ -1608,7 +1607,49 @@
             firstTab.click();
         }
     });
-</script>
+ </script>
+
+<div id="giftCardContainer" class="container mx-auto p-4"></div>
+
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="config.js"></script>
+<script src="assets/js/utils/logger.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/coupon-service.js"></script>
+<script>
+ document.addEventListener('DOMContentLoaded', ()=>{
+   const cont=document.getElementById('giftCardContainer');
+   if(cont){
+     cont.innerHTML = `
+       <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-xl border p-4">
+        <h2 class="font-bold mb-3">افزودن کارت هدیه</h2>
+        <form id="giftCardForm" class="flex gap-2">
+          <input class="flex-1 border rounded px-3 py-2 dark:bg-gray-700" type="text" id="giftCode" placeholder="کد کارت هدیه" required />
+          <button class="px-4 py-2 bg-primary text-white rounded" type="submit">اعمال</button>
+        </form>
+       </div>`;
+     document.getElementById('giftCardForm').addEventListener('submit', async (e)=>{
+       e.preventDefault();
+       const code = document.getElementById('giftCode').value.trim();
+       if(!code){ window.utils?.showToast('کد نامعتبر','error'); return; }
+       try{
+         // Placeholder: استفاده از کوپن به عنوان کارت هدیه
+         const res = await window.couponService.applyCoupon(code);
+         if(res.success){
+           window.utils?.showToast('کارت هدیه اعمال شد','success');
+         } else {
+           window.utils?.showToast(res.error||'کد کارت هدیه معتبر نیست','error');
+         }
+       }catch(err){ window.utils?.showToast('خطا در اعمال کارت هدیه','error'); }
+     });
+   }
+ });
+ </script>
 
 </body>
 </html>
+
+
+

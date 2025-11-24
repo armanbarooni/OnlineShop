@@ -1,11 +1,11 @@
-<!doctype html>
-<html lang="en" dir="rtl">
+﻿<!doctype html>
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>قالب فرشگاهی آرینو</title>
+    <title>ورود به حساب | آرینو کالا</title>
     <meta name="description" content="قالب فرشگاهی آرینو، بهترین قالب برای فروشگاه‌های اینترنتی با طراحی مدرن و واکنش‌گرا.">
     <meta name="keywords" content="قالب فروشگاهی, قالب آرینو, فروشگاه اینترنتی, طراحی واکنش‌گرا">
     <meta name="robots" content="index, follow">
@@ -19,17 +19,12 @@
     <link rel="stylesheet" href="assets/css/app.css">
     <link rel="preload" href="assets/fonts/payda/PeydaWebFaNum-Medium.woff2" as="font" type="font/woff2" crossorigin>
 
-    <!-- API Integration Scripts -->
-    <script src="../shared/js/config.js"></script>
-    <script src="../shared/js/auth.js"></script>
-    <script src="../shared/js/api.js"></script>
-
-</head>
+    </head>
 <body class="bg-light dark:bg-zinc-900 text-text-primary-light dark:text-text-primary-dark transition-colors duration-200">
 
 <div class="min-h-screen flex flex-col lg:flex-row">
     <!-- Image section -->
-    <div class="lg:w-1/2 auth-bg relative hidden lg:flex items-center justify-center p-12">
+    <div class="w-full lg:w-1/2 auth-bg relative flex items-center justify-center p-10 lg:p-12 mb-10 lg:mb-0">
         <div class="absolute inset-0 bg-black/30 dark:bg-black/50"></div>
         <div class="relative z-10 text-white text-center max-w-md">
             <div class="w-20 h-20 rounded-xl bg-primary-grad flex items-center justify-center mx-auto mb-6">
@@ -91,9 +86,7 @@
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رمز عبور</label>
                         <div class="relative">
-                            <input type="password" id="password" class="w-full pe-12 ps-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="رمز عبور خود را وارد کنید" required>
-                            <div class="absolute input-icon top-1/2 transform -translate-y-1/2 text-gray-400">
-                            </div>
+                            <input type="password" id="password" class="w-full pe-12 ps-12 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="رمز عبور خود را وارد کنید" required>
                             <button type="button" class="absolute password-toggle top-1/2 transform -translate-y-1/2 text-gray-400" onclick="togglePassword('password')">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -111,7 +104,7 @@
                             <label for="remember-me" class="ms-2 block text-sm text-gray-700 dark:text-gray-300">مرا به خاطر بسپار</label>
                         </div>
                         <div class="text-sm">
-                            <a href="#" class="font-medium text-primary dark:text-primary-dark hover:underline">رمز عبور را فراموش کرده‌اید؟</a>
+                            <a href="forgot-password.html" class="font-medium text-primary dark:text-primary-dark hover:underline">رمز عبور را فراموش کرده‌اید؟</a>
                         </div>
                     </div>
 
@@ -132,7 +125,7 @@
                     <div>
                         <label for="mobile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">شماره موبایل</label>
                         <div class="relative">
-                            <input type="tel" id="mobile" class="w-full pe-12 ps-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="09xxxxxxxxx" required>
+                            <input type="tel" id="mobile" class="w-full pe-12 ps-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="09xxxxxxxxx" required inputmode="numeric" pattern="09[0-9]{9}" maxlength="11" dir="ltr">
                             <div class="absolute input-icon top-1/2 transform -translate-y-1/2 text-gray-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -181,49 +174,11 @@
                     </div>
                 </form>
 
-                <!-- Login with social networks -->
-                <div class="mt-6">
-                    <div class="relative">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">یا ورود با</span>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 grid grid-cols-3 gap-3">
-                        <div>
-                            <a href="#" class="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.477 0 10c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0110 4.844c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.933.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C17.14 18.163 20 14.418 20 10c0-5.523-4.477-10-10-10z" clip-rule="evenodd" />
-                                </svg>
-                            </a>
-                        </div>
-
-                        <div>
-                            <a href="#" class="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.477 0 10c0 5.523 4.477 10 10 10 5.523 0 10-4.477 10-10C20 4.477 15.523 0 10 0zm6.25 14.5c-.41.41-1.08.41-1.5 0l-3.75-3.75-3.75 3.75c-.41.41-1.08.41-1.5 0-.41-.42-.41-1.08 0-1.5l3.75-3.75-3.75-3.75c-.41-.42-.41-1.08 0-1.5.42-.41 1.08-.41 1.5 0l3.75 3.75 3.75-3.75c.42-.41 1.08-.41 1.5 0 .41.42.41 1.08 0 1.5l-3.75 3.75 3.75 3.75c.41.42.41 1.08 0 1.5z" clip-rule="evenodd" />
-                                </svg>
-                            </a>
-                        </div>
-
-                        <div>
-                            <a href="#" class="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                    <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Registration link -->
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-500 dark:text-gray-400">
                         حساب کاربری ندارید؟
-                        <a href="#" class="font-medium text-primary dark:text-primary-dark hover:underline">ثبت نام کنید</a>
+                        <a href="register.html" class="font-medium text-primary dark:text-primary-dark hover:underline">ثبت نام کنید</a>
                     </p>
                 </div>
             </div>
@@ -231,10 +186,82 @@
     </div>
 </div>
 
+
+
+<script src="config.js"></script>
+<script src="assets/js/utils/logger.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/utils.js"></script>
 
 
 <script>
+    // Prevent form caching and clear placeholders
+    document.addEventListener('DOMContentLoaded', function() {
+        // Clear all form fields on page load to prevent caching
+        clearLoginForm();
+        
+        // Setup placeholder clearing on input focus
+        setupPlaceholderClearing();
+    });
+
+    // Clear login form completely
+    function clearLoginForm() {
+        document.getElementById('username')?.setAttribute('value', '');
+        document.getElementById('password')?.setAttribute('value', '');
+        document.getElementById('mobile')?.setAttribute('value', '');
+        document.getElementById('otp-code')?.setAttribute('value', '');
+        document.getElementById('remember-me')?.removeAttribute('checked');
+        
+        // Clear any cached values
+        if (document.getElementById('username')) document.getElementById('username').value = '';
+        if (document.getElementById('password')) document.getElementById('password').value = '';
+        if (document.getElementById('mobile')) document.getElementById('mobile').value = '';
+        if (document.getElementById('otp-code')) document.getElementById('otp-code').value = '';
+    }
+
+    // Setup placeholder clearing when user starts typing
+    function setupPlaceholderClearing() {
+        const inputs = document.querySelectorAll('input[data-placeholder]');
+        inputs.forEach(input => {
+            const originalPlaceholder = input.getAttribute('data-placeholder');
+            
+            // Clear placeholder on focus
+            input.addEventListener('focus', function() {
+                if (this.placeholder === originalPlaceholder) {
+                    this.placeholder = '';
+                }
+            });
+            
+            // Restore placeholder if field is empty on blur
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.placeholder = originalPlaceholder;
+                }
+            });
+            
+            // Clear placeholder immediately when user starts typing
+            input.addEventListener('input', function() {
+                if (this.placeholder && this.value) {
+                    this.placeholder = '';
+                }
+                
+                // Also clear validation errors when user starts typing
+                const errorElement = this.nextElementSibling?.querySelector('.error-message') || 
+                                   this.parentElement?.querySelector('.error-message') ||
+                                   document.getElementById(this.id + '-error');
+                if (this.classList.contains('input-error')) {
+                    this.classList.remove('input-error');
+                    if (errorElement) {
+                        errorElement.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    }
+
     // Function to show/hide password
     function togglePassword(id) {
         const passwordInput = document.getElementById(id);
@@ -263,7 +290,7 @@
     }
 
     // Function to send OTP code
-    function sendOTP() {
+    async function sendOTP() {
         const mobile = document.getElementById('mobile');
         const mobileError = document.getElementById('mobile-error');
         const otpSection = document.getElementById('otp-section');
@@ -288,8 +315,42 @@
             return;
         }
 
-        // Send OTP via API
-        handleSendOtp(mobile.value);
+        // Show loading state
+        const originalText = sendOtpBtn.innerHTML;
+        sendOtpBtn.disabled = true;
+        sendOtpBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            در حال ارسال...
+        `;
+
+        try {
+            const result = await authService.sendOTP(mobile.value);
+            
+            if (result.success) {
+                // Show OTP section
+                otpSection.classList.remove('hidden');
+                sendOtpBtn.classList.add('hidden');
+                verifyOtpBtn.classList.remove('hidden');
+
+                // Start countdown timer
+                startCountdown();
+                
+                // Show success message
+                showLoginSuccess(result.message || 'کد تایید ارسال شد');
+            } else {
+                showLoginError(result.error || 'خطا در ارسال کد تایید');
+            }
+        } catch (error) {
+            console.error('Send OTP error:', error);
+            showLoginError('خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.');
+        } finally {
+            // Reset button state
+            sendOtpBtn.disabled = false;
+            sendOtpBtn.innerHTML = originalText;
+        }
     }
 
     // Countdown timer for resending the code
@@ -304,7 +365,7 @@
         resendOtp.classList.add('hidden');
 
         const timer = setInterval(() => {
-            timeend--;
+            timeLeft--;
             countdownTime.textContent = timeLeft;
 
             if (timeLeft <= 0) {
@@ -316,13 +377,14 @@
     }
 
     // Form validation for password login
-    document.getElementById('password-form').addEventListener('submit', function(e) {
+    document.getElementById('password-form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const username = document.getElementById('username');
         const password = document.getElementById('password');
         const usernameError = document.getElementById('username-error');
         const passwordError = document.getElementById('password-error');
+        const submitBtn = this.querySelector('button[type="submit"]');
 
         let isValid = true;
 
@@ -331,6 +393,19 @@
         password.classList.remove('input-error');
         usernameError.classList.add('hidden');
         passwordError.classList.add('hidden');
+
+        // Real-time validation: clear errors when user starts typing
+        const clearErrorOnInput = (inputElement, errorElement) => {
+            inputElement.addEventListener('input', function() {
+                if (this.classList.contains('input-error')) {
+                    this.classList.remove('input-error');
+                    errorElement.classList.add('hidden');
+                }
+            });
+        };
+        
+        clearErrorOnInput(username, usernameError);
+        clearErrorOnInput(password, passwordError);
 
         // Validate username or mobile
         if(!username.value) {
@@ -353,25 +428,62 @@
             passwordError.textContent = 'لطفا رمز عبور را وارد کنید';
             passwordError.classList.remove('hidden');
             isValid = false;
-        } else if(password.value.length < 6) {
-            password.classList.add('input-error');
-            passwordError.textContent = 'رمز عبور باید حداقل ۶ کاراکتر باشد';
-            passwordError.classList.remove('hidden');
-            isValid = false;
         }
+        // Password length validation removed - backend will validate
 
         // Submit if form is valid
         if(isValid) {
-            handlePasswordLogin(username.value, password.value);
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                در حال ورود...
+            `;
+
+            try {
+                const result = await authService.loginWithPassword(
+                    username.value,
+                    password.value
+                );
+
+                if (result.success) {
+                    // Show success message
+                    showLoginSuccess('ورود با موفقیت انجام شد!');
+                    
+                    // Clear form after successful login
+                    clearLoginForm();
+                    
+                    // Redirect to dashboard after short delay
+                    setTimeout(() => {
+                        window.location.href = 'user-panel-index.html';
+                    }, 1500);
+                } else {
+                    showLoginError(result.error || 'نام کاربری یا رمز عبور اشتباه است. لطفاً دوباره تلاش کنید.');
+                    // Clear password on error
+                    document.getElementById('password').value = '';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoginError('خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
         }
     });
 
     // Form validation for SMS login
-    document.getElementById('sms-form').addEventListener('submit', function(e) {
+    document.getElementById('sms-form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
+        const mobile = document.getElementById('mobile');
         const otpCode = document.getElementById('otp-code');
         const otpError = document.getElementById('otp-error');
+        const verifyOtpBtn = document.getElementById('verify-otp-btn');
 
         // Validate OTP code
         otpCode.classList.remove('input-error');
@@ -382,153 +494,76 @@
             otpError.textContent = 'لطفا کد تایید را وارد کنید';
             otpError.classList.remove('hidden');
             return;
-        } else if (!/^\d{5}$/.test(otpCode.value)) {
+        } else if (!/^\d{6}$/.test(otpCode.value)) {
             otpCode.classList.add('input-error');
-            otpError.textContent = 'کد تایید باید ۵ رقم باشد';
+            otpError.textContent = 'کد تایید باید ۶ رقم باشد';
             otpError.classList.remove('hidden');
             return;
         }
 
-        // Handle OTP login
-        handleOtpLogin(document.getElementById('mobile').value, otpCode.value);
+        // Show loading state
+        const originalText = verifyOtpBtn.innerHTML;
+        verifyOtpBtn.disabled = true;
+        verifyOtpBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            در حال تایید...
+        `;
+
+        try {
+            const result = await authService.verifyOTP(mobile.value, otpCode.value);
+            
+            if (result.success) {
+                showLoginSuccess('ورود با موفقیت انجام شد!');
+                
+                // Clear form after successful login
+                clearLoginForm();
+                
+                // Redirect to dashboard after short delay
+                setTimeout(() => {
+                    window.location.href = 'user-panel-index.html';
+                }, 1500);
+            } else {
+                showLoginError(result.error || 'کد تایید نامعتبر است');
+                // Clear OTP code on error
+                document.getElementById('otp-code').value = '';
+            }
+        } catch (error) {
+            console.error('Verify OTP error:', error);
+            showLoginError('خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.');
+            // Clear OTP code on error
+            document.getElementById('otp-code').value = '';
+        } finally {
+            // Reset button state
+            verifyOtpBtn.disabled = false;
+            verifyOtpBtn.innerHTML = originalText;
+        }
     });
-
-    // API Integration Functions
-    
-    // Handle password login
-    async function handlePasswordLogin(username, password) {
-        const submitButton = document.querySelector('#password-form button[type="submit"]');
-        const originalText = submitButton.innerHTML;
-        
-        try {
-            // Show loading state
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>در حال ورود...';
-            
-            // Determine if username is email or phone
-            const isEmail = username.includes('@');
-            const isPhone = /^09\d{9}$/.test(username);
-            
-            let result;
-            if (isEmail) {
-                result = await authManager.loginWithEmail(username, password);
-            } else if (isPhone) {
-                // For phone numbers, we need to send OTP first
-                showLoginError('برای ورود با شماره موبایل، ابتدا کد تایید دریافت کنید');
-                return;
-            } else {
-                // Try as email
-                result = await authManager.loginWithEmail(username, password);
-            }
-            
-            if (result.success) {
-                // Login successful
-                showLoginSuccess('ورود با موفقیت انجام شد!');
-                setTimeout(() => {
-                    window.location.href = '/fa/dashboard.html'; // Redirect to dashboard
-                }, 1500);
-            } else {
-                showLoginError(result.error || 'خطا در ورود');
-            }
-        } catch (error) {
-            showLoginError('خطا در ارتباط با سرور');
-            console.error('Login error:', error);
-        } finally {
-            // Reset button state
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalText;
-        }
-    }
-    
-    // Handle OTP login
-    async function handleOtpLogin(phone, otp) {
-        const submitButton = document.querySelector('#sms-form button[type="submit"]');
-        const originalText = submitButton.innerHTML;
-        
-        try {
-            // Show loading state
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>در حال ورود...';
-            
-            const result = await authManager.loginWithPhone(phone, otp);
-            
-            if (result.success) {
-                showLoginSuccess('ورود با موفقیت انجام شد!');
-                setTimeout(() => {
-                    window.location.href = '/fa/dashboard.html'; // Redirect to dashboard
-                }, 1500);
-            } else {
-                showLoginError(result.error || 'کد تایید اشتباه است');
-            }
-        } catch (error) {
-            showLoginError('خطا در ارتباط با سرور');
-            console.error('OTP login error:', error);
-        } finally {
-            // Reset button state
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalText;
-        }
-    }
-    
-    // Handle OTP sending
-    async function handleSendOtp(phone) {
-        const sendOtpButton = document.getElementById('send-otp-btn');
-        const originalText = sendOtpButton.innerHTML;
-        
-        try {
-            sendOtpButton.disabled = true;
-            sendOtpButton.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>در حال ارسال...';
-            
-            const result = await authManager.sendOtp(phone);
-            
-            if (result.success) {
-                showLoginSuccess('کد تایید ارسال شد');
-                // Show OTP input section
-                const otpSection = document.getElementById('otp-section');
-                const sendOtpBtn = document.getElementById('send-otp-btn');
-                const verifyOtpBtn = document.getElementById('verify-otp-btn');
-                
-                otpSection.classList.remove('hidden');
-                sendOtpBtn.classList.add('hidden');
-                verifyOtpBtn.classList.remove('hidden');
-                
-                // Start countdown
-                startCountdown();
-            } else {
-                showLoginError(result.error || 'خطا در ارسال کد تایید');
-            }
-        } catch (error) {
-            showLoginError('خطا در ارتباط با سرور');
-            console.error('Send OTP error:', error);
-        } finally {
-            sendOtpButton.disabled = false;
-            sendOtpButton.innerHTML = originalText;
-        }
-    }
-    
-    // Show success message
-    function showLoginSuccess(message) {
-        const successDiv = document.createElement('div');
-        successDiv.className = 'mb-4 p-4 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-300 rounded-xl';
-        successDiv.textContent = message;
-
-        const form = document.querySelector('form');
-        form.insertBefore(successDiv, form.firstChild);
-
-        // Automatically remove success message after 3 seconds
-        setTimeout(() => {
-            successDiv.remove();
-        }, 3000);
-    }
 
     // Function to show login error message
     function showLoginError(message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'mb-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-xl';
-        errorDiv.textContent = message || 'نام کاربری یا رمز عبور اشتباه است';
+        // Remove existing error messages
+        const existingErrors = document.querySelectorAll('.login-error-message');
+        existingErrors.forEach(el => el.remove());
 
-        const form = document.querySelector('form');
-        form.insertBefore(errorDiv, form.firstChild);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'login-error-message mb-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-xl border border-red-200 dark:border-red-800';
+        errorDiv.innerHTML = `
+            <div class="flex items-center">
+                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                </svg>
+                ${message || 'ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ غŒط§ ط±ظ…ط² ط¹ط¨ظˆط± ط§ط´طھط¨ط§ظ‡ ط§ط³طھ'}
+            </div>
+        `;
+
+        // Insert error message at the top of the form
+        const passwordForm = document.getElementById('password-form');
+        const smsForm = document.getElementById('sms-form');
+        const targetForm = passwordForm.classList.contains('hidden') ? smsForm : passwordForm;
+        targetForm.insertBefore(errorDiv, targetForm.firstChild);
 
         // Automatically remove error message after 5 seconds
         setTimeout(() => {
@@ -536,7 +571,38 @@
         }, 5000);
     }
 
+    // Function to show login success message
+    function showLoginSuccess(message) {
+        // Remove existing messages
+        const existingMessages = document.querySelectorAll('.login-success-message, .login-error-message');
+        existingMessages.forEach(el => el.remove());
+
+        const successDiv = document.createElement('div');
+        successDiv.className = 'login-success-message mb-4 p-4 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-300 rounded-xl border border-green-200 dark:border-green-800';
+        successDiv.innerHTML = `
+            <div class="flex items-center">
+                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                ${message}
+            </div>
+        `;
+
+        // Insert success message at the top of the form
+        const passwordForm = document.getElementById('password-form');
+        const smsForm = document.getElementById('sms-form');
+        const targetForm = passwordForm.classList.contains('hidden') ? smsForm : passwordForm;
+        targetForm.insertBefore(successDiv, targetForm.firstChild);
+
+        // Automatically remove success message after 3 seconds
+        setTimeout(() => {
+            successDiv.remove();
+        }, 3000);
+    }
+
 </script>
 
 </body>
 </html>
+
+
