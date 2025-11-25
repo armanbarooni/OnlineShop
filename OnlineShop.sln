@@ -27,8 +27,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineShop.Application.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineShop.IntegrationTests", "tests\OnlineShop.IntegrationTests\OnlineShop.IntegrationTests.csproj", "{FE70A93F-73DF-4B90-B5AD-057DE8F6C231}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{19A6D7E6-B30A-4075-ABD8-462F36F54A3B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,7 +124,6 @@ Global
 		{BCB53899-6575-4384-9341-655AAE429CD6} = {953D89DF-FDD2-4C1A-6A43-6326114B13B5}
 		{A2C59637-80A0-4D0C-9AD6-9E975BD8DA09} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{FE70A93F-73DF-4B90-B5AD-057DE8F6C231} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
-		{19A6D7E6-B30A-4075-ABD8-462F36F54A3B} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07326472-F50D-4A89-A327-A59BA3B9667A}
