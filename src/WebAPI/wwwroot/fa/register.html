@@ -276,9 +276,6 @@
     </div>
 </div>
 
-<script src="assets/js/dependencies/app.js"></script>
-
-
 <script>
     // Step change function
     function nextStep(current, next) {
@@ -902,6 +899,7 @@
     }
 
     async function submitForm() {
+        debugger
         const terms = document.getElementById('terms').checked;
 
         if(!terms) {

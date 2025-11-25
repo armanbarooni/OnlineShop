@@ -1,0 +1,14 @@
+{
+  "environment": "development",
+  "apiBaseUrl": "http://localhost:5000/api",
+  "frontendBaseUrl": "http://localhost:5000",
+  "apiTimeout": 30000,
+  "apiRetryAttempts": 3,
+  "auth": {
+    "tokenKey": "accessToken",
+    "refreshTokenKey": "refreshToken",
+    "userKey": "userData"
+  }
+}
+
+
