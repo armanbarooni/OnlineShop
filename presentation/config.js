@@ -12,31 +12,54 @@
         return 'production';
     };
 
-    const environmentName = detectEnvironment(hostname);
+    const tryLoadRuntimeConfig = () => {
+        if (window.__APP_RUNTIME_CONFIG__) {
+            return window.__APP_RUNTIME_CONFIG__;
+        }
+
+        try {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'config.runtime.json', false);
+            xhr.send(null);
+            if (xhr.status >= 200 && xhr.status < 400 && xhr.responseText) {
+                const parsed = JSON.parse(xhr.responseText);
+                window.__APP_RUNTIME_CONFIG__ = parsed;
+                return parsed;
+            }
+        } catch (error) {
+            console.warn('Runtime config not found, falling back to defaults.', error);
+        }
+        return null;
+    };
+
+    const runtimeConfig = tryLoadRuntimeConfig();
+    const environmentName = runtimeConfig?.environment ?? detectEnvironment(hostname);
 
     const resolveApiBaseUrl = () => {
+        if (runtimeConfig?.apiBaseUrl) {
+            return runtimeConfig.apiBaseUrl;
+        }
         if (window.__API_BASE_URL__) {
             return window.__API_BASE_URL__;
         }
-
         const metaApiBase = document.querySelector('meta[name="api-base-url"]');
         if (metaApiBase?.content) {
             return metaApiBase.content;
         }
-
         const normalizedOrigin = (window.location?.origin || '').replace(/\/$/, '');
-        
-        // Always use current origin + /api
         if (normalizedOrigin) {
             return `${normalizedOrigin}/api`;
         }
-
-        // Fallback for development
         if (environmentName === 'development') {
             return 'http://localhost:5000/api';
         }
-
         return 'https://api.example.com/api';
+    };
+
+    const defaultAuth = {
+        tokenKey: 'accessToken',
+        refreshTokenKey: 'refreshToken',
+        userKey: 'userData'
     };
 
     window.config = {
@@ -46,32 +69,31 @@
         },
         api: {
             baseURL: resolveApiBaseUrl(),
-            timeout: 30000,
-            retryAttempts: 3
+            timeout: runtimeConfig?.apiTimeout ?? 30000,
+            retryAttempts: runtimeConfig?.apiRetryAttempts ?? 3
         },
         auth: {
-            tokenKey: 'accessToken',
-            refreshTokenKey: 'refreshToken',
-            userKey: 'userData'
+            ...defaultAuth,
+            ...(runtimeConfig?.auth ?? {})
         },
         pagination: {
-            defaultPageSize: 10,
-            maxPageSize: 100
+            defaultPageSize: runtimeConfig?.pagination?.defaultPageSize ?? 10,
+            maxPageSize: runtimeConfig?.pagination?.maxPageSize ?? 100
         },
         upload: {
-            maxFileSize: 5 * 1024 * 1024,
-            allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+            maxFileSize: runtimeConfig?.upload?.maxFileSize ?? 5 * 1024 * 1024,
+            allowedTypes: runtimeConfig?.upload?.allowedTypes ?? ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
         },
         storage: {
-            lastViewedProducts: 'lastViewedProducts',
-            comparisonList: 'comparisonList',
-            cartItems: 'cartItems'
+            lastViewedProducts: runtimeConfig?.storage?.lastViewedProducts ?? 'lastViewedProducts',
+            comparisonList: runtimeConfig?.storage?.comparisonList ?? 'comparisonList',
+            cartItems: runtimeConfig?.storage?.cartItems ?? 'cartItems'
         },
         ui: {
-            toastDuration: 3000,
-            loadingText: 'در حال بارگذاری...',
-            successText: 'عملیات با موفقیت انجام شد.',
-            errorText: 'خطایی رخ داد.'
+            toastDuration: runtimeConfig?.ui?.toastDuration ?? 3000,
+            loadingText: runtimeConfig?.ui?.loadingText ?? 'در حال بارگذاری...',
+            successText: runtimeConfig?.ui?.successText ?? 'عملیات با موفقیت انجام شد.',
+            errorText: runtimeConfig?.ui?.errorText ?? 'خطایی رخ داد.'
         }
     };
 })();

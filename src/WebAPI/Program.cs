@@ -213,8 +213,7 @@ if (app.Environment.IsDevelopment())
 
 // CORS must be before UseAuthentication and UseAuthorization
 // CORS middleware must be called BEFORE UseAuthentication/UseAuthorization
-// Use DefaultCors for all environments to allow any origin during development/testing
-app.UseCors("DefaultCors");
+app.UseCors(app.Environment.IsDevelopment() ? "DefaultCors" : "AllowFrontend");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();
