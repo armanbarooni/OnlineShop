@@ -58,6 +58,8 @@
                     <div class="step-circle inactive" data-step="2">2</div>
                     <div class="step-line"></div>
                     <div class="step-circle inactive" data-step="3">3</div>
+                    <div class="step-line"></div>
+                    <div class="step-circle inactive" data-step="4">4</div>
                 </div>
 
                 <!-- Step 1 - Personal Information -->
@@ -213,8 +215,46 @@
                     </form>
                 </div>
 
-                <!-- Step 3 - Final Approval -->
+                <!-- Step 3 - OTP Verification -->
                 <div class="step" id="step3">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-dark dark:text-light mb-2">تایید شماره موبایل</h2>
+                        <p class="text-gray-500 dark:text-gray-400">کد تایید به شماره <span id="otp-phone-display" class="font-medium"></span> ارسال شد</p>
+                    </div>
+
+                    <form class="space-y-5">
+                        <!-- OTP Input -->
+                        <div>
+                            <label for="otp" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">کد تایید</label>
+                            <div class="relative">
+                                <input type="text" id="otp" class="w-full ps-4 pe-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white text-center text-2xl tracking-widest" placeholder="000000" maxlength="6" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            </div>
+                            <div class="mt-2 text-center">
+                                <span id="otp-timer" class="text-sm text-gray-500 dark:text-gray-400"></span>
+                                <button type="button" id="resend-otp-btn" onclick="resendOTPCode()" class="text-sm text-primary dark:text-primary-dark hover:underline hidden">ارسال مجدد کد</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 buttons -->
+                        <div class="pt-4 flex space-x-3">
+                            <button type="button" onclick="prevStep(3, 2)" class="w-1/2 flex justify-center items-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ms-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                مرحله قبل
+                            </button>
+                            <button type="button" onclick="verifyOTPAndContinue()" class="w-1/2 flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-primary dark:bg-primary-dark hover:bg-primary/90 dark:hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                                تایید و ادامه
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 4 - Final Approval -->
+                <div class="step" id="step4">
                     <div class="text-center mb-6">
                         <h2 class="text-2xl font-bold text-dark dark:text-light mb-2">تایید نهایی</h2>
                         <p class="text-gray-500 dark:text-gray-400">لطفا اطلاعات خود را بررسی و تایید کنید</p>
@@ -247,9 +287,9 @@
                         </div>
                     </div>
 
-                    <!-- Step 3 buttons -->
+                    <!-- Step 4 buttons -->
                     <div class="pt-4 flex space-x-3">
-                        <button type="button" onclick="prevStep(3, 2)" class="w-1/2 flex justify-center items-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                        <button type="button" onclick="prevStep(4, 3)" class="w-1/2 flex justify-center items-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ms-2" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                             </svg>
@@ -268,7 +308,7 @@
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-500 dark:text-gray-400">
                         قبلاً حساب کاربری دارید؟
-                        <a href="#" class="font-medium text-primary dark:text-primary-dark hover:underline">وارد شوید</a>
+                        <a href="login.html" class="font-medium text-primary dark:text-primary-dark hover:underline">وارد شوید</a>
                     </p>
                 </div>
             </div>
@@ -299,20 +339,26 @@
             const confirmPassword = document.getElementById('confirm-password').value;
 
             if(!password || !confirmPassword) {
-                alert('لطفا رمز عبور و تکرار آن را وارد کنید');
+                window.utils?.showToast('لطفا رمز عبور و تکرار آن را وارد کنید', 'error') || alert('لطفا رمز عبور و تکرار آن را وارد کنید');
                 return;
             }
 
             if(password !== confirmPassword) {
-                alert('رمز عبور و تکرار آن مطابقت ندارند');
+                window.utils?.showToast('رمز عبور و تکرار آن مطابقت ندارند', 'error') || alert('رمز عبور و تکرار آن مطابقت ندارند');
                 return;
             }
 
             // Check password strength
             const strength = checkPasswordStrength(true);
             if(strength < 3) {
-                alert('لطفا رمز عبور قوی‌تری انتخاب کنید');
+                window.utils?.showToast('لطفا رمز عبور قوی‌تری انتخاب کنید', 'error') || alert('لطفا رمز عبور قوی‌تری انتخاب کنید');
                 return;
+            }
+
+            // If going to step 3 (OTP), send OTP first
+            if(next === 3) {
+                sendOTPForRegistration();
+                return; // Don't proceed until OTP is sent
             }
         }
 
@@ -325,8 +371,8 @@
         // Update step indicator
         updateStepIndicator(current, next);
 
-        // If next step is review, show the info
-        if(next === 3) {
+        // If next step is review (step 4), show the info
+        if(next === 4) {
             updateReviewSection();
         }
     }
@@ -380,17 +426,156 @@
             document.getElementById('email').value || 'وارد نشده';
     }
 
-    function submitForm() {
-        const terms = document.getElementById('terms').checked;
-
-        if(!terms) {
-            alert('لطفا با قوانین و مقررات موافقت کنید');
+    // Send OTP for registration
+    async function sendOTPForRegistration() {
+        const mobile = document.getElementById('mobile').value;
+        if (!mobile || !/^09\d{9}$/.test(mobile)) {
+            window.utils?.showToast('شماره موبایل معتبر نیست', 'error') || alert('شماره موبایل معتبر نیست');
             return;
         }
 
-        // You can send form data to the server here
-        alert('ثبت نام شما با موفقیت انجام شد!');
-        // window.location.href = '/dashboard'; // Redirect to dashboard
+        try {
+            const result = await window.authService.sendOTP(mobile, 'Registration');
+            if (result.success) {
+                // Show OTP step
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step3').classList.add('active');
+                updateStepIndicator(2, 3);
+                
+                // Display phone number
+                document.getElementById('otp-phone-display').textContent = mobile;
+                
+                // Start timer
+                startOTPTimer();
+                
+                window.utils?.showToast('کد تایید ارسال شد', 'success');
+            } else {
+                window.utils?.showToast(result.error || 'خطا در ارسال کد تایید', 'error');
+            }
+        } catch (error) {
+            console.error('Error sending OTP:', error);
+            window.utils?.showToast('خطا در ارسال کد تایید', 'error');
+        }
+    }
+
+    // Verify OTP and continue to final step
+    async function verifyOTPAndContinue() {
+        const mobile = document.getElementById('mobile').value;
+        const otp = document.getElementById('otp').value;
+
+        if (!otp || otp.length !== 6) {
+            window.utils?.showToast('لطفا کد تایید ۶ رقمی را وارد کنید', 'error');
+            return;
+        }
+
+        try {
+            const result = await window.authService.verifyOTP(mobile, otp);
+            if (result.success) {
+                // Move to final step
+                document.getElementById('step3').classList.remove('active');
+                document.getElementById('step4').classList.add('active');
+                updateStepIndicator(3, 4);
+                updateReviewSection();
+                window.utils?.showToast('کد تایید با موفقیت تایید شد', 'success');
+            } else {
+                window.utils?.showToast(result.error || 'کد تایید نامعتبر است', 'error');
+            }
+        } catch (error) {
+            console.error('Error verifying OTP:', error);
+            window.utils?.showToast('خطا در تایید کد', 'error');
+        }
+    }
+
+    // Resend OTP code
+    async function resendOTPCode() {
+        await sendOTPForRegistration();
+    }
+
+    // Start OTP timer
+    let otpTimerInterval = null;
+    function startOTPTimer() {
+        let timeLeft = 120; // 2 minutes
+        const timerElement = document.getElementById('otp-timer');
+        const resendButton = document.getElementById('resend-otp-btn');
+
+        if (otpTimerInterval) {
+            clearInterval(otpTimerInterval);
+        }
+
+        resendButton.classList.add('hidden');
+        timerElement.style.display = 'inline';
+
+        otpTimerInterval = setInterval(() => {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            if (timeLeft <= 0) {
+                clearInterval(otpTimerInterval);
+                timerElement.style.display = 'none';
+                resendButton.classList.remove('hidden');
+            }
+
+            timeLeft--;
+        }, 1000);
+    }
+
+    async function submitForm() {
+        const terms = document.getElementById('terms').checked;
+
+        if(!terms) {
+            window.utils?.showToast('لطفا با قوانین و مقررات موافقت کنید', 'error') || alert('لطفا با قوانین و مقررات موافقت کنید');
+            return;
+        }
+
+        // Get form data
+        const firstName = document.getElementById('first-name').value.trim();
+        const lastName = document.getElementById('last-name').value.trim();
+        const phone = document.getElementById('mobile').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        const formData = {
+            firstName: firstName,
+            lastName: lastName,
+            phone: phone,
+            email: email || null,
+            password: password
+        };
+
+        // Show loading state
+        const submitBtn = document.querySelector('[onclick="submitForm()"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <span class="flex items-center justify-center gap-2">
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>در حال ثبت‌نام...</span>
+            </span>
+        `;
+
+        try {
+            const result = await window.authService.register(formData);
+
+            if (result.success) {
+                window.utils?.showToast('ثبت نام شما با موفقیت انجام شد!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                window.utils?.showToast(result.error || 'خطا در ثبت نام', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            window.utils?.showToast('خطا در اتصال به سرور', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
     }
 
     // Show/hide password function
