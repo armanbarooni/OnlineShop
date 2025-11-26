@@ -1,33 +1,90 @@
 # Deployment Guide
 
 ## 1. Local development
-1. Edit ONLY the files under `presentation/`.
-2. Update backend settings in `src/WebAPI/appsettings.Development.json`.
-3. Sync static assets into `wwwroot`:
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File scripts/sync-frontend.ps1 -Environment development
-   ```
-4. Run the API:
-   ```powershell
-   cd src/WebAPI
-   dotnet run
-   ```
+
+### 1.1. Configure Development Settings
+
+**Edit `src/WebAPI/appsettings.Development.json`** if needed (already configured for localhost).
+
+### 1.2. Sync Frontend
+
+Edit ONLY the files under `presentation/`, then sync static assets into `wwwroot`:
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/sync-frontend.ps1 -Environment development
+```
+
+### 1.3. Run the API
+
+You can run the API in three ways:
+
+**Option 1: Visual Studio**
+- Select the "http" or "https" profile and press F5
+
+**Option 2: Command Line**
+```powershell
+cd src/WebAPI
+dotnet run
+```
+
+**Option 3: Production Profile (for testing)**
+- In Visual Studio, select the "Production" profile to test production settings locally
 
 ## 2. Production deployment
-1. Configure `appsettings.Production.json` with:
-   - `ConnectionStrings.DefaultConnection`
-   - `Jwt.Secret`
-   - `Cors.AllowFrontend` (list of allowed domains/IPs)
-   - `BaseUrl` & `SadadGateway.CallbackUrl`
-2. Sync the presentation layer for production (creates `config.runtime.json` with prod URLs):
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File scripts/sync-frontend.ps1 -Environment production -CleanDest
-   ```
-3. Publish the API (example):
-   ```powershell
-   dotnet publish src/WebAPI/WebAPI.csproj -c Release -o publish
-   ```
-4. Copy the published output to the server and run the service (`dotnet WebAPI.dll` or configure IIS/Kestrel).
+
+### 2.1. Configure Backend Settings
+
+**Edit `src/WebAPI/appsettings.Production.json`** and replace the following placeholders:
+
+- **`ConnectionStrings.DefaultConnection`**: Replace `REPLACE_ME` with your actual database credentials
+  ```json
+  "DefaultConnection": "Host=YOUR_DB_HOST;Port=5432;Database=OnlineShop;Username=YOUR_USER;Password=YOUR_PASSWORD;"
+  ```
+
+- **`Jwt.Secret`**: Replace with a strong secret key (minimum 32 characters)
+  ```json
+  "Secret": "YOUR_STRONG_SECRET_KEY_MIN_32_CHARACTERS"
+  ```
+
+- **`Cors.AllowFrontend`**: Already configured with production IPs, adjust if needed
+  ```json
+  "AllowFrontend": [
+    "http://130.185.73.167:8080",
+    "http://172.24.32.1:8080"
+  ]
+  ```
+
+- **`SmsIr.ApiKey`**: Add your SMS.ir API key if SMS functionality is needed
+- **`SadadGateway`**: Configure payment gateway credentials (MerchantId, TerminalId, Key)
+
+### 2.2. Web.config (IIS Deployment)
+
+The `web.config` file is already configured to:
+- Set `ASPNETCORE_ENVIRONMENT=Production`
+- Read settings from `appsettings.Production.json`
+- Support environment variable overrides if needed
+
+**Note**: If you need to override settings via environment variables in IIS, use the format:
+- `ConnectionStrings__DefaultConnection`
+- `JWT__Secret`
+- `CORS__AllowFrontend__0`, `CORS__AllowFrontend__1`, etc.
+
+### 2.3. Sync Frontend
+
+Sync the presentation layer for production (creates `config.runtime.json` with prod URLs):
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/sync-frontend.ps1 -Environment production -CleanDest
+```
+
+### 2.4. Publish and Deploy
+
+Publish the API:
+```powershell
+dotnet publish src/WebAPI/OnlineShop.WebAPI.csproj -c Release -o publish
+```
+
+Copy the published output to the server and:
+- **For IIS**: Configure the application pool and site pointing to the publish folder
+- **For Kestrel**: Run `dotnet OnlineShop.WebAPI.dll` with `ASPNETCORE_ENVIRONMENT=Production`
 
 ## 3. Runtime config
 - `presentation/config.{env}.json` → automatically mirrored to `wwwroot/fa/config.runtime.json`.
