@@ -129,6 +129,22 @@ public static class ServiceRegistration
             }
 
             var legacy = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<SmsSettings>>().Value;
+
+            // Support legacy provider=SmsIr with ApiKey configured under SmsSettings
+            if ((legacy.Provider ?? string.Empty).Equals("smsir", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(legacy.ApiKey))
+            {
+                var mergedOptions = Microsoft.Extensions.Options.Options.Create(new OnlineShop.Application.Settings.SmsIrSettings
+                {
+                    ApiKey = legacy.ApiKey,
+                    TemplateId = smsIr.TemplateId,      // keep template if provided via SmsIr section
+                    UseSandbox = smsIr.UseSandbox,
+                    OtpParamName = smsIr.OtpParamName
+                });
+
+                return new SmsIrSmsService(mergedOptions, sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<SmsIrSmsService>>());
+            }
+
             if ((legacy.Provider ?? string.Empty).Equals("kavenegar", StringComparison.OrdinalIgnoreCase))
             {
                 // We need HttpClient for KavenegarSmsService; resolve a typed instance
