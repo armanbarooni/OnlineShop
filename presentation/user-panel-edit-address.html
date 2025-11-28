@@ -104,7 +104,7 @@
                                 </svg>
                                 لیست سفارش‌ها
                             </a>
-                            <a href="user-panel-order-detail.html"
+                            <a href="user-panel-order.html"
                                class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor">
@@ -173,7 +173,7 @@
                                 </svg>
                                 لیست آدرس‌ها
                             </a>
-                            <a href="user-panel-edit-address.html"
+                            <a href="user-panel-address.html"
                                class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor">
@@ -1057,14 +1057,19 @@
 
     // Load address data when page loads
     document.addEventListener('DOMContentLoaded', async function() {
-        currentAddressId = sessionStorage.getItem('editingAddressId');
+        // Check for addressId in URL query parameter first, then sessionStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        currentAddressId = urlParams.get('addressId') || sessionStorage.getItem('editingAddressId');
         
         if (!currentAddressId) {
-            window.utils.showToast('آدرس مورد نظر یافت نشد', 'error');
-            setTimeout(() => {
-                window.location.href = 'user-panel-address.html';
-            }, 2000);
+            // If no addressId, redirect to address list page immediately (no delay)
+            window.location.href = 'user-panel-address.html';
             return;
+        }
+
+        // Store in sessionStorage for consistency
+        if (currentAddressId && !sessionStorage.getItem('editingAddressId')) {
+            sessionStorage.setItem('editingAddressId', currentAddressId);
         }
 
         await loadAddressData();
