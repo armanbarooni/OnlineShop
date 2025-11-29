@@ -29,23 +29,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineShop.IntegrationTests
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "presentation", "presentation\", "{7E3FABE7-7F37-4F35-893A-0D98B5C4E4F5}"
 	ProjectSection(WebsiteProperties) = preProject
-		UseIISExpress = "false"
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_2009"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_38917"
 		Debug.AspNetCompiler.PhysicalPath = "presentation\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_2009\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_38917\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_2009"
+		Release.AspNetCompiler.VirtualPath = "/localhost_38917"
 		Release.AspNetCompiler.PhysicalPath = "presentation\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_2009\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_38917\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "2009"
+		VWDPort = "38917"
 		SlnRelativePath = "presentation\"
 	EndProjectSection
 EndProject
