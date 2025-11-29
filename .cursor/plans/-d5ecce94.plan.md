@@ -1,278 +1,221 @@
-<!-- d5ecce94-aac8-4cd1-96f1-8ee6ba279eca 4dd55003-ac71-4102-83da-a8f33d9ac64f -->
-# پلن رفع باگ‌های User Panel
-
-## بخش 1: user-panel-index.html
-
-### 1.1 Search Bar Functionality
-
-- فایل: `presentation/user-panel-index.html`
-- مشکل: search bar با Enter کار نمی‌کند
-- راه‌حل: اضافه کردن event listener برای Enter key و search icon click
-- کد: افزودن JavaScript handler در بخش script
-
-### 1.2 Profile Dropdown Links
-
-- فایل: `presentation/user-panel-index.html`
-- مشکل: لینک‌های profile، settings، logout با `href="#"` کار نمی‌کنند
-- راه‌حل: 
-- Profile link: تغییر به `user-panel-profile.html`
-- Settings link: حذف (طبق گزارش نیازی نیست)
-- Logout link: اضافه کردن JavaScript handler برای logout
-- خطوط: 539, 550, 563
-
-### 1.3 Settings Icon Overlap
-
-- فایل: `presentation/user-panel-index.html`
-- مشکل: ایکون settings اورلپ دارد
-- راه‌حل: بررسی و اصلاح CSS/SVG icon
-- خطوط: 550-551
-
-### 1.4 View All Links
-
-- فایل: `presentation/user-panel-index.html`
-- مشکل: لینک‌های "مشاهده همه" با `href="#"` هستند
-- راه‌حل:
-- خط 632: تغییر به `user-panel-order.html`
-- خط 650: تغییر به `user-panel-favorite.html`
-
-### 1.5 Recent Orders Section
-
-- فایل: `presentation/user-panel-index.html`
-- مشکل: لینک‌های "جزئیات" و "مشاهده همه" کار نمی‌کنند
-- راه‌حل:
-- خط 777-778: لینک به `user-panel-order.html`
-- خطوط 808, 827, 846: لینک به `user-panel-order-detail.html?id={orderId}`
-
-### 1.6 Suggested Products Section (OPTIONAL)
-
-- فایل: `presentation/user-panel-index.html`
-- مشکل: بخش کامل محصولات پیشنهادی مشکل دارد
-- تصمیم: بررسی با کاربر - حذف یا اصلاح؟
-- خطوط: 859-1170
-
-## بخش 2: user-panel-profile.html
-
-### 2.1 Dashboard Selection Indicator
-
-- فایل: `presentation/user-panel-profile.html`
-- مشکل: Dashboard همیشه selected است
-- راه‌حل: اصلاح active state logic با JavaScript
-- خطوط: 44-54
-
-### 2.2 Unknown Error Toast
-
-- فایل: `presentation/user-panel-profile.html`
-- مشکل: error toast با متن به‌هم‌ریخته ظاهر می‌شود
-- راه‌حل: بررسی و اصلاح encoding در error messages
-- محل: بخش script
-
-### 2.3 Profile Dropdown
-
-- فایل: `presentation/user-panel-profile.html`
-- مشکل: profile dropdown در این صفحه کار نمی‌کند
-- راه‌حل: کپی کردن کد کامل از user-panel-index.html
-- خطوط: 535-537
-
-### 2.4 Settings Button
-
-- فایل: `presentation/user-panel-profile.html`
-- مشکل: دکمه تنظیمات نیازی نیست
-- راه‌حل: حذف کامل
-- خطوط: 587-592
-
-### 2.5 Account Status Div
-
-- فایل: `presentation/user-panel-profile.html`
-- مشکل: div وضعیت حساب نیازی نیست
-- راه‌حل: حذف کامل
-- خطوط: 671-716
-
-### 2.6 Hardcoded Personal Information
-
-- فایل: `presentation/user-panel-profile.html`
-- مشکل: اطلاعات شخصی hardcoded است (مریم محمدی)
-- راه‌حل: پاک کردن value ها و load از API با JavaScript
-- خطوط: 
-- 631-632: firstName
-- 635-636: lastName
-- 640-641: email
-- 643-646: mobile
-- 647-650: birthDate
-- 652-655: nationalCode
-
-### 2.7 Save Changes Button
-
-- فایل: `presentation/user-panel-profile.html`
-- مشکل: دکمه ذخیره تغییرات کار نمی‌کند
-- راه‌حل: اضافه کردن event handler برای form submit
-- خطوط: 657-660
-
-### 2.8 Change Profile Picture
-
-- فایل: `presentation/user-panel-profile.html`
-- مشکل: دکمه تغییر تصویر کار نمی‌کند
-- راه‌حل: اضافه کردن file input و upload handler
-- خطوط: 616-624
-
-## بخش 3: user-panel-order.html
-
-### 3.1 Unknown Error Toast
-
-- فایل: `presentation/user-panel-order.html`
-- مشکل: همان error toast با متن به‌هم‌ریخته
-- راه‌حل: اصلاح encoding
-- محل: بخش script
-
-### 3.2 Filter Section
-
-- فایل: `presentation/user-panel-order.html`
-- مشکل: بخش filter نیازی نیست
-- راه‌حل: حذف کامل
-- خطوط: 580-636
-
-### 3.3 Order Status Filter Buttons
-
-- فایل: `presentation/user-panel-order.html`
-- مشکل: دکمه‌های فیلتر (همه، درحال پردازش، ارسال شده) کار نمی‌کنند
-- راه‌حل: اضافه کردن JavaScript handler برای filtering
-- خطوط: 642-644
-
-### 3.4 Orders Table Loading
-
-- فایل: `presentation/user-panel-order.html`
-- مشکل: جدول سفارشات load نمی‌شود
-- راه‌حل: اضافه کردن JavaScript برای load از API
-- خطوط: 658-767
-
-### 3.5 Pagination
-
-- فایل: `presentation/user-panel-order.html`
-- مشکل: pagination کار نمی‌کند
-- راه‌حل: پیاده‌سازی JavaScript pagination handler
-- خطوط: 771-785
-
-### 3.6 Order Tracking Section
-
-- فایل: `presentation/user-panel-order.html`
-- مشکل: نیازی نیست
-- راه‌حل: حذف کامل
-- خطوط: 789-798
-
-### 3.7 Order Status Guide
-
-- فایل: `presentation/user-panel-order.html`
-- مشکل: نیازی نیست
-- راه‌حل: حذف کامل
-- خطوط: 800-833
-
-## بخش 4: user-panel-favorite.html
-
-### 4.1 Delete Selected Button
-
-- فایل: `presentation/user-panel-favorite.html`
-- مشکل: دکمه حذف انتخاب‌شده‌ها کار نمی‌کند
-- راه‌حل: اضافه کردن JavaScript handler برای bulk delete
-- خطوط: 587-592
-
-### 4.2 Add All to Cart Button
-
-- فایل: `presentation/user-panel-favorite.html`
-- مشکل: دکمه افزودن همه به سبد خرید کار نمی‌کند
-- راه‌حل: اضافه کردن JavaScript handler برای bulk add to cart
-- خطوط: 593-598
-
-### 4.3 Filters and Sorting Section
-
-- فایل: `presentation/user-panel-favorite.html`
-- مشکل: بخش فیلتر نیازی نیست
-- راه‌حل: حذف کامل
-- خطوط: 602-651
-
-### 4.4 Product Links
-
-- فایل: `presentation/user-panel-favorite.html`
-- مشکل: عکس و نام محصولات لینک نیستند
-- راه‌حل: اضافه کردن link wrapper به صفحه محصول
-- خطوط: 680-686, 721-728, 761-767
-
-### 4.5 Product Status and Prices
-
-- فایل: `presentation/user-panel-favorite.html`
-- مشکل: وضعیت و قیمت محصولات باید از API load شوند
-- راه‌حل: پیاده‌سازی dynamic loading
-- خطوط: 694, 734, 744 (status) و 690-691, 731, 771 (prices)
-
-### 4.6 Product Action Buttons
-
-- فایل: `presentation/user-panel-favorite.html`
-- مشکل: دکمه‌های اضافه به سبد و علاقه‌مندی کار نمی‌کنند
-- راه‌حل: اضافه کردن event handlers
-- محل: Product 1, 2, 3 sections
-
-### 4.7 Pagination
-
-- فایل: `presentation/user-panel-favorite.html`
-- مشکل: pagination کار نمی‌کند
-- راه‌حل: پیاده‌سازی JavaScript pagination
-- خطوط: 798-824
-
-### 4.8 Unknown Error Toast
-
-- فایل: `presentation/user-panel-favorite.html`
-- مشکل: همان error toast با متن به‌هم‌ریخته
-- راه‌حل: اصلاح encoding
-- محل: بخش script
-
-### 4.9 Suggested Products Section (OPTIONAL)
-
-- فایل: `presentation/user-panel-favorite.html`
-- مشکل: بخش محصولات پیشنهادی نیازی نیست
-- راه‌حل: حذف کامل یا بررسی با کاربر
-- خطوط: 828-1140
-
-## بخش 5: باگ‌های عمومی
-
-### 5.1 Kickout Bug (Token Refresh)
-
-- فایل‌ها: `presentation/assets/js/auth-service.js`, `auth-guard.js`
-- مشکل: بعد از 1-2 ساعت کاربر kick out می‌شود
-- وضعیت: احتمالا حل شده (token refresh پیاده‌سازی شد)
-- راه‌حل: بررسی و تست
-
-### 5.2 ID Mismatch (Hardcoded User Data)
-
-- فایل‌ها: تمام صفحات user panel
-- مشکل: همه به عنوان "مریم محمدی" وارد می‌شوند
-- وضعیت: احتمالا حل شده (اتصال به API user profile)
-- راه‌حل: بررسی و تست
-
-### 5.3 Unknown Error Encoding
-
-- فایل‌ها: تمام صفحات user panel
-- مشکل: متن errorها به‌هم‌ریخته است
-- راه‌حل: اصلاح encoding در تمام error messages (UTF-8)
-
-### 5.4 Scrollbar Theme
-
-- فایل: `presentation/assets/css/app.css`
-- مشکل: scrollbar با theme سازگار نیست
-- راه‌حل: اضافه کردن custom scrollbar styles
-
-## نکات پیاده‌سازی
-
-1. همه تغییرات باید در پوشه `presentation` انجام شوند
-2. بعد از هر تغییر، فایل‌ها به `src/WebAPI/wwwroot/fa` کپی می‌شوند
-3. هر task باید بعد از تکمیل تیک بخورد
-4. برای بخش‌های OPTIONAL، قبل از حذف/اصلاح با کاربر هماهنگ شود
-5. تست کامل هر بخش قبل از رفتن به بخش بعدی
-
-## ترتیب اولویت
-
-1. حذف بخش‌های غیرضروری (سریع و آسان)
-2. رفع لینک‌های `href="#"` (سریع)
-3. حذف hardcoded values (متوسط)
-4. پیاده‌سازی functionality ها (طولانی)
-5. رفع مشکلات UI/UX (پایین‌ترین اولویت)
+<!-- d5ecce94-aac8-4cd1-96f1-8ee6ba279eca 4dc80c94-2681-4df1-b3c8-a4e51675bed1 -->
+# پلان رفع باگ‌های پنل کاربری
+
+## 1. رفع باگ‌های user-panel-index.html
+
+### 1.1. مشکلات عنوان و آدرس بار
+- **فایل**: `presentation/user-panel-index.html`
+- **مشکل**: عنوان صفحه و آدرس بار نیاز به تنظیم دارند
+- **راه‌حل**: تغییر `<title>` و `<meta>` tags در بخش `<head>`
+
+### 1.2. نوار جستجو
+- **فایل**: `presentation/user-panel-index.html` (خط 486)
+- **مشکل**: نوار جستجو کار نمی‌کند
+- **راه‌حل**: اضافه کردن event listener برای `searchButton` و `searchInput`
+
+### 1.3. دکمه حذف در sidebar اعلان‌ها
+- **فایل**: `presentation/user-panel-index.html` (خط 1255-1329)
+- **مشکل**: دکمه حذف در منوی اعلان‌ها کار نمی‌کند
+- **راه‌حل**: پیاده‌سازی تابع حذف اعلان
+
+### 1.4. دکمه حذف در sidebar پیام‌ها
+- **فایل**: `presentation/user-panel-index.html` (خط 1173-1251)
+- **مشکل**: دکمه حذف در منوی پیام‌ها کار نمی‌کند
+- **راه‌حل**: پیاده‌سازی تابع حذف پیام
+
+### 1.5. لینک‌های غیرفعال (href="#")
+- **فایل**: `presentation/user-panel-index.html`
+- **مشکل**: لینک‌های متعدد با `href="#"` کار نمی‌کنند
+- **راه‌حل**: 
+  - خط 586-593: لینک جستجو
+  - خط 538-547: لینک پروفایل در dropdown
+  - خط 549-560: لینک تنظیمات در dropdown
+  - خط 562-575: لینک خروج در dropdown
+  - خط 632: لینک سفارش‌ها
+  - خط 650: لینک آدرس‌ها
+  - خط 777-778: لینک مشاهده همه سفارش‌ها
+  - خط 808, 827, 846: لینک‌های سفارش‌ها
+  - خط 863-864: لینک محصولات پیشنهادی
+
+### 1.6. مشکل overlap در آیکون تنظیمات
+- **فایل**: `presentation/user-panel-index.html` (خط 550-551)
+- **مشکل**: آیکون تنظیمات overlap دارد
+- **راه‌حل**: اصلاح CSS positioning
+
+### 1.7. مشکل theme در scrollbar
+- **فایل**: `presentation/user-panel-index.html`
+- **مشکل**: scrollbar با theme هماهنگ نیست
+- **راه‌حل**: اضافه کردن CSS برای scrollbar در dark mode
+
+### 1.8. حذف div های غیرضروری
+- **فایل**: `presentation/user-panel-index.html`
+- **مشکل**: چند div غیرضروری وجود دارد
+- **راه‌حل**: 
+  - خط 598-616: div جستجو
+  - خط 654-675: div اضافی
+  - خط 678-772: div چارت و تراکنش‌ها
+  - خط 859-1170: div محصولات پیشنهادی (یا اصلاح)
+
+### 1.9. لینک‌های محصولات (404)
+- **فایل**: `presentation/user-panel-index.html` (خط 870-1170)
+- **مشکل**: لینک‌های محصولات به `/product/...` می‌روند که 404 می‌دهد
+- **راه‌حل**: اصلاح مسیر لینک‌های محصولات
+
+### 1.10. مشکل ID mismatch
+- **فایل**: `presentation/user-panel-index.html` (خط 528, 583, 452)
+- **مشکل**: ID های تکراری یا نامناسب
+- **راه‌حل**: بررسی و اصلاح ID های تکراری
+
+## 2. رفع باگ‌های user-panel-profile.html
+
+### 2.1. باگ kickout (session timeout)
+- **فایل**: `presentation/user-panel-profile.html`
+- **مشکل**: کاربر بعد از 3 دقیقه و 49 ثانیه از سیستم خارج می‌شود
+- **راه‌حل**: بررسی و اصلاح `auth-guard.js` و تنظیمات session timeout
+
+### 2.2. باگ dashboard
+- **فایل**: `presentation/user-panel-profile.html` (خط 44-54)
+- **مشکل**: مشکل در نمایش اطلاعات dashboard
+- **راه‌حل**: بررسی و اصلاح کد JavaScript مربوط به dashboard
+
+### 2.3. خطای unknown در script
+- **فایل**: `presentation/user-panel-profile.html` (بخش script)
+- **مشکل**: خطای JavaScript در console
+- **راه‌حل**: بررسی console errors و رفع آن‌ها
+
+### 2.4. مشکل dropdown پروفایل
+- **فایل**: `presentation/user-panel-profile.html` (خط 535-537)
+- **مشکل**: dropdown پروفایل درست کار نمی‌کند
+- **راه‌حل**: بررسی و اصلاح تابع `toggleUserDropdown`
+
+### 2.5. لینک جستجو
+- **فایل**: `presentation/user-panel-profile.html` (خط 587-592)
+- **مشکل**: لینک جستجو کار نمی‌کند
+- **راه‌حل**: اضافه کردن event listener
+
+### 2.6. حذف div غیرضروری
+- **فایل**: `presentation/user-panel-profile.html` (خط 671-716)
+- **مشکل**: div غیرضروری وجود دارد
+- **راه‌حل**: حذف div
+
+### 2.7. مقادیر hardcoded در فرم
+- **فایل**: `presentation/user-panel-profile.html`
+- **مشکل**: فیلدهای فرم با مقادیر hardcoded پر شده‌اند
+- **راه‌حل**: 
+  - خط 629-632: نام
+  - خط 633-636: نام خانوادگی
+  - خط 638-641: ایمیل
+  - خط 643-646: موبایل
+  - خط 647-650: تاریخ تولد
+  - خط 652-655: کد ملی
+- **راه‌حل**: بارگذاری داده‌های واقعی از API
+
+### 2.8. مشکل فیلدهای فرم
+- **فایل**: `presentation/user-panel-profile.html`
+- **مشکل**: 
+  - خط 657-660: فیلد آدرس کار نمی‌کند
+  - خط 622-624: فیلد کد پستی کار نمی‌کند
+  - خط 616-621: فیلد شهر کار نمی‌کند
+- **راه‌حل**: بررسی و اصلاح validation و submit handler
+
+## 3. رفع باگ‌های user-panel-order.html
+
+### 3.1. خطای unknown در script
+- **فایل**: `presentation/user-panel-order.html` (بخش script)
+- **مشکل**: خطای JavaScript در console
+- **راه‌حل**: بررسی console errors و رفع آن‌ها
+
+### 3.2. حذف بخش فیلتر
+- **فایل**: `presentation/user-panel-order.html` (خط 580-636)
+- **مشکل**: بخش فیلتر غیرضروری است
+- **راه‌حل**: حذف div فیلتر
+
+### 3.3. مشکل جدول سفارش‌ها
+- **فایل**: `presentation/user-panel-order.html` (خط 642-767)
+- **مشکل**: 
+  - خط 642: عنوان جدول
+  - خط 643: ستون تاریخ
+  - خط 644: ستون مبلغ
+  - خط 658-767: مشکل در `<tbody>` و نمایش داده‌ها
+- **راه‌حل**: بررسی و اصلاح ساختار جدول و JavaScript مربوط به بارگذاری داده‌ها
+
+### 3.4. مشکل pagination
+- **فایل**: `presentation/user-panel-order.html` (خط 771-785)
+- **مشکل**: pagination کار نمی‌کند
+- **راه‌حل**: پیاده‌سازی pagination با JavaScript
+
+### 3.5. حذف بخش‌های غیرضروری
+- **فایل**: `presentation/user-panel-order.html`
+- **مشکل**: 
+  - خط 789-798: بخش Order tracking
+  - خط 800-833: بخش Order status guide
+- **راه‌حل**: حذف این بخش‌ها
+
+### 3.6. باگ kickout
+- **فایل**: `presentation/user-panel-order.html`
+- **مشکل**: کاربر بعد از 1 دقیقه و 40 ثانیه از سیستم خارج می‌شود
+- **راه‌حل**: بررسی و اصلاح `auth-guard.js`
+
+## 4. رفع باگ‌های user-panel-favorite.html
+
+### 4.1. مشکل لینک جستجو
+- **فایل**: `presentation/user-panel-favorite.html` (خط 587-592)
+- **مشکل**: لینک جستجو کار نمی‌کند
+- **راه‌حل**: اضافه کردن event listener
+
+### 4.2. مشکل لینک سفارش‌ها
+- **فایل**: `presentation/user-panel-favorite.html` (خط 593-598)
+- **مشکل**: لینک سفارش‌ها کار نمی‌کند
+- **راه‌حل**: اصلاح href
+
+### 4.3. مشکل بخش فیلتر و مرتب‌سازی
+- **فایل**: `presentation/user-panel-favorite.html` (خط 602-651)
+- **مشکل**: بخش فیلتر و مرتب‌سازی کار نمی‌کند
+- **راه‌حل**: پیاده‌سازی JavaScript برای فیلتر و مرتب‌سازی
+
+### 4.4. مشکل نمایش محصولات
+- **فایل**: `presentation/user-panel-favorite.html`
+- **مشکل**: 
+  - خط 680-686: محصول 1
+  - خط 721-728: محصول 2
+  - خط 761-767: محصول 3
+  - خط 694, 734, 744: مشکل در badge موجودی
+  - خط 690-691, 731, 771: مشکل در نمایش نام محصول
+- **راه‌حل**: بارگذاری داده‌های واقعی از API و اصلاح template
+
+### 4.5. مشکل دکمه‌های محصولات
+- **فایل**: `presentation/user-panel-favorite.html`
+- **مشکل**: دکمه‌های محصولات (افزودن به سبد، حذف از علاقه‌مندی) کار نمی‌کنند
+- **راه‌حل**: پیاده‌سازی event handlers
+
+### 4.6. مشکل pagination
+- **فایل**: `presentation/user-panel-favorite.html` (خط 798-824)
+- **مشکل**: pagination کار نمی‌کند
+- **راه‌حل**: پیاده‌سازی pagination با JavaScript
+
+### 4.7. خطای unknown در script
+- **فایل**: `presentation/user-panel-favorite.html` (بخش script)
+- **مشکل**: خطای JavaScript در console
+- **راه‌حل**: بررسی console errors و رفع آن‌ها
+
+### 4.8. مشکل بخش محصولات پیشنهادی
+- **فایل**: `presentation/user-panel-favorite.html` (خط 828-1140)
+- **مشکل**: 
+  - بخش محصولات پیشنهادی نیاز به اصلاح دارد
+  - لینک‌ها با `href="#"` کار نمی‌کنند
+  - لینک‌های محصولات به `/product/...` می‌روند که 404 می‌دهد
+- **راه‌حل**: اصلاح لینک‌ها و بارگذاری داده‌های واقعی
+
+## 5. اقدامات عمومی
+
+### 5.1. بررسی auth-guard.js
+- **فایل**: `presentation/assets/js/auth-guard.js`
+- **مشکل**: مشکل kickout در چند صفحه
+- **راه‌حل**: بررسی و اصلاح session timeout و token refresh logic
+
+### 5.2. همگام‌سازی فایل‌ها
+- **فایل**: همه فایل‌های تغییر یافته
+- **راه‌حل**: اجرای `scripts/sync-frontend.ps1` برای همگام‌سازی با `wwwroot/fa`
 
 ### To-dos
 
@@ -294,73 +237,57 @@
 - [x] رفع kickout bug با بهبود token refresh
 - [x] رفع ID mismatch با اتصال به API user profile
 - [x] بهبود error handling برای جلوگیری از ارورهای ناپدیدشونده
-- [ ] بهبود responsive در تمام صفحات
-- [ ] تست نهایی تمام رفع‌ها
-- [ ] حذف دکمه‌های شبکه‌های اجتماعی از login.html
-- [ ] حذف آیکون اضافی در فیلد پسورد login.html
-- [ ] رفع overlap placeholder و آیکون تلفن در login.html
-- [ ] رفع مشکل encoding در پیام‌های خطای login.html
-- [ ] اتصال لینک قوانین و مقررات به terms-and-rules.html
-- [ ] حذف کد JavaScript تکراری از register.html
-- [ ] رفع overlap در register.html
-- [ ] رفع مشکل autofill گوگل در register.html
-- [ ] اتصال نوار جستجو در user-panel-index.html
-- [ ] اتصال دکمه‌های حذف notification/message slidebar
-- [ ] رفع profile dropdown در تمام صفحات user panel
-- [ ] اتصال تمام لینک‌های href="#" به صفحات مناسب
-- [ ] جایگزینی مقادیر hardcoded با داده‌های API
-- [ ] پیاده‌سازی pagination در صفحات order و favorite
-- [ ] حذف بخش‌های غیرضروری از صفحات user panel
-- [ ] رفع kickout bug با بهبود token refresh
-- [ ] رفع ID mismatch با اتصال به API user profile
-- [ ] بهبود error handling برای جلوگیری از ارورهای ناپدیدشونده
-- [ ] بهبود responsive در تمام صفحات
-- [ ] تست نهایی تمام رفع‌ها
-- [ ] حذف دکمه‌های شبکه‌های اجتماعی از login.html
-- [ ] حذف آیکون اضافی در فیلد پسورد login.html
-- [ ] رفع overlap placeholder و آیکون تلفن در login.html
-- [ ] رفع مشکل encoding در پیام‌های خطای login.html
-- [ ] اتصال لینک قوانین و مقررات به terms-and-rules.html
-- [ ] حذف کد JavaScript تکراری از register.html
-- [ ] رفع overlap در register.html
-- [ ] رفع مشکل autofill گوگل در register.html
-- [ ] اتصال نوار جستجو در user-panel-index.html
-- [ ] اتصال دکمه‌های حذف notification/message slidebar
-- [ ] رفع profile dropdown در تمام صفحات user panel
-- [ ] اتصال تمام لینک‌های href="#" به صفحات مناسب
-- [ ] جایگزینی مقادیر hardcoded با داده‌های API
-- [ ] پیاده‌سازی pagination در صفحات order و favorite
-- [ ] حذف بخش‌های غیرضروری از صفحات user panel
-- [ ] رفع kickout bug با بهبود token refresh
-- [ ] رفع ID mismatch با اتصال به API user profile
-- [ ] بهبود error handling برای جلوگیری از ارورهای ناپدیدشونده
-- [ ] اضافه کردن search functionality با Enter key
-- [ ] رفع لینک‌های profile dropdown
-- [ ] رفع لینک‌های مشاهده همه
-- [ ] رفع لینک‌های بخش سفارشات اخیر
-- [ ] رفع overlap ایکون settings
-- [ ] اصلاح active state indicator در dashboard
-- [ ] رفع encoding error messages
-- [ ] رفع profile dropdown
-- [ ] حذف دکمه تنظیمات
-- [ ] حذف div وضعیت حساب
-- [ ] حذف اطلاعات hardcoded و load از API
-- [ ] پیاده‌سازی دکمه ذخیره تغییرات
-- [ ] پیاده‌سازی upload عکس پروفایل
-- [ ] حذف بخش filter
-- [ ] پیاده‌سازی دکمه‌های فیلتر وضعیت
-- [ ] پیاده‌سازی loading جدول سفارشات از API
-- [ ] پیاده‌سازی pagination
-- [ ] حذف بخش order tracking
-- [ ] حذف بخش order status guide
-- [ ] پیاده‌سازی حذف انتخاب‌شده‌ها
-- [ ] پیاده‌سازی افزودن همه به سبد
-- [ ] حذف بخش filters
-- [ ] اضافه کردن لینک به محصولات
-- [ ] پیاده‌سازی dynamic loading وضعیت و قیمت
-- [ ] پیاده‌سازی دکمه‌های action محصولات
-- [ ] پیاده‌سازی pagination
-- [ ] بررسی و تست kickout bug
-- [ ] بررسی و تست ID mismatch
-- [ ] رفع encoding در تمام error messages
-- [ ] اصلاح theme scrollbar
+- [x] حذف دکمه‌های شبکه‌های اجتماعی از login.html
+- [x] حذف آیکون اضافی در فیلد پسورد login.html
+- [x] حذف دکمه‌های شبکه‌های اجتماعی از login.html
+- [x] حذف آیکون اضافی در فیلد پسورد login.html
+- [x] رفع overlap placeholder و آیکون تلفن در login.html
+- [x] رفع مشکل encoding در پیام‌های خطای login.html
+- [x] اتصال لینک قوانین و مقررات به terms-and-rules.html
+- [x] حذف کد JavaScript تکراری از register.html
+- [x] رفع overlap در register.html
+- [x] رفع مشکل autofill گوگل در register.html
+- [x] اتصال نوار جستجو در user-panel-index.html
+- [x] اتصال دکمه‌های حذف notification/message slidebar
+- [x] رفع profile dropdown در تمام صفحات user panel
+- [x] اتصال تمام لینک‌های href="#" به صفحات مناسب
+- [x] جایگزینی مقادیر hardcoded با داده‌های API
+- [x] پیاده‌سازی pagination در صفحات order و favorite
+- [x] حذف بخش‌های غیرضروری از صفحات user panel
+- [x] رفع kickout bug با بهبود token refresh
+- [x] رفع ID mismatch با اتصال به API user profile
+- [x] بهبود error handling برای جلوگیری از ارورهای ناپدیدشونده
+- [ ] تغییر عنوان صفحه و meta tags در user-panel-index.html (خط 1-21)
+- [ ] پیاده‌سازی عملکرد نوار جستجو در user-panel-index.html (خط 486)
+- [ ] پیاده‌سازی دکمه حذف در sidebar اعلان‌ها در user-panel-index.html (خط 1255-1329)
+- [ ] پیاده‌سازی دکمه حذف در sidebar پیام‌ها در user-panel-index.html (خط 1173-1251)
+- [ ] اصلاح تمام لینک‌های href="#" در user-panel-index.html (خطوط 586-593, 538-547, 549-560, 562-575, 632, 650, 777-778, 808, 827, 846, 863-864)
+- [ ] رفع مشکل overlap در آیکون تنظیمات در user-panel-index.html (خط 550-551)
+- [ ] اصلاح theme scrollbar در user-panel-index.html
+- [ ] حذف div های غیرضروری در user-panel-index.html (خطوط 598-616, 654-675, 678-772)
+- [ ] اصلاح لینک‌های محصولات که 404 می‌دهند در user-panel-index.html (خط 870-1170)
+- [ ] رفع مشکل ID mismatch در user-panel-index.html (خط 528, 583, 452)
+- [ ] رفع باگ kickout در user-panel-profile.html (بررسی auth-guard.js)
+- [ ] رفع باگ dashboard در user-panel-profile.html (خط 44-54)
+- [ ] رفع خطای unknown در script بخش user-panel-profile.html
+- [ ] رفع مشکل dropdown پروفایل در user-panel-profile.html (خط 535-537)
+- [ ] اصلاح لینک جستجو در user-panel-profile.html (خط 587-592)
+- [ ] حذف div غیرضروری در user-panel-profile.html (خط 671-716)
+- [ ] بارگذاری داده‌های واقعی از API به جای مقادیر hardcoded در user-panel-profile.html (خطوط 629-655)
+- [ ] رفع مشکل فیلدهای فرم در user-panel-profile.html (خطوط 616-624, 657-660)
+- [ ] رفع خطای unknown در script بخش user-panel-order.html
+- [ ] حذف بخش فیلتر در user-panel-order.html (خط 580-636)
+- [ ] رفع مشکل جدول سفارش‌ها در user-panel-order.html (خطوط 642-767)
+- [ ] پیاده‌سازی pagination در user-panel-order.html (خط 771-785)
+- [ ] حذف بخش‌های غیرضروری در user-panel-order.html (خطوط 789-798, 800-833)
+- [ ] رفع باگ kickout در user-panel-order.html (بررسی auth-guard.js)
+- [ ] اصلاح لینک جستجو در user-panel-favorite.html (خط 587-592)
+- [ ] اصلاح لینک سفارش‌ها در user-panel-favorite.html (خط 593-598)
+- [ ] پیاده‌سازی بخش فیلتر و مرتب‌سازی در user-panel-favorite.html (خط 602-651)
+- [ ] رفع مشکل نمایش محصولات در user-panel-favorite.html (خطوط 680-771)
+- [ ] پیاده‌سازی دکمه‌های محصولات در user-panel-favorite.html
+- [ ] پیاده‌سازی pagination در user-panel-favorite.html (خط 798-824)
+- [ ] رفع خطای unknown در script بخش user-panel-favorite.html
+- [ ] رفع مشکل بخش محصولات پیشنهادی در user-panel-favorite.html (خط 828-1140)
+- [ ] بررسی و اصلاح auth-guard.js برای رفع مشکل kickout
+- [ ] همگام‌سازی فایل‌های تغییر یافته با wwwroot/fa

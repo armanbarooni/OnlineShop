@@ -615,30 +615,30 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label for="firstName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام</label>
-                                            <input type="text" id="firstName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="مریم">
+                                            <input type="text" id="firstName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                         </div>
                                         <div>
                                             <label for="lastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام خانوادگی</label>
-                                            <input type="text" id="lastName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="محمدی">
+                                            <input type="text" id="lastName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                         </div>
                                     </div>
                                     <div>
                                         <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">پست الکترونیک</label>
-                                        <input type="email" id="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="maryam.mohammadi@example.com">
+                                        <input type="email" id="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">شماره موبایل</label>
-                                            <input type="tel" id="phone" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="09123456789">
+                                            <input type="tel" id="phone" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                         </div>
                                         <div>
                                             <label for="birthDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاریخ تولد</label>
-                                            <input type="text" id="birthDate" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="1370/05/12">
+                                            <input type="text" id="birthDate" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                         </div>
                                     </div>
                                     <div>
                                         <label for="nationalCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">کد ملی</label>
-                                        <input type="text" id="nationalCode" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" value="1234567890">
+                                        <input type="text" id="nationalCode" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                     </div>
                                     <div class="pt-4">
                                         <button class="px-6 py-2 bg-primary hover:bg-primary/90 dark:bg-primary-dark dark:hover:bg-primary/80 text-white rounded-lg text-sm font-medium transition-colors">
@@ -1040,33 +1040,89 @@
             }
         }
     });
+    
+    // Search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[placeholder*="جستجو"]');
+        const searchButton = searchInput?.closest('.relative')?.querySelector('button');
+        
+        function performSearch() {
+            const query = searchInput?.value.trim();
+            if (query) {
+                window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+        
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performSearch();
+                }
+            });
+        }
+        
+        if (searchButton) {
+            searchButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                performSearch();
+            });
+        }
+    });
 
     // Load user profile data
     async function loadUserProfile() {
         try {
-            window.utils.showLoading(document.getElementById('profileForm'), 'ط¯ط± ط­ط§ظ„ ط¨ط§ط±ع¯ط°ط§ط±غŒ...');
+            // Check if service exists
+            if (!window.userProfileService) {
+                console.error('userProfileService is not available');
+                window.utils?.showToast('سرویس پروفایل کاربری در دسترس نیست', 'error');
+                return;
+            }
+
+            const profileForm = document.getElementById('profileForm');
+            if (profileForm && window.utils) {
+                window.utils.showLoading(profileForm, 'در حال بارگذاری...');
+            }
             
             const response = await window.userProfileService.getUserProfile();
             
-            if (response.success && response.data) {
+            if (response && response.success && response.data) {
                 populateProfileForm(response.data);
             } else {
-                window.utils.showToast('ط®ط·ط§ ط¯ط± ط¨ط§ط±ع¯ط°ط§ط±غŒ ط§ط·ظ„ط§ط¹ط§طھ ظ¾ط±ظˆظپط§غŒظ„', 'error');
+                const errorMsg = response?.error || 'خطا در بارگذاری اطلاعات پروفایل';
+                window.utils?.showToast(errorMsg, 'error');
             }
         } catch (error) {
             console.error('Error loading user profile:', error);
-            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+            const errorMsg = error?.message || 'خطا در اتصال به سرور';
+            window.utils?.showToast(errorMsg, 'error');
         } finally {
-            window.utils.hideLoading(document.getElementById('profileForm'));
+            const profileForm = document.getElementById('profileForm');
+            if (profileForm && window.utils) {
+                window.utils.hideLoading(profileForm);
+            }
         }
     }
 
     // Populate profile form with user data
     function populateProfileForm(profile) {
+        if (!profile) return;
+        
         // Update form fields
         const firstNameInput = document.getElementById('firstName');
         const lastNameInput = document.getElementById('lastName');
         const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('phone');
+        const birthDateInput = document.getElementById('birthDate');
+        const nationalCodeInput = document.getElementById('nationalCode');
+        
+        if (firstNameInput) firstNameInput.value = profile.firstName || '';
+        if (lastNameInput) lastNameInput.value = profile.lastName || '';
+        if (emailInput) emailInput.value = profile.email || profile.userEmail || '';
+        if (phoneInput) phoneInput.value = profile.phone || profile.phoneNumber || '';
+        if (birthDateInput) birthDateInput.value = profile.birthDate || profile.birthday || '';
+        if (nationalCodeInput) nationalCodeInput.value = profile.nationalCode || profile.nationalId || '';
         const phoneInput = document.getElementById('phone');
         const birthDateInput = document.getElementById('birthDate');
         const genderSelect = document.getElementById('gender');
@@ -1107,45 +1163,72 @@
     }
 
     // Handle profile form submission
-    document.getElementById('profileForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const profileData = {
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            birthDate: formData.get('birthDate'),
-            gender: formData.get('gender'),
-            address: formData.get('address')
-        };
-
-        // Validate profile data
-        const validation = window.userProfileService.validateProfileData(profileData);
-        if (!validation.isValid) {
-            displayValidationErrors(validation.errors);
-            return;
-        }
-
-        try {
-            window.utils.showLoading(this.querySelector('button[type="submit"]'), 'ط¯ط± ط­ط§ظ„ ط°ط®غŒط±ظ‡...');
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) {
+        profileForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            const response = await window.userProfileService.updateProfile(profileData);
-            
-            if (response.success) {
-                window.utils.showToast('ظ¾ط±ظˆظپط§غŒظ„ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯', 'success');
-                updateUserInfoDisplay(profileData);
-            } else {
-                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ظ¾ط±ظˆظپط§غŒظ„', 'error');
+            // Check if service exists
+            if (!window.userProfileService) {
+                window.utils?.showToast('سرویس پروفایل کاربری در دسترس نیست', 'error');
+                return;
             }
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
-        } finally {
-            window.utils.hideLoading(this.querySelector('button[type="submit"]'));
-        }
-    });
+            
+            const formData = new FormData(this);
+            const profileData = {
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                birthDate: formData.get('birthDate'),
+                gender: formData.get('gender'),
+                address: formData.get('address')
+            };
+
+            // Validate profile data
+            try {
+                const validation = window.userProfileService.validateProfileData(profileData);
+                if (!validation || !validation.isValid) {
+                    if (validation && validation.errors) {
+                        displayValidationErrors(validation.errors);
+                    } else {
+                        window.utils?.showToast('لطفاً تمام فیلدهای الزامی را پر کنید', 'error');
+                    }
+                    return;
+                }
+            } catch (validationError) {
+                console.error('Validation error:', validationError);
+                window.utils?.showToast('خطا در اعتبارسنجی اطلاعات', 'error');
+                return;
+            }
+
+            try {
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton && window.utils) {
+                    window.utils.showLoading(submitButton, 'در حال ذخیره...');
+                }
+                
+                const response = await window.userProfileService.updateProfile(profileData);
+                
+                if (response && response.success) {
+                    window.utils?.showToast('پروفایل با موفقیت بروزرسانی شد', 'success');
+                    updateUserInfoDisplay(profileData);
+                } else {
+                    const errorMsg = response?.error || 'خطا در بروزرسانی پروفایل';
+                    window.utils?.showToast(errorMsg, 'error');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                const errorMsg = error?.message || 'خطا در اتصال به سرور';
+                window.utils?.showToast(errorMsg, 'error');
+            } finally {
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton && window.utils) {
+                    window.utils.hideLoading(submitButton);
+                }
+            }
+        });
+    }
 
     // Display validation errors
     function displayValidationErrors(errors) {
