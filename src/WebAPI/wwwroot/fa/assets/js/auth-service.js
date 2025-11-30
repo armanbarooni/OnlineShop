@@ -247,7 +247,7 @@ class AuthService {
             // Dispatch logout event
             window.dispatchEvent(new CustomEvent('auth:logout'));
             
-            window.location.href = '/login.html';
+            window.location.href = 'login.html';
         }
     }
 

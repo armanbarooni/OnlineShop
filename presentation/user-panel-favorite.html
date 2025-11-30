@@ -560,7 +560,7 @@
                         </a>
 
                         <!-- Logout Link -->
-                        <a href="login.html"
+                        <a href="#" id="logoutButton"
                            class="flex items-center px-4 py-2 text-sm text-gray-700 space-x-1 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
                                  stroke-width="1.5" stroke="currentColor">
@@ -1415,6 +1415,7 @@
 <script src="assets/js/api-client.js"></script>
 <script src="assets/js/auth-service.js"></script>
 <script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/user-panel-common.js"></script>
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/services/wishlist-service.js"></script>
 <script src="assets/js/services/cart-service.js"></script>
@@ -1793,6 +1794,8 @@
             window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
         }
     }
+
+    // Logout functionality is handled by user-panel-common.js
 </script>
 
 </body>

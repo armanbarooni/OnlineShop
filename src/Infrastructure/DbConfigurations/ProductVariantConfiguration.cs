@@ -56,6 +56,9 @@ namespace OnlineShop.Infrastructure.DbConfigurations
                 .WithMany(p => p.ProductVariants)
                 .HasForeignKey(pv => pv.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Query Filter
+            builder.HasQueryFilter(pv => !pv.Deleted);
         }
     }
 }

@@ -25,6 +25,10 @@ namespace OnlineShop.Infrastructure.DbConfigurations
                 .WithMany(s => s.ProductSeasons)
                 .HasForeignKey(ps => ps.SeasonId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Base Entity Properties
+            builder.Property(ps => ps.Deleted).HasDefaultValue(false);
+            builder.HasQueryFilter(ps => !ps.Deleted);
         }
     }
 }

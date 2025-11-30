@@ -4,6 +4,8 @@ class ApiClient {
         this.baseURL = window.config?.api?.baseURL || 'http://localhost:5000/api';
         this.token = localStorage.getItem('accessToken');
         this.refreshToken = localStorage.getItem('refreshToken');
+        this.tokenRefreshInterval = null;
+        this.setupTokenRefresh();
     }
 
     // Set base URL
@@ -196,18 +198,29 @@ class ApiClient {
             if (response.ok) {
                 const data = await response.json();
                 this.token = data.accessToken;
-                this.refreshToken = data.refreshToken;
+                this.refreshToken = data.refreshToken || this.refreshToken; // Keep refresh token if not provided
                 localStorage.setItem('accessToken', data.accessToken);
-                localStorage.setItem('refreshToken', data.refreshToken);
+                if (data.refreshToken) {
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                }
+                // Restart token refresh check with new token
+                this.setupTokenRefresh();
                 return true;
             } else {
                 // Refresh failed, redirect to login
-                this.logout();
+                this.clearTokens();
+                if (window.location.pathname.includes('user-panel')) {
+                    window.location.href = '/login.html';
+                }
                 return false;
             }
         } catch (error) {
-            window.logger.error('Token refresh failed:', error);
-            this.logout();
+            window.logger?.error('Token refresh failed:', error);
+            this.clearTokens();
+            // Only redirect if we're on a protected page
+            if (window.location.pathname.includes('user-panel')) {
+                window.location.href = '/login.html';
+            }
             return false;
         }
     }
@@ -312,6 +325,51 @@ class ApiClient {
         }
     }
 
+    // Setup automatic token refresh
+    setupTokenRefresh() {
+        // Clear existing interval
+        if (this.tokenRefreshInterval) {
+            clearInterval(this.tokenRefreshInterval);
+        }
+
+        // Check token expiration every 30 seconds
+        this.tokenRefreshInterval = setInterval(() => {
+            this.checkAndRefreshToken();
+        }, 30000); // Check every 30 seconds
+
+        // Also check immediately
+        this.checkAndRefreshToken();
+    }
+
+    // Check token expiration and refresh if needed
+    async checkAndRefreshToken() {
+        if (!this.token || !this.refreshToken) {
+            return;
+        }
+
+        try {
+            const decoded = this.parseJwt(this.token);
+            if (!decoded || !decoded.exp) {
+                return;
+            }
+
+            // Get expiration time (JWT exp is in seconds)
+            const expirationTime = decoded.exp * 1000;
+            const currentTime = Date.now();
+            const timeUntilExpiration = expirationTime - currentTime;
+
+            // Refresh token if it expires in less than 5 minutes (300000 ms)
+            if (timeUntilExpiration < 300000 && timeUntilExpiration > 0) {
+                await this.refreshAccessToken();
+            } else if (timeUntilExpiration <= 0) {
+                // Token already expired, try to refresh
+                await this.refreshAccessToken();
+            }
+        } catch (error) {
+            window.logger?.error('Error checking token expiration:', error);
+        }
+    }
+
     // Set token
     setToken(token, refreshToken = null) {
         this.token = token;
@@ -337,6 +395,9 @@ class ApiClient {
                 localStorage.setItem(key, JSON.stringify(userData));
             }
         } catch (_) { /* ignore decode errors */ }
+
+        // Restart token refresh check
+        this.setupTokenRefresh();
     }
 
     // Set tokens (plural) - for compatibility with auth-service
@@ -352,6 +413,12 @@ class ApiClient {
         localStorage.removeItem('refreshToken');
         const key = (window.config && window.config.auth && window.config.auth.userKey) || 'userData';
         localStorage.removeItem(key);
+        
+        // Clear token refresh interval
+        if (this.tokenRefreshInterval) {
+            clearInterval(this.tokenRefreshInterval);
+            this.tokenRefreshInterval = null;
+        }
     }
 
     // Logout

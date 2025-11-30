@@ -5,19 +5,52 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>قالب فرشگاهی آرینو</title>
-    <meta name="description" content="قالب فرشگاهی آرینو، بهترین قالب برای فروشگاه‌های اینترنتی با طراحی مدرن و واکنش‌گرا.">
-    <meta name="keywords" content="قالب فروشگاهی, قالب آرینو, فروشگاه اینترنتی, طراحی واکنش‌گرا">
-    <meta name="robots" content="index, follow">
-    <meta name="author" content="آرینو">
-    <meta name="copyright" content="تمامی حقوق متعلق به آرینو است.">
+    <title>پنل کاربری - پیشخوان</title>
+    <meta name="description" content="پنل کاربری - پیشخوان حساب کاربری شما">
+    <meta name="keywords" content="پنل کاربری, پیشخوان, حساب کاربری">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="author" content="OnlineShop">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicon_io/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon_io/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon_io/favicon-16x16.png">
-    <link rel="canonical" href="https://example.com/your-page-url">
     <link rel="stylesheet" href="assets/js/plugin/swiper/swiper-bundle.min.css">
     <link rel="stylesheet" href="assets/css/app.css">
     <link rel="preload" href="assets/fonts/payda/PeydaWebFaNum-Medium.woff2" as="font" type="font/woff2" crossorigin>
+    <style>
+        /* Scrollbar styling for light mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Scrollbar styling for dark mode */
+        .dark ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        /* Firefox scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f1f1;
+        }
+        .dark * {
+            scrollbar-color: #4b5563 #1f2937;
+        }
+    </style>
 </head>
 <body class="bg-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark transition-colors duration-200">
 
@@ -104,7 +137,7 @@
                                 </svg>
                                 لیست سفارش‌ها
                             </a>
-                            <a href="user-panel-order-detail.html"
+                            <a href="user-panel-order.html"
                                class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor">
@@ -173,7 +206,7 @@
                                 </svg>
                                 لیست آدرس‌ها
                             </a>
-                            <a href="user-panel-edit-address.html"
+                            <a href="user-panel-address.html"
                                class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor">
@@ -752,7 +785,7 @@
                         </div>
                     </div>
                     <div class="p-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 text-center">
-                        <a href="#" class="text-sm font-medium text-primary hover:text-primary/90 dark:text-primary-dark dark:hover:text-primary/80">مشاهده همه تراکنش‌ها</a>
+                        <a href="user-panel-wallet.html" class="text-sm font-medium text-primary hover:text-primary/90 dark:text-primary-dark dark:hover:text-primary/80">مشاهده همه تراکنش‌ها</a>
                     </div>
                 </div>
             </div>
@@ -897,13 +930,13 @@
                             </div>
                         </header>
                         <figure class="flex image justify-center my-4">
-                            <a href="/product/iphone-13-pro-max" itemprop="url">
+                            <a href="shop.html?product=iphone-13-pro-max" itemprop="url">
                                 <img class="one-image" src="assets/images/product/mobile-3.png" loading="lazy" alt="گوشی موبایل اپل آیفون 13 پرو مکس" itemprop="image">
                                 <img class="two-image" src="assets/images/product/mobile-4.png" loading="lazy" alt="نمای دیگر گوشی اپل آیفون 13 پرو مکس" itemprop="image">
                             </a>
                         </figure>
                         <h3 class="text-base leading-8  line-clamp-2 mb-2">
-                            <a href="/product/iphone-13-pro-max" class="text-gray-800 dark:text-white" itemprop="name">گوشی موبایل
+                            <a href="shop.html?product=iphone-13-pro-max" class="text-gray-800 dark:text-white" itemprop="name">گوشی موبایل
                                 اپل مدل iPhone 13 Pro Max دو سیم کارت</a>
                         </h3>
                         <footer itemprop="offers" itemscope="" itemtype="http://schema.org/Offer">
@@ -971,13 +1004,13 @@
                             </div>
                         </header>
                         <figure class="flex image justify-center my-4">
-                            <a href="/product/iphone-13-pro-max" itemprop="url">
+                            <a href="shop.html?product=iphone-13-pro-max" itemprop="url">
                                 <img class="one-image" src="assets/images/product/laptop-1.png" loading="lazy" alt="گوشی موبایل اپل آیفون 13 پرو مکس" itemprop="image">
                                 <img class="two-image" src="assets/images/product/laptop-2.png" loading="lazy" alt="نمای دیگر گوشی اپل آیفون 13 پرو مکس" itemprop="image">
                             </a>
                         </figure>
                         <h3 class="text-base leading-8  line-clamp-2 mb-2">
-                            <a href="/product/iphone-13-pro-max" class="text-gray-800 dark:text-white" itemprop="name">گوشی موبایل
+                            <a href="shop.html?product=iphone-13-pro-max" class="text-gray-800 dark:text-white" itemprop="name">گوشی موبایل
                                 اپل مدل iPhone 13 Pro Max دو سیم کارت</a>
                         </h3>
                         <footer itemprop="offers" itemscope="" itemtype="http://schema.org/Offer">
@@ -1045,13 +1078,13 @@
                             </div>
                         </header>
                         <figure class="flex image justify-center my-4">
-                            <a href="/product/iphone-13-pro-max" itemprop="url">
+                            <a href="shop.html?product=iphone-13-pro-max" itemprop="url">
                                 <img class="one-image" src="assets/images/product/laptop-3.png" loading="lazy" alt="گوشی موبایل اپل آیفون 13 پرو مکس" itemprop="image">
                                 <img class="two-image" src="assets/images/product/laptop-4.png" loading="lazy" alt="نمای دیگر گوشی اپل آیفون 13 پرو مکس" itemprop="image">
                             </a>
                         </figure>
                         <h3 class="text-base leading-8  line-clamp-2 mb-2">
-                            <a href="/product/iphone-13-pro-max" class="text-gray-800 dark:text-white" itemprop="name">گوشی موبایل
+                            <a href="shop.html?product=iphone-13-pro-max" class="text-gray-800 dark:text-white" itemprop="name">گوشی موبایل
                                 اپل مدل iPhone 13 Pro Max دو سیم کارت</a>
                         </h3>
                         <footer itemprop="offers" itemscope="" itemtype="http://schema.org/Offer">
@@ -1119,13 +1152,13 @@
                             </div>
                         </header>
                         <figure class="flex image justify-center my-4">
-                            <a href="/product/iphone-13-pro-max" itemprop="url">
+                            <a href="shop.html?product=iphone-13-pro-max" itemprop="url">
                                 <img class="one-image" src="assets/images/product/wach-1.png" loading="lazy" alt="گوشی موبایل اپل آیفون 13 پرو مکس" itemprop="image">
                                 <img class="two-image" src="assets/images/product/wach-2.png" loading="lazy" alt="نمای دیگر گوشی اپل آیفون 13 پرو مکس" itemprop="image">
                             </a>
                         </figure>
                         <h3 class="text-base leading-8  line-clamp-2 mb-2">
-                            <a href="/product/iphone-13-pro-max" class="text-gray-800 dark:text-white" itemprop="name">گوشی موبایل
+                            <a href="shop.html?product=iphone-13-pro-max" class="text-gray-800 dark:text-white" itemprop="name">گوشی موبایل
                                 اپل مدل iPhone 13 Pro Max دو سیم کارت</a>
                         </h3>
                         <footer itemprop="offers" itemscope="" itemtype="http://schema.org/Offer">
@@ -1181,7 +1214,12 @@
     <!-- message Items -->
     <main class="relative space-y-4 divide-y divide-gray-200 p-3 overflow-y-scroll h-full">
         <!-- message one -->
-        <div class="bg-white last:mb-20 border border-gray-400 rounded-2xl shadow-md dark:bg-card-dark dark:text-white overflow-hidden p-5 space-y-3">
+        <div class="bg-white last:mb-20 border border-gray-400 rounded-2xl shadow-md dark:bg-card-dark dark:text-white overflow-hidden p-5 space-y-3 relative">
+            <button onclick="deleteMessage(this)" class="absolute top-3 end-3 text-gray-400 hover:text-red-500 transition-colors" aria-label="حذف پیام">
+                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
             <div class="flex items-start space-x-3 rtl:space-x-reverse">
                 <div class="flex flex-col space-y-2">
                     <div class="flex items-center space-x-2">
@@ -1205,7 +1243,12 @@
             </div>
         </div>
         <!-- message two -->
-        <div class="bg-white last:mb-20 border border-gray-400 rounded-2xl shadow-md dark:bg-card-dark dark:text-white overflow-hidden p-5 space-y-3">
+        <div class="bg-white last:mb-20 border border-gray-400 rounded-2xl shadow-md dark:bg-card-dark dark:text-white overflow-hidden p-5 space-y-3 relative">
+            <button onclick="deleteMessage(this)" class="absolute top-3 end-3 text-gray-400 hover:text-red-500 transition-colors" aria-label="حذف پیام">
+                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
             <div class="flex items-start space-x-3 rtl:space-x-reverse">
                 <div class="flex flex-col space-y-2">
                     <div class="flex items-center space-x-2">
@@ -1276,7 +1319,7 @@
                         <p class="text-sm font-bold text-gray-900 dark:text-white">یادآوری قرارملاقات</p>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-300">جلسه امروز ساعت 14:30 در اتاق کنفرانس</p>
                     </div>
-                    <button class="me-2 text-gray-400 hover:text-gray-500">
+                    <button onclick="deleteNotification(this)" class="me-2 text-gray-400 hover:text-red-500 transition-colors" aria-label="حذف اعلان">
                         <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                         </svg>
@@ -1296,7 +1339,7 @@
                         <p class="text-sm font-bold text-gray-900 dark:text-white">پرداخت موفق</p>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-300">تراکنش شما با موفقیت انجام شد. کد رهگیری: 458712</p>
                     </div>
-                    <button class="me-2 text-gray-400 hover:text-gray-500">
+                    <button onclick="deleteNotification(this)" class="me-2 text-gray-400 hover:text-red-500 transition-colors" aria-label="حذف اعلان">
                         <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                         </svg>
@@ -1354,20 +1397,20 @@
             <!-- menu -->
             <div class="flex flex-col flex-grow p-4 overflow-y-auto">
                 <nav class="space-y-1">
-                    <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-dark">
+                    <a href="user-panel-index.html" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-dark">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
                         </svg>
                         پیشخوان
                         <span class="ms-auto w-2 h-2 rounded-full bg-primary dark:bg-primary-dark"></span>
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                    <a href="user-panel-profile.html" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
                         </svg>
                         پروفایل کاربری
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                    <a href="user-panel-wallet.html" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
@@ -1375,19 +1418,19 @@
                         کیف پول
                         <span class="ms-auto px-2 py-0.5 text-xs font-medium rounded-full bg-secondary/10 dark:bg-secondary-300 text-secondary dark:text-white">جدید</span>
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                    <a href="user-panel-order.html" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"></path>
                         </svg>
                         سفارشات
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                    <a href="user-panel-favorite.html" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
                         </svg>
                         علاقه‌مندی‌ها
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                    <a href="user-panel-ticket.html" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
                         </svg>
@@ -1522,6 +1565,7 @@
 <script src="assets/js/api-client.js"></script>
 <script src="assets/js/auth-service.js"></script>
 <script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/user-panel-common.js"></script>
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/services/user-profile-service.js"></script>
 <script src="assets/js/services/order-service.js"></script>
@@ -1535,7 +1579,79 @@
     // Load dashboard data when page loads
     document.addEventListener('DOMContentLoaded', async function() {
         await loadDashboardData();
+        
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (query) {
+                // Redirect to search results page
+                window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+        
+        // Search on Enter key
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performSearch();
+                }
+            });
+        }
+        
+        // Search on icon click
+        if (searchButton) {
+            searchButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                performSearch();
+            });
+        }
     });
+    
+    // Delete notification function
+    function deleteNotification(button) {
+        const notificationCard = button.closest('.bg-white, .dark\\:bg-card-dark');
+        if (notificationCard) {
+            notificationCard.style.transition = 'opacity 0.3s ease';
+            notificationCard.style.opacity = '0';
+            setTimeout(() => {
+                notificationCard.remove();
+                // Check if no notifications left
+                const notificationsContainer = document.querySelector('#offcanvas-notification-left main');
+                if (notificationsContainer && notificationsContainer.children.length === 0) {
+                    notificationsContainer.innerHTML = `
+                        <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                            <p class="text-sm">هیچ اعلانی وجود ندارد</p>
+                        </div>
+                    `;
+                }
+            }, 300);
+        }
+    }
+    
+    // Delete message function
+    function deleteMessage(button) {
+        const messageCard = button.closest('.bg-white, .dark\\:bg-card-dark');
+        if (messageCard) {
+            messageCard.style.transition = 'opacity 0.3s ease';
+            messageCard.style.opacity = '0';
+            setTimeout(() => {
+                messageCard.remove();
+                // Check if no messages left
+                const messagesContainer = document.querySelector('#offcanvas-user-message-left main');
+                if (messagesContainer && messagesContainer.children.length === 0) {
+                    messagesContainer.innerHTML = `
+                        <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                            <p class="text-sm">هیچ پیامی وجود ندارد</p>
+                        </div>
+                    `;
+                }
+            }, 300);
+        }
+    }
 
     // Logout function
     async function logout() {
@@ -1894,51 +2010,8 @@
         userActivityChart.update();
     }
 
-    // Search functionality
-    const searchInput = document.getElementById('searchInput');
-    const searchButton = document.getElementById('searchButton');
-    
-    function performSearch() {
-        const query = searchInput.value.trim();
-        if (query) {
-            // Redirect to search results page
-            window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
-        }
-    }
-    
-    // Search on Enter key
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                performSearch();
-            }
-        });
-    }
-    
-    // Search on icon click
-    if (searchButton) {
-        searchButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            performSearch();
-        });
-    }
 
-    // Logout functionality
-    const logoutButton = document.getElementById('logoutButton');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (window.authService) {
-                window.authService.logout();
-            } else {
-                // Fallback if authService is not loaded
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                window.location.href = 'login.html';
-            }
-        });
-    }
+    // Logout functionality is handled by user-panel-common.js
 
 </script>
 

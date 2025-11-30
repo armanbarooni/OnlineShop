@@ -25,6 +25,10 @@ namespace OnlineShop.Infrastructure.DbConfigurations
                 .WithMany(m => m.ProductMaterials)
                 .HasForeignKey(pm => pm.MaterialId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Base Entity Properties
+            builder.Property(pm => pm.Deleted).HasDefaultValue(false);
+            builder.HasQueryFilter(pm => !pm.Deleted);
         }
     }
 }

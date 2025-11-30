@@ -1565,6 +1565,7 @@
 <script src="assets/js/api-client.js"></script>
 <script src="assets/js/auth-service.js"></script>
 <script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/user-panel-common.js"></script>
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/services/user-profile-service.js"></script>
 <script src="assets/js/services/order-service.js"></script>
@@ -2010,21 +2011,7 @@
     }
 
 
-    // Logout functionality
-    const logoutButton = document.getElementById('logoutButton');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (window.authService) {
-                window.authService.logout();
-            } else {
-                // Fallback if authService is not loaded
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                window.location.href = 'login.html';
-            }
-        });
-    }
+    // Logout functionality is handled by user-panel-common.js
 
 </script>
 
