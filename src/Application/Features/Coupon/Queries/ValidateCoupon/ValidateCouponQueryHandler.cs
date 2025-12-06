@@ -63,7 +63,7 @@ namespace OnlineShop.Application.Features.Coupon.Queries.ValidateCoupon
             // Check if user has already used this coupon (for single-use coupons)
             if (coupon.IsSingleUse)
             {
-                var hasUsed = await _userCouponUsageRepository.HasUserUsedCouponAsync(request.UserId, coupon.Id, cancellationToken);
+                var hasUsed = await _userCouponUsageRepository.HasUserUsedCouponAsync(Guid.Parse(request.UserId), coupon.Id, cancellationToken);
                 if (hasUsed)
                 {
                     return Result<CouponValidationResultDto>.Success(new CouponValidationResultDto

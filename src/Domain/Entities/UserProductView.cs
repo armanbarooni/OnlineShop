@@ -8,7 +8,7 @@ namespace OnlineShop.Domain.Entities
     /// </summary>
     public class UserProductView : BaseEntity
     {
-        public string UserId { get; private set; } = string.Empty;
+        public Guid UserId { get; private set; }
         public Guid ProductId { get; private set; }
         public DateTime ViewedAt { get; private set; }
         public string? SessionId { get; private set; }
@@ -27,7 +27,7 @@ namespace OnlineShop.Domain.Entities
 
         protected UserProductView() { }
 
-        private UserProductView(string userId, Guid productId, string? sessionId = null, string? userAgent = null, string? ipAddress = null, 
+        private UserProductView(Guid userId, Guid productId, string? sessionId = null, string? userAgent = null, string? ipAddress = null, 
             string? referrerUrl = null, string? deviceType = null, string? browser = null, string? operatingSystem = null)
         {
             SetUserId(userId);
@@ -43,15 +43,15 @@ namespace OnlineShop.Domain.Entities
             Deleted = false;
         }
 
-        public static UserProductView Create(string userId, Guid productId, string? sessionId = null, string? userAgent = null, string? ipAddress = null,
+        public static UserProductView Create(Guid userId, Guid productId, string? sessionId = null, string? userAgent = null, string? ipAddress = null,
             string? referrerUrl = null, string? deviceType = null, string? browser = null, string? operatingSystem = null)
             => new(userId, productId, sessionId, userAgent, ipAddress, referrerUrl, deviceType, browser, operatingSystem);
 
-        public void SetUserId(string userId)
+        public void SetUserId(Guid userId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (userId == Guid.Empty)
                 throw new ArgumentException("شناسه کاربر نباید خالی باشد");
-            UserId = userId.Trim();
+            UserId = userId;
             UpdatedAt = DateTime.UtcNow;
         }
 

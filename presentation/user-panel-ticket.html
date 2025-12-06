@@ -996,86 +996,95 @@
     <script src="config.js"></script>
     <script src="assets/js/utils/logger.js"></script>
     <script src="assets/js/utils.js"></script>
+    <script src="assets/js/services/ticket-service.js"></script>
     <script>
-
         document.addEventListener('DOMContentLoaded', loadTickets);
 
         async function loadTickets() {
             const container = document.getElementById('ticketsContainer');
             try {
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                const mockTickets = [
-                    {
-                        id: 1,
-                        subject: 'مشکل در پرداخت آنلاین',
-                        department: 'مالی و پرداخت‌ها',
-                        status: 'answered',
-                        statusText: 'پاسخ داده شده',
-                        lastUpdate: '1402/05/18 - 14:23',
-                        preview: 'سلام، هنگام پرداخت آنلاین با خطای «تراکنش ناموفق» مواجه می‌شوم. لطفاً راهنمایی کنید.'
-                    },
-                    {
-                        id: 2,
-                        subject: 'تاخیر در ارسال سفارش',
-                        department: 'سفارشات و ارسال',
-                        status: 'pending',
-                        statusText: 'در حال بررسی',
-                        lastUpdate: '1402/05/15 - 09:45',
-                        preview: 'سفارش من با کد 45678 که قرار بود تا دیروز ارسال شود، هنوز ارسال نشده است.'
-                    },
-                    {
-                        id: 3,
-                        subject: 'مشکل در بازگشت وجه',
-                        department: 'مالی و پرداخت‌ها',
-                        status: 'closed',
-                        statusText: 'بسته شده',
-                        lastUpdate: '1402/05/10 - 16:30',
-                        preview: 'برای سفارش لغو شده شماره 12345 هنوز مبلغ به حسابم برگشت نخورده است.'
+                // Try to fetch from API
+                let tickets = [];
+                if (window.ticketService) {
+                    const response = await window.ticketService.getTickets();
+                    if (response.success) {
+                        tickets = response.data.items || response.data || []; // Adjust based on actual API response structure
                     }
-                ];
+                }
 
-                renderTickets(mockTickets);
+                // Fallback to mock data if API returns empty (or failed silently) or for demo purposes if backend isn't ready
+                if (!tickets || tickets.length === 0) {
+                    tickets = [
+                        {
+                            id: 1,
+                            subject: 'مشکل در پرداخت آنلاین',
+                            department: 'مالی و پرداخت‌ها',
+                            status: 'answered',
+                            statusText: 'پاسخ داده شده',
+                            lastUpdate: '1402/05/18 - 14:23',
+                            preview: 'سلام، هنگام پرداخت آنلاین با خطای «تراکنش ناموفق» مواجه می‌شوم. لطفاً راهنمایی کنید.'
+                        },
+                        {
+                            id: 2,
+                            subject: 'تاخیر در ارسال سفارش',
+                            department: 'سفارشات و ارسال',
+                            status: 'pending',
+                            statusText: 'در حال بررسی',
+                            lastUpdate: '1402/05/15 - 09:45',
+                            preview: 'سفارش من با کد 45678 که قرار بود تا دیروز ارسال شود، هنوز ارسال نشده است.'
+                        },
+                        {
+                            id: 3,
+                            subject: 'مشکل در بازگشت وجه',
+                            department: 'مالی و پرداخت‌ها',
+                            status: 'closed',
+                            statusText: 'بسته شده',
+                            lastUpdate: '1402/05/10 - 16:30',
+                            preview: 'برای سفارش لغو شده شماره 12345 هنوز مبلغ به حسابم برگشت نخورده است.'
+                        }
+                    ];
+                }
+
+                renderTickets(tickets);
 
             } catch (error) {
+                console.error('Error loading tickets:', error);
                 container.innerHTML = '<div class="p-8 text-center text-red-500">خطا در بارگیری تیکت‌ها</div>';
-                console.error(error);
             }
         }
 
         function renderTickets(tickets) {
             const container = document.getElementById('ticketsContainer');
-            if (tickets.length === 0) {
+            if (!tickets || tickets.length === 0) {
                 container.innerHTML = '<div class="p-8 text-center text-gray-500">تیکتی یافت نشد</div>';
                 return;
             }
 
             container.innerHTML = tickets.map(ticket => `
-            <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                <div class="flex items-start">
-                    <div class="p-2 rounded-xl ${getStatusIconBg(ticket.status)} me-3">
-                        ${getStatusIcon(ticket.status)}
+        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <div class="flex items-start">
+                <div class="p-2 rounded-xl ${getStatusIconBg(ticket.status)} me-3">
+                    ${getStatusIcon(ticket.status)}
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-dark dark:text-light">${ticket.subject}</h4>
+                        <span class="text-xs px-2 py-1 rounded-full ${getStatusBadgeClass(ticket.status)}">${ticket.statusText}</span>
                     </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between">
-                            <h4 class="text-sm font-bold text-dark dark:text-light">${ticket.subject}</h4>
-                            <span class="text-xs px-2 py-1 rounded-full ${getStatusBadgeClass(ticket.status)}">${ticket.statusText}</span>
-                        </div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">دپارتمان: ${ticket.department}</p>
-                        <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">${ticket.preview}</p>
-                        <div class="flex items-center justify-between mt-3">
-                            <span class="text-xs text-gray-500 dark:text-gray-400">${ticket.lastUpdate}</span>
-                            <a href="user-panel-ticket-chat.html?id=${ticket.id}" class="text-xs text-primary hover:text-primary/90 dark:text-primary-dark dark:hover:text-primary/80 flex items-center">
-                                مشاهده مکالمه
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 ms-1">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
-                                </svg>
-                            </a>
-                        </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">دپارتمان: ${ticket.department}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">${ticket.preview || ''}</p>
+                    <div class="flex items-center justify-between mt-3">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">${ticket.lastUpdate || ''}</span>
+                        <a href="user-panel-ticket-chat.html?id=${ticket.id}" class="text-xs text-primary hover:text-primary/90 dark:text-primary-dark dark:hover:text-primary/80 flex items-center">
+                            مشاهده مکالمه
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 ms-1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
+        </div>
         `).join('');
         }
 

@@ -17,7 +17,7 @@ namespace OnlineShop.Application.Features.ProductComparison.Commands.ClearCompar
         {
             try
             {
-                var comparison = await _repository.GetByUserIdAsync(request.UserId, cancellationToken);
+                var comparison = await _repository.GetByUserIdAsync(Guid.Parse(request.UserId), cancellationToken);
                 if (comparison == null)
                     return Result<bool>.Failure("Comparison not found");
 

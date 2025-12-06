@@ -4,7 +4,7 @@ namespace OnlineShop.Domain.Interfaces.Repositories
 {
     public interface IProductComparisonRepository
     {
-        Task<ProductComparison?> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+        Task<ProductComparison?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<ProductComparison?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task AddAsync(ProductComparison productComparison, CancellationToken cancellationToken = default);
         Task UpdateAsync(ProductComparison productComparison, CancellationToken cancellationToken = default);

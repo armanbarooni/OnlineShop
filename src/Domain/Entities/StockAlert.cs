@@ -9,7 +9,7 @@ namespace OnlineShop.Domain.Entities
     {
         public Guid ProductId { get; private set; }
         public Guid? ProductVariantId { get; private set; }
-        public string UserId { get; private set; } = string.Empty;
+        public Guid UserId { get; private set; }
         public string Email { get; private set; } = string.Empty;
         public string? PhoneNumber { get; private set; }
         public bool Notified { get; private set; } = false;
@@ -26,7 +26,7 @@ namespace OnlineShop.Domain.Entities
         private StockAlert(
             Guid productId,
             Guid? productVariantId,
-            string userId,
+            Guid userId,
             string email,
             string? phoneNumber = null,
             string? notificationMethod = null)
@@ -43,7 +43,7 @@ namespace OnlineShop.Domain.Entities
         public static StockAlert Create(
             Guid productId,
             Guid? productVariantId,
-            string userId,
+            Guid userId,
             string email,
             string? phoneNumber = null,
             string? notificationMethod = null)
@@ -63,11 +63,11 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
-        public void SetUserId(string userId)
+        public void SetUserId(Guid userId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (userId == Guid.Empty)
                 throw new ArgumentException("شناسه کاربر نباید خالی باشد");
-            UserId = userId.Trim();
+            UserId = userId;
             UpdatedAt = DateTime.UtcNow;
         }
 

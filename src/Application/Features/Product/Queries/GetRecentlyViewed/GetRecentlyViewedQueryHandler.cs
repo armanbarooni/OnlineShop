@@ -30,7 +30,7 @@ namespace OnlineShop.Application.Features.Product.Queries.GetRecentlyViewed
             {
                 // Get recently viewed products
                 var recentlyViewed = await _userProductViewRepository.GetRecentlyViewedAsync(
-                    request.UserId, 
+                    Guid.Parse(request.UserId), 
                     request.Limit, 
                     cancellationToken);
 

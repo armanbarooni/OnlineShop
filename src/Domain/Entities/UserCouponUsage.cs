@@ -8,7 +8,7 @@ namespace OnlineShop.Domain.Entities
     /// </summary>
     public class UserCouponUsage : BaseEntity
     {
-        public string UserId { get; private set; } = string.Empty;
+        public Guid UserId { get; private set; }
         public Guid CouponId { get; private set; }
         public Guid? OrderId { get; private set; }
         public DateTime UsedAt { get; private set; }
@@ -24,7 +24,7 @@ namespace OnlineShop.Domain.Entities
         protected UserCouponUsage() { }
 
         private UserCouponUsage(
-            string userId,
+            Guid userId,
             Guid couponId,
             Guid? orderId,
             decimal discountAmount,
@@ -42,7 +42,7 @@ namespace OnlineShop.Domain.Entities
         }
 
         public static UserCouponUsage Create(
-            string userId,
+            Guid userId,
             Guid couponId,
             Guid? orderId,
             decimal discountAmount,
@@ -50,11 +50,11 @@ namespace OnlineShop.Domain.Entities
             string? notes = null)
             => new(userId, couponId, orderId, discountAmount, orderTotal, notes);
 
-        public void SetUserId(string userId)
+        public void SetUserId(Guid userId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (userId == Guid.Empty)
                 throw new ArgumentException("شناسه کاربر نباید خالی باشد");
-            UserId = userId.Trim();
+            UserId = userId;
             UpdatedAt = DateTime.UtcNow;
         }
 

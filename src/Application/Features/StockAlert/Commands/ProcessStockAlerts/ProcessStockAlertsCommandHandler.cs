@@ -55,7 +55,7 @@ namespace OnlineShop.Application.Features.StockAlert.Commands.ProcessStockAlerts
                                 Id = alert.Id,
                                 ProductId = alert.ProductId,
                                 ProductVariantId = alert.ProductVariantId,
-                                UserId = alert.UserId,
+                                UserId = alert.UserId.ToString(),
                                 Email = alert.Email,
                                 PhoneNumber = alert.PhoneNumber,
                                 NotificationMethod = alert.NotificationMethod

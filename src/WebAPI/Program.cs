@@ -71,6 +71,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// Add Background Workers
+builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.MahakSyncWorker>();
+
 // Localization (set default culture to fa-IR, support fa and en)
 var supportedCultures = new[] { new System.Globalization.CultureInfo("fa-IR"), new System.Globalization.CultureInfo("en-US") };
 builder.Services.Configure<Microsoft.AspNetCore.Builder.RequestLocalizationOptions>(options =>

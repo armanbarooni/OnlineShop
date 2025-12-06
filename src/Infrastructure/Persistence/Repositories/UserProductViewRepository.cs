@@ -20,7 +20,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .Include(upv => upv.Product)
                 .FirstOrDefaultAsync(upv => upv.Id == id && !upv.Deleted, cancellationToken);
 
-        public Task<List<UserProductView>> GetByUserIdAsync(string userId, int limit = 20, CancellationToken cancellationToken = default)
+        public Task<List<UserProductView>> GetByUserIdAsync(Guid userId, int limit = 20, CancellationToken cancellationToken = default)
             => _context.UserProductViews
                 .AsNoTracking()
                 .Include(upv => upv.Product)
@@ -28,6 +28,29 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .OrderByDescending(upv => upv.ViewedAt)
                 .Take(limit)
                 .ToListAsync(cancellationToken);
+
+        public Task<List<UserProductView>> GetRecentlyViewedAsync(Guid userId, int limit = 20, CancellationToken cancellationToken = default)
+            => _context.UserProductViews
+                .AsNoTracking()
+                .Include(upv => upv.Product)
+                .Where(upv => upv.UserId == userId && !upv.Deleted)
+                .OrderByDescending(upv => upv.ViewedAt)
+                .Take(limit)
+                .ToListAsync(cancellationToken);
+
+        public Task<List<UserProductView>> GetReturningViewsAsync(Guid userId, CancellationToken cancellationToken = default)
+            => _context.UserProductViews
+                .AsNoTracking()
+                .Include(upv => upv.Product)
+                .Where(upv => upv.UserId == userId && upv.IsReturningView && !upv.Deleted)
+                .OrderByDescending(upv => upv.ViewedAt)
+                .ToListAsync(cancellationToken);
+
+        public async Task<bool> HasUserViewedProductAsync(Guid userId, Guid productId, CancellationToken cancellationToken = default)
+        {
+            return await _context.UserProductViews
+                .AnyAsync(upv => upv.UserId == userId && upv.ProductId == productId && !upv.Deleted, cancellationToken);
+        }
 
         public Task<List<UserProductView>> GetByProductIdAsync(Guid productId, CancellationToken cancellationToken = default)
             => _context.UserProductViews
@@ -35,15 +58,6 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .Include(upv => upv.User)
                 .Where(upv => upv.ProductId == productId && !upv.Deleted)
                 .OrderByDescending(upv => upv.ViewedAt)
-                .ToListAsync(cancellationToken);
-
-        public Task<List<UserProductView>> GetRecentlyViewedAsync(string userId, int limit = 20, CancellationToken cancellationToken = default)
-            => _context.UserProductViews
-                .AsNoTracking()
-                .Include(upv => upv.Product)
-                .Where(upv => upv.UserId == userId && !upv.Deleted)
-                .OrderByDescending(upv => upv.ViewedAt)
-                .Take(limit)
                 .ToListAsync(cancellationToken);
 
         public async Task<List<Guid>> GetFrequentlyBoughtTogetherAsync(Guid productId, int limit = 10, CancellationToken cancellationToken = default)
@@ -120,14 +134,6 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .Take(limit)
                 .ToListAsync(cancellationToken);
 
-        public Task<List<UserProductView>> GetReturningViewsAsync(string userId, CancellationToken cancellationToken = default)
-            => _context.UserProductViews
-                .AsNoTracking()
-                .Include(upv => upv.Product)
-                .Where(upv => upv.UserId == userId && upv.IsReturningView && !upv.Deleted)
-                .OrderByDescending(upv => upv.ViewedAt)
-                .ToListAsync(cancellationToken);
-
         public Task<List<UserProductView>> GetLongDurationViewsAsync(int minDurationSeconds = 60, int limit = 50, CancellationToken cancellationToken = default)
             => _context.UserProductViews
                 .AsNoTracking()
@@ -162,12 +168,6 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .GroupBy(upv => upv.OperatingSystem)
                 .Select(g => new { OperatingSystem = g.Key!, Count = g.Count() })
                 .ToDictionaryAsync(x => x.OperatingSystem, x => x.Count, cancellationToken);
-        }
-
-        public async Task<bool> HasUserViewedProductAsync(string userId, Guid productId, CancellationToken cancellationToken = default)
-        {
-            return await _context.UserProductViews
-                .AnyAsync(upv => upv.UserId == userId && upv.ProductId == productId && !upv.Deleted, cancellationToken);
         }
 
         public async Task DeleteOldViewsAsync(int daysOld = 90, CancellationToken cancellationToken = default)

@@ -36,7 +36,7 @@ class UserProfileService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'ظ¾ط±ظˆظپط§غŒظ„ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯'
+                message: 'پروفایل با موفقیت بروزرسانی شد'
             };
         } catch (error) {
             window.logger.error('Error updating profile:', error);
@@ -58,7 +58,7 @@ class UserProfileService {
             });
             return {
                 success: true,
-                message: 'ط±ظ…ط² ط¹ط¨ظˆط± ط¨ط§ ظ…ظˆظپظ‚غŒطھ طھط؛غŒغŒط± غŒط§ظپطھ'
+                message: 'رمز عبور با موفقیت تغییر یافت'
             };
         } catch (error) {
             window.logger.error('Error changing password:', error);
@@ -93,13 +93,13 @@ class UserProfileService {
             return {
                 success: true,
                 data: data,
-                message: 'طھطµظˆغŒط± ظ¾ط±ظˆظپط§غŒظ„ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¢ظ¾ظ„ظˆط¯ ط´ط¯'
+                message: 'تصویر پروفایل با موفقیت آپلود شد'
             };
         } catch (error) {
             window.logger.error('Error uploading profile picture:', error);
             return {
                 success: false,
-                error: 'ط®ط·ط§ ط¯ط± ط¢ظ¾ظ„ظˆط¯ طھطµظˆغŒط± ظ¾ط±ظˆظپط§غŒظ„'
+                error: 'خطا در آپلود تصویر پروفایل'
             };
         }
     }
@@ -182,7 +182,7 @@ class UserProfileService {
             const response = await this.apiClient.put(`/userprofile/notifications/${notificationId}/read`);
             return {
                 success: true,
-                message: 'ط§ط¹ظ„ط§ظ† ط¨ظ‡ ط¹ظ†ظˆط§ظ† ط®ظˆط§ظ†ط¯ظ‡ ط´ط¯ظ‡ ط¹ظ„ط§ظ…طھâ€Œع¯ط°ط§ط±غŒ ط´ط¯'
+                message: 'اعلان به عنوان خوانده شده علامت‌گذاری شد'
             };
         } catch (error) {
             window.logger.error('Error marking notification as read:', error);
@@ -201,7 +201,7 @@ class UserProfileService {
             const response = await this.apiClient.delete(`/userprofile/notifications/${notificationId}`);
             return {
                 success: true,
-                message: 'ط§ط¹ظ„ط§ظ† ط­ط°ظپ ط´ط¯'
+                message: 'اعلان حذف شد'
             };
         } catch (error) {
             window.logger.error('Error deleting notification:', error);
@@ -221,7 +221,7 @@ class UserProfileService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'طھظ†ط¸غŒظ…ط§طھ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯'
+                message: 'تنظیمات با موفقیت بروزرسانی شد'
             };
         } catch (error) {
             window.logger.error('Error updating preferences:', error);
@@ -258,19 +258,19 @@ class UserProfileService {
         const errors = {};
 
         if (data.firstName && data.firstName.trim().length < 2) {
-            errors.firstName = 'ظ†ط§ظ… ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ² ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
+            errors.firstName = 'نام باید حداقل ۲ کاراکتر باشد';
         }
 
         if (data.lastName && data.lastName.trim().length < 2) {
-            errors.lastName = 'ظ†ط§ظ… ط®ط§ظ†ظˆط§ط¯ع¯غŒ ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ² ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
+            errors.lastName = 'نام خانوادگی باید حداقل ۲ کاراکتر باشد';
         }
 
         if (data.email && !window.utils.isValidEmail(data.email)) {
-            errors.email = 'ط§غŒظ…غŒظ„ ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ';
+            errors.email = 'ایمیل نامعتبر است';
         }
 
         if (data.phone && !window.utils.isValidPhone(data.phone)) {
-            errors.phone = 'ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ';
+            errors.phone = 'شماره موبایل نامعتبر است';
         }
 
         return {
@@ -326,7 +326,7 @@ class UserProfileService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'ظˆط§ط±غŒط² ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ظ†ط¬ط§ظ… ط´ط¯'
+                message: 'واریز با موفقیت انجام شد'
             };
         } catch (error) {
             window.logger.error('Error depositing to wallet:', error);
@@ -346,7 +346,7 @@ class UserProfileService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'ط¨ط±ط¯ط§ط´طھ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ظ†ط¬ط§ظ… ط´ط¯'
+                message: 'برداشت با موفقیت انجام شد'
             };
         } catch (error) {
             window.logger.error('Error withdrawing from wallet:', error);

@@ -48,7 +48,7 @@ namespace OnlineShop.Application.Features.Coupon.Commands.ApplyCoupon
             // Check if user has already used this coupon (for single-use coupons)
             if (coupon.IsSingleUse)
             {
-                var hasUsed = await _userCouponUsageRepository.HasUserUsedCouponAsync(request.UserId, coupon.Id, cancellationToken);
+                var hasUsed = await _userCouponUsageRepository.HasUserUsedCouponAsync(Guid.Parse(request.UserId), coupon.Id, cancellationToken);
                 if (hasUsed)
                     return Result<ApplyCouponResultDto>.Failure("شما قبلاً از این کوپن استفاده کرده‌اید");
             }
@@ -63,7 +63,7 @@ namespace OnlineShop.Application.Features.Coupon.Commands.ApplyCoupon
 
             // Create usage record
             var usage = UserCouponUsage.Create(
-                request.UserId,
+                Guid.Parse(request.UserId),
                 coupon.Id,
                 request.OrderId,
                 discountAmount,
