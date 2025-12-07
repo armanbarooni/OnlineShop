@@ -110,20 +110,48 @@ namespace OnlineShop.Infrastructure.Services
 
         private async Task LoginAsync(CancellationToken cancellationToken)
         {
+            var username = _configuration["Mahak:Username"];
+            var password = _configuration["Mahak:Password"];
+            var packageNo = _configuration["Mahak:PackageNo"];
+            var databaseIdStr = _configuration["Mahak:DatabaseId"];
+
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || 
+                string.IsNullOrEmpty(packageNo) || string.IsNullOrEmpty(databaseIdStr))
+            {
+                throw new InvalidOperationException("Mahak configuration is incomplete. Please check appsettings.json");
+            }
+
+            // Hash password with MD5 as required by Mahak API
+            string hashedPassword;
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                var inputBytes = System.Text.Encoding.UTF8.GetBytes(password);
+                var hashBytes = md5.ComputeHash(inputBytes);
+                hashedPassword = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            }
+
             var loginModel = new LoginModel
             {
-                UserName = _configuration["Mahak:Username"] ?? throw new ArgumentNullException("Mahak:Username"),
-                Password = _configuration["Mahak:Password"] ?? throw new ArgumentNullException("Mahak:Password"),
-                PackageNo = _configuration["Mahak:PackageNo"] ?? throw new ArgumentNullException("Mahak:PackageNo"),
-                DatabaseId = long.Parse(_configuration["Mahak:DatabaseId"] ?? throw new ArgumentNullException("Mahak:DatabaseId"))
+                UserName = username,
+                Password = hashedPassword, // Send MD5 hashed password
+                PackageNo = packageNo,
+                DatabaseId = long.Parse(databaseIdStr),
+                Language = "fa",
+                AppId = "OnlineShop",
+                Description = "Online Shop Integration",
+                ClientVersion = "1.0"
             };
 
+            _logger.LogInformation("Attempting Mahak login for user: {Username}, DatabaseId: {DatabaseId}", username, databaseIdStr);
+
             var content = new StringContent(JsonSerializer.Serialize(loginModel), System.Text.Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("Login", content, cancellationToken);
+            var response = await _httpClient.PostAsync("LoginV2", content, cancellationToken); // Use LoginV2 as per documentation
             
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Login failed. Status: {response.StatusCode}, Content: {await response.Content.ReadAsStringAsync()}");
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Mahak login failed. Status: {Status}, Content: {Content}", response.StatusCode, errorContent);
+                throw new Exception($"Login failed. Status: {response.StatusCode}, Content: {errorContent}");
             }
 
             var result = await JsonSerializer.DeserializeAsync<MahakApiResult<LoginResultModel>>(
@@ -133,11 +161,15 @@ namespace OnlineShop.Infrastructure.Services
 
             if (result == null || !result.Result || result.Data == null)
             {
+                 _logger.LogError("Mahak login returned invalid result: {Message}", result?.Message);
                  throw new Exception($"Login failed. Message: {result?.Message}");
             }
 
-            _token = result.Data.Token;
+            _token = result.Data.UserToken; // Changed from Token to UserToken as per API response
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            
+            _logger.LogInformation("Mahak login successful. SyncId: {SyncId}, VisitorId: {VisitorId}", 
+                result.Data.SyncId, result.Data.VisitorId);
         }
 
         private async Task<GetAllDataResponse?> GetAllDataAsync(RequestAllDataModel request, CancellationToken cancellationToken)
