@@ -88,6 +88,21 @@ var frontendOrigins = builder.Configuration.GetSection("Cors:AllowFrontend").Get
 // CORS configuration for Frontend
 builder.Services.AddCors(options =>
 {
+    // Development policy - allow all localhost origins
+    options.AddPolicy("DevelopmentCors", policy =>
+        policy
+            .SetIsOriginAllowed(origin =>
+            {
+                // Allow all localhost and 127.0.0.1 origins on any port
+                if (string.IsNullOrEmpty(origin)) return false;
+                var uri = new Uri(origin);
+                return uri.Host == "localhost" || uri.Host == "127.0.0.1" || uri.Host.StartsWith("192.168.");
+            })
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .WithExposedHeaders("*"));
+
     // Main policy for frontend - with credentials support
     options.AddPolicy("AllowFrontend", policy =>
     {
@@ -216,7 +231,7 @@ if (app.Environment.IsDevelopment())
 
 // CORS must be before UseAuthentication and UseAuthorization
 // CORS middleware must be called BEFORE UseAuthentication/UseAuthorization
-app.UseCors(app.Environment.IsDevelopment() ? "DefaultCors" : "AllowFrontend");
+app.UseCors(app.Environment.IsDevelopment() ? "DevelopmentCors" : "AllowFrontend");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();

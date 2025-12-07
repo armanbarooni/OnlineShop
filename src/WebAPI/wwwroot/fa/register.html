@@ -786,6 +786,12 @@
 
         // Prevent form caching and clear placeholders
         document.addEventListener('DOMContentLoaded', function () {
+            // Ensure authService is initialized
+            if (!window.authService && typeof AuthService !== 'undefined') {
+                window.authService = new AuthService();
+                console.log('AuthService initialized manually');
+            }
+
             // Clear all form fields on page load to prevent caching
             clearRegistrationForm();
 
