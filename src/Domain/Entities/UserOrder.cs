@@ -24,6 +24,11 @@ namespace OnlineShop.Domain.Entities
         public Guid? ShippingAddressId { get; private set; }
         public Guid? BillingAddressId { get; private set; }
 
+        // Mahak Sync Fields
+        public bool SyncedToMahak { get; private set; } = false;
+        public DateTime? MahakSyncedAt { get; private set; }
+        public string? MahakOrderId { get; private set; }
+
         // Navigation Properties
         public virtual ApplicationUser User { get; private set; } = null!;
         public virtual UserAddress? ShippingAddress { get; private set; }
@@ -229,6 +234,14 @@ namespace OnlineShop.Domain.Entities
             SetTotalAmount(totalAmount);
             SetNotes(notes);
             UpdatedBy = updatedBy;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetMahakSynced(string mahakOrderId)
+        {
+            SyncedToMahak = true;
+            MahakSyncedAt = DateTime.UtcNow;
+            MahakOrderId = mahakOrderId;
             UpdatedAt = DateTime.UtcNow;
         }
 

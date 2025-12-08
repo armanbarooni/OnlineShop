@@ -108,6 +108,8 @@ public static class ServiceRegistration
         services.AddScoped<Domain.Interfaces.Services.IInvoiceService, Infrastructure.Services.InvoiceService>();
         services.AddHttpClient<MahakSyncService>();
         services.AddScoped<MahakSyncService>();
+        services.AddHttpClient<MahakOutgoingSyncService>();
+        services.AddScoped<MahakOutgoingSyncService>();
 
         services.AddHttpClient();
         services.AddScoped<Domain.Interfaces.Services.IPaymentGateway, 

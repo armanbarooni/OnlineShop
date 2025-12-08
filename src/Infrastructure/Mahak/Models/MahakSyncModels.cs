@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace OnlineShop.Infrastructure.Mahak.Models
@@ -5,8 +6,11 @@ namespace OnlineShop.Infrastructure.Mahak.Models
     public class RequestAllDataModel
     {
         public long FromProductVersion { get; set; }
+        public long FromProductDetailVersion { get; set; }
+        public long FromProductCategoryVersion { get; set; }
         public long FromPictureVersion { get; set; }
         public long FromPhotoGalleryVersion { get; set; }
+        public long FromProductDetailStoreAssetVersion { get; set; }
         // Add other Versions as needed
     }
 
@@ -25,36 +29,9 @@ namespace OnlineShop.Infrastructure.Mahak.Models
     public class CommitDataModel
     {
         public List<ProductModel>? Products { get; set; }
-        public List<PictureModel>? Pictures { get; set; }
-        public List<PhotoGalleryModel>? PhotoGalleries { get; set; }
-        // Add other lists as needed
-using System.Collections.Generic;
-
-namespace OnlineShop.Infrastructure.Mahak.Models
-{
-    public class RequestAllDataModel
-    {
-        public long FromProductVersion { get; set; }
-        public long FromPictureVersion { get; set; }
-        public long FromPhotoGalleryVersion { get; set; }
-        // Add other Versions as needed
-    }
-
-    public class MahakApiResult<T>
-    {
-        public bool Result { get; set; }
-        public string? Message { get; set; }
-        public T Data { get; set; }
-    }
-
-    public class GetAllDataResponse
-    {
-        public CommitDataModel Objects { get; set; }
-    }
-
-    public class CommitDataModel
-    {
-        public List<ProductModel>? Products { get; set; }
+        public List<ProductDetailModel>? ProductDetails { get; set; }
+        public List<ProductDetailStoreAssetModel>? ProductDetailStoreAssets { get; set; }
+        public List<ProductCategoryModel>? ProductCategories { get; set; }
         public List<PictureModel>? Pictures { get; set; }
         public List<PhotoGalleryModel>? PhotoGalleries { get; set; }
         // Add other lists as needed

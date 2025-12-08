@@ -70,8 +70,8 @@ namespace OnlineShop.Domain.Entities
 
         public void SetPrice(decimal price)
         {
-            if (price <= 0)
-                throw new ArgumentException("قیمت محصول باید بزرگتر از صفر باشد");
+            if (price < 0)
+                throw new ArgumentException("قیمت محصول نمی‌تواند منفی باشد");
             Price = price;
             UpdatedAt = DateTime.UtcNow;
         }
