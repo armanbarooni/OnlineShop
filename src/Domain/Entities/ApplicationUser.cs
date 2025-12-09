@@ -14,6 +14,11 @@ namespace OnlineShop.Domain.Entities
         public string LastName { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
+
+        // Mahak Sync Fields
+        public int? MahakPersonId { get; set; }
+        public long? MahakPersonClientId { get; set; }
+        public DateTime? MahakSyncedAt { get; set; }
         
         // Navigation Properties
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();

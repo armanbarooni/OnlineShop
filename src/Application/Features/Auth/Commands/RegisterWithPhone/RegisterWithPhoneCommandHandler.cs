@@ -27,6 +27,10 @@ namespace OnlineShop.Application.Features.Auth.Commands.RegisterWithPhone
 
         public async Task<Result<AuthResponseDto>> Handle(RegisterWithPhoneCommand request, CancellationToken cancellationToken)
         {
+            // TEMPORARY: OTP verification disabled for testing
+            // TODO: Re-enable OTP verification before production deployment
+            
+            /* COMMENTED OUT - OTP VERIFICATION
             // Verify OTP first
             var otp = await _otpRepository.GetValidOtpByPhoneAsync(request.Request.PhoneNumber, cancellationToken);
 
@@ -34,6 +38,7 @@ namespace OnlineShop.Application.Features.Auth.Commands.RegisterWithPhone
             {
                 return Result<AuthResponseDto>.Failure("کد تایید نامعتبر یا منقضی شده است");
             }
+            */
 
             // Check if user already exists with this phone number
             var existingUser = await _userManager.FindByNameAsync(request.Request.PhoneNumber);
@@ -76,9 +81,12 @@ namespace OnlineShop.Application.Features.Auth.Commands.RegisterWithPhone
             // Assign default role
             await _userManager.AddToRoleAsync(user, "User");
 
+            // TEMPORARY: OTP marking disabled
+            /* COMMENTED OUT - OTP MARK AS USED
             // Mark OTP as used
             otp.MarkAsUsed();
             await _otpRepository.UpdateAsync(otp, cancellationToken);
+            */
 
             // Generate tokens
             var roles = await _userManager.GetRolesAsync(user);

@@ -11,6 +11,8 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public long FromPictureVersion { get; set; }
         public long FromPhotoGalleryVersion { get; set; }
         public long FromProductDetailStoreAssetVersion { get; set; }
+        public long FromPersonVersion { get; set; }
+        public long FromPersonAddressVersion { get; set; }
         // Add other Versions as needed
     }
 
@@ -34,6 +36,8 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public List<ProductCategoryModel>? ProductCategories { get; set; }
         public List<PictureModel>? Pictures { get; set; }
         public List<PhotoGalleryModel>? PhotoGalleries { get; set; }
+        public List<PersonModel>? People { get; set; }
+        public List<PersonAddressModel>? PersonAddresses { get; set; }
         // Add other lists as needed
     }
     

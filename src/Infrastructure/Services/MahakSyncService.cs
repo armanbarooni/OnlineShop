@@ -23,6 +23,7 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IProductRepository _productRepository;
         private readonly IProductCategoryRepository _productCategoryRepository;
         private readonly IMahakMappingRepository _mahakMappingRepository;
+        private readonly IProductImageRepository _productImageRepository;
 
         private string _token;
         private const string BaseUrl = "https://mahakacc.mahaksoft.com/API/v3/Sync/";
@@ -34,7 +35,8 @@ namespace OnlineShop.Infrastructure.Services
             IMahakSyncLogRepository mahakSyncLogRepository,
             IProductRepository productRepository,
             IProductCategoryRepository productCategoryRepository,
-            IMahakMappingRepository mahakMappingRepository)
+            IMahakMappingRepository mahakMappingRepository,
+            IProductImageRepository productImageRepository)
         {
             _httpClient = httpClient;
             _logger = logger;
@@ -43,6 +45,7 @@ namespace OnlineShop.Infrastructure.Services
             _productRepository = productRepository;
             _productCategoryRepository = productCategoryRepository;
             _mahakMappingRepository = mahakMappingRepository;
+            _productImageRepository = productImageRepository;
             
             _httpClient.BaseAddress = new Uri(BaseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -67,6 +70,7 @@ namespace OnlineShop.Infrastructure.Services
                 long fromPictureVersion = await _mahakSyncLogRepository.GetLastRowVersionAsync("Picture", cancellationToken);
                 long fromPhotoGalleryVersion = await _mahakSyncLogRepository.GetLastRowVersionAsync("PhotoGallery", cancellationToken);
                 long fromProductDetailStoreAssetVersion = await _mahakSyncLogRepository.GetLastRowVersionAsync("ProductDetailStoreAsset", cancellationToken);
+                long fromPersonVersion = await _mahakSyncLogRepository.GetLastRowVersionAsync("Person", cancellationToken);
                 
                 _logger.LogInformation("Requesting data from Mahak with RowVersions - Product: {ProductVer}, ProductDetail: {DetailVer}, Category: {CategoryVer}", 
                     fromProductVersion, fromProductDetailVersion, fromProductCategoryVersion);
@@ -79,7 +83,8 @@ namespace OnlineShop.Infrastructure.Services
                     FromProductCategoryVersion = fromProductCategoryVersion,
                     FromPictureVersion = fromPictureVersion,
                     FromPhotoGalleryVersion = fromPhotoGalleryVersion,
-                    FromProductDetailStoreAssetVersion = fromProductDetailStoreAssetVersion
+                    FromProductDetailStoreAssetVersion = fromProductDetailStoreAssetVersion,
+                    FromPersonVersion = fromPersonVersion
                 };
 
                 var response = await GetAllDataAsync(request, cancellationToken);
@@ -90,12 +95,13 @@ namespace OnlineShop.Infrastructure.Services
                     return;
                 }
 
-                // 4. Process Data (Order matters: Categories → Products → ProductDetails → Inventory → Images)
+                // 4. Process Data (Order matters: Categories → Products → ProductDetails → Inventory → Images → People)
                 await ProcessCategoriesAsync(response.Objects.ProductCategories, cancellationToken);
                 await ProcessProductsAsync(response.Objects.Products, cancellationToken);
                 await ProcessProductDetailsAsync(response.Objects.ProductDetails, cancellationToken);
                 await ProcessInventoryAsync(response.Objects.ProductDetailStoreAssets, cancellationToken);
                 await ProcessImagesAsync(response.Objects.PhotoGalleries, response.Objects.Pictures, cancellationToken);
+                await ProcessPeopleAsync(response.Objects.People, cancellationToken);
 
                 // 5. Log Success (Updating local RowVersions happens via storing MahakSyncLog entries)
                 if (response.Objects.ProductCategories != null && response.Objects.ProductCategories.Any())
@@ -461,7 +467,7 @@ namespace OnlineShop.Infrastructure.Services
                         continue;
                     }
 
-                    var product = await _productRepository.GetByIdAsync(productMapping.LocalEntityId, cancellationToken);
+                    var product = await _productRepository.GetByIdTrackedAsync(productMapping.LocalEntityId, cancellationToken);
                     
                     if (product == null)
                     {
@@ -492,6 +498,27 @@ namespace OnlineShop.Infrastructure.Services
                     }
 
                     await _productRepository.UpdateAsync(product, cancellationToken);
+                    
+                    // Create mappings for ALL ProductDetails so inventory can find the product
+                    // Now that constraint is fixed to (EntityType, MahakEntityId), we can map all details
+                    foreach (var detail in group)
+                    {
+                        var existingDetailMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                            "ProductDetail", detail.ProductDetailId, cancellationToken);
+                        
+                        if (existingDetailMapping == null)
+                        {
+                            var detailMapping = MahakMapping.Create(
+                                entityType: "ProductDetail",
+                                localEntityId: product.Id,
+                                mahakEntityId: detail.ProductDetailId
+                            );
+                            await _mahakMappingRepository.AddAsync(detailMapping, cancellationToken);
+                            _logger.LogDebug("Created ProductDetail mapping: {DetailId} -> Product {ProductId}", 
+                                detail.ProductDetailId, product.Id);
+                        }
+                    }
+                    
                     updated++;
                 }
                 catch (Exception ex)
@@ -520,50 +547,69 @@ namespace OnlineShop.Infrastructure.Services
             int updated = 0;
             int errors = 0;
 
-            var inventoryByProduct = inventory
+            // Group inventory by Product (not ProductDetail) to sum all variant quantities
+            var inventoryByProductDetail = inventory
                 .Where(i => !i.Deleted)
-                .GroupBy(i => i.ProductDetailId)
-                .Select(g => new
+                .Select(i => new
                 {
-                    ProductDetailId = g.Key,
-                    TotalQuantity = (int)g.Sum(i => i.Count1)
+                    ProductDetailId = i.ProductDetailId,
+                    Quantity = (int)i.Count1
                 })
                 .ToList();
 
-            foreach (var inv in inventoryByProduct)
+            // Map ProductDetailIds to ProductIds and group
+            var productInventories = new Dictionary<Guid, int>();
+            
+            foreach (var inv in inventoryByProductDetail)
+            {
+                var productDetailMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                    "ProductDetail", inv.ProductDetailId, cancellationToken);
+
+                if (productDetailMapping != null)
+                {
+                    var productId = productDetailMapping.LocalEntityId;
+                    if (!productInventories.ContainsKey(productId))
+                    {
+                        productInventories[productId] = 0;
+                    }
+                    productInventories[productId] += inv.Quantity;
+                }
+            }
+
+            // Update each product with total inventory
+            foreach (var kvp in productInventories)
             {
                 try
                 {
-                    var productMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
-                        "Product", 
-                        inv.ProductDetailId, 
-                        cancellationToken);
-
-                    if (productMapping == null)
-                    {
-                        _logger.LogDebug("Product not found for inventory ProductDetailId: {DetailId}", inv.ProductDetailId);
-                        continue;
-                    }
-
-                    var product = await _productRepository.GetByIdAsync(productMapping.LocalEntityId, cancellationToken);
+                    var product = await _productRepository.GetByIdTrackedAsync(kvp.Key, cancellationToken);
                     
                     if (product == null)
                     {
-                        _logger.LogWarning("Product entity not found for mapping {MappingId}", productMapping.Id);
+                        _logger.LogWarning("Product entity not found for ProductId {ProductId}", kvp.Key);
                         continue;
                     }
 
-                    product.SetStockQuantity(inv.TotalQuantity);
-                    _logger.LogDebug("Updated stock for product {ProductId}: {Quantity}", 
-                        inv.ProductDetailId, inv.TotalQuantity);
-
-                    await _productRepository.UpdateAsync(product, cancellationToken);
-                    updated++;
+                    // Update stock quantity with total from all variants
+                    product.SetStockQuantity(kvp.Value);
+                    
+                    // Save changes
+                    try
+                    {
+                        await _productRepository.UpdateAsync(product, cancellationToken);
+                        updated++;
+                        _logger.LogInformation("Updated inventory for product {ProductName}: {Quantity} (from all variants)", 
+                            product.Name, kvp.Value);
+                    }
+                    catch (Exception updateEx)
+                    {
+                        _logger.LogWarning(updateEx, "Failed to update product {ProductId}", product.Id);
+                        errors++;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error processing inventory for ProductDetailId {DetailId}: {Error}", 
-                        inv.ProductDetailId, ex.Message);
+                    _logger.LogError(ex, "Error processing inventory for ProductId {ProductId}: {Error}", 
+                        kvp.Key, ex.Message);
                     errors++;
                 }
             }
@@ -580,9 +626,12 @@ namespace OnlineShop.Infrastructure.Services
             {
                  // It's possible to get galleries with pictureId where picture was synced previously?
                  // But usually they come together if version tracking is correct.
+                 return;
             }
 
-            var pictureMap = pictures?.ToDictionary(p => p.PictureId, p => p.Url) ?? new Dictionary<int, string?>();
+            var pictureMap = pictures.ToDictionary(p => p.PictureId, p => p.Url);
+            int newImages = 0;
+            int errors = 0;
 
             foreach (var gallery in galleries)
             {
@@ -590,11 +639,129 @@ namespace OnlineShop.Infrastructure.Services
 
                 if (pictureMap.TryGetValue(gallery.PictureId, out var url) && !string.IsNullOrEmpty(url))
                 {
-                     // Update Product Image
-                     _logger.LogInformation($"Product {gallery.ItemCode} has new image: {url}");
-                     // await _productImageRepository.AddAsync(new ProductImage { ProductId = Map(gallery.ItemCode), Url = url ... });
+                    try
+                    {
+                        // Find product by Mahak ItemCode
+                        var productMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                            "Product", gallery.ItemCode, cancellationToken);
+                        
+                        if (productMapping == null)
+                        {
+                            _logger.LogWarning("Product with MahakId {ItemCode} not found in mappings", gallery.ItemCode);
+                            continue;
+                        }
+
+                        var product = await _productRepository.GetByIdAsync(productMapping.LocalEntityId, cancellationToken);
+                        if (product == null)
+                        {
+                            _logger.LogWarning("Product {ProductId} not found", productMapping.LocalEntityId);
+                            continue;
+                        }
+
+                        // Check if image already exists
+                        var existingImages = await _productImageRepository.GetByProductIdAsync(product.Id, cancellationToken);
+                        if (existingImages.Any(i => i.ImageUrl == url))
+                        {
+                            _logger.LogDebug("Image {Url} already exists for product {ProductId}", url, product.Id);
+                            continue;
+                        }
+
+                        // Create new product image
+                        var productImage = ProductImage.Create(
+                            productId: product.Id,
+                            imageUrl: url,
+                            altText: product.Name,
+                            title: product.Name,
+                            displayOrder: existingImages.Count(),
+                            isPrimary: !existingImages.Any(), // First image is primary
+                            imageType: "Main"
+                        );
+
+                        await _productImageRepository.AddAsync(productImage, cancellationToken);
+                        newImages++;
+                        _logger.LogInformation("Added image for product {ProductName} (MahakId: {ItemCode}): {Url}", 
+                            product.Name, gallery.ItemCode, url);
+                    }
+                    catch (Exception ex)
+                    {
+                        errors++;
+                        _logger.LogError(ex, "Error processing image for product {ItemCode}", gallery.ItemCode);
+                    }
                 }
             }
+            
+            _logger.LogInformation("Image sync completed: {NewImages} new, {Errors} errors", newImages, errors);
+        }
+
+        private async Task ProcessPeopleAsync(List<PersonModel>? people, CancellationToken cancellationToken)
+        {
+            if (people == null || !people.Any())
+            {
+                _logger.LogInformation("No people to process from Mahak");
+                return;
+            }
+
+            _logger.LogInformation("Processing {Count} people from Mahak", people.Count);
+
+            int created = 0;
+            int updated = 0;
+            int errors = 0;
+
+            foreach (var mahakPerson in people)
+            {
+                try
+                {
+                    if (mahakPerson.Deleted)
+                    {
+                        _logger.LogDebug("Skipping deleted person: {PersonId}", mahakPerson.PersonId);
+                        continue;
+                    }
+
+                    // Check if person already exists in mapping
+                    var mapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                        "Person",
+                        mahakPerson.PersonId,
+                        cancellationToken);
+
+                    if (mapping != null)
+                    {
+                        // Person already mapped - just log it
+                        _logger.LogDebug("Person {PersonId} ({Name} {Family}) already mapped to local entity {LocalId}", 
+                            mahakPerson.PersonId, mahakPerson.Name, mahakPerson.Family, mapping.LocalEntityId);
+                        updated++;
+                    }
+                    else
+                    {
+                        // New person from Mahak - create mapping with placeholder GUID
+                        // When user registers on website, we'll update this mapping with real User ID
+                        var placeholderGuid = Guid.NewGuid(); // Unique placeholder to avoid duplicate key
+                        var newMapping = MahakMapping.Create(
+                            "Person",
+                            placeholderGuid,
+                            mahakPerson.PersonId,
+                            mahakPerson.PersonCode.ToString());
+
+                        await _mahakMappingRepository.AddAsync(newMapping, cancellationToken);
+                        
+                        _logger.LogInformation("New person from Mahak: {PersonId} - {Name} {Family} (Mobile: {Mobile})", 
+                            mahakPerson.PersonId, mahakPerson.Name, mahakPerson.Family, mahakPerson.Mobile);
+                        created++;
+                    }
+
+                    // Save RowVersion for this person
+                    await LogSyncAsync("Person", mahakPerson.RowVersion, 1, "Success", cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing person {PersonId}: {Error}", 
+                        mahakPerson.PersonId, ex.Message);
+                    errors++;
+                }
+            }
+
+            _logger.LogInformation(
+                "People sync completed: {Created} new, {Updated} existing, {Errors} errors",
+                created, updated, errors);
         }
         
         private async Task LogSyncAsync(string entityType, long? rowVersion, int processed, string status, CancellationToken cancellationToken, string? error = null)

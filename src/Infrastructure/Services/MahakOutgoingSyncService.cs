@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OnlineShop.Domain.Entities;
@@ -22,6 +23,7 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IUserOrderRepository _orderRepository;
         private readonly IMahakMappingRepository _mahakMappingRepository;
         private readonly IMahakSyncLogRepository _mahakSyncLogRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         private string? _token;
         private int _visitorId;
@@ -33,7 +35,8 @@ namespace OnlineShop.Infrastructure.Services
             IConfiguration configuration,
             IUserOrderRepository orderRepository,
             IMahakMappingRepository mahakMappingRepository,
-            IMahakSyncLogRepository mahakSyncLogRepository)
+            IMahakSyncLogRepository mahakSyncLogRepository,
+            UserManager<ApplicationUser> userManager)
         {
             _httpClient = httpClient;
             _logger = logger;
@@ -41,6 +44,7 @@ namespace OnlineShop.Infrastructure.Services
             _orderRepository = orderRepository;
             _mahakMappingRepository = mahakMappingRepository;
             _mahakSyncLogRepository = mahakSyncLogRepository;
+            _userManager = userManager;
             
             _httpClient.BaseAddress = new Uri(BaseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -104,11 +108,30 @@ namespace OnlineShop.Infrastructure.Services
         {
             _logger.LogInformation("Sending order {OrderId} to Mahak", order.Id);
 
+            // Ensure customer is synced to Mahak first
+            int mahakPersonId = 0;
+            if (order.User != null)
+            {
+                try
+                {
+                    mahakPersonId = await EnsureCustomerSyncedAsync(order.User, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to sync customer for order {OrderId}, will send order without PersonId", order.Id);
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Order {OrderId} has no User loaded, cannot sync customer", order.Id);
+            }
+
             // Convert order to Mahak format
             var mahakOrder = new MahakOrderModel
             {
                 OrderClientId = order.Id.GetHashCode(), // Use hash of GUID as long
                 VisitorId = _visitorId,
+                PersonId = mahakPersonId > 0 ? mahakPersonId : null, // Link to customer if synced
                 OrderType = 201, // Sales invoice
                 OrderDate = order.CreatedAt,
                 DeliveryDate = order.CreatedAt.AddDays(3), // Estimate
@@ -127,15 +150,18 @@ namespace OnlineShop.Infrastructure.Services
             // Convert order items
             foreach (var item in order.OrderItems)
             {
-                // Find product's Mahak ID
-                var productMapping = await _mahakMappingRepository.GetByLocalEntityIdAsync(
-                    "Product",
-                    item.ProductId,
+                // Find ProductDetail's Mahak ID (not Product!)
+                // We need to find ANY ProductDetail for this Product
+                // In a real scenario, we'd need to know which specific variant was ordered
+                // For now, we'll use the first ProductDetail mapping we find
+                var productDetailMapping = await _mahakMappingRepository.GetByLocalEntityIdAsync(
+                    "ProductDetail",
+                    item.ProductId,  // ProductDetail mappings point to Product via LocalEntityId
                     cancellationToken);
 
-                if (productMapping == null)
+                if (productDetailMapping == null)
                 {
-                    _logger.LogWarning("Product {ProductId} not found in Mahak mapping, skipping", item.ProductId);
+                    _logger.LogWarning("ProductDetail mapping not found for Product {ProductId}, skipping order item", item.ProductId);
                     continue;
                 }
 
@@ -144,7 +170,7 @@ namespace OnlineShop.Infrastructure.Services
                     OrderDetailClientId = item.Id.GetHashCode(),
                     ItemType = 0, // Product
                     OrderClientId = mahakOrder.OrderClientId,
-                    ProductDetailId = productMapping.MahakEntityId,
+                    ProductDetailId = productDetailMapping.MahakEntityId, // Now using ProductDetail ID
                     Price = item.UnitPrice,
                     Count1 = item.Quantity,
                     Count2 = 0,
@@ -164,6 +190,10 @@ namespace OnlineShop.Infrastructure.Services
                 OrderDetails = mahakOrderDetails
             };
 
+            // Log the request for debugging
+            var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+            _logger.LogDebug("Sending order to Mahak. Request: {Request}", requestJson);
+
             var content = new StringContent(JsonSerializer.Serialize(request), System.Text.Encoding.UTF8, "application/json");
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json-patch+json");
 
@@ -182,6 +212,67 @@ namespace OnlineShop.Infrastructure.Services
             // Mark order as synced
             order.SetMahakSynced(mahakOrder.OrderClientId.ToString());
             await _orderRepository.UpdateAsync(order, cancellationToken);
+        }
+
+        private async Task<int> EnsureCustomerSyncedAsync(ApplicationUser user, CancellationToken cancellationToken)
+        {
+            // If user already has Mahak Person ID, return it
+            if (user.MahakPersonId.HasValue)
+            {
+                _logger.LogDebug("User {UserId} already synced to Mahak with PersonId {PersonId}", 
+                    user.Id, user.MahakPersonId.Value);
+                return user.MahakPersonId.Value;
+            }
+
+            _logger.LogInformation("Syncing customer {UserId} ({Name}) to Mahak", 
+                user.Id, $"{user.FirstName} {user.LastName}");
+
+            // Create Person model
+            var personClientId = Math.Abs(user.Id.GetHashCode());
+            var mahakPerson = new MahakPersonModel
+            {
+                PersonClientId = personClientId,
+                Name = user.FirstName,
+                Family = user.LastName,
+                Mobile = user.PhoneNumber ?? string.Empty,
+                Email = user.Email,
+                Type = 0, // Real person
+                Deleted = false
+            };
+
+            // Send to Mahak
+            var request = new
+            {
+                People = new[] { mahakPerson }
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(request),
+                System.Text.Encoding.UTF8,
+                "application/json-patch+json");
+
+            var response = await _httpClient.PostAsync("SaveAllDataV2", content, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Failed to sync customer to Mahak. Status: {Status}, Error: {Error}", 
+                    response.StatusCode, error);
+                throw new Exception($"Failed to sync customer to Mahak. Status: {response.StatusCode}");
+            }
+
+            var responseText = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation("Customer {UserId} synced to Mahak successfully. PersonClientId: {PersonClientId}", 
+                user.Id, personClientId);
+
+            // Save PersonClientId to user
+            // Note: Mahak doesn't return the server-generated PersonId in SaveAllDataV2 response
+            // So we use personClientId as the identifier
+            user.MahakPersonClientId = personClientId;
+            user.MahakSyncedAt = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+            
+            return personClientId;
         }
 
         private async Task LoginAsync(CancellationToken cancellationToken)

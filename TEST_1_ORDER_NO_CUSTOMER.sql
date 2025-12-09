@@ -1,0 +1,93 @@
+-- ============================================
+-- تست 1: سفارش بدون مشتری
+-- ============================================
+
+DO $$
+DECLARE
+    v_product_id UUID;
+    v_product_name VARCHAR(500);
+    v_product_price DECIMAL(18,2);
+    v_user_id UUID;
+    v_order_id UUID := gen_random_uuid();
+    v_order_number VARCHAR(50) := 'NO_CUST_' || TO_CHAR(NOW(), 'YYYYMMDDHH24MISS');
+    v_order_item_id UUID := gen_random_uuid();
+BEGIN
+    -- پیدا کردن محصول از محک
+    SELECT "Id", "Name", "Price" 
+    INTO v_product_id, v_product_name, v_product_price
+    FROM "Products" 
+    WHERE "MahakId" IS NOT NULL 
+    ORDER BY "CreatedAt" DESC 
+    LIMIT 1;
+    
+    IF v_product_id IS NULL THEN
+        RAISE EXCEPTION 'هیچ محصولی از محک پیدا نشد!';
+    END IF;
+
+    -- پیدا کردن اولین کاربر (مهم نیست MahakPersonId دارد یا نه)
+    SELECT "Id" INTO v_user_id 
+    FROM "AspNetUsers" 
+    LIMIT 1;
+    
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'هیچ کاربری وجود ندارد!';
+    END IF;
+
+    -- ایجاد سفارش
+    INSERT INTO "UserOrders" (
+        "Id", "UserId", "OrderNumber", "OrderStatus", 
+        "SubTotal", "TaxAmount", "ShippingAmount", "DiscountAmount", "TotalAmount",
+        "Currency", "Notes",
+        "SyncedToMahak", "MahakSyncedAt", "MahakOrderId",
+        "CreatedAt", "UpdatedAt", "Deleted", "CreatedBy", "UpdatedBy", "RowVersion"
+    )
+    VALUES (
+        v_order_id, v_user_id, v_order_number, 'Completed',
+        v_product_price, 0, 50000, 0, v_product_price + 50000,
+        'IRR', '🔴 تست: سفارش بدون مشتری',
+        false, NULL, NULL,
+        NOW(), NOW(), false, 'SYSTEM', 'SYSTEM', 1
+    );
+
+    -- افزودن آیتم
+    INSERT INTO "UserOrderItems" (
+        "Id", "OrderId", "ProductId", "ProductName", 
+        "Quantity", "UnitPrice", "TotalPrice", "DiscountAmount",
+        "CreatedAt", "UpdatedAt", "Deleted", "CreatedBy", "UpdatedBy", "RowVersion"
+    )
+    VALUES (
+        v_order_item_id, v_order_id, v_product_id, v_product_name, 
+        1, v_product_price, v_product_price, 0,
+        NOW(), NOW(), false, 'SYSTEM', 'SYSTEM', 1
+    );
+
+    RAISE NOTICE '========================================';
+    RAISE NOTICE '✅ تست 1: سفارش بدون مشتری ایجاد شد';
+    RAISE NOTICE '========================================';
+    RAISE NOTICE 'شماره سفارش: %', v_order_number;
+    RAISE NOTICE 'کاربر: %', v_user_id;
+    RAISE NOTICE 'محصول: %', v_product_name;
+    RAISE NOTICE 'مبلغ: % ریال', v_product_price + 50000;
+    RAISE NOTICE '========================================';
+    RAISE NOTICE '⏳ منتظر بمانید تا worker اجرا شود (1 دقیقه)';
+    RAISE NOTICE '📋 در لاگ دنبال این بگردید:';
+    RAISE NOTICE '   "Found 1 orders to sync"';
+    RAISE NOTICE '   "Sending order ... to Mahak"';
+    RAISE NOTICE '   "Order ... sent to Mahak successfully"';
+    RAISE NOTICE '========================================';
+    
+END $$;
+
+-- بررسی سفارش
+SELECT 
+    '🔴 سفارش بدون مشتری' as "نوع تست",
+    o."OrderNumber",
+    u."Email",
+    u."MahakPersonId" as "Person ID",
+    o."SyncedToMahak",
+    o."MahakOrderId"
+FROM "UserOrders" o
+INNER JOIN "AspNetUsers" u ON o."UserId" = u."Id"
+WHERE o."OrderNumber" LIKE 'NO_CUST_%'
+ORDER BY o."CreatedAt" DESC
+LIMIT 1;
