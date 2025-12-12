@@ -127,6 +127,19 @@ namespace OnlineShop.Infrastructure.Services
             }
 
             // Convert order to Mahak format
+            // ShippingAddress must be JSON format as per Mahak support
+            string? shippingAddressJson = null;
+            if (order.ShippingAddress != null)
+            {
+                shippingAddressJson = JsonSerializer.Serialize(new
+                {
+                    fullAddress = order.ShippingAddress.ToString(),
+                    city = order.ShippingAddress.City,
+                    state = order.ShippingAddress.State,
+                    postalCode = order.ShippingAddress.PostalCode
+                });
+            }
+
             var mahakOrder = new MahakOrderModel
             {
                 OrderClientId = order.Id.GetHashCode(), // Use hash of GUID as long
@@ -142,7 +155,7 @@ namespace OnlineShop.Infrastructure.Services
                 SettlementType = 1, // Cash (since payment is done)
                 Immediate = false,
                 Description = $"Website Order #{order.OrderNumber}",
-                ShippingAddress = order.ShippingAddress?.ToString()
+                ShippingAddress = shippingAddressJson
             };
 
             var mahakOrderDetails = new List<MahakOrderDetailModel>();
@@ -165,12 +178,15 @@ namespace OnlineShop.Infrastructure.Services
                     continue;
                 }
 
+                // StoreId is required as per Mahak support
+                // Using default StoreId = 1 (you may need to configure this)
                 mahakOrderDetails.Add(new MahakOrderDetailModel
                 {
                     OrderDetailClientId = item.Id.GetHashCode(),
-                    ItemType = 0, // Product
+                    ItemType = 1, // ProductDetail (required by Mahak v14+ when using ProductDetailId)
                     OrderClientId = mahakOrder.OrderClientId,
-                    ProductDetailId = productDetailMapping.MahakEntityId, // Now using ProductDetail ID
+                    ProductDetailId = productDetailMapping.MahakEntityId,
+                    StoreId = 1, // Default store - REQUIRED by Mahak
                     Price = item.UnitPrice,
                     Count1 = item.Quantity,
                     Count2 = 0,

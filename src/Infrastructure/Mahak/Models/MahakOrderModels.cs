@@ -112,6 +112,11 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public int ProductDetailId { get; set; }
 
         /// <summary>
+        /// Store ID in Mahak (REQUIRED)
+        /// </summary>
+        public int? StoreId { get; set; }
+
+        /// <summary>
         /// Unit price
         /// </summary>
         public decimal Price { get; set; }

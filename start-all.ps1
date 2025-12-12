@@ -93,7 +93,8 @@ if (-not $skipFrontend) {
 }
 
 # Sync presentation assets into ASP.NET static folder
-Sync-PresentationAssets
+# NOTE: Sync is disabled for development. Use scripts/prepare-publish.ps1 before publishing.
+# Sync-PresentationAssets
 
 # Database migration
 Write-Host "Running database migration..."

@@ -32,21 +32,25 @@ class ApiClient {
         const url = `${this.baseURL}${endpoint}`;
         const config = {
             headers: this.getHeaders(),
+            credentials: 'include', // Include credentials for CORS
+            mode: 'cors', // Explicitly set CORS mode
             ...options
         };
 
         try {
             const response = await fetch(url, config);
-            
+
             // Handle token refresh
             if (response.status === 401 && this.refreshToken) {
                 const refreshed = await this.refreshAccessToken();
                 if (refreshed) {
                     // Retry the original request
                     config.headers = this.getHeaders();
+                    config.credentials = 'include';
+                    config.mode = 'cors';
                     const retryResponse = await fetch(url, config);
                     const retryData = await retryResponse.json();
-                    
+
                     if (!retryResponse.ok) {
                         // Parse error message from different response structures
                         let errorMessage = '';
@@ -94,17 +98,17 @@ class ApiClient {
                 const text = await response.text();
                 data = text || {};
             }
-            
+
             if (!response.ok) {
                 // Parse error message from different response structures
                 let errorMessage = '';
-                
+
                 // Handle 405 Method Not Allowed specifically
                 if (response.status === 405) {
                     errorMessage = 'متد درخواست اشتباه است. لطفاً صفحه را رفرش کنید و دوباره تلاش کنید.';
                     throw new Error(errorMessage);
                 }
-                
+
                 if (typeof data === 'string') {
                     errorMessage = data;
                 } else if (data?.message) {
@@ -122,7 +126,7 @@ class ApiClient {
                     const errorText = JSON.stringify(data);
                     errorMessage = errorText.length > 200 ? `HTTP error! status: ${response.status}` : errorText;
                 }
-                
+
                 // Add status code to error message for debugging
                 if (response.status >= 400 && response.status < 500) {
                     if (response.status === 400) {
@@ -139,7 +143,7 @@ class ApiClient {
                 } else if (response.status >= 500) {
                     errorMessage = errorMessage || 'خطای سرور. لطفاً بعداً تلاش کنید.';
                 }
-                
+
                 throw new Error(errorMessage);
             }
 
@@ -158,7 +162,7 @@ class ApiClient {
             // Handle network errors (Failed to fetch)
             // In some browsers, the error might be a TypeError or have different messages
             if (error instanceof TypeError && (
-                error.message === 'Failed to fetch' || 
+                error.message === 'Failed to fetch' ||
                 error.message.includes('fetch') ||
                 error.message.includes('NetworkError') ||
                 error.message.includes('Network error')
@@ -190,6 +194,8 @@ class ApiClient {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include', // Include credentials for CORS
+                mode: 'cors', // Explicitly set CORS mode
                 body: JSON.stringify({
                     refreshToken: this.refreshToken
                 })
@@ -216,11 +222,8 @@ class ApiClient {
             }
         } catch (error) {
             window.logger?.error('Token refresh failed:', error);
-            this.clearTokens();
-            // Only redirect if we're on a protected page
-            if (window.location.pathname.includes('user-panel')) {
-                window.location.href = '/login.html';
-            }
+            // Don't clear tokens on network error, just return false
+            // The interval will try again in 30 seconds
             return false;
         }
     }
@@ -255,7 +258,7 @@ class ApiClient {
     async uploadFile(endpoint, file, additionalData = {}) {
         const formData = new FormData();
         formData.append('file', file);
-        
+
         Object.keys(additionalData).forEach(key => {
             formData.append(key, additionalData[key]);
         });
@@ -271,6 +274,8 @@ class ApiClient {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: headers,
+                credentials: 'include', // Include credentials for CORS
+                mode: 'cors', // Explicitly set CORS mode
                 body: formData
             });
 
@@ -288,11 +293,11 @@ class ApiClient {
                 const text = await response.text();
                 data = text || {};
             }
-            
+
             if (!response.ok) {
                 // Parse error message from different response structures
                 let errorMessage = '';
-                
+
                 if (typeof data === 'string') {
                     errorMessage = data;
                 } else if (data?.message) {
@@ -306,7 +311,7 @@ class ApiClient {
                 } else {
                     errorMessage = `HTTP error! status: ${response.status}`;
                 }
-                
+
                 throw new Error(errorMessage);
             }
 
@@ -374,7 +379,7 @@ class ApiClient {
     setToken(token, refreshToken = null) {
         this.token = token;
         localStorage.setItem('accessToken', token);
-        
+
         if (refreshToken) {
             this.refreshToken = refreshToken;
             localStorage.setItem('refreshToken', refreshToken);
@@ -413,7 +418,7 @@ class ApiClient {
         localStorage.removeItem('refreshToken');
         const key = (window.config && window.config.auth && window.config.auth.userKey) || 'userData';
         localStorage.removeItem(key);
-        
+
         // Clear token refresh interval
         if (this.tokenRefreshInterval) {
             clearInterval(this.tokenRefreshInterval);
@@ -472,7 +477,7 @@ class ApiClient {
             const payload = parts[1]
                 .replace(/-/g, '+')
                 .replace(/_/g, '/');
-            const json = decodeURIComponent(atob(payload).split('').map(function(c) {
+            const json = decodeURIComponent(atob(payload).split('').map(function (c) {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));
             return JSON.parse(json);

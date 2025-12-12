@@ -11,7 +11,6 @@ class AuthGuard {
             'user-panel-profile.html',
             'user-panel-change-password.html',
             'user-panel-address.html',
-            'user-panel-edit-address.html',
             'user-panel-order.html',
             'user-panel-order-detail.html',
             'user-panel-order-return-step-one.html',
@@ -69,7 +68,7 @@ class AuthGuard {
      */
     checkCurrentRoute() {
         const currentPage = this.getCurrentPageName();
-        
+
         if (this.isProtectedRoute(currentPage)) {
             if (!this.authService.isAuthenticated()) {
                 this.redirectToLogin();
@@ -126,7 +125,7 @@ class AuthGuard {
         // Store intended destination
         const currentUrl = window.location.href;
         localStorage.setItem('intendedUrl', currentUrl);
-        
+
         window.location.href = 'login.html';
     }
 
@@ -201,8 +200,8 @@ class AuthGuard {
                 // Update user name/email in UI
                 const nameElements = document.querySelectorAll('[data-user="name"]');
                 nameElements.forEach(el => {
-                    el.textContent = user.firstName && user.lastName 
-                        ? `${user.firstName} ${user.lastName}` 
+                    el.textContent = user.firstName && user.lastName
+                        ? `${user.firstName} ${user.lastName}`
                         : user.email;
                 });
 
@@ -229,12 +228,12 @@ class AuthGuard {
             if (!user) {
                 return false;
             }
-            
+
             // Check if user has roles array
             if (!user.roles) {
                 return false;
             }
-            
+
             // Handle both array and single role
             const roles = Array.isArray(user.roles) ? user.roles : [user.roles];
             return roles.includes(requiredRole);

@@ -17,14 +17,14 @@ class AuthService {
             if (!email || !email.trim()) {
                 return {
                     success: false,
-                    error: 'ط§غŒظ…غŒظ„ غŒط§ ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ'
+                    error: 'ایمیل یا نام کاربری الزامی است'
                 };
             }
 
             if (!password) {
                 return {
                     success: false,
-                    error: 'ط±ظ…ط² ط¹ط¨ظˆط± ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ'
+                    error: 'رمز عبور الزامی است'
                 };
             }
 
@@ -47,7 +47,7 @@ class AuthService {
                 }
                 return {
                     success: false,
-                    error: 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ط§ط­ط±ط§ط² ظ‡ظˆغŒطھ'
+                    error: 'خطا در دریافت اطلاعات احراز هویت'
                 };
             }
 
@@ -55,8 +55,8 @@ class AuthService {
             this.apiClient.setTokens(authData.accessToken, authData.refreshToken);
 
             // Dispatch login event
-            window.dispatchEvent(new CustomEvent('auth:login', { 
-                detail: { user: authData } 
+            window.dispatchEvent(new CustomEvent('auth:login', {
+                detail: { user: authData }
             }));
 
             return {
@@ -69,7 +69,7 @@ class AuthService {
         } catch (error) {
             window.logger.error('Login error:', error);
             // api-client throws errors, so we need to handle them properly
-            const errorMessage = error instanceof Error ? error.message : (error?.message || 'ط®ط·ط§ ط¯ط± ظˆط±ظˆط¯');
+            const errorMessage = error instanceof Error ? error.message : (error?.message || 'خطا در ورود');
             return {
                 success: false,
                 error: errorMessage
@@ -89,13 +89,13 @@ class AuthService {
 
             return {
                 success: true,
-                message: 'ع©ط¯ طھط§غŒغŒط¯ ط§ط±ط³ط§ظ„ ط´ط¯'
+                message: 'کد تایید ارسال شد'
             };
         } catch (error) {
             window.logger.error('Send OTP error:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±'
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }
@@ -117,8 +117,8 @@ class AuthService {
             this.apiClient.setTokens(authData.accessToken, authData.refreshToken);
 
             // Dispatch login event
-            window.dispatchEvent(new CustomEvent('auth:login', { 
-                detail: { user: authData } 
+            window.dispatchEvent(new CustomEvent('auth:login', {
+                detail: { user: authData }
             }));
 
             return {
@@ -133,7 +133,7 @@ class AuthService {
             window.logger.error('Verify OTP error:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±'
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }
@@ -147,7 +147,7 @@ class AuthService {
             if (!userData.email || !userData.email.trim()) {
                 return {
                     success: false,
-                    error: 'ط§غŒظ…غŒظ„ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ'
+                    error: 'ایمیل الزامی است'
                 };
             }
 
@@ -156,10 +156,10 @@ class AuthService {
             if (!emailRegex.test(userData.email.trim())) {
                 return {
                     success: false,
-                    error: 'ظپط±ظ…طھ ط§غŒظ…غŒظ„ ظ…ط¹طھط¨ط± ظ†غŒط³طھ'
+                    error: 'فرمت ایمیل معتبر نیست'
                 };
             }
-            
+
             // Use standard register endpoint
             const response = await this.apiClient.post('/auth/register', {
                 firstName: userData.firstName,
@@ -184,7 +184,7 @@ class AuthService {
                 }
                 return {
                     success: false,
-                    error: 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ط§ط­ط±ط§ط² ظ‡ظˆغŒطھ'
+                    error: 'خطا در دریافت اطلاعات احراز هویت'
                 };
             }
 
@@ -202,10 +202,10 @@ class AuthService {
             window.logger.error('Registration error:', error);
             // api-client throws errors, so we need to handle them properly
             let errorMessage = 'خطا در ثبت‌نام';
-            
+
             if (error instanceof Error) {
                 errorMessage = error.message;
-                
+
                 // Parse specific error messages
                 if (errorMessage.includes('EMAIL_EXISTS') || errorMessage.includes('ایمیل قبلاً') || errorMessage.includes('کاربری با این ایمیل')) {
                     errorMessage = 'کاربری با این ایمیل قبلاً ثبت‌نام کرده است';
@@ -219,7 +219,7 @@ class AuthService {
             } else if (error?.message) {
                 errorMessage = error.message;
             }
-            
+
             return {
                 success: false,
                 error: errorMessage
@@ -243,10 +243,10 @@ class AuthService {
         } finally {
             // Always clear tokens locally
             this.apiClient.clearTokens();
-            
+
             // Dispatch logout event
             window.dispatchEvent(new CustomEvent('auth:logout'));
-            
+
             window.location.href = 'login.html';
         }
     }
@@ -294,13 +294,13 @@ class AuthService {
 
             return {
                 success: true,
-                message: 'ط±ظ…ط² ط¹ط¨ظˆط± ط¨ط§ ظ…ظˆظپظ‚غŒطھ طھط؛غŒغŒط± غŒط§ظپطھ'
+                message: 'رمز عبور با موفقیت تغییر یافت'
             };
         } catch (error) {
             window.logger.error('Change password error:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±'
+                error: error.message || 'خطا در اتصال به سرور'
             };
         }
     }

@@ -9,7 +9,7 @@ class Utils {
      */
     static formatPrice(price, currency = 'تومان') {
         if (price === null || price === undefined) return '0 ' + currency;
-        
+
         const formattedPrice = new Intl.NumberFormat('fa-IR').format(price);
         return formattedPrice + ' ' + currency;
     }
@@ -19,13 +19,13 @@ class Utils {
      */
     static formatPersianDate(date) {
         if (!date) return '';
-        
+
         const persianDate = new Intl.DateTimeFormat('fa-IR', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         }).format(new Date(date));
-        
+
         return persianDate;
     }
 
@@ -34,7 +34,7 @@ class Utils {
      */
     static formatPersianDateTime(date) {
         if (!date) return '';
-        
+
         const persianDateTime = new Intl.DateTimeFormat('fa-IR', {
             year: 'numeric',
             month: 'long',
@@ -42,7 +42,7 @@ class Utils {
             hour: '2-digit',
             minute: '2-digit'
         }).format(new Date(date));
-        
+
         return persianDateTime;
     }
 
@@ -56,7 +56,7 @@ class Utils {
 
         const toast = document.createElement('div');
         toast.className = `toast-notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 translate-x-full`;
-        
+
         // Set colors based on type
         const colors = {
             success: 'bg-green-500 text-white',
@@ -64,9 +64,9 @@ class Utils {
             warning: 'bg-yellow-500 text-white',
             info: 'bg-blue-500 text-white'
         };
-        
+
         toast.className += ` ${colors[type] || colors.info}`;
-        
+
         toast.innerHTML = `
             <div class="flex items-center">
                 <div class="flex-1">
@@ -79,14 +79,14 @@ class Utils {
                 </button>
             </div>
         `;
-        
+
         document.body.appendChild(toast);
-        
+
         // Animate in
         setTimeout(() => {
             toast.classList.remove('translate-x-full');
         }, 100);
-        
+
         // Auto remove
         setTimeout(() => {
             toast.classList.add('translate-x-full');
@@ -99,7 +99,7 @@ class Utils {
      */
     static showLoading(element, text = 'در حال بارگذاری...') {
         if (!element) return;
-        
+
         element.disabled = true;
         element.dataset.originalText = element.innerHTML;
         element.innerHTML = `
@@ -116,7 +116,7 @@ class Utils {
      */
     static hideLoading(element) {
         if (!element) return;
-        
+
         element.disabled = false;
         if (element.dataset.originalText) {
             element.innerHTML = element.dataset.originalText;
@@ -152,11 +152,11 @@ class Utils {
      */
     static formatFileSize(bytes) {
         if (bytes === 0) return '0 Ø¨Ø§ÛŒØª';
-        
+
         const k = 1024;
         const sizes = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        
+
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
@@ -180,7 +180,7 @@ class Utils {
      */
     static throttle(func, limit) {
         let inThrottle;
-        return function() {
+        return function () {
             const args = arguments;
             const context = this;
             if (!inThrottle) {
@@ -251,7 +251,7 @@ class Utils {
             'Cancelled': 'لغو شده',
             'Returned': 'مرجوع شده'
         };
-        
+
         return statusMap[status] || status;
     }
 
@@ -267,7 +267,7 @@ class Utils {
             'Cancelled': 'text-red-600 bg-red-100',
             'Returned': 'text-gray-600 bg-gray-100'
         };
-        
+
         return colorMap[status] || 'text-gray-600 bg-gray-100';
     }
 
@@ -282,7 +282,7 @@ class Utils {
             'Processing': 'در حال پردازش',
             'Completed': 'تکمیل شده'
         };
-        
+
         return statusMap[status] || status;
     }
 
@@ -297,7 +297,7 @@ class Utils {
             'Processing': 'text-blue-600 bg-blue-100',
             'Completed': 'text-gray-600 bg-gray-100'
         };
-        
+
         return colorMap[status] || 'text-gray-600 bg-gray-100';
     }
 
@@ -347,24 +347,24 @@ class Utils {
         const fullStars = Math.floor(rating);
         const hasHalfStar = rating % 1 !== 0;
         const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-        
+
         let stars = '';
-        
+
         // Full stars
         for (let i = 0; i < fullStars; i++) {
             stars += '<svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>';
         }
-        
+
         // Half star
         if (hasHalfStar) {
             stars += '<svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>';
         }
-        
+
         // Empty stars
         for (let i = 0; i < emptyStars; i++) {
             stars += '<svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>';
         }
-        
+
         return stars;
     }
 
@@ -382,18 +382,18 @@ class Utils {
     static generatePagination(currentPage, totalPages, maxVisible = 5) {
         const pages = [];
         const halfVisible = Math.floor(maxVisible / 2);
-        
+
         let startPage = Math.max(1, currentPage - halfVisible);
         let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-        
+
         if (endPage - startPage + 1 < maxVisible) {
             startPage = Math.max(1, endPage - maxVisible + 1);
         }
-        
+
         for (let i = startPage; i <= endPage; i++) {
             pages.push(i);
         }
-        
+
         return {
             pages,
             hasPrevious: currentPage > 1,
@@ -401,6 +401,35 @@ class Utils {
             previousPage: currentPage - 1,
             nextPage: currentPage + 1
         };
+    }
+    /**
+     * Setup dropdown menu
+     */
+    static setupDropdown(buttonId, menuId) {
+        const button = document.getElementById(buttonId);
+        const menu = document.getElementById(menuId);
+
+        if (!button || !menu) return;
+
+        // Toggle menu
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.classList.toggle('hidden');
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!button.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // Close on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                menu.classList.add('hidden');
+            }
+        });
     }
 }
 

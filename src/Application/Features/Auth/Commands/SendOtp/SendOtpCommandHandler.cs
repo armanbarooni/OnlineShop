@@ -1,4 +1,7 @@
 using MediatR;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OnlineShop.Application.Common.Models;
 
@@ -14,15 +17,21 @@ namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
         private readonly IOtpRepository _otpRepository;
         private readonly ISmsService _smsService;
         private readonly SmsSettings _smsSettings;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly Microsoft.Extensions.Logging.ILogger<SendOtpCommandHandler> _logger;
 
         public SendOtpCommandHandler(
             IOtpRepository otpRepository,
             ISmsService smsService,
-            IOptions<SmsSettings> smsSettings)
+            IOptions<SmsSettings> smsSettings,
+            UserManager<ApplicationUser> userManager,
+            Microsoft.Extensions.Logging.ILogger<SendOtpCommandHandler> logger)
         {
             _otpRepository = otpRepository;
             _smsService = smsService;
             _smsSettings = smsSettings.Value;
+            _userManager = userManager;
+            _logger = logger;
         }
 
         public async Task<Result<OtpResponseDto>> Handle(SendOtpCommand request, CancellationToken cancellationToken)
@@ -30,8 +39,20 @@ namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
             // Invalidate all previous OTPs for this phone number
             await _otpRepository.InvalidatePreviousOtpsAsync(request.Request.PhoneNumber, cancellationToken);
 
+            // Check if user exists for Login purpose
+            if (string.Equals(request.Request.Purpose, "Login", StringComparison.OrdinalIgnoreCase))
+            {
+                var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == request.Request.PhoneNumber, cancellationToken);
+                if (user == null)
+                {
+                    _logger.LogWarning("SendOtp failed - user not found for login: {PhoneNumber}", request.Request.PhoneNumber);
+                    return Result<OtpResponseDto>.Failure("نام کاربری یا کلمه عبور اشتباه است");
+                }
+            }
+
             // Generate OTP code
             var code = GenerateOtpCode(_smsSettings.OtpLength);
+            _logger.LogInformation("Generated OTP: {Code} with length {Length} for {PhoneNumber}", code, code.Length, request.Request.PhoneNumber);
 
             // Create OTP entity
             var otp = Otp.Create(
@@ -64,14 +85,14 @@ namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
 
         private string GenerateOtpCode(int length)
         {
-            var random = new Random();
-            var code = string.Empty;
+            // Ensure minimum length
+            if (length < 4) length = 4;
 
+            var code = string.Empty;
             for (int i = 0; i < length; i++)
             { 
-                code += random.Next(0, 10).ToString(); 
+                code += Random.Shared.Next(0, 10).ToString(); 
             }
-
             return code;
         }
     }

@@ -96,13 +96,33 @@ builder.Services.AddCors(options =>
             {
                 // Allow all localhost and 127.0.0.1 origins on any port
                 if (string.IsNullOrEmpty(origin)) return false;
-                var uri = new Uri(origin);
-                return uri.Host == "localhost" || uri.Host == "127.0.0.1" || uri.Host.StartsWith("192.168.");
+                
+                // Try to parse as URI
+                try
+                {
+                    var uri = new Uri(origin);
+                    var host = uri.Host.ToLowerInvariant();
+                    
+                    // Allow localhost, 127.0.0.1, and private network IPs
+                    return host == "localhost" || 
+                           host == "127.0.0.1" || 
+                           host.StartsWith("192.168.") || 
+                           host.StartsWith("172.") ||
+                           host.StartsWith("10.") ||
+                           // Allow any IP that looks like a local development server
+                           (host.Contains("localhost") || host.Contains("127.0.0.1"));
+                }
+                catch
+                {
+                    // If parsing fails, allow it in development (for flexibility)
+                    return builder.Environment.IsDevelopment();
+                }
             })
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials()
-            .WithExposedHeaders("*"));
+            .WithExposedHeaders("*")
+            .SetPreflightMaxAge(TimeSpan.FromHours(1))); // Cache preflight for 1 hour
 
     // Main policy for frontend - with credentials support
     options.AddPolicy("AllowFrontend", policy =>
@@ -232,6 +252,7 @@ if (app.Environment.IsDevelopment())
 
 // CORS must be before UseAuthentication and UseAuthorization
 // CORS middleware must be called BEFORE UseAuthentication/UseAuthorization
+// UseCors automatically handles preflight (OPTIONS) requests
 app.UseCors(app.Environment.IsDevelopment() ? "DevelopmentCors" : "AllowFrontend");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

@@ -1,4 +1,5 @@
 using Moq;
+using Moq.Protected;
 using Xunit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -192,7 +193,14 @@ namespace OnlineShop.Application.Tests.PaymentGateways
             };
 
             var handler = new Mock<HttpMessageHandler>();
-            handler.Setup(x => x.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
+            
+            // Fix: Use Protected() to mock the protected SendAsync method
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
                 .ReturnsAsync(httpResponse);
 
             return new HttpClient(handler.Object)

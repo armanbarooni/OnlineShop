@@ -139,12 +139,27 @@ namespace OnlineShop.WebAPI.Controllers
 				});
 			}
 
+            if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
+            {
+                var existingPhoneUser = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == dto.PhoneNumber);
+                if (existingPhoneUser != null)
+                {
+                    _logger.LogWarning("Registration failed - user already exists for phone: {Phone}", dto.PhoneNumber);
+                    return BadRequest(new { 
+                        message = "کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است",
+                        code = "PHONE_EXISTS"
+                    });
+                }
+            }
+
 			var user = new ApplicationUser
 			{
 				UserName = dto.Email,
 				Email = dto.Email,
 				FirstName = dto.FirstName ?? string.Empty,
-				LastName = dto.LastName ?? string.Empty
+				LastName = dto.LastName ?? string.Empty,
+                PhoneNumber = dto.PhoneNumber,
+                PhoneNumberConfirmed = true // Assuming OTP verification was done on frontend before calling Register
 			};
 
 			var result = await _userManager.CreateAsync(user, dto.Password);
