@@ -101,6 +101,50 @@ class AuthService {
     }
 
     /**
+     * Verify OTP only (without login) - for registration flow
+     */
+    async verifyOTPOnly(phone, code) {
+        try {
+            const response = await this.apiClient.post('/auth/verify-otp', {
+                phoneNumber: phone,
+                code: code
+            });
+
+            // Handle response structure
+            if (response && (response.isSuccess || response.success !== false)) {
+                return {
+                    success: true,
+                    message: 'کد تایید معتبر است'
+                };
+            }
+
+            return {
+                success: false,
+                error: response?.errorMessage || response?.message || 'کد تایید نامعتبر است'
+            };
+        } catch (error) {
+            window.logger.error('Verify OTP error:', error);
+
+            // Try to extract a friendly error message from possible JSON error payload
+            let message = error && error.message ? error.message : 'خطا در اتصال به سرور';
+            try {
+                // Some backends return serialized JSON as error.message
+                const parsed = JSON.parse(message);
+                if (parsed && (parsed.errorMessage || parsed.message)) {
+                    message = parsed.errorMessage || parsed.message;
+                }
+            } catch (parseErr) {
+                // If it's not JSON, keep original message
+            }
+
+            return {
+                success: false,
+                error: message
+            };
+        }
+    }
+
+    /**
      * Verify OTP and login
      */
     async verifyOTP(phone, code) {
@@ -225,6 +269,117 @@ class AuthService {
                     errorMessage = 'کاربری با این ایمیل قبلاً ثبت‌نام کرده است';
                 } else if (errorMessage.includes('PHONE_EXISTS') || errorMessage.includes('شماره تلفن') || errorMessage.includes('شماره موبایل')) {
                     errorMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
+                } else if (errorMessage.includes('VALIDATION_ERROR') || errorMessage.includes('اعتبارسنجی')) {
+                    errorMessage = errorMessage.replace('VALIDATION_ERROR:', '').trim();
+                } else if (errorMessage.includes('405') || errorMessage.includes('Method Not Allowed')) {
+                    errorMessage = 'خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.';
+                }
+            } else if (error?.message) {
+                errorMessage = error.message;
+            }
+
+            return {
+                success: false,
+                error: errorMessage
+            };
+        }
+    }
+
+    /**
+     * Register new user with phone number and OTP
+     */
+    async registerWithPhone(userData) {
+        try {
+            // Validate required fields
+            if (!userData.phone || !userData.phone.trim()) {
+                return {
+                    success: false,
+                    error: 'شماره موبایل الزامی است'
+                };
+            }
+
+            if (!userData.otp || userData.otp.length !== 6) {
+                return {
+                    success: false,
+                    error: 'کد تایید الزامی است'
+                };
+            }
+
+            if (!userData.firstName || !userData.firstName.trim()) {
+                return {
+                    success: false,
+                    error: 'نام الزامی است'
+                };
+            }
+
+            if (!userData.lastName || !userData.lastName.trim()) {
+                return {
+                    success: false,
+                    error: 'نام خانوادگی الزامی است'
+                };
+            }
+
+            if (!userData.password) {
+                return {
+                    success: false,
+                    error: 'رمز عبور الزامی است'
+                };
+            }
+
+            // Use register-phone endpoint
+            const response = await this.apiClient.post('/auth/register-phone', {
+                phoneNumber: userData.phone.trim(),
+                code: userData.otp,
+                firstName: userData.firstName.trim(),
+                lastName: userData.lastName.trim(),
+                password: userData.password
+            });
+
+            // Handle response structure
+            let authData = response;
+
+            // Validate that we received tokens
+            if (!authData || !authData.accessToken) {
+                // Check if response contains error message
+                if (authData?.errorMessage || authData?.message) {
+                    return {
+                        success: false,
+                        error: authData.errorMessage || authData.message
+                    };
+                }
+                return {
+                    success: false,
+                    error: 'خطا در دریافت اطلاعات احراز هویت'
+                };
+            }
+
+            // Store tokens
+            this.apiClient.setTokens(authData.accessToken, authData.refreshToken);
+
+            // Dispatch login event
+            window.dispatchEvent(new CustomEvent('auth:login', {
+                detail: { user: authData }
+            }));
+
+            return {
+                success: true,
+                user: {
+                    phone: userData.phone,
+                    roles: authData.roles || []
+                }
+            };
+        } catch (error) {
+            window.logger.error('Registration with phone error:', error);
+            let errorMessage = 'خطا در ثبت‌نام';
+
+            if (error instanceof Error) {
+                errorMessage = error.message;
+
+                // Parse specific error messages
+                if (errorMessage.includes('PHONE_EXISTS') || errorMessage.includes('شماره موبایل')) {
+                    errorMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
+                } else if (errorMessage.includes('OTP') || errorMessage.includes('کد تایید')) {
+                    errorMessage = 'کد تایید نامعتبر یا منقضی شده است';
                 } else if (errorMessage.includes('VALIDATION_ERROR') || errorMessage.includes('اعتبارسنجی')) {
                     errorMessage = errorMessage.replace('VALIDATION_ERROR:', '').trim();
                 } else if (errorMessage.includes('405') || errorMessage.includes('Method Not Allowed')) {

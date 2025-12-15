@@ -510,6 +510,7 @@
                     // Show OTP step
                     document.getElementById('step2').classList.remove('active');
                     document.getElementById('step3').classList.add('active');
+                    currentStep = 3; // Update current step
                     updateStepIndicator(2, 3);
 
                     // Display phone number
@@ -547,11 +548,16 @@
             }
 
             try {
-                const result = await window.authService.verifyOTP(mobile, otp);
+                // Use verifyOTPOnly instead of verifyOTP to avoid login
+                const result = await window.authService.verifyOTPOnly(mobile, otp);
                 if (result.success) {
+                    // Store OTP in registration data for final submission
+                    registrationData.otp = otp;
+                    
                     // Move to final step
                     document.getElementById('step3').classList.remove('active');
                     document.getElementById('step4').classList.add('active');
+                    currentStep = 4;
                     updateStepIndicator(3, 4);
                     updateReviewSection();
                     window.utils?.showToast('کد تایید با موفقیت تایید شد', 'success');
@@ -636,7 +642,14 @@
         `;
 
             try {
-                const result = await window.authService.register(formData);
+                // Use registerWithPhone instead of register for phone-based registration
+                const result = await window.authService.registerWithPhone({
+                    phone: phone,
+                    otp: registrationData.otp,
+                    firstName: firstName,
+                    lastName: lastName,
+                    password: password
+                });
 
                 if (result.success) {
                     window.utils?.showToast('ثبت نام شما با موفقیت انجام شد!', 'success');
