@@ -105,7 +105,7 @@ class AuthService {
      */
     async verifyOTP(phone, code) {
         try {
-            const response = await this.apiClient.post('/auth/verify-otp', {
+            const response = await this.apiClient.post('/auth/login-phone', {
                 phoneNumber: phone,
                 code: code
             });
@@ -131,9 +131,23 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Verify OTP error:', error);
+
+            // Try to extract a friendly error message from possible JSON error payload
+            let message = error && error.message ? error.message : 'خطا در اتصال به سرور';
+            try {
+                // Some backends return serialized JSON as error.message, e.g.:
+                // {"isSuccess":false,"data":null,"errorMessage":"کد تایید نامعتبر یا منقضی شده است",...}
+                const parsed = JSON.parse(message);
+                if (parsed && (parsed.errorMessage || parsed.message)) {
+                    message = parsed.errorMessage || parsed.message;
+                }
+            } catch (parseErr) {
+                // If it's not JSON, keep original message
+            }
+
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: message
             };
         }
     }

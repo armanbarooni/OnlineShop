@@ -72,3 +72,7 @@ Write-Host "You can now publish the project using:" -ForegroundColor Yellow
 Write-Host "  dotnet publish src/WebAPI/OnlineShop.WebAPI.csproj -c Release -o ./publish" -ForegroundColor White
 Write-Host ""
 
+
+
+
+

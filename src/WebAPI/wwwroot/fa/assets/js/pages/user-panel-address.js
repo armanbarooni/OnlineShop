@@ -306,7 +306,7 @@ const AddressManager = {
         // Split receiver name
         const nameParts = receiverName.trim().split(' ');
         const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
+        const lastName = nameParts.slice(1).join(' ') || '-';
 
         const addressData = {
             title: title,

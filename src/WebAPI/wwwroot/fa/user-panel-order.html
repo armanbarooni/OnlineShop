@@ -71,17 +71,47 @@
                             پروفایل
                         </a>
 
-                        <!-- Orders (Active) -->
-                        <a href="user-panel-order.html"
-                            class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                            سفارشات
-                            <span class="ms-auto w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-400"></span>
-                        </a>
+                        <!-- Orders (Active Menu) -->
+                        <div class="space-y-1">
+                            <button type="button"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
+                                onclick="toggleMenu('order-menu','order-arrow')">
+                                <span class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 3h18v4H3zM5 7v12a2 2 0 002 2h10a2 2 0 002-2V7" />
+                                    </svg>
+                                    سفارشات
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 transition-transform duration-300" id="order-arrow" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div id="order-menu" class="me-6 space-y-1">
+                                <a href="user-panel-order.html"
+                                    class="block text-sm px-4 py-2 rounded bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-dark">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5h6m4 4H5m0 0v9a2 2 0 002 2h10a2 2 0 002-2V9H5z" />
+                                    </svg>
+                                    لیست سفارش‌ها
+                                </a>
+                                <a href="user-panel-order-return-step-one.html"
+                                    class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 4v5h.582A10 10 0 1021 12" />
+                                    </svg>
+                                    مرجوعی
+                                </a>
+                            </div>
+                        </div>
 
                         <!-- Interests -->
                         <a href="user-panel-favorite.html"
@@ -941,16 +971,16 @@
     <!-- /canvas responsive menu -->
 
 
-<!-- Scripts -->
-<script src="assets/js/dependencies/app.js"></script>
-<script src="assets/js/api-client.js"></script>
-<script src="assets/js/utils.js"></script>
-<script src="assets/js/utils/logger.js"></script>
-<script src="assets/js/auth-service.js"></script>
-<script src="assets/js/services/user-profile-service.js"></script>
-<script src="assets/js/services/order-service.js"></script>
-<script src="assets/js/components/header-component.js"></script>
-<script src="assets/js/pages/user-panel-order.js"></script>
+    <!-- Scripts -->
+    <script src="assets/js/dependencies/app.js"></script>
+    <script src="assets/js/api-client.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/utils/logger.js"></script>
+    <script src="assets/js/auth-service.js"></script>
+    <script src="assets/js/services/user-profile-service.js"></script>
+    <script src="assets/js/services/order-service.js"></script>
+    <script src="assets/js/components/header-component.js"></script>
+    <script src="assets/js/pages/user-panel-order.js"></script>
 </body>
 
 </html>
