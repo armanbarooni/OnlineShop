@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using OnlineShop.Application.Common.Models;
 
 using OnlineShop.Application.DTOs.Auth;
@@ -9,11 +10,13 @@ namespace OnlineShop.Application.Features.Auth.Commands.VerifyOtp
     public class VerifyOtpCommandHandler : IRequestHandler<VerifyOtpCommand, Result<OtpResponseDto>>
     {
         private readonly IOtpRepository _otpRepository;
+        private readonly ILogger<VerifyOtpCommandHandler> _logger;
         private const int MAX_ATTEMPTS = 5;
 
-        public VerifyOtpCommandHandler(IOtpRepository otpRepository)
+        public VerifyOtpCommandHandler(IOtpRepository otpRepository, ILogger<VerifyOtpCommandHandler> logger)
         {
             _otpRepository = otpRepository;
+            _logger = logger;
         }
 
         public async Task<Result<OtpResponseDto>> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
@@ -37,6 +40,9 @@ namespace OnlineShop.Application.Features.Auth.Commands.VerifyOtp
             // Verify code
             if (otp.Code != request.Request.Code)
             {
+                _logger.LogWarning("OTP Verification Failed for {PhoneNumber}. Expected: '{Expected}', Received: '{Received}'. Phone matched.", 
+                    request.Request.PhoneNumber, otp.Code, request.Request.Code);
+
                 otp.IncrementAttempts();
                 await _otpRepository.UpdateAsync(otp, cancellationToken);
                 

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test Authentication</title>
+</head>
+
+<body>
+    <h1>Authentication Test</h1>
+    <div id="status"></div>
+    <button onclick="testAuth()">Test Auth</button>
+    <button onclick="clearAuth()">Clear & Logout</button>
+
+    <script src="assets/js/api-client.js"></script>
+    <script src="assets/js/auth-service.js"></script>
+
+    <script>
+        async function testAuth() {
+            const statusDiv = document.getElementById('status');
+
+            // Check tokens
+            const accessToken = localStorage.getItem('accessToken');
+            const refreshToken = localStorage.getItem('refreshToken');
+
+            statusDiv.innerHTML = `
+                <h2>Token Status:</h2>
+                <p>Access Token: ${accessToken ? 'EXISTS (length: ' + accessToken.length + ')' : 'NULL'}</p>
+                <p>Refresh Token: ${refreshToken ? 'EXISTS' : 'NULL'}</p>
+                <hr>
+            `;
+
+            if (!accessToken) {
+                statusDiv.innerHTML += '<p style="color: red;">NOT LOGGED IN - No access token found!</p>';
+                statusDiv.innerHTML += '<p>Please go to <a href="login.html">login.html</a> and login first.</p>';
+                return;
+            }
+
+            // Try to get current user
+            try {
+                const user = await window.authService.getCurrentUser();
+                statusDiv.innerHTML += `
+                    <h2>User Data:</h2>
+                    <pre>${JSON.stringify(user, null, 2)}</pre>
+                `;
+            } catch (error) {
+                statusDiv.innerHTML += `
+                    <h2>Error:</h2>
+                    <p style="color: red;">${error.message}</p>
+                `;
+            }
+        }
+
+        function clearAuth() {
+            localStorage.clear();
+            alert('Cleared! Please login again.');
+            window.location.href = 'login.html';
+        }
+
+        // Auto-run on load
+        window.onload = testAuth;
+    </script>
+</body>
+
+</html>

@@ -30,11 +30,16 @@ namespace OnlineShop.Infrastructure.Services
 
         public async Task<AuthResponseDto> GenerateTokensAsync(string emailOrPhoneNumber, IEnumerable<string> roles)
         {
-            // Try to find by email first, then by username (phone number)
+            // Try to find by email first, then by username, then by phone number
             var user = await _userManager.FindByEmailAsync(emailOrPhoneNumber);
             if (user == null)
             {
                 user = await _userManager.FindByNameAsync(emailOrPhoneNumber);
+            }
+            if (user == null)
+            {
+                // Try to find by phone number
+                user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == emailOrPhoneNumber);
             }
             
             if (user == null)

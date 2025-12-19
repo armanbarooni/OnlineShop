@@ -47,21 +47,35 @@ namespace OnlineShop.WebAPI.Controllers
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		public async Task<IActionResult> Login([FromBody] LoginDto dto)
 		{
-			_logger.LogInformation("Login attempt for email: {Email}", dto.Email);
+			_logger.LogInformation("Login attempt for: {Identifier}", dto.Email);
 
 			if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
 			{
-				_logger.LogWarning("Login failed - missing email or password for {Email}", dto.Email);
-				return Unauthorized(new { message = "ایمیل و رمز عبور الزامی است" });
+				_logger.LogWarning("Login failed - missing identifier or password for {Identifier}", dto.Email);
+				return Unauthorized(new { message = "ایمیل/شماره موبایل و رمز عبور الزامی است" });
 			}
 
-			var user = await _userManager.FindByEmailAsync(dto.Email);
+			// Try to find user by phone number OR email
+			ApplicationUser user = null;
+			if (dto.Email.StartsWith("09") && dto.Email.Length == 11)
+			{
+				// Phone number format
+				_logger.LogInformation("Attempting login with phone number: {Phone}", dto.Email);
+				user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == dto.Email);
+			}
+			else
+			{
+				// Email format
+				_logger.LogInformation("Attempting login with email: {Email}", dto.Email);
+				user = await _userManager.FindByEmailAsync(dto.Email);
+			}
+
 			if (user == null)
 			{
 				user = await EnsureDevelopmentUserAsync(dto.Email);
 				if (user == null)
 				{
-					_logger.LogWarning("Login failed - user not found for email: {Email}", dto.Email);
+					_logger.LogWarning("Login failed - user not found for: {Identifier}", dto.Email);
 					return Unauthorized(new { message = "نام کاربری یا رمز عبور اشتباه است" });
 				}
 			}
