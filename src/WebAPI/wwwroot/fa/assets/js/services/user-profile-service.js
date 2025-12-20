@@ -28,6 +28,13 @@ class UserProfileService {
     }
 
     /**
+     * Alias for getUserProfile() for compatibility
+     */
+    async getProfile() {
+        return this.getUserProfile();
+    }
+
+    /**
      * Update user profile
      */
     async updateProfile(profileData) {

@@ -98,7 +98,7 @@ class Utils {
      * Show loading state
      */
     static showLoading(element, text = 'در حال بارگذاری...') {
-        if (!element) return;
+        if (!element || !(element instanceof Element)) return;
 
         element.disabled = true;
         element.dataset.originalText = element.innerHTML;
