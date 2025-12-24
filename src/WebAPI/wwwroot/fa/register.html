@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>بالیگا</title>
     <meta name="description"
@@ -132,8 +132,11 @@
                                             موبایل </label>
                                         <div class="relative">
                                             <input type="tel" id="mobile" dir="rtl"
-                                                class="w-full ps-4 pe-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white text-right placeholder-gray-400"
-                                                placeholder="09xxxxxxxxx" required>
+                                                class="w-full ps-10 pe-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white text-right"
+                                                placeholder="09xxxxxxxxx" 
+                                                pattern="09\d{9}"
+                                                title="لطفا شماره موبایل معتبر وارد کنید (مثال: 09123456789)"
+                                                required>
                                             <div
                                                 class="absolute input-icon left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
@@ -205,9 +208,10 @@
                                         placeholder="رمز عبور " required oninput="checkPasswordStrength()">
                                     <button type="button"
                                         class="absolute password-toggle left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                        onclick="togglePassword('password')">
+                                        onclick="togglePassword('password')"
+                                        aria-label="Show password">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -253,9 +257,10 @@
                                         placeholder="تکرار رمز عبور" required oninput="checkPasswordMatch()">
                                     <button type="button"
                                         class="absolute password-toggle left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                        onclick="togglePassword('confirm-password')">
+                                        onclick="togglePassword('confirm-password')"
+                                        aria-label="Show password">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

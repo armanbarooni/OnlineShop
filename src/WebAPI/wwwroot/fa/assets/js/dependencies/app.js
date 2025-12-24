@@ -992,7 +992,7 @@ function deleteAllNotifications() {
     const notificationsContainer = document.querySelector('.border.rounded-xl.overflow-hidden');
     if (notificationsContainer) {
         // Clear all notifications and display a message indicating no notifications
-        notificationsContainer.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400">ظ‡غŒع† ط§ط·ظ„ط§ط¹غŒظ‡â€Œط§غŒ ظˆط¬ظˆط¯ ظ†ط¯ط§ط±ط¯</div>';
+        notificationsContainer.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400">هیچ اطلاعیه‌ای وجود ندارد</div>';
     }
 }
 
@@ -1203,7 +1203,7 @@ function copyComponentCode(btn) {
     const codeBlock = block ? block.querySelector('code') : null;
 
     if (!codeBlock) {
-        alert('ع©ط¯غŒ ط¨ط±ط§غŒ ع©ظ¾غŒ ظ¾غŒط¯ط§ ظ†ط´ط¯!');
+        alert('کدی برای کپی پیدا نشد!');
         return;
     }
 
@@ -1283,7 +1283,7 @@ function initializeLiveSearch() {
         if (results.length === 0) {
             searchResults.innerHTML = `
                         <div class="p-4 text-center text-gray-600 dark:text-gray-300">
-                            ظ†طھغŒط¬ظ‡â€Œط§غŒ غŒط§ظپطھ ظ†ط´ط¯
+                            نتیجه‌ای یافت نشد
                         </div>
                     `;
             return;
@@ -1340,7 +1340,7 @@ function initializeLiveSearch() {
         if (e.key === 'Enter') {
             const searchTerm = this.value.trim();
             if (searchTerm) {
-                alert(`ط¬ط³طھط¬ظˆ ط¨ط±ط§غŒ: ${searchTerm} (ط§غŒظ† ظ‚ط³ظ…طھ ط¨ظ‡ طµظپط­ظ‡ ظ†طھط§غŒط¬ ط¬ط³طھط¬ظˆ ظ‡ط¯ط§غŒطھ ظ…غŒâ€Œع©ظ†ط¯)`);
+                alert(`جستجو برای: ${searchTerm} (این قسمت به صفحه نتایج جستجو هدایت می‌کند)`);
             }
         }
     });
@@ -1485,7 +1485,7 @@ if (passwordForm) {
         } else if (username.value.length < 3) {
             username?.classList.add('input-error');
             if (usernameError) {
-                usernameError.textContent = 'ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ³ ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
+                usernameError.textContent = 'نام کاربری باید حداقل ۳ کاراکتر باشد';
                 usernameError.classList.remove('hidden');
             }
             isValid = false;
@@ -1542,7 +1542,7 @@ function showLoginError(message) {
 
     const errorDiv = document.createElement('div');
     errorDiv.className = 'mb-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-xl';
-    errorDiv.textContent = message || 'ظ†ط§ظ… ع©ط§ط±ط¨ط±غŒ غŒط§ ط±ظ…ط² ط¹ط¨ظˆط± ط§ط´طھط¨ط§ظ‡ ط§ط³طھ';
+    errorDiv.textContent = message || 'نام کاربری یا رمز عبور اشتباه است';
 
     loginForm.insertBefore(errorDiv, loginForm.firstChild);
 

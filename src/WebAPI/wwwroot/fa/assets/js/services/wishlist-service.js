@@ -54,14 +54,14 @@ class WishlistService {
                 return {
                     success: response.isSuccess,
                     data: response.data || response.data?.data,
-                    message: 'ظ…ط­طµظˆظ„ ط¨ظ‡ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط§ط¶ط§ظپظ‡ ط´ط¯'
+                    message: 'محصول به علاقه‌مندی‌ها اضافه شد'
                 };
             }
             
             return {
                 success: true,
                 data: response.data || response,
-                message: 'ظ…ط­طµظˆظ„ ط¨ظ‡ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط§ط¶ط§ظپظ‡ ط´ط¯'
+                message: 'محصول به علاقه‌مندی‌ها اضافه شد'
             };
         } catch (error) {
             window.logger.error('Error adding to wishlist:', error);
@@ -83,13 +83,13 @@ class WishlistService {
             if (response.isSuccess !== undefined) {
                 return {
                     success: response.isSuccess,
-                    message: 'ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯'
+                    message: 'محصول از علاقه‌مندی‌ها حذف شد'
                 };
             }
             
             return {
                 success: true,
-                message: 'ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯'
+                message: 'محصول از علاقه‌مندی‌ها حذف شد'
             };
         } catch (error) {
             window.logger.error('Error removing from wishlist:', error);
@@ -121,13 +121,13 @@ class WishlistService {
             if (response.isSuccess !== undefined) {
                 return {
                     success: response.isSuccess,
-                    message: 'ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯'
+                    message: 'محصول از علاقه‌مندی‌ها حذف شد'
                 };
             }
             
             return {
                 success: true,
-                message: 'ظ…ط­طµظˆظ„ ط§ط² ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط­ط°ظپ ط´ط¯'
+                message: 'محصول از علاقه‌مندی‌ها حذف شد'
             };
         } catch (error) {
             window.logger.error('Error removing product from wishlist:', error);
@@ -188,7 +188,7 @@ class WishlistService {
             const response = await this.apiClient.delete('/api/Wishlist/clear');
             return {
                 success: true,
-                message: 'ظ„غŒط³طھ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ظ¾ط§ع© ط´ط¯'
+                message: 'لیست علاقه‌مندی‌ها پاک شد'
             };
         } catch (error) {
             window.logger.error('Error clearing wishlist:', error);
@@ -207,7 +207,7 @@ class WishlistService {
             const response = await this.apiClient.post(`/api/Wishlist/${wishlistId}/move-to-cart`);
             return {
                 success: true,
-                message: 'ظ…ط­طµظˆظ„ ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯ ط§ط¶ط§ظپظ‡ ط´ط¯'
+                message: 'محصول به سبد خرید اضافه شد'
             };
         } catch (error) {
             window.logger.error('Error moving to cart:', error);
@@ -226,7 +226,7 @@ class WishlistService {
             const response = await this.apiClient.post('/api/Wishlist/move-all-to-cart');
             return {
                 success: true,
-                message: 'طھظ…ط§ظ… ظ…ط­طµظˆظ„ط§طھ ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯ ط§ط¶ط§ظپظ‡ ط´ط¯ظ†ط¯'
+                message: 'تمام محصولات به سبد خرید اضافه شدند'
             };
         } catch (error) {
             window.logger.error('Error moving all to cart:', error);
@@ -339,7 +339,7 @@ class WishlistService {
         const errors = {};
 
         if (!wishlistData.productId) {
-            errors.productId = 'ط´ظ†ط§ط³ظ‡ ظ…ط­طµظˆظ„ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.productId = 'شناسه محصول الزامی است';
         }
 
         return {

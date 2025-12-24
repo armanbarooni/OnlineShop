@@ -43,7 +43,7 @@ class ComparisonService {
             }
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡'
+                error: error.message || 'خطا در افزودن به لیست مقایسه'
             };
         }
     }
@@ -59,7 +59,7 @@ class ComparisonService {
             if (comparisonList.some(item => item.id === productId)) {
                 return {
                     success: false,
-                    error: 'ط§غŒظ† ظ…ط­طµظˆظ„ ظ‚ط¨ظ„ط§ظ‹ ط¯ط± ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡ ظ…ظˆط¬ظˆط¯ ط§ط³طھ'
+                    error: 'این محصول قبلاً در لیست مقایسه موجود است'
                 };
             }
 
@@ -67,7 +67,7 @@ class ComparisonService {
             if (comparisonList.length >= this.maxItems) {
                 return {
                     success: false,
-                    error: `ط­ط¯ط§ع©ط«ط± ${this.maxItems} ظ…ط­طµظˆظ„ ظ‚ط§ط¨ظ„ ظ…ظ‚ط§غŒط³ظ‡ ط§ط³طھ`
+                    error: `حداکثر ${this.maxItems} محصول قابل مقایسه است`
                 };
             }
 
@@ -87,7 +87,7 @@ class ComparisonService {
             window.logger.error('Error adding to comparison:', error);
             return {
                 success: false,
-                error: 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡'
+                error: 'خطا در افزودن به لیست مقایسه'
             };
         }
     }
@@ -121,7 +121,7 @@ class ComparisonService {
             }
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ط§ط² ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡'
+                error: error.message || 'خطا در حذف از لیست مقایسه'
             };
         }
     }
@@ -143,7 +143,7 @@ class ComparisonService {
             window.logger.error('Error removing from comparison:', error);
             return {
                 success: false,
-                error: 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ط§ط² ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡'
+                error: 'خطا در حذف از لیست مقایسه'
             };
         }
     }
@@ -222,7 +222,7 @@ class ComparisonService {
             }
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ظ„غŒط³طھ ظ…ظ‚ط§غŒط³ظ‡'
+                error: error.message || 'خطا در دریافت لیست مقایسه'
             };
         }
     }
@@ -332,7 +332,7 @@ class ComparisonService {
             window.logger.error('Error getting detailed comparison:', error);
             return {
                 success: false,
-                error: 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ظ…ظ‚ط§غŒط³ظ‡'
+                error: 'خطا در دریافت اطلاعات مقایسه'
             };
         }
     }
@@ -373,7 +373,7 @@ class ComparisonService {
             window.logger.error('Error getting detailed comparison from products:', error);
             return {
                 success: false,
-                error: 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ ظ…ظ‚ط§غŒط³ظ‡'
+                error: 'خطا در دریافت اطلاعات مقایسه'
             };
         }
     }
@@ -432,7 +432,7 @@ class ComparisonService {
             window.logger.error('Error exporting comparison to PDF:', error);
             return {
                 success: false,
-                error: 'ط®ط·ط§ ط¯ط± طµط§ط¯ط± ع©ط±ط¯ظ† ظپط§غŒظ„ PDF'
+                error: 'خطا در صادر کردن فایل PDF'
             };
         }
     }
@@ -462,7 +462,7 @@ class ComparisonService {
             window.logger.error('Error sharing comparison:', error);
             return {
                 success: false,
-                error: 'ط®ط·ط§ ط¯ط± ط§ط´طھط±ط§ع©â€Œع¯ط°ط§ط±غŒ ظ…ظ‚ط§غŒط³ظ‡'
+                error: 'خطا در اشتراک‌گذاری مقایسه'
             };
         }
     }
@@ -474,11 +474,11 @@ class ComparisonService {
         const errors = {};
 
         if (!comparisonData.products || comparisonData.products.length === 0) {
-            errors.products = 'ظ„غŒط³طھ ظ…ط­طµظˆظ„ط§طھ ط®ط§ظ„غŒ ط§ط³طھ';
+            errors.products = 'لیست محصولات خالی است';
         }
 
         if (comparisonData.products && comparisonData.products.length > this.maxItems) {
-            errors.products = `ط­ط¯ط§ع©ط«ط± ${this.maxItems} ظ…ط­طµظˆظ„ ظ‚ط§ط¨ظ„ ظ…ظ‚ط§غŒط³ظ‡ ط§ط³طھ`;
+            errors.products = `حداکثر ${this.maxItems} محصول قابل مقایسه است`;
         }
 
         return {

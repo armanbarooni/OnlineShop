@@ -2,8 +2,7 @@
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>قالب فرشگاهی آرینو</title>
     <meta name="description" content="قالب فرشگاهی آرینو، بهترین قالب برای فروشگاه‌های اینترنتی با طراحی مدرن و واکنش‌گرا.">
@@ -58,7 +57,7 @@
                                     class="w-full appearance-none dark:text-white rounded-3xl border border-gray-300 dark:border-gray-600 py-3 ps-16 pe-4 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 shadow-sm"
                                     placeholder="جستجوی محصولات ...."
                             >
-                            <button class="bg-primary-grad p-2 text-white rounded-3xl absolute start-1 hover:opacity-90 transition-opacity">
+                            <button type="button" aria-label="جستجو" class="bg-primary-grad p-2 text-white rounded-3xl absolute start-1 hover:opacity-90 transition-opacity">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
                                 </svg>
@@ -110,7 +109,7 @@
                         </div>
                         <!-- dark mode -->
                         <div class="md:ms-5 ms-2">
-                            <button id="dark-mode-toggle">
+                            <button id="dark-mode-toggle" aria-label="Toggle dark mode">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="lg:size-8 size-6 dark:block hidden dark:text-white">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
                                 </svg>
@@ -4355,8 +4354,7 @@
 <div id="offcanvas-right"
      class="offcanvas invisible overflow-y-scroll fixed top-0 start-0 sm:w-100 w-[80%] h-full bg-white dark:bg-zinc-900 shadow-lg transform -translate-x-full transition-transform opacity-0 z-50"
      role="navigation"
-     aria-labelledby="store-menu-title"
-     aria-modal="true">
+     aria-labelledby="store-menu-title">
     <div class="border-b p-3 flex items-center justify-between border-gray-400">
         <h2 id="store-menu-title" class="font-bold text-base dark:text-white">فروشگاه آرینو</h2>
         <button
@@ -4379,6 +4377,7 @@
             <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2" itemscope
                 itemtype="http://schema.org/SiteNavigationElement">
                 <button
+                        type="button"
                         class="flex justify-between w-full text-start"
                         aria-expanded="false"
                         aria-controls="menu1"
@@ -4399,10 +4398,10 @@
                 </button>
                 <ul id="menu1"
                     class="hidden bg-gray-200 dark:bg-zinc-900 dark:text-white"
-                    role="menu"
                     aria-labelledby="menu1-button">
                     <li class="border-b border-gray-300" itemscope itemtype="http://schema.org/SiteNavigationElement">
                         <button
+                                type="button"
                                 class="flex justify-between w-full px-6 py-2 text-start"
                                 aria-expanded="false"
                                 aria-controls="submenu1"
@@ -4423,7 +4422,6 @@
                         </button>
                         <ul id="submenu1"
                             class="hidden bg-gray-100 dark:bg-zinc-500 dark:text-gray-200"
-                            role="menu"
                             aria-labelledby="submenu1-button"
                             itemscope
                             itemtype="http://schema.org/Brand">
@@ -4484,8 +4482,8 @@
                 <h3 id="LoginModalTitle" class="text-xl dark:text-white">
                     ورود / ثبت نام
                 </h3>
-                <button data-modal-close class="text-gray-500 hover:text-gray-700 cursor-pointer text-3xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white">
+                <button data-modal-close class="text-gray-500 hover:text-gray-700 cursor-pointer text-3xl" aria-label="Close modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 dark:text-white" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
                     </svg>
                 </button>
@@ -4531,8 +4529,8 @@
                             <input type="password" id="password" class="w-full pe-12 ps-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="رمز عبور خود را وارد کنید" required>
                             <div class="absolute input-icon top-1/2 transform -translate-y-1/2 text-gray-400">
                             </div>
-                            <button type="button" class="absolute password-toggle top-1/2 transform -translate-y-1/2 text-gray-400" onclick="togglePassword('password')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <button type="button" class="absolute password-toggle top-1/2 transform -translate-y-1/2 text-gray-400" onclick="togglePassword('password')" aria-label="Show password">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
@@ -4660,7 +4658,7 @@
                 <div class="mt-6 text-center">
                     <p class="text-sm text-gray-500 dark:text-gray-400">
                         حساب کاربری ندارید؟
-                        <a href="#" class="font-medium text-primary dark:text-primary-dark hover:underline">ثبت نام کنید</a>
+                        <!-- <a href="#" class="font-medium text-primary dark:text-primary-dark hover:underline">ثبت نام کنید</a> -->
                     </p>
                 </div>
             </div>

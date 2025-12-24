@@ -118,7 +118,7 @@ class CouponService {
             const response = await this.apiClient.delete(`/coupon/remove/${code}`);
             return {
                 success: true,
-                message: 'ع©ظˆظ¾ظ† ط­ط°ظپ ط´ط¯'
+                message: 'کوپن حذف شد'
             };
         } catch (error) {
             window.logger.error('Error removing coupon:', error);
@@ -255,13 +255,13 @@ class CouponService {
         const errors = {};
 
         if (!couponData.code || couponData.code.trim().length === 0) {
-            errors.code = 'ع©ط¯ ع©ظˆظ¾ظ† ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.code = 'کد کوپن الزامی است';
         } else if (couponData.code.trim().length < 3) {
-            errors.code = 'ع©ط¯ ع©ظˆظ¾ظ† ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ³ ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
+            errors.code = 'کد کوپن باید حداقل ۳ کاراکتر باشد';
         }
 
         if (!couponData.discountType) {
-            errors.discountType = 'ظ†ظˆط¹ طھط®ظپغŒظپ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.discountType = 'نوع تخفیف الزامی است';
         }
 
         if (!couponData.discountValue || couponData.discountValue <= 0) {
@@ -269,11 +269,11 @@ class CouponService {
         }
 
         if (couponData.minimumAmount && couponData.minimumAmount < 0) {
-            errors.minimumAmount = 'ط­ط¯ط§ظ‚ظ„ ظ…ط¨ظ„ط؛ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ظ…ظ†ظپغŒ ط¨ط§ط´ط¯';
+            errors.minimumAmount = 'حداقل مبلغ نمی‌تواند منفی باشد';
         }
 
         if (couponData.maximumDiscount && couponData.maximumDiscount < 0) {
-            errors.maximumDiscount = 'ط­ط¯ط§ع©ط«ط± طھط®ظپغŒظپ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ظ…ظ†ظپغŒ ط¨ط§ط´ط¯';
+            errors.maximumDiscount = 'حداکثر تخفیف نمی‌تواند منفی باشد';
         }
 
         return {
@@ -413,15 +413,15 @@ class CouponService {
         const requirements = [];
         
         if (coupon.minimumAmount) {
-            requirements.push(`ط­ط¯ط§ظ‚ظ„ ط®ط±غŒط¯ ${window.utils.formatPrice(coupon.minimumAmount)}`);
+            requirements.push(`حداقل خرید ${window.utils.formatPrice(coupon.minimumAmount)}`);
         }
         
         if (coupon.maximumDiscount) {
-            requirements.push(`ط­ط¯ط§ع©ط«ط± طھط®ظپغŒظپ ${window.utils.formatPrice(coupon.maximumDiscount)}`);
+            requirements.push(`حداکثر تخفیف ${window.utils.formatPrice(coupon.maximumDiscount)}`);
         }
         
         if (coupon.usageLimit) {
-            requirements.push(`ط­ط¯ط§ع©ط«ط± ${coupon.usageLimit} ط¨ط§ط± ط§ط³طھظپط§ط¯ظ‡`);
+            requirements.push(`حداکثر ${coupon.usageLimit} بار استفاده`);
         }
         
         return requirements.join(' - ');
@@ -478,7 +478,7 @@ class CouponService {
             window.logger.error('Error copying coupon code:', error);
             return {
                 success: false,
-                error: 'ط®ط·ط§ ط¯ط± ع©ظ¾غŒ ع©ط±ط¯ظ† ع©ط¯ ع©ظˆظ¾ظ†'
+                error: 'خطا در کپی کردن کد کوپن'
             };
         }
     }

@@ -119,7 +119,7 @@ class OrderService {
             });
             return {
                 success: true,
-                message: 'ط³ظپط§ط±ط´ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ظ„ط؛ظˆ ط´ط¯.'
+                message: 'سفارش با موفقیت لغو شد.'
             };
         } catch (error) {
             window.logger.error('Error cancelling order:', error);
@@ -162,7 +162,7 @@ class OrderService {
             window.logger.error('Error downloading invoice:', error);
             return {
                 success: false,
-                error: 'ط¯ط§ظ†ظ„ظˆط¯ طµظˆط±طھط­ط³ط§ط¨ ط¨ط§ ط®ط·ط§ ظ…ظˆط§ط¬ظ‡ ط´ط¯.'
+                error: 'دانلود صورتحساب با خطا مواجه شد.'
             };
         }
     }
@@ -294,15 +294,15 @@ class OrderService {
         const errors = {};
 
         if (!orderData.orderNumber || orderData.orderNumber.trim().length === 0) {
-            errors.orderNumber = 'ط´ظ…ط§ط±ظ‡ ط³ظپط§ط±ط´ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ.';
+            errors.orderNumber = 'شماره سفارش الزامی است.';
         }
 
         if (!orderData.status) {
-            errors.status = 'ظˆط¶ط¹غŒطھ ط³ظپط§ط±ط´ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ.';
+            errors.status = 'وضعیت سفارش الزامی است.';
         }
 
         if (orderData.totalAmount && orderData.totalAmount < 0) {
-            errors.totalAmount = 'ظ…ط¨ظ„ط؛ ط³ظپط§ط±ط´ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ظ…ظ†ظپغŒ ط¨ط§ط´ط¯.';
+            errors.totalAmount = 'مبلغ سفارش نمی‌تواند منفی باشد.';
         }
 
         return {

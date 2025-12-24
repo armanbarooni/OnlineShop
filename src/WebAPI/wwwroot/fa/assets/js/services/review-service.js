@@ -74,7 +74,7 @@ class ReviewService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'ظ†ط¸ط± ط´ظ…ط§ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط«ط¨طھ ط´ط¯'
+                message: 'نظر شما با موفقیت ثبت شد'
             };
         } catch (error) {
             window.logger.error('Error creating review:', error);
@@ -113,7 +113,7 @@ class ReviewService {
             const response = await this.apiClient.delete(`/productreview/${reviewId}`);
             return {
                 success: true,
-                message: 'ظ†ط¸ط± ط´ظ…ط§ ط­ط°ظپ ط´ط¯'
+                message: 'نظر شما حذف شد'
             };
         } catch (error) {
             window.logger.error('Error deleting review:', error);
@@ -231,21 +231,21 @@ class ReviewService {
         const errors = {};
 
         if (!reviewData.productId) {
-            errors.productId = 'ط´ظ†ط§ط³ظ‡ ظ…ط­طµظˆظ„ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.productId = 'شناسه محصول الزامی است';
         }
 
         if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
-            errors.rating = 'ط§ظ…طھغŒط§ط² ط¨ط§غŒط¯ ط¨غŒظ† غ± طھط§ غµ ط¨ط§ط´ط¯';
+            errors.rating = 'امتیاز باید بین ۱ تا ۵ باشد';
         }
 
         if (!reviewData.comment || reviewData.comment.trim().length === 0) {
-            errors.comment = 'ظ†ط¸ط± ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.comment = 'نظر الزامی است';
         } else if (reviewData.comment.trim().length < 10) {
-            errors.comment = 'ظ†ط¸ط± ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ±غ° ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
+            errors.comment = 'نظر باید حداقل ۱۰ کاراکتر باشد';
         }
 
         if (reviewData.title && reviewData.title.trim().length > 100) {
-            errors.title = 'ط¹ظ†ظˆط§ظ† ظ†ط¸ط± ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ط¨غŒط´ ط§ط² غ±غ°غ° ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
+            errors.title = 'عنوان نظر نمی‌تواند بیش از ۱۰۰ کاراکتر باشد';
         }
 
         return {
@@ -394,7 +394,7 @@ class ReviewService {
             const response = await this.apiClient.post(`/productreview/${reviewId}/helpful`);
             return {
                 success: true,
-                message: 'ظ†ط¸ط± ط¨ظ‡ ط¹ظ†ظˆط§ظ† ظ…ظپغŒط¯ ط¹ظ„ط§ظ…طھâ€Œع¯ط°ط§ط±غŒ ط´ط¯'
+                message: 'نظر به عنوان مفید علامت‌گذاری شد'
             };
         } catch (error) {
             window.logger.error('Error marking review as helpful:', error);

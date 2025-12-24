@@ -54,19 +54,39 @@ class ApiClient {
                     if (!retryResponse.ok) {
                         // Parse error message from different response structures
                         let errorMessage = '';
+                        
+                        // If retryData is a string, try to parse it as JSON first
                         if (typeof retryData === 'string') {
-                            errorMessage = retryData;
-                        } else if (retryData?.message) {
-                            errorMessage = retryData.message;
-                        } else if (Array.isArray(retryData)) {
-                            errorMessage = retryData.join(', ');
-                        } else if (retryData?.errors && Array.isArray(retryData.errors)) {
-                            errorMessage = retryData.errors.join(', ');
-                        } else if (retryData?.title) {
-                            errorMessage = retryData.title;
-                        } else {
-                            errorMessage = `HTTP error! status: ${retryResponse.status}`;
+                            try {
+                                const parsed = JSON.parse(retryData);
+                                if (parsed && typeof parsed === 'object') {
+                                    retryData = parsed;
+                                } else {
+                                    errorMessage = retryData;
+                                }
+                            } catch (e) {
+                                // If it's not JSON, use the string as is
+                                errorMessage = retryData;
+                            }
                         }
+
+                        // Now extract errorMessage from parsed retryData
+                        if (!errorMessage) {
+                            if (retryData?.errorMessage) {
+                                errorMessage = retryData.errorMessage;
+                            } else if (retryData?.message) {
+                                errorMessage = retryData.message;
+                            } else if (Array.isArray(retryData)) {
+                                errorMessage = retryData.join(', ');
+                            } else if (retryData?.errors && Array.isArray(retryData.errors)) {
+                                errorMessage = retryData.errors.join(', ');
+                            } else if (retryData?.title) {
+                                errorMessage = retryData.title;
+                            } else {
+                                errorMessage = `HTTP error! status: ${retryResponse.status}`;
+                            }
+                        }
+                        
                         throw new Error(errorMessage);
                     }
 
@@ -109,22 +129,42 @@ class ApiClient {
                     throw new Error(errorMessage);
                 }
 
+                // If data is a string, try to parse it as JSON first
                 if (typeof data === 'string') {
-                    errorMessage = data;
-                } else if (data?.message) {
-                    errorMessage = data.message;
-                } else if (Array.isArray(data)) {
-                    errorMessage = data.join(', ');
-                } else if (data?.errors && Array.isArray(data.errors)) {
-                    errorMessage = data.errors.join(', ');
-                } else if (data?.title) {
-                    errorMessage = data.title;
-                } else if (typeof data === 'object' && Object.keys(data).length === 0) {
-                    errorMessage = `HTTP error! status: ${response.status}`;
-                } else {
-                    // Try to extract any error information
-                    const errorText = JSON.stringify(data);
-                    errorMessage = errorText.length > 200 ? `HTTP error! status: ${response.status}` : errorText;
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (parsed && typeof parsed === 'object') {
+                            data = parsed;
+                        } else {
+                            errorMessage = data;
+                        }
+                    } catch (e) {
+                        // If it's not JSON, use the string as is
+                        errorMessage = data;
+                    }
+                }
+
+                // Now extract errorMessage from parsed data
+                if (!errorMessage) {
+                    if (data?.errorMessage) {
+                        errorMessage = data.errorMessage;
+                    } else if (data?.message) {
+                        errorMessage = data.message;
+                    } else if (Array.isArray(data)) {
+                        errorMessage = data.join(', ');
+                    } else if (data?.errors && Array.isArray(data.errors)) {
+                        errorMessage = data.errors.join(', ');
+                    } else if (data?.title) {
+                        errorMessage = data.title;
+                    } else if (typeof data === 'object' && Object.keys(data).length === 0) {
+                        errorMessage = `HTTP error! status: ${response.status}`;
+                    } else if (typeof data === 'object' && data !== null) {
+                        // Don't stringify the whole object - just show a generic error
+                        // The errorMessage should have been caught above if it exists
+                        errorMessage = `HTTP error! status: ${response.status}`;
+                    } else {
+                        errorMessage = `HTTP error! status: ${response.status}`;
+                    }
                 }
 
                 // Add status code to error message for debugging
@@ -298,18 +338,36 @@ class ApiClient {
                 // Parse error message from different response structures
                 let errorMessage = '';
 
+                // If data is a string, try to parse it as JSON first
                 if (typeof data === 'string') {
-                    errorMessage = data;
-                } else if (data?.message) {
-                    errorMessage = data.message;
-                } else if (Array.isArray(data)) {
-                    errorMessage = data.join(', ');
-                } else if (data?.errors && Array.isArray(data.errors)) {
-                    errorMessage = data.errors.join(', ');
-                } else if (data?.title) {
-                    errorMessage = data.title;
-                } else {
-                    errorMessage = `HTTP error! status: ${response.status}`;
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (parsed && typeof parsed === 'object') {
+                            data = parsed;
+                        } else {
+                            errorMessage = data;
+                        }
+                    } catch (e) {
+                        // If it's not JSON, use the string as is
+                        errorMessage = data;
+                    }
+                }
+
+                // Now extract errorMessage from parsed data
+                if (!errorMessage) {
+                    if (data?.errorMessage) {
+                        errorMessage = data.errorMessage;
+                    } else if (data?.message) {
+                        errorMessage = data.message;
+                    } else if (Array.isArray(data)) {
+                        errorMessage = data.join(', ');
+                    } else if (data?.errors && Array.isArray(data.errors)) {
+                        errorMessage = data.errors.join(', ');
+                    } else if (data?.title) {
+                        errorMessage = data.title;
+                    } else {
+                        errorMessage = `HTTP error! status: ${response.status}`;
+                    }
                 }
 
                 throw new Error(errorMessage);

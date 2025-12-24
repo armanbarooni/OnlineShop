@@ -55,7 +55,7 @@ class ReturnService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط«ط¨طھ ط´ط¯'
+                message: 'درخواست مرجوعی با موفقیت ثبت شد'
             };
         } catch (error) {
             window.logger.error('Error creating return request:', error);
@@ -75,7 +75,7 @@ class ReturnService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯'
+                message: 'درخواست مرجوعی با موفقیت به‌روزرسانی شد'
             };
         } catch (error) {
             window.logger.error('Error updating return request:', error);
@@ -94,7 +94,7 @@ class ReturnService {
             const response = await this.apiClient.delete(`/userreturnrequest/${returnRequestId}`);
             return {
                 success: true,
-                message: 'ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ط­ط°ظپ ط´ط¯'
+                message: 'درخواست مرجوعی حذف شد'
             };
         } catch (error) {
             window.logger.error('Error deleting return request:', error);
@@ -215,7 +215,7 @@ class ReturnService {
             });
             return {
                 success: true,
-                message: 'ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ظ„ط؛ظˆ ط´ط¯'
+                message: 'درخواست مرجوعی لغو شد'
             };
         } catch (error) {
             window.logger.error('Error cancelling return request:', error);
@@ -254,7 +254,7 @@ class ReturnService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'ظ…ط­طµظˆظ„ ط¨ظ‡ ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ط§ط¶ط§ظپظ‡ ط´ط¯'
+                message: 'محصول به درخواست مرجوعی اضافه شد'
             };
         } catch (error) {
             window.logger.error('Error adding item to return request:', error);
@@ -273,7 +273,7 @@ class ReturnService {
             const response = await this.apiClient.delete(`/userreturnrequest/${returnRequestId}/items/${itemId}`);
             return {
                 success: true,
-                message: 'ظ…ط­طµظˆظ„ ط§ط² ط¯ط±ط®ظˆط§ط³طھ ظ…ط±ط¬ظˆط¹غŒ ط­ط°ظپ ط´ط¯'
+                message: 'محصول از درخواست مرجوعی حذف شد'
             };
         } catch (error) {
             window.logger.error('Error removing item from return request:', error);
@@ -291,17 +291,17 @@ class ReturnService {
         const errors = {};
 
         if (!returnRequestData.orderId) {
-            errors.orderId = 'ط´ظ†ط§ط³ظ‡ ط³ظپط§ط±ط´ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.orderId = 'شناسه سفارش الزامی است';
         }
 
         if (!returnRequestData.reason || returnRequestData.reason.trim().length === 0) {
-            errors.reason = 'ط¯ظ„غŒظ„ ظ…ط±ط¬ظˆط¹غŒ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.reason = 'دلیل مرجوعی الزامی است';
         } else if (returnRequestData.reason.trim().length < 10) {
-            errors.reason = 'ط¯ظ„غŒظ„ ظ…ط±ط¬ظˆط¹غŒ ط¨ط§غŒط¯ ط­ط¯ط§ظ‚ظ„ غ±غ° ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
+            errors.reason = 'دلیل مرجوعی باید حداقل ۱۰ کاراکتر باشد';
         }
 
         if (!returnRequestData.items || !Array.isArray(returnRequestData.items) || returnRequestData.items.length === 0) {
-            errors.items = 'ط­ط¯ط§ظ‚ظ„ غŒع© ظ…ط­طµظˆظ„ ط¨ط§غŒط¯ ط§ظ†طھط®ط§ط¨ ط´ظˆط¯';
+            errors.items = 'حداقل یک محصول باید انتخاب شود';
         }
 
         return {
@@ -344,11 +344,11 @@ class ReturnService {
      */
     getReturnRequestReasons() {
         return [
-            { value: 'defective', label: 'ظ…ط­طµظˆظ„ ظ…ط¹غŒظˆط¨' },
-            { value: 'wrong_item', label: 'ظ…ط­طµظˆظ„ ط§ط´طھط¨ط§ظ‡' },
-            { value: 'not_as_described', label: 'ظ…ط·ط§ط¨ظ‚ طھظˆط¶غŒط­ط§طھ ظ†ط¨ظˆط¯' },
-            { value: 'changed_mind', label: 'طھط؛غŒغŒط± ظ†ط¸ط±' },
-            { value: 'damaged_shipping', label: 'ط¢ط³غŒط¨ ط¯ط± ط­ظ…ظ„ ظˆ ظ†ظ‚ظ„' },
+            { value: 'defective', label: 'محصول معیوب' },
+            { value: 'wrong_item', label: 'محصول اشتباه' },
+            { value: 'not_as_described', label: 'مطابق توضیحات نبود' },
+            { value: 'changed_mind', label: 'تغییر نظر' },
+            { value: 'damaged_shipping', label: 'آسیب در حمل و نقل' },
             { value: 'other', label: 'ط³ط§غŒط±' }
         ];
     }

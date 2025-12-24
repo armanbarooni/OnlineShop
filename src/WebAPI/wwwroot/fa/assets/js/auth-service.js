@@ -69,7 +69,18 @@ class AuthService {
         } catch (error) {
             window.logger.error('Login error:', error);
             // api-client throws errors, so we need to handle them properly
-            const errorMessage = error instanceof Error ? error.message : (error?.message || 'خطا در ورود');
+            let errorMessage = error instanceof Error ? error.message : (error?.message || 'خطا در ورود');
+            
+            // Try to extract errorMessage from JSON string if error.message is a serialized JSON
+            try {
+                const parsed = JSON.parse(errorMessage);
+                if (parsed && (parsed.errorMessage || parsed.message)) {
+                    errorMessage = parsed.errorMessage || parsed.message;
+                }
+            } catch (parseErr) {
+                // If it's not JSON, keep original message
+            }
+            
             return {
                 success: false,
                 error: errorMessage
@@ -93,9 +104,23 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Send OTP error:', error);
+            
+            // Try to extract a friendly error message from possible JSON error payload
+            let message = error && error.message ? error.message : 'خطا در اتصال به سرور';
+            try {
+                // Some backends return serialized JSON as error.message, e.g.:
+                // {"isSuccess":false,"data":null,"errorMessage":"کد تایید نامعتبر یا منقضی شده است",...}
+                const parsed = JSON.parse(message);
+                if (parsed && (parsed.errorMessage || parsed.message)) {
+                    message = parsed.errorMessage || parsed.message;
+                }
+            } catch (parseErr) {
+                // If it's not JSON, keep original message
+            }
+            
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: message
             };
         }
     }
@@ -264,6 +289,16 @@ class AuthService {
             if (error instanceof Error) {
                 errorMessage = error.message;
 
+                // Try to extract errorMessage from JSON string if error.message is a serialized JSON
+                try {
+                    const parsed = JSON.parse(errorMessage);
+                    if (parsed && (parsed.errorMessage || parsed.message)) {
+                        errorMessage = parsed.errorMessage || parsed.message;
+                    }
+                } catch (parseErr) {
+                    // If it's not JSON, continue with original message
+                }
+
                 // Parse specific error messages
                 if (errorMessage.includes('EMAIL_EXISTS') || errorMessage.includes('ایمیل قبلاً') || errorMessage.includes('کاربری با این ایمیل')) {
                     errorMessage = 'کاربری با این ایمیل قبلاً ثبت‌نام کرده است';
@@ -375,6 +410,16 @@ class AuthService {
             if (error instanceof Error) {
                 errorMessage = error.message;
 
+                // Try to extract errorMessage from JSON string if error.message is a serialized JSON
+                try {
+                    const parsed = JSON.parse(errorMessage);
+                    if (parsed && (parsed.errorMessage || parsed.message)) {
+                        errorMessage = parsed.errorMessage || parsed.message;
+                    }
+                } catch (parseErr) {
+                    // If it's not JSON, continue with original message
+                }
+
                 // Parse specific error messages
                 if (errorMessage.includes('PHONE_EXISTS') || errorMessage.includes('شماره موبایل')) {
                     errorMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
@@ -467,9 +512,21 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Change password error:', error);
+            let errorMessage = error.message || 'خطا در اتصال به سرور';
+            
+            // Try to extract errorMessage from JSON string if error.message is a serialized JSON
+            try {
+                const parsed = JSON.parse(errorMessage);
+                if (parsed && (parsed.errorMessage || parsed.message)) {
+                    errorMessage = parsed.errorMessage || parsed.message;
+                }
+            } catch (parseErr) {
+                // If it's not JSON, keep original message
+            }
+            
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: errorMessage
             };
         }
     }
@@ -489,9 +546,21 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Forgot password error:', error);
+            let errorMessage = error.message || 'خطا در اتصال به سرور';
+            
+            // Try to extract errorMessage from JSON string if error.message is a serialized JSON
+            try {
+                const parsed = JSON.parse(errorMessage);
+                if (parsed && (parsed.errorMessage || parsed.message)) {
+                    errorMessage = parsed.errorMessage || parsed.message;
+                }
+            } catch (parseErr) {
+                // If it's not JSON, keep original message
+            }
+            
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: errorMessage
             };
         }
     }
@@ -513,9 +582,21 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Reset password error:', error);
+            let errorMessage = error.message || 'خطا در اتصال به سرور';
+            
+            // Try to extract errorMessage from JSON string if error.message is a serialized JSON
+            try {
+                const parsed = JSON.parse(errorMessage);
+                if (parsed && (parsed.errorMessage || parsed.message)) {
+                    errorMessage = parsed.errorMessage || parsed.message;
+                }
+            } catch (parseErr) {
+                // If it's not JSON, keep original message
+            }
+            
             return {
                 success: false,
-                error: error.message || 'خطا در اتصال به سرور'
+                error: errorMessage
             };
         }
     }

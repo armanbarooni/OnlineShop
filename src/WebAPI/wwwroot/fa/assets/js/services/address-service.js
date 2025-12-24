@@ -68,7 +68,7 @@ class AddressService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'ط¢ط¯ط±ط³ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط§ط¶ط§ظپظ‡ ط´ط¯'
+                message: 'آدرس با موفقیت اضافه شد'
             };
         } catch (error) {
             window.logger.error('Error creating address:', error);
@@ -88,7 +88,7 @@ class AddressService {
             return {
                 success: true,
                 data: response.data || response,
-                message: 'ط¢ط¯ط±ط³ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط¨ط±ظˆط²ط±ط³ط§ظ†غŒ ط´ط¯'
+                message: 'آدرس با موفقیت به‌روزرسانی شد'
             };
         } catch (error) {
             window.logger.error('Error updating address:', error);
@@ -107,7 +107,7 @@ class AddressService {
             const response = await this.apiClient.delete(`/useraddress/${addressId}`);
             return {
                 success: true,
-                message: 'ط¢ط¯ط±ط³ ط¨ط§ ظ…ظˆظپظ‚غŒطھ ط­ط°ظپ ط´ط¯'
+                message: 'آدرس با موفقیت حذف شد'
             };
         } catch (error) {
             window.logger.error('Error deleting address:', error);
@@ -126,7 +126,7 @@ class AddressService {
             const response = await this.apiClient.post(`/useraddress/${addressId}/set-default`);
             return {
                 success: true,
-                message: 'ط¢ط¯ط±ط³ ظ¾غŒط´â€Œظپط±ط¶ ط¨ط§ ظ…ظˆظپظ‚غŒطھ طھظ†ط¸غŒظ… ط´ط¯'
+                message: 'آدرس پیش‌فرض با موفقیت تنظیم شد'
             };
         } catch (error) {
             window.logger.error('Error setting default address:', error);
@@ -163,33 +163,33 @@ class AddressService {
         const errors = {};
 
         if (!addressData.title || addressData.title.trim().length === 0) {
-            errors.title = 'ط¹ظ†ظˆط§ظ† ط¢ط¯ط±ط³ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.title = 'عنوان آدرس الزامی است';
         }
 
         if (!addressData.firstName || addressData.firstName.trim().length === 0) {
-            errors.firstName = 'ظ†ط§ظ… ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.firstName = 'نام الزامی است';
         }
 
         if (!addressData.addressLine1 || addressData.addressLine1.trim().length === 0) {
-            errors.addressLine1 = 'ط¢ط¯ط±ط³ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.addressLine1 = 'آدرس الزامی است';
         }
 
         if (!addressData.city || addressData.city.trim().length === 0) {
-            errors.city = 'ط´ظ‡ط± ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.city = 'شهر الزامی است';
         }
 
         if (!addressData.state || addressData.state.trim().length === 0) {
-            errors.state = 'ط§ط³طھط§ظ† ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.state = 'استان الزامی است';
         }
 
         if (!addressData.postalCode || addressData.postalCode.trim().length === 0) {
-            errors.postalCode = 'ع©ط¯ ظ¾ط³طھغŒ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.postalCode = 'کد پستی الزامی است';
         } else if (!/^\d{10}$/.test(addressData.postalCode)) {
             errors.postalCode = 'ع©ط¯ ظ¾ط³طھغŒ ط¨ط§غŒط¯ غ±غ° ط±ظ‚ظ… ط¨ط§ط´ط¯';
         }
 
         if (addressData.phoneNumber && !window.utils.isValidPhone(addressData.phoneNumber)) {
-            errors.phoneNumber = 'ط´ظ…ط§ط±ظ‡ طھظ„ظپظ† ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ';
+            errors.phoneNumber = 'شماره تلفن معتبر است';
         }
 
         return {

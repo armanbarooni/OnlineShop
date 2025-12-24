@@ -27,7 +27,7 @@ class CheckoutService {
             window.logger.error('Error processing checkout:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ظ¾ط±ط¯ط§ط²ط´ طھط³ظˆغŒظ‡ ط­ط³ط§ط¨'
+                error: error.message || 'خطا در پردازش تسویه حساب'
             };
         }
     }
@@ -56,7 +56,7 @@ class CheckoutService {
             window.logger.error('Error getting checkout data:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط§ط·ظ„ط§ط¹ط§طھ طھط³ظˆغŒظ‡ ط­ط³ط§ط¨'
+                error: error.message || 'خطا در دریافت اطلاعات تسویه حساب'
             };
         }
     }
@@ -75,7 +75,7 @@ class CheckoutService {
             window.logger.error('Error getting addresses:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط¢ط¯ط±ط³â€Œظ‡ط§'
+                error: error.message || 'خطا در دریافت آدرس‌ها'
             };
         }
     }
@@ -94,7 +94,7 @@ class CheckoutService {
             window.logger.error('Error getting payment methods:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط±ظˆط´â€Œظ‡ط§غŒ ظ¾ط±ط¯ط§ط®طھ'
+                error: error.message || 'خطا در دریافت روش‌های پرداخت'
             };
         }
     }
@@ -115,7 +115,7 @@ class CheckoutService {
             window.logger.error('Error getting shipping methods:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط±ظˆط´â€Œظ‡ط§غŒ ط§ط±ط³ط§ظ„'
+                error: error.message || 'خطا در دریافت روش‌های ارسال'
             };
         }
     }
@@ -137,7 +137,7 @@ class CheckoutService {
             window.logger.error('Error calculating shipping:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ظ…ط­ط§ط³ط¨ظ‡ ظ‡ط²غŒظ†ظ‡ ط§ط±ط³ط§ظ„'
+                error: error.message || 'خطا در محاسبه هزینه ارسال'
             };
         }
     }
@@ -156,7 +156,7 @@ class CheckoutService {
             window.logger.error('Error validating checkout:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§ط¹طھط¨ط§ط±ط³ظ†ط¬غŒ ط§ط·ظ„ط§ط¹ط§طھ طھط³ظˆغŒظ‡ ط­ط³ط§ط¨'
+                error: error.message || 'خطا در اعتبارسنجی اطلاعات تسویه حساب'
             };
         }
     }
@@ -182,7 +182,7 @@ class CheckoutService {
             window.logger.error('Error getting order summary:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط®ظ„ط§طµظ‡ ط³ظپط§ط±ط´'
+                error: error.message || 'خطا در دریافت خلاصه سفارش'
             };
         }
     }
@@ -203,7 +203,7 @@ class CheckoutService {
             window.logger.error('Error applying coupon to checkout:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§ط¹ظ…ط§ظ„ ع©ط¯ طھط®ظپغŒظپ'
+                error: error.message || 'خطا در اعمال کد تخفیف'
             };
         }
     }
@@ -222,7 +222,7 @@ class CheckoutService {
             window.logger.error('Error removing coupon from checkout:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ع©ط¯ طھط®ظپغŒظپ'
+                error: error.message || 'خطا در حذف کد تخفیف'
             };
         }
     }
@@ -234,19 +234,19 @@ class CheckoutService {
         const errors = {};
 
         if (!checkoutData.addressId) {
-            errors.addressId = 'ط§ظ†طھط®ط§ط¨ ط¢ط¯ط±ط³ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.addressId = 'انتخاب آدرس الزامی است';
         }
 
         if (!checkoutData.shippingMethodId) {
-            errors.shippingMethodId = 'ط§ظ†طھط®ط§ط¨ ط±ظˆط´ ط§ط±ط³ط§ظ„ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.shippingMethodId = 'انتخاب روش ارسال الزامی است';
         }
 
         if (!checkoutData.paymentMethodId) {
-            errors.paymentMethodId = 'ط§ظ†طھط®ط§ط¨ ط±ظˆط´ ظ¾ط±ط¯ط§ط®طھ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.paymentMethodId = 'انتخاب روش پرداخت الزامی است';
         }
 
         if (checkoutData.notes && checkoutData.notes.length > 500) {
-            errors.notes = 'طھظˆط¶غŒط­ط§طھ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ط¨غŒط´طھط± ط§ط² غµغ°غ° ع©ط§ط±ط§ع©طھط± ط¨ط§ط´ط¯';
+            errors.notes = 'توضیحات نمی‌تواند بیش‌تر از ۵۰۰ کاراکتر باشد';
         }
 
         return {

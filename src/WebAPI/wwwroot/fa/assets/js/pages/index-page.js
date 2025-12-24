@@ -62,12 +62,12 @@ function renderCategories(categories) {
         <a href="shop.html?category=${category.id}" class="lg:col-span-3 sm:col-span-6 col-span-12 w-full block">
             <article class="flex py-2 px-3 rounded-xl border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800">
                 <section class="space-y-2">
-                    <h3 class="text-lg font-bold dark:text-white">${category.name || 'ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒ'}</h3>
+                    <h3 class="text-lg font-bold dark:text-white">${category.name || 'دسته‌بندی'}</h3>
                     <span class="text-xs font-light text-neutral-500">${category.description || ''}</span>
                 </section>
                 <figure>
                     <img src="${category.imageUrl || 'assets/images/category/digitall.png'}" 
-                         class="size-20" loading="lazy" alt="${category.name || 'ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒ'}">
+                         class="size-20" loading="lazy" alt="${category.name || 'دسته‌بندی'}">
                 </figure>
             </article>
         </a>
@@ -164,7 +164,7 @@ function createProductCard(product) {
     const originalPrice = product.originalPrice || price;
     const discount = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
     const productUrl = `product.html?id=${product.id}`;
-    const name = product.name || 'ظ†ط§ظ… ظ…ط­طµظˆظ„';
+    const name = product.name || 'نام محصول';
 
     return `
         <div class="swiper-slide px-1.5 py-2">
@@ -306,7 +306,7 @@ function renderSearchResults(products) {
     if (!searchResults) return;
 
     if (products.length === 0) {
-        searchResults.innerHTML = '<div class="p-4 text-center text-gray-500">ظ…ط­طµظˆظ„غŒ غŒط§ظپطھ ظ†ط´ط¯</div>';
+        searchResults.innerHTML = '<div class="p-4 text-center text-gray-500">محصولی یافت نشد</div>';
         searchResults.classList.remove('hidden');
         return;
     }
@@ -317,9 +317,9 @@ function renderSearchResults(products) {
             : 'assets/images/product/mobile-1.png';
         return `
             <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
-                <img src="${imageUrl}" alt="${product.name || 'ظ…ط­طµظˆظ„'}" class="w-16 h-16 object-contain rounded me-3">
+                <img src="${imageUrl}" alt="${product.name || 'محصول'}" class="w-16 h-16 object-contain rounded me-3">
                 <div class="flex-1">
-                    <h4 class="font-semibold text-sm dark:text-white">${product.name || 'ظ…ط­طµظˆظ„'}</h4>
+                    <h4 class="font-semibold text-sm dark:text-white">${product.name || 'محصول'}</h4>
                     <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} طھظˆظ…ط§ظ†</p>
                 </div>
             </a>
@@ -341,18 +341,18 @@ window.addToCart = async function(productId) {
         const result = await window.cartService.addToCart(productId, 1);
         if (result.success) {
             if (window.utils) {
-                window.utils.showToast('ظ…ط­طµظˆظ„ ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯ ط§ط¶ط§ظپظ‡ ط´ط¯', 'success');
+                window.utils.showToast('محصول به سبد خرید اضافه شد', 'success');
             }
             updateCartAndComparisonCounts();
         } else {
             if (window.utils) {
-                window.utils.showToast(result.error || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯', 'error');
+                window.utils.showToast(result.error || 'خطا در افزودن به سبد خرید', 'error');
             }
         }
     } catch (error) {
         window.logger.error('Error adding to cart:', error);
         if (window.utils) {
-            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
         }
     }
 };
@@ -369,7 +369,7 @@ window.addToWishlist = async function(productId) {
             const result = await window.wishlistService.addToWishlist(productId);
             if (result.success) {
                 if (window.utils) {
-                    window.utils.showToast('ط¨ظ‡ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط§ط¶ط§ظپظ‡ ط´ط¯', 'success');
+                    window.utils.showToast('به علاقه‌مندی‌ها اضافه شد', 'success');
                 }
             }
         }

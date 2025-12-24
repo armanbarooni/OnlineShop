@@ -18,7 +18,7 @@ class CartService {
             if (!user || !user.id) {
                 return {
                     success: false,
-                    error: 'ع©ط§ط±ط¨ط± ط§ط­ط±ط§ط² ظ‡ظˆغŒطھ ظ†ط´ط¯ظ‡ ط§ط³طھ'
+                    error: 'کاربر احراز هویت نشده است'
                 };
             }
 
@@ -39,7 +39,7 @@ class CartService {
             window.logger.error('Error getting user cart:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط³ط¨ط¯ ط®ط±غŒط¯'
+                error: error.message || 'خطا در دریافت سبد خرید'
             };
         }
     }
@@ -101,7 +101,7 @@ class CartService {
             window.logger.error('Error adding to cart:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯'
+                error: error.message || 'خطا در افزودن به سبد خرید'
             };
         }
     }
@@ -129,7 +129,7 @@ class CartService {
             window.logger.error('Error creating cart:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§غŒط¬ط§ط¯ ط³ط¨ط¯ ط®ط±غŒط¯'
+                error: error.message || 'خطا در ایجاد سبد خرید'
             };
         }
     }
@@ -156,7 +156,7 @@ class CartService {
             window.logger.error('Error updating cart:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط¨ظ‡â€Œط±ظˆط²ط±ط³ط§ظ†غŒ ط³ط¨ط¯ ط®ط±غŒط¯'
+                error: error.message || 'خطا در به‌روزرسانی سبد خرید'
             };
         }
     }
@@ -176,7 +176,7 @@ class CartService {
             if (!cart.items || cart.items.length === 0) {
                 return {
                     success: false,
-                    error: 'ط¢غŒطھظ…غŒ ط¯ط± ط³ط¨ط¯ ط®ط±غŒط¯ غŒط§ظپطھ ظ†ط´ط¯'
+                    error: 'آیتمی در سبد خرید یافت نشد'
                 };
             }
 
@@ -196,7 +196,7 @@ class CartService {
             window.logger.error('Error updating cart item:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط¨ظ‡â€Œط±ظˆط²ط±ط³ط§ظ†غŒ ط¢غŒطھظ… ط³ط¨ط¯ ط®ط±غŒط¯'
+                error: error.message || 'خطا در به‌روزرسانی آیتم سبد خرید'
             };
         }
     }
@@ -225,7 +225,7 @@ class CartService {
             window.logger.error('Error removing from cart:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ط§ط² ط³ط¨ط¯ ط®ط±غŒط¯'
+                error: error.message || 'خطا در حذف از سبد خرید'
             };
         }
     }
@@ -244,7 +244,7 @@ class CartService {
             window.logger.error('Error deleting cart:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ط³ط¨ط¯ ط®ط±غŒط¯'
+                error: error.message || 'خطا در حذف سبد خرید'
             };
         }
     }
@@ -270,7 +270,7 @@ class CartService {
             window.logger.error('Error clearing cart:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ظ¾ط§ع© ع©ط±ط¯ظ† ط³ط¨ط¯ ط®ط±غŒط¯'
+                error: error.message || 'خطا در پاک کردن سبد خرید'
             };
         }
     }
@@ -293,7 +293,7 @@ class CartService {
             window.logger.error('Error applying coupon:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط§ط¹ظ…ط§ظ„ ع©ط¯ طھط®ظپغŒظپ'
+                error: error.message || 'خطا در اعمال کد تخفیف'
             };
         }
     }
@@ -312,7 +312,7 @@ class CartService {
             window.logger.error('Error removing coupon:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط­ط°ظپ ع©ط¯ طھط®ظپغŒظپ'
+                error: error.message || 'خطا در حذف کد تخفیف'
             };
         }
     }
@@ -331,7 +331,7 @@ class CartService {
             window.logger.error('Error getting cart summary:', error);
             return {
                 success: false,
-                error: error.message || 'ط®ط·ط§ ط¯ط± ط¯ط±غŒط§ظپطھ ط®ظ„ط§طµظ‡ ط³ط¨ط¯ ط®ط±غŒط¯'
+                error: error.message || 'خطا در دریافت خلاصه سبد خرید'
             };
         }
     }
@@ -343,7 +343,7 @@ class CartService {
         const errors = {};
 
         if (!cartData.productId) {
-            errors.productId = 'ط´ظ†ط§ط³ظ‡ ظ…ط­طµظˆظ„ ط§ظ„ط²ط§ظ…غŒ ط§ط³طھ';
+            errors.productId = 'شناسه محصول الزامی است';
         }
 
         if (!cartData.quantity || cartData.quantity <= 0) {
@@ -351,7 +351,7 @@ class CartService {
         }
 
         if (cartData.quantity > 100) {
-            errors.quantity = 'طھط¹ط¯ط§ط¯ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ ط¨غŒط´طھط± ط§ط² غ±غ°غ° ط¨ط§ط´ط¯';
+            errors.quantity = 'تعداد نمی‌تواند بیش‌تر از ۱۰۰ باشد';
         }
 
         return {

@@ -3392,7 +3392,7 @@
             }
         } catch (error) {
             console.error('Error removing product:', error);
-            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
         }
     }
 
@@ -3407,11 +3407,11 @@
             if (response.success) {
                 window.utils.showToast('ظ…ط­طµظˆظ„ ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯ ط§ط¶ط§ظپظ‡ ط´ط¯', 'success');
             } else {
-                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ط³ط¨ط¯ ط®ط±غŒط¯', 'error');
+                window.utils.showToast(response.error || 'خطا در افزودن به سبد خرید', 'error');
             }
         } catch (error) {
             console.error('Error adding to cart:', error);
-            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
         }
     }
 
@@ -3424,13 +3424,13 @@
             const response = await window.wishlistService.addToWishlist(productId);
             
             if (response.success) {
-                window.utils.showToast('ظ…ط­طµظˆظ„ ط¨ظ‡ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§ ط§ط¶ط§ظپظ‡ ط´ط¯', 'success');
+                window.utils.showToast('محصول به علاقه‌مندی‌ها اضافه شد', 'success');
             } else {
-                window.utils.showToast(response.error || 'ط®ط·ط§ ط¯ط± ط§ظپط²ظˆط¯ظ† ط¨ظ‡ ط¹ظ„ط§ظ‚ظ‡â€Œظ…ظ†ط¯غŒâ€Œظ‡ط§', 'error');
+                window.utils.showToast(response.error || 'خطا در افزودن به علاقه‌مندی‌ها', 'error');
             }
         } catch (error) {
             console.error('Error adding to wishlist:', error);
-            window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
         }
     }
 
@@ -3448,7 +3448,7 @@
                 }
             } catch (error) {
                 console.error('Error clearing comparison:', error);
-                window.utils.showToast('ط®ط·ط§ ط¯ط± ط§طھطµط§ظ„ ط¨ظ‡ ط³ط±ظˆط±', 'error');
+                window.utils.showToast('خطا در اتصال به سرور', 'error');
             }
         }
     }
