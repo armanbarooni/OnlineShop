@@ -1809,12 +1809,12 @@
                 <section class="lg:col-span-4 col-span-6 w-full my-7">
                     <!-- title -->
                     <div class="space-y-5 ">
-                        <h1 class="font-bold text-xl border-b border-b-gray-300 pb-3" itemprop="name">گوشی موبایل اپل
+                        <h1 id="product-title-fa" class="font-bold text-xl border-b border-b-gray-300 pb-3" itemprop="name">گوشی موبایل اپل
                             مدل iPhone 13 Pro Max دو سیم
                             کارت
                         </h1>
                         <div class="flex items-start space-y-3 flex-col w-full">
-                            <h2 class="text-zinc-500 text-base" itemprop="model">Apple iPhone 13 Pro Max Dual SIM</h2>
+                            <h2 id="product-title-en" class="text-zinc-500 text-base" itemprop="model">Apple iPhone 13 Pro Max Dual SIM</h2>
                         </div>
                     </div>
                     <!-- rating -->
@@ -1860,7 +1860,7 @@
                             <!-- feature -->
                             <div class="space-y-5">
                                 <h4 class="font-bold text-lg">ویژگی‌های محصول:</h4>
-                                <ul class="flex flex-col items-start items-baseline flex-wrap space-x-3 space-y-3"
+                                <ul id="product-features-list" class="flex flex-col items-start items-baseline flex-wrap space-x-3 space-y-3"
                                     itemprop="description">
                                     <li itemprop="feature">
                                         <div class="flex items-center space-x-3">
@@ -1983,15 +1983,15 @@
                                     <div class="flex items-center">
                                         <div class="text-gray-700 dark:text-zinc-300 flex flex-col items-center">
                                             <div class="flex justify-between items-center">
-                                                <del class="text-zinc-400" itemprop="priceSpecification" itemscope=""
+                                                <del id="product-old-price" class="text-zinc-400 hidden" itemprop="priceSpecification" itemscope=""
                                                      itemtype="http://schema.org/UnitPriceSpecification">
                                                     <meta itemprop="priceCurrency" content="IRR">
                                                     <span itemprop="price">100000000</span>
                                                 </del>
                                                 <span class="bg-danger px-2 text-sm rounded-xl text-white ms-3"
-                                                      itemprop="discount">10%</span>
+                                                      id="product-discount-badge" itemprop="discount"></span>
                                             </div>
-                                            <span class="text-xl font-bold dark:text-white" itemprop="price"
+                                            <span id="product-current-price" class="text-xl font-bold dark:text-white" itemprop="price"
                                                   content="90000000">90,000,000</span>
                                         </div>
                                         <span class="text-xs font-bold -rotate-90 dark:text-zinc-300">تومان</span>
@@ -2002,16 +2002,16 @@
                                 <div class="flex space-x-1">
                                     <div class="inline-flex items-center space-x-2 border border-gray-200 dark:border-zinc-700 rounded-lg px-4 bg-white dark:bg-zinc-800 shadow">
                                         <button class="size-10 rounded-full flex items-center justify-center text-lg dark:text-white"
-                                                onclick="increment('count1')">
+                                                id="product-increment-btn">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                  stroke-width="1.5" stroke="currentColor" class="size-4">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                       d="M12 4.5v15m7.5-7.5h-15"/>
                                             </svg>
                                         </button>
-                                        <span id="count1" class="text-lg px-5 inline-block dark:text-white">1</span>
+                                        <span id="product-count-display" class="text-lg px-5 inline-block dark:text-white">1</span>
                                         <button class="size-10 rounded-full flex items-center justify-center text-lg dark:text-white"
-                                                onclick="decrement('count1')">
+                                                id="product-decrement-btn">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                  stroke-width="1.5" stroke="currentColor" class="size-4">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/>
@@ -2034,7 +2034,7 @@
 
                                 <!--Add to cart-->
                                 <div class="flex items-center justify-center">
-                                    <button class="bg-green-600 w-full mt-3 hover:bg-green-700 text-white font-semibold rounded-md px-6 py-3 text-sm">
+                                    <button id="product-add-to-cart-btn" class="bg-green-600 w-full mt-3 hover:bg-green-700 text-white font-semibold rounded-md px-6 py-3 text-sm">
                                         افزودن به سبد خرید
                                     </button>
                                 </div>
@@ -4021,5 +4021,7 @@
 <script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
 <script src="assets/js/dependencies/swiper-script.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script type="module" src="assets/js/modules/product-details-page.js"></script>
 </body>
 </html>
+
