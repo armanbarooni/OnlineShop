@@ -99,6 +99,7 @@
                                             </svg>
                                         </div>
                                     </div>
+                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" id="first-name-error-message"></p>
                                 </div>
                                 <div class="grid grid-cols-1 gap-4">
                                     <div>
@@ -119,6 +120,7 @@
                                                 </svg>
                                             </div>
                                         </div>
+                                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" id="last-name-error-message"></p>
                                     </div>
                                 </div>
 
@@ -147,6 +149,7 @@
                                                 </svg>
                                             </div>
                                         </div>
+                                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" id="mobile-error-message"></p>
                                     </div>
                                 </div>
 
@@ -181,11 +184,12 @@
                             <div>
                                 <label for="email"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">ایمیل
-                                    (اختیاری)</label>
+                               </label>
                                 <div class="relative">
                                     <input type="email" id="email"
                                         class="w-full ps-4 pe-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        placeholder="example@example.com">
+                                        placeholder="example@example.com"
+                                        required>
                                     <div
                                         class="absolute input-icon left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
@@ -195,6 +199,7 @@
                                         </svg>
                                     </div>
                                 </div>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" id="email-error-message"></p>
                             </div>
 
                             <!-- Password -->
@@ -219,6 +224,7 @@
                                         </svg>
                                     </button>
                                 </div>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" id="password-error-message"></p>
                                 <div class="password-strength">
                                     <div class="password-strength-bar" id="password-strength-bar"></div>
                                 </div>
@@ -270,6 +276,7 @@
                                 </div>
                                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" id="password-match-message">
                                 </p>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" id="confirm-password-error-message"></p>
                             </div>
 
                             <!-- Step 2 buttons -->
@@ -318,6 +325,7 @@
                                         placeholder="------" maxlength="6" required
                                         oninput="this.value = this.value.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[^0-9]/g, '')">
                                 </div>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" id="otp-error-message"></p>
                                 <div class="mt-2 text-center">
                                     <span id="otp-timer" class="text-sm text-gray-500 dark:text-gray-400"></span>
                                     <button type="button" id="resend-otp-btn" onclick="resendOTPCode()"
@@ -482,16 +490,24 @@
 
         // Send OTP for registration
         async function sendOTPForRegistration() {
-            console.log('🔔 sendOTPForRegistration called!');
             const mobile = document.getElementById('mobile').value;
             const nextBtn = document.getElementById('step2-next-btn');
             const originalBtnContent = nextBtn ? nextBtn.innerHTML : '';
 
-            console.log('📱 Mobile number:', mobile);
 
             if (!mobile || !/^09\d{9}$/.test(mobile)) {
-                console.error('❌ Invalid mobile number:', mobile);
-                window.utils?.showToast('شماره موبایل معتبر نیست', 'error') || alert('شماره موبایل معتبر نیست');
+                showRegisterError('شماره موبایل معتبر نیست');
+                return;
+            }
+
+            // Check if OTP is still valid
+            if (isOTPStillValid()) {
+                // Just go to step 3 without sending OTP again
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step3').classList.add('active');
+                currentStep = 3;
+                updateStepIndicator(2, 3);
+                document.getElementById('otp-phone-display').textContent = mobile;
                 return;
             }
 
@@ -507,13 +523,15 @@
                      `;
                 }
 
-                console.log('📤 Calling authService.sendOTP...');
-                console.log('authService exists?', !!window.authService);
+             
 
                 const result = await window.authService.sendOTP(mobile, 'registration');
-                console.log('✅ OTP Result:', result);
 
                 if (result.success) {
+                    // Mark OTP as sent and record time
+                    otpSent = true;
+                    otpSentTime = Date.now();
+
                     // Show OTP step
                     document.getElementById('step2').classList.remove('active');
                     document.getElementById('step3').classList.add('active');
@@ -526,16 +544,13 @@
                     // Start timer
                     startOTPTimer();
 
-                    window.utils?.showToast('کد تایید به کنسول سرور ارسال شد (Mock Mode)', 'success');
-                    // Also show regular success
-                    setTimeout(() => window.utils?.showToast('کد تایید ارسال شد', 'success'), 500);
+                    // Get message from response data - success messages can be shown via toast or silently
+                    // No need to show success message as user will see OTP step
                 } else {
-                    console.error('❌ OTP failed:', result.error);
-                    window.utils?.showToast(result.error || 'خطا در ارسال کد تایید', 'error');
+                    showRegisterError(result?.error || 'خطا در ارسال کد تایید');
                 }
             } catch (error) {
-                console.error('💥 Error sending OTP:', error);
-                window.utils?.showToast('خطا در ارسال کد تایید', 'error');
+                showRegisterError('خطا در ارسال کد تایید');
             } finally {
                 if (nextBtn) {
                     nextBtn.disabled = false;
@@ -546,13 +561,13 @@
 
         // Verify OTP and continue to final step
         async function verifyOTPAndContinue() {
-            const mobile = document.getElementById('mobile').value;
-            const otp = document.getElementById('otp').value;
-
-            if (!otp || otp.length !== 6) {
-                window.utils?.showToast('لطفا کد تایید ۶ رقمی را وارد کنید', 'error');
+            // Validate OTP first
+            if (!validateStep3()) {
                 return;
             }
+
+            const mobile = document.getElementById('mobile').value;
+            const otp = document.getElementById('otp').value;
 
             try {
                 // Use verifyOTPOnly instead of verifyOTP to avoid login
@@ -567,13 +582,12 @@
                     currentStep = 4;
                     updateStepIndicator(3, 4);
                     updateReviewSection();
-                    window.utils?.showToast('کد تایید با موفقیت تایید شد', 'success');
                 } else {
-                    window.utils?.showToast(result.error || 'کد تایید نامعتبر است', 'error');
+                    // Show backend error in error box at top of form
+                    showRegisterError(result.error || 'کد تایید نامعتبر است');
                 }
             } catch (error) {
-                console.error('Error verifying OTP:', error);
-                window.utils?.showToast('خطا در تایید کد', 'error');
+                showRegisterError('خطا در تایید کد');
             }
         }
 
@@ -585,7 +599,8 @@
         // Start OTP timer
         let otpTimerInterval = null;
         function startOTPTimer() {
-            let timeLeft = 120; // 2 minutes
+            let timeLeft = OTP_VALID_DURATION; // 2 minutes
+            otpTimeLeft = timeLeft;
             const timerElement = document.getElementById('otp-timer');
             const resendButton = document.getElementById('resend-otp-btn');
 
@@ -600,22 +615,42 @@
                 const minutes = Math.floor(timeLeft / 60);
                 const seconds = timeLeft % 60;
                 timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                otpTimeLeft = timeLeft;
 
                 if (timeLeft <= 0) {
                     clearInterval(otpTimerInterval);
+                    otpTimerInterval = null;
+                    otpTimeLeft = 0;
                     timerElement.style.display = 'none';
                     resendButton.classList.remove('hidden');
+                    otpSent = false; // OTP expired
                 }
 
                 timeLeft--;
             }, 1000);
         }
 
+        // Check if OTP is still valid
+        function isOTPStillValid() {
+            if (!otpSent || !otpSentTime) {
+                return false;
+            }
+            
+            // Check if timer is still running
+            if (otpTimerInterval && otpTimeLeft > 0) {
+                return true;
+            }
+            
+            // Calculate elapsed time
+            const elapsed = Math.floor((Date.now() - otpSentTime) / 1000);
+            return elapsed < OTP_VALID_DURATION;
+        }
+
         async function submitForm() {
             const terms = document.getElementById('terms').checked;
 
             if (!terms) {
-                window.utils?.showToast('لطفا با قوانین و مقررات موافقت کنید', 'error') || alert('لطفا با قوانین و مقررات موافقت کنید');
+                showRegisterError('لطفا با قوانین و مقررات موافقت کنید');
                 return;
             }
 
@@ -659,18 +694,18 @@
                 });
 
                 if (result.success) {
-                    window.utils?.showToast('ثبت نام شما با موفقیت انجام شد!', 'success');
+                    showRegisterSuccess('ثبت نام شما با موفقیت انجام شد!');
                     setTimeout(() => {
                         window.location.href = 'login.html';
                     }, 2000);
                 } else {
-                    window.utils?.showToast(result.error || 'خطا در ثبت نام', 'error');
+                    showRegisterError(result.error || 'خطا در ثبت نام');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                window.utils?.showToast('خطا در اتصال به سرور', 'error');
+                showRegisterError('خطا در اتصال به سرور');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }
@@ -759,6 +794,9 @@
                 if (password === confirmPassword) {
                     messageElement.textContent = 'رمز عبورها مطابقت دارند';
                     messageElement.style.color = '#10B981';
+                    // Clear error if passwords match
+                    clearConfirmPasswordError();
+                    removeConfirmPasswordErrorBorder();
                 } else {
                     messageElement.textContent = 'رمز عبورها مطابقت ندارند';
                     messageElement.style.color = '#EF4444';
@@ -782,6 +820,9 @@
         let currentStep = 1;
         let registrationData = {};
         let otpSent = false;
+        let otpSentTime = null;
+        let otpTimeLeft = 0;
+        const OTP_VALID_DURATION = 120; // 2 minutes in seconds
 
         // Prevent form caching and clear placeholders
         document.addEventListener('DOMContentLoaded', function () {
@@ -796,7 +837,161 @@
 
             // Setup placeholder clearing on input focus
             setupPlaceholderClearing();
+
+            // Clear email error border when user starts typing
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.addEventListener('input', function () {
+                    if (this.value.trim()) {
+                        removeEmailErrorBorder();
+                        clearEmailError();
+                    }
+                });
+            }
+
+            // Clear password error border when user starts typing
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function () {
+                    if (this.value) {
+                        removePasswordErrorBorder();
+                        clearPasswordError();
+                    }
+                });
+            }
+
+            // Clear confirm password error border when user starts typing
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('input', function () {
+                    if (this.value) {
+                        removeConfirmPasswordErrorBorder();
+                        clearConfirmPasswordError();
+                    }
+                });
+            }
+
+            // Clear first name error border when user starts typing
+            const firstNameInput = document.getElementById('first-name');
+            if (firstNameInput) {
+                firstNameInput.addEventListener('input', function () {
+                    if (this.value.trim()) {
+                        removeFirstNameErrorBorder();
+                        clearFirstNameError();
+                    }
+                });
+            }
+
+            // Clear last name error border when user starts typing
+            const lastNameInput = document.getElementById('last-name');
+            if (lastNameInput) {
+                lastNameInput.addEventListener('input', function () {
+                    if (this.value.trim()) {
+                        removeLastNameErrorBorder();
+                        clearLastNameError();
+                    }
+                });
+            }
+
+            // Clear mobile error border when user starts typing
+            const mobileInput = document.getElementById('mobile');
+            if (mobileInput) {
+                mobileInput.addEventListener('input', function () {
+                    if (this.value.trim()) {
+                        removeMobileErrorBorder();
+                        clearMobileError();
+                    }
+                });
+            }
+
+            // Clear OTP error border when user starts typing
+            const otpInput = document.getElementById('otp');
+            if (otpInput) {
+                otpInput.addEventListener('input', function () {
+                    if (this.value) {
+                        removeOTPErrorBorder();
+                        clearOTPError();
+                    }
+                });
+            }
+
+            // Input validation and restrictions
+            setupInputValidations();
         });
+
+        // Setup input validations and restrictions
+        function setupInputValidations() {
+            // First name: Only Persian and English letters, spaces allowed
+            const firstNameInput = document.getElementById('first-name');
+            if (firstNameInput) {
+                firstNameInput.addEventListener('input', function(e) {
+                    // Allow only Persian letters, English letters, and spaces
+                    this.value = this.value.replace(/[^آ-یa-zA-Z\s]/g, '');
+                    // Remove extra spaces
+                    this.value = this.value.replace(/\s+/g, ' ').trim();
+                });
+                firstNameInput.addEventListener('keypress', function(e) {
+                    // Prevent numbers and special characters
+                    const char = String.fromCharCode(e.which || e.keyCode);
+                    if (!/[\u0600-\u06FFa-zA-Z\s]/.test(char)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // Last name: Only Persian and English letters, spaces allowed
+            const lastNameInput = document.getElementById('last-name');
+            if (lastNameInput) {
+                lastNameInput.addEventListener('input', function(e) {
+                    // Allow only Persian letters, English letters, and spaces
+                    this.value = this.value.replace(/[^آ-یa-zA-Z\s]/g, '');
+                    // Remove extra spaces
+                    this.value = this.value.replace(/\s+/g, ' ').trim();
+                });
+                lastNameInput.addEventListener('keypress', function(e) {
+                    // Prevent numbers and special characters
+                    const char = String.fromCharCode(e.which || e.keyCode);
+                    if (!/[\u0600-\u06FFa-zA-Z\s]/.test(char)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // Mobile: Only numbers, max 11 digits, must start with 09
+            const mobileInput = document.getElementById('mobile');
+            if (mobileInput) {
+                mobileInput.addEventListener('input', function(e) {
+                    // Remove all non-numeric characters
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    // Limit to 11 digits
+                    if (this.value.length > 11) {
+                        this.value = this.value.substring(0, 11);
+                    }
+                    // Auto-format: if starts with 9, add 0
+                    if (this.value.length > 0 && this.value[0] === '9' && this.value[0] !== '0') {
+                        this.value = '0' + this.value;
+                    }
+                });
+                mobileInput.addEventListener('keypress', function(e) {
+                    // Only allow numbers
+                    const char = String.fromCharCode(e.which || e.keyCode);
+                    if (!/[0-9]/.test(char)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // Email: Basic email format validation on input
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.addEventListener('input', function(e) {
+                    // Remove spaces
+                    this.value = this.value.replace(/\s/g, '');
+                    // Convert to lowercase
+                    this.value = this.value.toLowerCase();
+                });
+            }
+        }
 
         // Clear registration form completely
         function clearRegistrationForm() {
@@ -822,6 +1017,12 @@
             currentStep = 1;
             registrationData = {};
             otpSent = false;
+            otpSentTime = null;
+            otpTimeLeft = 0;
+            if (otpTimerInterval) {
+                clearInterval(otpTimerInterval);
+                otpTimerInterval = null;
+            }
 
             // Show step 1, hide others
             document.querySelectorAll('.step').forEach((step, index) => {
@@ -885,8 +1086,19 @@
                     return;
                 }
 
-                // If going to step 3 (OTP), send OTP first
+                // If going to step 3 (OTP), check if OTP is still valid
                 if (next === 3) {
+                    // If OTP is still valid, just go to step 3 without sending again
+                    if (isOTPStillValid()) {
+                        document.getElementById('step2').classList.remove('active');
+                        document.getElementById('step3').classList.add('active');
+                        currentStep = 3;
+                        updateStepIndicator(2, 3);
+                        const mobile = document.getElementById('mobile').value;
+                        document.getElementById('otp-phone-display').textContent = mobile;
+                        return;
+                    }
+                    // Otherwise, send OTP
                     sendOTPForRegistration();
                     return; // Don't proceed until OTP is sent
                 }
@@ -918,65 +1130,180 @@
             const lastName = document.getElementById('last-name').value.trim();
             const mobile = document.getElementById('mobile').value.trim();
 
-            if (!firstName || !lastName || !mobile) {
-                window.utils.showToast('لطفاً تمام فیلدهای اجباری را پر کنید', 'error');
-                return false;
+            let isValid = true;
+
+            // Validate first name
+            if (!firstName) {
+                showFirstNameError('لطفاً نام را وارد کنید');
+                addFirstNameErrorBorder();
+                isValid = false;
+            } else if (firstName.length < 2) {
+                showFirstNameError('نام باید حداقل ۲ کاراکتر باشد');
+                addFirstNameErrorBorder();
+                isValid = false;
+            } else if (firstName.length > 50) {
+                showFirstNameError('نام نمی‌تواند بیشتر از ۵۰ کاراکتر باشد');
+                addFirstNameErrorBorder();
+                isValid = false;
+            } else if (!/^[\u0600-\u06FFa-zA-Z\s]+$/.test(firstName)) {
+                showFirstNameError('نام باید فقط شامل حروف فارسی یا انگلیسی باشد');
+                addFirstNameErrorBorder();
+                isValid = false;
+            } else {
+                clearFirstNameError();
+                removeFirstNameErrorBorder();
             }
 
-            if (!/^09\d{9}$/.test(mobile)) {
-                window.utils.showToast('لطفاً شماره موبایل معتبر وارد کنید', 'error');
-                return false;
+            // Validate last name
+            if (!lastName) {
+                showLastNameError('لطفاً نام خانوادگی را وارد کنید');
+                addLastNameErrorBorder();
+                isValid = false;
+            } else if (lastName.length < 2) {
+                showLastNameError('نام خانوادگی باید حداقل ۲ کاراکتر باشد');
+                addLastNameErrorBorder();
+                isValid = false;
+            } else if (lastName.length > 50) {
+                showLastNameError('نام خانوادگی نمی‌تواند بیشتر از ۵۰ کاراکتر باشد');
+                addLastNameErrorBorder();
+                isValid = false;
+            } else if (!/^[\u0600-\u06FFa-zA-Z\s]+$/.test(lastName)) {
+                showLastNameError('نام خانوادگی باید فقط شامل حروف فارسی یا انگلیسی باشد');
+                addLastNameErrorBorder();
+                isValid = false;
+            } else {
+                clearLastNameError();
+                removeLastNameErrorBorder();
             }
 
-            // Store data
-            registrationData.firstName = firstName;
-            registrationData.lastName = lastName;
-            registrationData.mobile = mobile;
+            // Validate mobile
+            if (!mobile) {
+                showMobileError('لطفاً شماره موبایل را وارد کنید');
+                addMobileErrorBorder();
+                isValid = false;
+            } else if (!/^09\d{9}$/.test(mobile)) {
+                showMobileError('شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود (مثال: 09123456789)');
+                addMobileErrorBorder();
+                isValid = false;
+            } else {
+                clearMobileError();
+                removeMobileErrorBorder();
+            }
 
-            return true;
+            // Store data only if all validations pass
+            if (isValid) {
+                registrationData.firstName = firstName;
+                registrationData.lastName = lastName;
+                registrationData.mobile = mobile;
+            }
+
+            return isValid;
         }
 
-        // Validate step 2 (Password)
+        // Validate step 2 (Account Information - Email and Password)
         function validateStep2() {
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
 
-            if (!password || !confirmPassword) {
-                window.utils.showToast('لطفاً رمز عبور و تکرار آن را وارد کنید', 'error');
-                return false;
+            let isValid = true;
+
+            // Validate email
+            if (!email) {
+                showEmailError('لطفاً ایمیل را وارد کنید');
+                addEmailErrorBorder();
+                isValid = false;
+            } else {
+                // Stronger email validation
+                const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+                if (!emailRegex.test(email)) {
+                    showEmailError('فرمت ایمیل معتبر نیست (مثال: example@domain.com)');
+                    addEmailErrorBorder();
+                    isValid = false;
+                } else if (email.length > 254) {
+                    showEmailError('ایمیل نمی‌تواند بیشتر از 254 کاراکتر باشد');
+                    addEmailErrorBorder();
+                    isValid = false;
+                } else if (email.split('@')[0].length > 64) {
+                    showEmailError('قسمت قبل از @ نمی‌تواند بیشتر از 64 کاراکتر باشد');
+                    addEmailErrorBorder();
+                    isValid = false;
+                } else {
+                    // Clear email error if valid
+                    clearEmailError();
+                    removeEmailErrorBorder();
+                }
             }
 
-            if (password !== confirmPassword) {
-                window.utils.showToast('رمز عبور و تکرار آن مطابقت ندارند', 'error');
-                return false;
+            // Validate password
+            if (!password) {
+                showPasswordError('لطفاً رمز عبور را وارد کنید');
+                addPasswordErrorBorder();
+                isValid = false;
+            } else {
+                // Check password strength
+                const strength = checkPasswordStrength(true);
+                if (strength < 3) {
+                    showPasswordError('لطفاً رمز عبور قوی‌تری انتخاب کنید');
+                    addPasswordErrorBorder();
+                    isValid = false;
+                } else {
+                    // Clear password error if valid
+                    clearPasswordError();
+                    removePasswordErrorBorder();
+                }
             }
 
-            // Check password strength
-            const strength = checkPasswordStrength(true);
-            if (strength < 3) {
-                window.utils.showToast('لطفاً رمز عبور قوی‌تری انتخاب کنید', 'error');
-                return false;
+            // Validate confirm password
+            if (!confirmPassword) {
+                showConfirmPasswordError('لطفاً تکرار رمز عبور را وارد کنید');
+                addConfirmPasswordErrorBorder();
+                isValid = false;
+            } else if (password !== confirmPassword) {
+                showConfirmPasswordError('رمز عبور و تکرار آن مطابقت ندارند');
+                addConfirmPasswordErrorBorder();
+                isValid = false;
+            } else {
+                // Clear confirm password error if valid
+                clearConfirmPasswordError();
+                removeConfirmPasswordErrorBorder();
             }
 
-            // Store data
-            registrationData.password = password;
+            // Store data only if all validations pass
+            if (isValid) {
+                registrationData.email = email;
+                registrationData.password = password;
+            }
 
-            return true;
+            return isValid;
         }
 
         // Validate step 3 (OTP Verification)
         function validateStep3() {
             const otp = document.getElementById('otp').value.trim();
 
-            if (!otp || otp.length !== 6) {
-                window.utils.showToast('لطفاً کد تأیید ۶ رقمی را وارد کنید', 'error');
+            // Validate OTP
+            if (!otp) {
+                showOTPError('لطفاً کد تأیید را وارد کنید');
+                addOTPErrorBorder();
+                return false;
+            }
+
+            if (otp.length !== 6) {
+                showOTPError('کد تأیید باید ۶ رقم باشد');
+                addOTPErrorBorder();
                 return false;
             }
 
             if (!/^\d{6}$/.test(otp)) {
-                window.utils.showToast('کد تأیید باید شامل ۶ رقم باشد', 'error');
+                showOTPError('کد تأیید باید فقط شامل اعداد باشد');
+                addOTPErrorBorder();
                 return false;
             }
+
+            // Clear error if valid
+            clearOTPError();
+            removeOTPErrorBorder();
 
             registrationData.otp = otp;
 
@@ -996,15 +1323,14 @@
                 const response = await window.authService.sendOTP(registrationData.mobile, 'Registration');
 
                 if (response.success) {
-                    window.utils.showToast('کد تأیید ارسال شد', 'success');
                     otpSent = true;
                     startOtpTimer();
                 } else {
-                    window.utils.showToast(response.error || 'خطا در ارسال کد تأیید', 'error');
+                    showRegisterError(response.error || 'خطا در ارسال کد تأیید');
                 }
             } catch (error) {
                 console.error('Error sending OTP:', error);
-                window.utils.showToast('خطا در اتصال به سرور', 'error');
+                showRegisterError('خطا در اتصال به سرور');
             } finally {
                 const submitButton = document.getElementById('sendOtpButton');
                 window.utils.hideLoading(submitButton);
@@ -1051,7 +1377,7 @@
                 // Verify OTP for Registration purpose, then register user
                 const verify = await window.authService.verifyOTP(registrationData.mobile, registrationData.otp);
                 if (!verify || verify.success !== true) {
-                    window.utils.showToast((verify && verify.error) || 'کد تایید نامعتبر است.', 'error');
+                    showRegisterError((verify && verify.error) || 'کد تایید نامعتبر است.');
                     return;
                 }
 
@@ -1064,16 +1390,16 @@
                 });
 
                 if (response.success) {
-                    window.utils.showToast('ثبت‌نام با موفقیت انجام شد', 'success');
+                    showRegisterSuccess('ثبت‌نام با موفقیت انجام شد');
                     setTimeout(() => {
                         window.location.href = 'login.html';
                     }, 2000);
                 } else {
-                    window.utils.showToast(response.error || 'خطا در ثبت‌نام', 'error');
+                    showRegisterError(response.error || 'خطا در ثبت‌نام');
                 }
             } catch (error) {
                 console.error('Error completing registration:', error);
-                window.utils.showToast('خطا در اتصال به سرور', 'error');
+                showRegisterError('خطا در اتصال به سرور');
             } finally {
                 const submitButton = document.getElementById('completeRegistrationButton');
                 window.utils.hideLoading(submitButton);
@@ -1194,7 +1520,6 @@
         }
 
         async function submitForm() {
-            debugger
             const terms = document.getElementById('terms').checked;
 
             if (!terms) {
@@ -1209,18 +1534,67 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
-            // Validate email in frontend
+            // Validate email
             if (!email) {
-                showRegisterError('لطفاً ایمیل را وارد کنید');
+                showEmailError('لطفاً ایمیل را وارد کنید');
+                addEmailErrorBorder();
+                document.getElementById('email').focus();
                 return;
             }
 
             // Validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
-                showRegisterError('فرمت ایمیل معتبر نیست');
+                showEmailError('فرمت ایمیل معتبر نیست');
+                addEmailErrorBorder();
+                document.getElementById('email').focus();
                 return;
             }
+
+            // Clear email error if valid
+            clearEmailError();
+            removeEmailErrorBorder();
+
+            // Validate password
+            if (!password) {
+                showPasswordError('لطفاً رمز عبور را وارد کنید');
+                addPasswordErrorBorder();
+                document.getElementById('password').focus();
+                return;
+            }
+
+            // Check password strength
+            const strength = checkPasswordStrength(true);
+            if (strength < 3) {
+                showPasswordError('لطفاً رمز عبور قوی‌تری انتخاب کنید');
+                addPasswordErrorBorder();
+                document.getElementById('password').focus();
+                return;
+            }
+
+            // Clear password error if valid
+            clearPasswordError();
+            removePasswordErrorBorder();
+
+            // Validate confirm password
+            const confirmPassword = document.getElementById('confirm-password').value;
+            if (!confirmPassword) {
+                showConfirmPasswordError('لطفاً تکرار رمز عبور را وارد کنید');
+                addConfirmPasswordErrorBorder();
+                document.getElementById('confirm-password').focus();
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showConfirmPasswordError('رمز عبور و تکرار آن مطابقت ندارند');
+                addConfirmPasswordErrorBorder();
+                document.getElementById('confirm-password').focus();
+                return;
+            }
+
+            // Clear confirm password error if valid
+            clearConfirmPasswordError();
+            removeConfirmPasswordErrorBorder();
 
             const formData = {
                 firstName: firstName,
@@ -1259,13 +1633,18 @@
                         window.location.href = 'user-panel-index.html';
                     }, 2000);
                 } else {
-                    showRegisterError(result.error || 'خطا در ثبت نام. لطفاً دوباره تلاش کنید.');
+                    const errorMessage = result.error || 'خطا در ثبت نام. لطفاً دوباره تلاش کنید.';
+                    
+                    // Show backend error in error box at top of form (not in field validation)
+                    showRegisterError(errorMessage);
                     // Clear sensitive fields (password) on error, but keep name/email for retry
                     document.getElementById('password').value = '';
                     document.getElementById('confirm-password').value = '';
                 }
             } catch (error) {
                 console.error('Registration error:', error);
+                
+                // Show backend error in error box at top of form
                 showRegisterError('خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.');
                 // Clear sensitive fields on error
                 document.getElementById('password').value = '';
@@ -1284,17 +1663,21 @@
             existingErrors.forEach(el => el.remove());
 
             // Parse error message to show specific errors
-            let displayMessage = message || 'خطا در ثبت‌نام';
+            // Handle both string and object inputs
+            let displayMessage = message;
+            if (typeof message === 'object' && message !== null) {
+                displayMessage = message.error || message.message || 'خطا در ثبت‌نام';
+            }
+            displayMessage = displayMessage || 'خطا در ثبت‌نام';
 
-            // Check for specific error types
-            if (message && (message.includes('EMAIL_EXISTS') || message.includes('ایمیل قبلاً') || message.includes('کاربری با این ایمیل'))) {
+            // Check for specific error types (business logic errors, not HTTP errors)
+            // HTTP errors are already handled in api-client.js and auth-service.js
+            if (displayMessage && (displayMessage.includes('EMAIL_EXISTS') || displayMessage.includes('ایمیل قبلاً') || displayMessage.includes('کاربری با این ایمیل'))) {
                 displayMessage = 'کاربری با این ایمیل قبلاً ثبت‌نام کرده است';
-            } else if (message && (message.includes('PHONE_EXISTS') || message.includes('شماره تلفن') || message.includes('شماره موبایل'))) {
+            } else if (displayMessage && (displayMessage.includes('PHONE_EXISTS') || displayMessage.includes('شماره تلفن') || displayMessage.includes('شماره موبایل'))) {
                 displayMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
-            } else if (message && (message.includes('405') || message.includes('Method Not Allowed'))) {
-                displayMessage = 'خطا در ارسال درخواست. لطفاً صفحه را رفرش کنید و دوباره تلاش کنید.';
-            } else if (message && (message.includes('VALIDATION_ERROR') || message.includes('اعتبارسنجی'))) {
-                displayMessage = message.replace('VALIDATION_ERROR:', '').trim() || 'اطلاعات وارد شده معتبر نیست';
+            } else if (displayMessage && (displayMessage.includes('VALIDATION_ERROR') || displayMessage.includes('اعتبارسنجی'))) {
+                displayMessage = displayMessage.replace('VALIDATION_ERROR:', '').trim() || 'اطلاعات وارد شده معتبر نیست';
             }
 
             const errorDiv = document.createElement('div');
@@ -1308,10 +1691,23 @@
             </div>
         `;
 
-            // Insert error message at the top of the form
-            const form = document.querySelector('.bg-white.dark\\:bg-gray-800');
-            if (form) {
-                form.insertBefore(errorDiv, form.firstChild);
+            // Insert error message at the top of the active step form
+            const activeStep = document.querySelector('.step.active');
+            if (activeStep) {
+                // Find the form inside the active step
+                const form = activeStep.querySelector('form');
+                if (form) {
+                    form.insertBefore(errorDiv, form.firstChild);
+                } else {
+                    // If no form, insert at the beginning of the step
+                    activeStep.insertBefore(errorDiv, activeStep.firstChild);
+                }
+            } else {
+                // Fallback: insert in the main form container
+                const form = document.querySelector('.bg-white.dark\\:bg-gray-800');
+                if (form) {
+                    form.insertBefore(errorDiv, form.firstChild);
+                }
             }
 
             // Automatically remove error message after 5 seconds
@@ -1337,10 +1733,23 @@
             </div>
         `;
 
-            // Insert success message at the top of the form
-            const form = document.querySelector('.bg-white.dark\\:bg-gray-800');
-            if (form) {
-                form.insertBefore(successDiv, form.firstChild);
+            // Insert success message at the top of the active step form
+            const activeStep = document.querySelector('.step.active');
+            if (activeStep) {
+                // Find the form inside the active step
+                const form = activeStep.querySelector('form');
+                if (form) {
+                    form.insertBefore(successDiv, form.firstChild);
+                } else {
+                    // If no form, insert at the beginning of the step
+                    activeStep.insertBefore(successDiv, activeStep.firstChild);
+                }
+            } else {
+                // Fallback: insert in the main form container
+                const form = document.querySelector('.bg-white.dark\\:bg-gray-800');
+                if (form) {
+                    form.insertBefore(successDiv, form.firstChild);
+                }
             }
 
             // Automatically remove success message after 3 seconds
@@ -1432,12 +1841,320 @@
                 if (password === confirmPassword) {
                     messageElement.textContent = 'رمز عبورها مطابقت دارند';
                     messageElement.style.color = '#10B981';
+                    // Clear error if passwords match
+                    clearConfirmPasswordError();
+                    removeConfirmPasswordErrorBorder();
                 } else {
                     messageElement.textContent = 'رمز عبورها مطابقت ندارند';
                     messageElement.style.color = '#EF4444';
                 }
             } else {
                 messageElement.textContent = '';
+            }
+        }
+
+        // Show email error message
+        function showEmailError(message) {
+            const emailErrorElement = document.getElementById('email-error-message');
+            if (emailErrorElement) {
+                emailErrorElement.textContent = message;
+                emailErrorElement.className = 'mt-1 text-xs text-red-600 dark:text-red-400';
+            }
+        }
+
+        // Clear email error message
+        function clearEmailError() {
+            const emailErrorElement = document.getElementById('email-error-message');
+            if (emailErrorElement) {
+                emailErrorElement.textContent = '';
+                emailErrorElement.className = 'mt-1 text-xs text-gray-500 dark:text-gray-400';
+            }
+        }
+
+        // Add red border to email input
+        function addEmailErrorBorder() {
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.classList.add('border-red-500', 'dark:border-red-500', 'input-error');
+                // Force red border with inline style to override focus:border-transparent
+                emailInput.style.border = '1px solid #ef4444';
+                emailInput.style.borderColor = '#ef4444';
+                
+                // Keep red border on focus
+                const keepRedBorder = function() {
+                    emailInput.style.borderColor = '#ef4444';
+                };
+                emailInput.addEventListener('focus', keepRedBorder);
+                emailInput.addEventListener('blur', keepRedBorder);
+            }
+        }
+
+        // Remove red border from email input
+        function removeEmailErrorBorder() {
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.classList.remove('border-red-500', 'dark:border-red-500', 'input-error');
+                // Remove inline style
+                emailInput.style.border = '';
+                emailInput.style.borderColor = '';
+            }
+        }
+
+        // Show password error message
+        function showPasswordError(message) {
+            const passwordErrorElement = document.getElementById('password-error-message');
+            if (passwordErrorElement) {
+                passwordErrorElement.textContent = message;
+                passwordErrorElement.className = 'mt-1 text-xs text-red-600 dark:text-red-400';
+            }
+        }
+
+        // Clear password error message
+        function clearPasswordError() {
+            const passwordErrorElement = document.getElementById('password-error-message');
+            if (passwordErrorElement) {
+                passwordErrorElement.textContent = '';
+                passwordErrorElement.className = 'mt-1 text-xs text-gray-500 dark:text-gray-400';
+            }
+        }
+
+        // Add red border to password input
+        function addPasswordErrorBorder() {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.classList.add('border-red-500', 'dark:border-red-500', 'input-error');
+                // Force red border with inline style to override focus:border-transparent
+                passwordInput.style.border = '1px solid #ef4444';
+                passwordInput.style.borderColor = '#ef4444';
+                
+                // Keep red border on focus
+                const keepRedBorder = function() {
+                    passwordInput.style.borderColor = '#ef4444';
+                };
+                passwordInput.addEventListener('focus', keepRedBorder);
+                passwordInput.addEventListener('blur', keepRedBorder);
+            }
+        }
+
+        // Remove red border from password input
+        function removePasswordErrorBorder() {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.classList.remove('border-red-500', 'dark:border-red-500', 'input-error');
+                // Remove inline style
+                passwordInput.style.border = '';
+                passwordInput.style.borderColor = '';
+            }
+        }
+
+        // Show confirm password error message
+        function showConfirmPasswordError(message) {
+            const confirmPasswordErrorElement = document.getElementById('confirm-password-error-message');
+            if (confirmPasswordErrorElement) {
+                confirmPasswordErrorElement.textContent = message;
+                confirmPasswordErrorElement.className = 'mt-1 text-xs text-red-600 dark:text-red-400';
+            }
+        }
+
+        // Clear confirm password error message
+        function clearConfirmPasswordError() {
+            const confirmPasswordErrorElement = document.getElementById('confirm-password-error-message');
+            if (confirmPasswordErrorElement) {
+                confirmPasswordErrorElement.textContent = '';
+                confirmPasswordErrorElement.className = 'mt-1 text-xs text-gray-500 dark:text-gray-400';
+            }
+        }
+
+        // Add red border to confirm password input
+        function addConfirmPasswordErrorBorder() {
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            if (confirmPasswordInput) {
+                confirmPasswordInput.classList.add('border-red-500', 'dark:border-red-500', 'input-error');
+                // Force red border with inline style to override focus:border-transparent
+                confirmPasswordInput.style.border = '1px solid #ef4444';
+                confirmPasswordInput.style.borderColor = '#ef4444';
+                
+                // Keep red border on focus
+                const keepRedBorder = function() {
+                    confirmPasswordInput.style.borderColor = '#ef4444';
+                };
+                confirmPasswordInput.addEventListener('focus', keepRedBorder);
+                confirmPasswordInput.addEventListener('blur', keepRedBorder);
+            }
+        }
+
+        // Remove red border from confirm password input
+        function removeConfirmPasswordErrorBorder() {
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            if (confirmPasswordInput) {
+                confirmPasswordInput.classList.remove('border-red-500', 'dark:border-red-500', 'input-error');
+                // Remove inline style
+                confirmPasswordInput.style.border = '';
+                confirmPasswordInput.style.borderColor = '';
+            }
+        }
+
+        // OTP validation functions
+        function showOTPError(message) {
+            const otpErrorElement = document.getElementById('otp-error-message');
+            if (otpErrorElement) {
+                otpErrorElement.textContent = message;
+                otpErrorElement.className = 'mt-1 text-xs text-red-600 dark:text-red-400';
+            }
+        }
+
+        function clearOTPError() {
+            const otpErrorElement = document.getElementById('otp-error-message');
+            if (otpErrorElement) {
+                otpErrorElement.textContent = '';
+                otpErrorElement.className = 'mt-1 text-xs text-gray-500 dark:text-gray-400';
+            }
+        }
+
+        function addOTPErrorBorder() {
+            const otpInput = document.getElementById('otp');
+            if (otpInput) {
+                otpInput.classList.add('border-red-500', 'dark:border-red-500', 'input-error');
+                // Force red border with inline style to override focus:border-transparent
+                otpInput.style.border = '1px solid #ef4444';
+                otpInput.style.borderColor = '#ef4444';
+                
+                // Keep red border on focus
+                const keepRedBorder = function() {
+                    otpInput.style.borderColor = '#ef4444';
+                };
+                otpInput.addEventListener('focus', keepRedBorder);
+                otpInput.addEventListener('blur', keepRedBorder);
+            }
+        }
+
+        function removeOTPErrorBorder() {
+            const otpInput = document.getElementById('otp');
+            if (otpInput) {
+                otpInput.classList.remove('border-red-500', 'dark:border-red-500', 'input-error');
+                // Remove inline style
+                otpInput.style.border = '';
+                otpInput.style.borderColor = '';
+            }
+        }
+
+        // First Name validation functions
+        function showFirstNameError(message) {
+            const firstNameErrorElement = document.getElementById('first-name-error-message');
+            if (firstNameErrorElement) {
+                firstNameErrorElement.textContent = message;
+                firstNameErrorElement.className = 'mt-1 text-xs text-red-600 dark:text-red-400';
+            }
+        }
+
+        function clearFirstNameError() {
+            const firstNameErrorElement = document.getElementById('first-name-error-message');
+            if (firstNameErrorElement) {
+                firstNameErrorElement.textContent = '';
+                firstNameErrorElement.className = 'mt-1 text-xs text-gray-500 dark:text-gray-400';
+            }
+        }
+
+        function addFirstNameErrorBorder() {
+            const firstNameInput = document.getElementById('first-name');
+            if (firstNameInput) {
+                firstNameInput.classList.add('border-red-500', 'dark:border-red-500', 'input-error');
+                firstNameInput.style.border = '1px solid #ef4444';
+                firstNameInput.style.borderColor = '#ef4444';
+                const keepRedBorder = function() {
+                    firstNameInput.style.borderColor = '#ef4444';
+                };
+                firstNameInput.addEventListener('focus', keepRedBorder);
+                firstNameInput.addEventListener('blur', keepRedBorder);
+            }
+        }
+
+        function removeFirstNameErrorBorder() {
+            const firstNameInput = document.getElementById('first-name');
+            if (firstNameInput) {
+                firstNameInput.classList.remove('border-red-500', 'dark:border-red-500', 'input-error');
+                firstNameInput.style.border = '';
+                firstNameInput.style.borderColor = '';
+            }
+        }
+
+        // Last Name validation functions
+        function showLastNameError(message) {
+            const lastNameErrorElement = document.getElementById('last-name-error-message');
+            if (lastNameErrorElement) {
+                lastNameErrorElement.textContent = message;
+                lastNameErrorElement.className = 'mt-1 text-xs text-red-600 dark:text-red-400';
+            }
+        }
+
+        function clearLastNameError() {
+            const lastNameErrorElement = document.getElementById('last-name-error-message');
+            if (lastNameErrorElement) {
+                lastNameErrorElement.textContent = '';
+                lastNameErrorElement.className = 'mt-1 text-xs text-gray-500 dark:text-gray-400';
+            }
+        }
+
+        function addLastNameErrorBorder() {
+            const lastNameInput = document.getElementById('last-name');
+            if (lastNameInput) {
+                lastNameInput.classList.add('border-red-500', 'dark:border-red-500', 'input-error');
+                lastNameInput.style.border = '1px solid #ef4444';
+                lastNameInput.style.borderColor = '#ef4444';
+                const keepRedBorder = function() {
+                    lastNameInput.style.borderColor = '#ef4444';
+                };
+                lastNameInput.addEventListener('focus', keepRedBorder);
+                lastNameInput.addEventListener('blur', keepRedBorder);
+            }
+        }
+
+        function removeLastNameErrorBorder() {
+            const lastNameInput = document.getElementById('last-name');
+            if (lastNameInput) {
+                lastNameInput.classList.remove('border-red-500', 'dark:border-red-500', 'input-error');
+                lastNameInput.style.border = '';
+                lastNameInput.style.borderColor = '';
+            }
+        }
+
+        // Mobile validation functions
+        function showMobileError(message) {
+            const mobileErrorElement = document.getElementById('mobile-error-message');
+            if (mobileErrorElement) {
+                mobileErrorElement.textContent = message;
+                mobileErrorElement.className = 'mt-1 text-xs text-red-600 dark:text-red-400';
+            }
+        }
+
+        function clearMobileError() {
+            const mobileErrorElement = document.getElementById('mobile-error-message');
+            if (mobileErrorElement) {
+                mobileErrorElement.textContent = '';
+                mobileErrorElement.className = 'mt-1 text-xs text-gray-500 dark:text-gray-400';
+            }
+        }
+
+        function addMobileErrorBorder() {
+            const mobileInput = document.getElementById('mobile');
+            if (mobileInput) {
+                mobileInput.classList.add('border-red-500', 'dark:border-red-500', 'input-error');
+                mobileInput.style.border = '1px solid #ef4444';
+                mobileInput.style.borderColor = '#ef4444';
+                const keepRedBorder = function() {
+                    mobileInput.style.borderColor = '#ef4444';
+                };
+                mobileInput.addEventListener('focus', keepRedBorder);
+                mobileInput.addEventListener('blur', keepRedBorder);
+            }
+        }
+
+        function removeMobileErrorBorder() {
+            const mobileInput = document.getElementById('mobile');
+            if (mobileInput) {
+                mobileInput.classList.remove('border-red-500', 'dark:border-red-500', 'input-error');
+                mobileInput.style.border = '';
+                mobileInput.style.borderColor = '';
             }
         }
     </script>
