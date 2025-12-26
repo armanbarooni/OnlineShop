@@ -24,7 +24,7 @@
 
 <body
     class="bg-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark transition-colors duration-200">
-
+  
     <div class="flex h-screen overflow-hidden max-w-[1920px] mx-auto">
         <!-- sidebar -->
         <div class="hidden lg:flex lg:flex-shrink-0">
@@ -221,8 +221,8 @@
                         <p class="text-gray-600 dark:text-gray-400">در حال بارگذاری...</p>
                     </div>
                     <div class="mt-4 md:mt-0 flex space-x-3">
-                        <button onclick="clearAllWishlist()"
-                            class="flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-white dark:bg-gray-700 text-danger dark:text-danger-dark hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600">
+                        <button id="clearAllWishlistBtn" onclick="clearAllWishlist()"
+                            class="hidden flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-white dark:bg-gray-700 text-danger dark:text-danger-dark hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20"
                                 fill="currentColor">
                                 <path fill-rule="evenodd"
@@ -365,7 +365,6 @@
     <script src="assets/js/auth-service.js"></script>
     <script src="assets/js/services/user-profile-service.js"></script>
     <script src="assets/js/services/wishlist-service.js"></script>
-    <script src="assets/js/services/cart-service.js"></script>
     <script src="assets/js/components/header-component.js"></script>
     <script src="assets/js/pages/user-panel-favorite.js"></script>
 

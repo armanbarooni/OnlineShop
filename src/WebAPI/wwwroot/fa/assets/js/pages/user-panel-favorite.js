@@ -12,8 +12,8 @@ const FavoriteManager = {
     },
 
     initUI: function () {
-        // Initializes Header components
-        if (window.headerComponent) window.headerComponent.init();
+        // Header component will be initialized automatically via DOMContentLoaded event
+        // No need to call init() here to avoid duplicate API calls
 
         // Dark Mode Toggle
         if (window.utils) {
@@ -85,27 +85,43 @@ const FavoriteManager = {
             return;
         }
 
-        // Load User Profile Data
+        // Load User Profile Data and get userId
+        let userId = null;
         if (window.userProfileService) {
             try {
                 const profile = await window.userProfileService.getUserProfile();
                 if (profile.success && profile.data) {
+                    // Get userId from profile response
+                    userId = profile.data.id || profile.data.userId;
                     document.querySelectorAll('[data-user-name="true"]').forEach(el => {
                         el.textContent = `${profile.data.firstName || ''} ${profile.data.lastName || ''}`.trim() || 'کاربر گرامی';
                     });
                     if (profile.data.profilePictureUrl) {
                         document.querySelectorAll('img[alt="پروفایل کاربر"]').forEach(img => img.src = profile.data.profilePictureUrl);
                     }
+                    
+                    // Update header component with user data (avoid duplicate API call)
+                    if (window.headerComponent && window.headerComponent.updateUserMenuWithData) {
+                        window.headerComponent.updateUserMenuWithData(profile.data);
+                    }
                 }
             } catch (e) { console.error('Profile load error', e); }
         }
 
+        // Store userId in state for use in loadFavorites
+        this.state.userId = userId;
         await this.loadFavorites();
     },
 
     loadFavorites: async function () {
         const container = document.getElementById('wishlistContainer');
         const stats = document.getElementById('wishlistStats');
+        const clearAllBtn = document.getElementById('clearAllWishlistBtn');
+
+        // Hide clear all button initially
+        if (clearAllBtn) {
+            clearAllBtn.classList.add('hidden');
+        }
 
         if (container) {
             container.innerHTML = `
@@ -120,24 +136,65 @@ const FavoriteManager = {
             const result = await window.wishlistService.getWishlistItems({
                 pageNumber: this.state.currentPage,
                 pageSize: this.state.pageSize,
-                searchTerm: this.state.searchTerm
+                searchTerm: this.state.searchTerm,
+                userId: this.state.userId
             });
 
             if (result.success && result.data) {
-                const { items, totalCount } = result.data;
+                // Handle both array and object structures
+                let items, totalCount;
+                
+                if (Array.isArray(result.data)) {
+                    // If data is directly an array
+                    items = result.data;
+                    totalCount = items.length;
+                } else if (result.data.items && Array.isArray(result.data.items)) {
+                    // If data has items property
+                    items = result.data.items;
+                    totalCount = result.data.totalCount || items.length;
+                } else {
+                    // Fallback
+                    items = [];
+                    totalCount = 0;
+                }
 
                 // Update header stats
                 if (stats && stats.querySelector('p')) {
-                    stats.querySelector('p').textContent = `${totalCount} محصول در لیست علاقه‌مندی‌ها`;
+                    const statsP = stats.querySelector('p');
+                    statsP.textContent = `${totalCount} محصول در لیست علاقه‌مندی‌ها`;
+                    statsP.classList.remove('hidden');
+                }
+
+                // Show clear all button only if there are items
+                if (clearAllBtn && items && items.length > 0) {
+                    clearAllBtn.classList.remove('hidden');
+                } else if (clearAllBtn) {
+                    clearAllBtn.classList.add('hidden');
                 }
 
                 this.renderFavorites(items);
                 this.renderPagination(totalCount);
             } else {
+                // Hide button on error
+                if (clearAllBtn) {
+                    clearAllBtn.classList.add('hidden');
+                }
+                // Hide loading text on error
+                if (stats && stats.querySelector('p')) {
+                    stats.querySelector('p').classList.add('hidden');
+                }
                 if (container) container.innerHTML = '<div class="text-center py-12 text-red-500">خطا در بارگذاری اطلاعات</div>';
             }
         } catch (error) {
             console.error('Favorites load error', error);
+            // Hide button on error
+            if (clearAllBtn) {
+                clearAllBtn.classList.add('hidden');
+            }
+            // Hide loading text on error
+            if (stats && stats.querySelector('p')) {
+                stats.querySelector('p').classList.add('hidden');
+            }
             if (container) container.innerHTML = '<div class="text-center py-12 text-red-500">خطا در ارتباط با سرور</div>';
         }
     },
@@ -153,7 +210,7 @@ const FavoriteManager = {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.318a4.5 4.5 0 010-6.364z" />
                     </svg>
                     <p class="text-gray-500 dark:text-gray-400 text-lg">لیست علاقه‌مندی‌های شما خالی است</p>
-                    <a href="index.html" class="inline-block mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+                    <a href="index.html" class="inline-block mt-4 mb-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
                         مشاهده محصولات
                     </a>
                 </div>
@@ -194,17 +251,9 @@ const FavoriteManager = {
                         <a href="product-details.html?id=${product.id}">${product.name}</a>
                     </h3>
                     
-                    <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center justify-between">
                          <span class="text-primary font-bold">${priceDisplay} تومان</span>
                     </div>
-                    
-                    <button onclick="FavoriteManager.addToCart('${product.id}')" 
-                            class="w-full py-2 flex items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary hover:text-white transition-colors gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        افزودن به سبد
-                    </button>
                 </div>
              `;
             grid.appendChild(card);
@@ -272,22 +321,6 @@ const FavoriteManager = {
         }
     },
 
-    addToCart: async function (productId) {
-        try {
-            window.utils.showToast('در حال افزودن به سبد...', 'info');
-            if (window.cartService) {
-                const result = await window.cartService.addToCart(productId, 1);
-                if (result.success) {
-                    window.utils.showToast('محصول به سبد خرید اضافه شد', 'success');
-                    // Optional: Update cart count if a global function exists
-                } else {
-                    window.utils.showToast(result.error || 'خطا در افزودن به سبد', 'error');
-                }
-            }
-        } catch (e) {
-            window.utils.showToast('خطا در عملیات', 'error');
-        }
-    },
 
     clearAllWishlist: async function () {
         if (!confirm('آیا مطمئن هستید که می‌خواهید تمام لیست را پاک کنید؟')) return;
@@ -296,6 +329,11 @@ const FavoriteManager = {
             const result = await window.wishlistService.clearWishlist();
             if (result.success) {
                 window.utils.showToast('لیست علاقه‌مندی‌ها پاک شد', 'success');
+                // Hide button after clearing
+                const clearAllBtn = document.getElementById('clearAllWishlistBtn');
+                if (clearAllBtn) {
+                    clearAllBtn.classList.add('hidden');
+                }
                 this.loadFavorites();
             } else {
                 window.utils.showToast('خطا در پاکسازی لیست', 'error');

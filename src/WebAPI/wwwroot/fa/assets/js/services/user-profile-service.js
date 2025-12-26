@@ -6,25 +6,66 @@
 class UserProfileService {
     constructor() {
         this.apiClient = window.apiClient;
+        this._profileCache = null;
+        this._profilePromise = null; // To prevent concurrent requests
     }
 
     /**
-     * Get current user profile
+     * Get current user profile (with caching to prevent duplicate API calls)
      */
-    async getUserProfile() {
-        try {
-            const response = await this.apiClient.get('/auth/me');
+    async getUserProfile(forceRefresh = false) {
+        // Return cached profile if available and not forcing refresh
+        if (!forceRefresh && this._profileCache) {
             return {
                 success: true,
-                data: response.data || response
-            };
-        } catch (error) {
-            window.logger.error('Error fetching user profile:', error);
-            return {
-                success: false,
-                error: this.apiClient.handleError(error)
+                data: this._profileCache
             };
         }
+
+        // If there's already a pending request, return that promise
+        if (this._profilePromise) {
+            return this._profilePromise;
+        }
+
+        // Create new request
+        this._profilePromise = (async () => {
+            try {
+                const response = await this.apiClient.get('/auth/me');
+                const profileData = response.data || response;
+                
+                // Cache the profile
+                this._profileCache = profileData;
+                
+                const result = {
+                    success: true,
+                    data: profileData
+                };
+                
+                // Clear the promise after a short delay to allow future refreshes
+                setTimeout(() => {
+                    this._profilePromise = null;
+                }, 100);
+                
+                return result;
+            } catch (error) {
+                this._profilePromise = null;
+                window.logger.error('Error fetching user profile:', error);
+                return {
+                    success: false,
+                    error: this.apiClient.handleError(error)
+                };
+            }
+        })();
+
+        return this._profilePromise;
+    }
+
+    /**
+     * Clear cached profile (useful after profile updates)
+     */
+    clearCache() {
+        this._profileCache = null;
+        this._profilePromise = null;
     }
 
     /**
@@ -40,6 +81,8 @@ class UserProfileService {
     async updateProfile(profileData) {
         try {
             const response = await this.apiClient.put('/userprofile', profileData);
+            // Clear cache after profile update
+            this.clearCache();
             return {
                 success: true,
                 data: response.data || response,
