@@ -14,6 +14,7 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         Task<IEnumerable<Product>> GetAllWithIncludesAsync(CancellationToken cancellationToken);
         Task<IEnumerable<Product>> GetByIdsWithIncludesAsync(List<Guid> ids, CancellationToken cancellationToken);
         Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken);
+        Task<IQueryable<Product>> GetQueryableWithIncludesAsync(CancellationToken cancellationToken);
         Task AddAsync(Product product, CancellationToken cancellationToken);
         Task UpdateAsync(Product product, CancellationToken cancellationToken);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken);
