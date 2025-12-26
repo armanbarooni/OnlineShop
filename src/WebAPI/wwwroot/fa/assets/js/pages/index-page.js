@@ -8,13 +8,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof window.apiClient === 'undefined' || 
         typeof window.productService === 'undefined' || 
         typeof window.categoryService === 'undefined') {
-        window.logger.error('Required services not loaded');
+        if (window.logger) {
+            window.logger.error('Required services not loaded');
+        } else {
+            console.error('Required services not loaded');
+        }
         return;
     }
 
     try {
         // Load categories
         await loadCategories();
+        
+        // Load mega menu categories
+        const megaMenuContainer = document.getElementById('mega-menu-list-container');
+        if (megaMenuContainer && window.categoryService) {
+            await window.categoryService.renderMegaMenu('mega-menu-list-container');
+        }
         
         // Load featured products
         await loadFeaturedProducts();
@@ -46,7 +56,11 @@ async function loadCategories() {
             renderCategories(result.data);
         }
     } catch (error) {
-        window.logger.error('Error loading categories:', error);
+        if (window.logger) {
+            window.logger.error('Error loading categories:', error);
+        } else {
+            console.error('Error loading categories:', error);
+        }
     }
 }
 
@@ -211,7 +225,7 @@ function formatPrice(price) {
 // Load brands
 async function loadBrands() {
     try {
-        const response = await window.apiClient.get('/api/Brand');
+        const response = await window.apiClient.get('/Brand');
         if (response && response.data) {
             const brands = Array.isArray(response.data.data) ? response.data.data : (Array.isArray(response.data) ? response.data : []);
             if (brands.length > 0) {

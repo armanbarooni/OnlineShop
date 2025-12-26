@@ -44,6 +44,7 @@ namespace OnlineShop.Infrastructure.Mahak.Models
     public class MahakPersonModel
     {
         public long PersonClientId { get; set; }
+        public int? PersonGroupId { get; set; } // Required for creating person
         public string Name { get; set; } = string.Empty;
         public string Family { get; set; } = string.Empty;
         public string Mobile { get; set; } = string.Empty;
@@ -52,6 +53,18 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public string? Address { get; set; }
         public string? PostalCode { get; set; }
         public int Type { get; set; } = 0; // Real person by default
+        public bool Deleted { get; set; } = false;
+    }
+
+    /// <summary>
+    /// Model for sending VisitorPeople (Person-Visitor link) to Mahak
+    /// Required for real sales with inventory deduction
+    /// </summary>
+    public class MahakVisitorPersonModel
+    {
+        public long VisitorPersonClientId { get; set; }
+        public int VisitorId { get; set; }
+        public long PersonClientId { get; set; }
         public bool Deleted { get; set; } = false;
     }
 
