@@ -22,18 +22,28 @@ class UserProfileService {
             };
         }
 
-        // If there's already a pending request, return that promise
+        // If there's already a pending request, return that promise (prevents concurrent requests)
+        // This is the key to preventing duplicate API calls
         if (this._profilePromise) {
-            return this._profilePromise;
+            // Wait for the existing promise to complete
+            const result = await this._profilePromise;
+            // If cache is now available, return it
+            if (this._profileCache) {
+                return {
+                    success: true,
+                    data: this._profileCache
+                };
+            }
+            return result;
         }
 
-        // Create new request
+        // Create new request promise
         this._profilePromise = (async () => {
             try {
                 const response = await this.apiClient.get('/auth/me');
                 const profileData = response.data || response;
                 
-                // Cache the profile
+                // Cache the profile immediately
                 this._profileCache = profileData;
                 
                 const result = {
@@ -41,19 +51,16 @@ class UserProfileService {
                     data: profileData
                 };
                 
-                // Clear the promise after a short delay to allow future refreshes
-                setTimeout(() => {
-                    this._profilePromise = null;
-                }, 100);
-                
                 return result;
             } catch (error) {
-                this._profilePromise = null;
                 window.logger.error('Error fetching user profile:', error);
                 return {
                     success: false,
                     error: this.apiClient.handleError(error)
                 };
+            } finally {
+                // Clear promise after completion (but keep cache)
+                this._profilePromise = null;
             }
         })();
 

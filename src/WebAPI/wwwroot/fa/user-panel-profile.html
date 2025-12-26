@@ -445,19 +445,13 @@
     <!-- Core JS -->
     <script src="assets/js/api-client.js"></script>
     <script src="assets/js/utils.js"></script>
-    <script src="assets/js/utils/logger.js"></script>
     <script src="assets/js/auth-service.js"></script>
-    <script src="assets/js/auth-guard.js"></script>
     <script src="assets/js/services/user-profile-service.js"></script>
     <script src="assets/js/components/header-component.js"></script>
     <script src="assets/js/pages/user-panel-profile.js"></script>
     <script>
-        // Init Header
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.headerComponent) {
-                window.headerComponent.init();
-            }
-        });
+        // Header component will be initialized automatically via DOMContentLoaded event in header-component.js
+        // No need to call init() here to avoid duplicate initialization
     </script>
 </body>
 
