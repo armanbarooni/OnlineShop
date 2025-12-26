@@ -15,6 +15,11 @@ const FavoriteManager = {
         // Initializes Header components
         if (window.headerComponent) window.headerComponent.init();
 
+        // Dark Mode Toggle
+        if (window.utils) {
+            window.utils.initDarkMode('dark-mode-toggle');
+        }
+
         // Standard offcanvas and dropdown toggles
         window.toggleUserDropdown = () => {
             const menu = document.getElementById('user-dropdown-menu');
