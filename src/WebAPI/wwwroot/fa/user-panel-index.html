@@ -572,17 +572,11 @@
         // Dashboard Logic
         const Dashboard = {
             init: async function () {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:574',message:'Dashboard.init called',data:{readyState:document.readyState,searchInputExists:!!document.getElementById('searchInput'),searchButtonExists:!!document.getElementById('searchButton')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,E'})}).catch(()=>{});
-                // #endregion
                 if (window.authService && !window.authService.isAuthenticated()) {
                     window.location.href = 'login.html';
                     return;
                 }
 
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:583',message:'HeaderComponent.init called',data:{headerComponentExists:!!window.HeaderComponent},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'I'})}).catch(()=>{});
-                // #endregion
                 if (window.HeaderComponent) window.HeaderComponent.init();
 
                 this.initSearch();
@@ -592,68 +586,25 @@
             },
 
             initSearch: function () {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:588',message:'initSearch called',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                // #endregion
                 const searchInput = document.getElementById('searchInput');
                 const searchButton = document.getElementById('searchButton');
 
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:590',message:'Elements found',data:{searchInputFound:!!searchInput,searchButtonFound:!!searchButton},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,C'})}).catch(()=>{});
-                // #endregion
-
                 const performSearch = () => {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:592',message:'performSearch called',data:{query:searchInput?.value?.trim()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                    // #endregion
                     const query = searchInput.value.trim();
                     if (query) {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:595',message:'Redirecting to shop',data:{url:`shop.html?search=${encodeURIComponent(query)}`},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                        // #endregion
                         window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
                     }
                 };
 
                 if (searchInput) {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:599',message:'Adding keypress listener to searchInput',data:{elementId:'searchInput',listenerCount:searchInput.getEventListeners?.('keypress')?.length||'unknown'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                    // #endregion
-                    // Test if element is clickable
-                    searchInput.addEventListener('focus', () => {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:focus',message:'SearchInput focused',data:{value:searchInput.value},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-                        // #endregion
-                    });
                     searchInput.addEventListener('keypress', (e) => {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:600',message:'Keypress event fired',data:{key:e.key,query:searchInput.value,isEnter:e.key==='Enter'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                        // #endregion
-                        if (e.key === 'Enter') {
-                            // #region agent log
-                            fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:Enter',message:'Enter key detected, calling performSearch',data:{query:searchInput.value.trim()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                            // #endregion
-                            performSearch();
-                        }
+                        if (e.key === 'Enter') performSearch();
                     });
                 }
 
                 if (searchButton) {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:605',message:'Adding click listener to searchButton',data:{elementId:'searchButton',buttonType:searchButton.type,zIndex:window.getComputedStyle(searchButton).zIndex},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,F'})}).catch(()=>{});
-                    // #endregion
-                    // Test if button is clickable
-                    searchButton.addEventListener('mousedown', () => {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:mousedown',message:'SearchButton mousedown event',data:{query:searchInput.value},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-                        // #endregion
-                    });
                     searchButton.addEventListener('click', (e) => {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:606',message:'Click event fired on searchButton',data:{query:searchInput.value,defaultPrevented:e.defaultPrevented},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                        // #endregion
                         e.preventDefault();
-                        e.stopPropagation();
                         performSearch();
                     });
                 }
@@ -752,9 +703,6 @@
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'user-panel-index.html:705',message:'DOMContentLoaded fired',data:{readyState:document.readyState},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,E'})}).catch(()=>{});
-            // #endregion
             Dashboard.init();
         });
 

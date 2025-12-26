@@ -9,6 +9,50 @@ class AuthService {
     }
 
     /**
+     * Extract friendly error message from error object, filtering out generic HTTP error messages
+     */
+    extractErrorMessage(error, defaultMessage = 'خطا در اتصال به سرور') {
+        let message = error && error.message ? error.message : defaultMessage;
+        
+        // Check if message is a generic HTTP error message and replace it
+        // Also check for variations like "HTTP error! status: 404" or "HTTP error status: 404"
+        if (message && (
+            message.includes('HTTP error! status:') || 
+            message.includes('HTTP error status:') ||
+            message.includes('HTTP error') || 
+            message.match(/status:\s*\d+/) ||
+            message.match(/HTTP.*error.*status/i)
+        )) {
+            // Extract status code if available
+            const statusMatch = message.match(/status:\s*(\d+)/i) || message.match(/status\s*(\d+)/i);
+            const statusCode = statusMatch ? parseInt(statusMatch[1]) : null;
+            
+            // Use status-specific friendly messages
+            if (statusCode === 404) {
+                message = 'سرویس مورد نظر یافت نشد. لطفاً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.';
+            } else if (statusCode >= 400 && statusCode < 500) {
+                message = 'خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.';
+            } else if (statusCode >= 500) {
+                message = 'خطای سرور. لطفاً بعداً تلاش کنید.';
+            } else {
+                message = 'خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.';
+            }
+        } else {
+            // Try to parse as JSON if it's not a generic HTTP error
+            try {
+                const parsed = JSON.parse(message);
+                if (parsed && (parsed.errorMessage || parsed.message)) {
+                    message = parsed.errorMessage || parsed.message;
+                }
+            } catch (parseErr) {
+                // If it's not JSON, keep original message
+            }
+        }
+        
+        return message;
+    }
+
+    /**
      * Login with email and password
      */
     async loginWithPassword(email, password) {
@@ -69,17 +113,7 @@ class AuthService {
         } catch (error) {
             window.logger.error('Login error:', error);
             // api-client throws errors, so we need to handle them properly
-            let errorMessage = error instanceof Error ? error.message : (error?.message || 'خطا در ورود');
-            
-            // Try to extract errorMessage from JSON string if error.message is a serialized JSON
-            try {
-                const parsed = JSON.parse(errorMessage);
-                if (parsed && (parsed.errorMessage || parsed.message)) {
-                    errorMessage = parsed.errorMessage || parsed.message;
-                }
-            } catch (parseErr) {
-                // If it's not JSON, keep original message
-            }
+            const errorMessage = this.extractErrorMessage(error, 'خطا در ورود');
             
             return {
                 success: false,
@@ -98,25 +132,18 @@ class AuthService {
                 purpose: purpose
             });
 
+            // Extract message from response data structure
+            // Response structure: { isSuccess: true, data: { success: true, message: "...", expiresAt: "..." } }
+            const message = response?.data?.message || response?.message || 'کد تایید ارسال شد';
+
             return {
                 success: true,
-                message: 'کد تایید ارسال شد'
+                data: response.data || response,
+                message: message
             };
         } catch (error) {
             window.logger.error('Send OTP error:', error);
-            
-            // Try to extract a friendly error message from possible JSON error payload
-            let message = error && error.message ? error.message : 'خطا در اتصال به سرور';
-            try {
-                // Some backends return serialized JSON as error.message, e.g.:
-                // {"isSuccess":false,"data":null,"errorMessage":"کد تایید نامعتبر یا منقضی شده است",...}
-                const parsed = JSON.parse(message);
-                if (parsed && (parsed.errorMessage || parsed.message)) {
-                    message = parsed.errorMessage || parsed.message;
-                }
-            } catch (parseErr) {
-                // If it's not JSON, keep original message
-            }
+            const message = this.extractErrorMessage(error, 'خطا در اتصال به سرور');
             
             return {
                 success: false,
@@ -149,18 +176,7 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Verify OTP error:', error);
-
-            // Try to extract a friendly error message from possible JSON error payload
-            let message = error && error.message ? error.message : 'خطا در اتصال به سرور';
-            try {
-                // Some backends return serialized JSON as error.message
-                const parsed = JSON.parse(message);
-                if (parsed && (parsed.errorMessage || parsed.message)) {
-                    message = parsed.errorMessage || parsed.message;
-                }
-            } catch (parseErr) {
-                // If it's not JSON, keep original message
-            }
+            const message = this.extractErrorMessage(error, 'خطا در اتصال به سرور');
 
             return {
                 success: false,
@@ -200,19 +216,7 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Verify OTP error:', error);
-
-            // Try to extract a friendly error message from possible JSON error payload
-            let message = error && error.message ? error.message : 'خطا در اتصال به سرور';
-            try {
-                // Some backends return serialized JSON as error.message, e.g.:
-                // {"isSuccess":false,"data":null,"errorMessage":"کد تایید نامعتبر یا منقضی شده است",...}
-                const parsed = JSON.parse(message);
-                if (parsed && (parsed.errorMessage || parsed.message)) {
-                    message = parsed.errorMessage || parsed.message;
-                }
-            } catch (parseErr) {
-                // If it's not JSON, keep original message
-            }
+            const message = this.extractErrorMessage(error, 'خطا در اتصال به سرور');
 
             return {
                 success: false,
@@ -284,33 +288,17 @@ class AuthService {
         } catch (error) {
             window.logger.error('Registration error:', error);
             // api-client throws errors, so we need to handle them properly
-            let errorMessage = 'خطا در ثبت‌نام';
+            let errorMessage = this.extractErrorMessage(error, 'خطا در ثبت‌نام');
 
-            if (error instanceof Error) {
-                errorMessage = error.message;
-
-                // Try to extract errorMessage from JSON string if error.message is a serialized JSON
-                try {
-                    const parsed = JSON.parse(errorMessage);
-                    if (parsed && (parsed.errorMessage || parsed.message)) {
-                        errorMessage = parsed.errorMessage || parsed.message;
-                    }
-                } catch (parseErr) {
-                    // If it's not JSON, continue with original message
-                }
-
-                // Parse specific error messages
-                if (errorMessage.includes('EMAIL_EXISTS') || errorMessage.includes('ایمیل قبلاً') || errorMessage.includes('کاربری با این ایمیل')) {
-                    errorMessage = 'کاربری با این ایمیل قبلاً ثبت‌نام کرده است';
-                } else if (errorMessage.includes('PHONE_EXISTS') || errorMessage.includes('شماره تلفن') || errorMessage.includes('شماره موبایل')) {
-                    errorMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
-                } else if (errorMessage.includes('VALIDATION_ERROR') || errorMessage.includes('اعتبارسنجی')) {
-                    errorMessage = errorMessage.replace('VALIDATION_ERROR:', '').trim();
-                } else if (errorMessage.includes('405') || errorMessage.includes('Method Not Allowed')) {
-                    errorMessage = 'خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.';
-                }
-            } else if (error?.message) {
-                errorMessage = error.message;
+            // Parse specific error messages (after extracting from HTTP error format)
+            if (errorMessage.includes('EMAIL_EXISTS') || errorMessage.includes('ایمیل قبلاً') || errorMessage.includes('کاربری با این ایمیل')) {
+                errorMessage = 'کاربری با این ایمیل قبلاً ثبت‌نام کرده است';
+            } else if (errorMessage.includes('PHONE_EXISTS') || errorMessage.includes('شماره تلفن') || errorMessage.includes('شماره موبایل')) {
+                errorMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
+            } else if (errorMessage.includes('VALIDATION_ERROR') || errorMessage.includes('اعتبارسنجی')) {
+                errorMessage = errorMessage.replace('VALIDATION_ERROR:', '').trim();
+            } else if (errorMessage.includes('405') || errorMessage.includes('Method Not Allowed')) {
+                errorMessage = 'خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.';
             }
 
             return {
@@ -405,33 +393,17 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Registration with phone error:', error);
-            let errorMessage = 'خطا در ثبت‌نام';
+            let errorMessage = this.extractErrorMessage(error, 'خطا در ثبت‌نام');
 
-            if (error instanceof Error) {
-                errorMessage = error.message;
-
-                // Try to extract errorMessage from JSON string if error.message is a serialized JSON
-                try {
-                    const parsed = JSON.parse(errorMessage);
-                    if (parsed && (parsed.errorMessage || parsed.message)) {
-                        errorMessage = parsed.errorMessage || parsed.message;
-                    }
-                } catch (parseErr) {
-                    // If it's not JSON, continue with original message
-                }
-
-                // Parse specific error messages
-                if (errorMessage.includes('PHONE_EXISTS') || errorMessage.includes('شماره موبایل')) {
-                    errorMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
-                } else if (errorMessage.includes('OTP') || errorMessage.includes('کد تایید')) {
-                    errorMessage = 'کد تایید نامعتبر یا منقضی شده است';
-                } else if (errorMessage.includes('VALIDATION_ERROR') || errorMessage.includes('اعتبارسنجی')) {
-                    errorMessage = errorMessage.replace('VALIDATION_ERROR:', '').trim();
-                } else if (errorMessage.includes('405') || errorMessage.includes('Method Not Allowed')) {
-                    errorMessage = 'خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.';
-                }
-            } else if (error?.message) {
-                errorMessage = error.message;
+            // Parse specific error messages (after extracting from HTTP error format)
+            if (errorMessage.includes('PHONE_EXISTS') || errorMessage.includes('شماره موبایل')) {
+                errorMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
+            } else if (errorMessage.includes('OTP') || errorMessage.includes('کد تایید')) {
+                errorMessage = 'کد تایید نامعتبر یا منقضی شده است';
+            } else if (errorMessage.includes('VALIDATION_ERROR') || errorMessage.includes('اعتبارسنجی')) {
+                errorMessage = errorMessage.replace('VALIDATION_ERROR:', '').trim();
+            } else if (errorMessage.includes('405') || errorMessage.includes('Method Not Allowed')) {
+                errorMessage = 'خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.';
             }
 
             return {
