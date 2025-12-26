@@ -480,20 +480,12 @@
                 </div>
             </header>
         </div>
-        <div class="grid grid-cols-12 gap-4">
-            <a href="" class="lg:col-span-3 sm:col-span-6 col-span-12 w-full block">
-                <article itemscope itemtype="https://schema.org/CategoryCode"
-                         class="flex py-2 px-3 rounded-xl border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800">
-                    <section class="space-y-2">
-                        <h3 itemprop="name" class="text-lg font-bold dark:text-white">کالای دیجیتال</h3>
-                        <span class="text-xs font-light text-neutral-500" itemprop="description">Digital Goods</span>
-                    </section>
-                    <figure>
-                        <img src="assets/images/category/digitall.png" class="size-20" loading="lazy"
-                             alt="کالای دیجیتال - Digital Goods" itemprop="image">
-                    </figure>
-                </article>
-            </a>
+        <div class="grid grid-cols-12 gap-4" data-categories>
+            <!-- Categories will be loaded dynamically from API -->
+            <div class="col-span-12 text-center py-8">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                <p class="mt-4 text-gray-500">در حال بارگذاری دسته‌بندی‌ها...</p>
+            </div>
             <a href="" class="lg:col-span-3 sm:col-span-6 col-span-12 w-full block">
                 <article itemscope itemtype="https://schema.org/CategoryCode"
                          class="flex py-2 px-3 rounded-xl border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800">
@@ -2970,11 +2962,17 @@
 <script src="assets/js/api-client.js"></script>
 <script src="assets/js/auth-service.js"></script>
 <script src="assets/js/utils.js"></script>
+<script src="assets/js/services/category-service.js"></script>
+<script src="assets/js/services/product-service.js"></script>
+<script src="assets/js/services/cart-service.js"></script>
+<script src="assets/js/services/wishlist-service.js"></script>
 <script src="assets/js/plugin/story-player/story-player.js"></script>
 <script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
 <script src="assets/js/dependencies/swiper-script.js"></script>
+<script src="assets/js/pages/index-page.js"></script>
 
 <!-- initial story api -->
+
 
 
 </body>
