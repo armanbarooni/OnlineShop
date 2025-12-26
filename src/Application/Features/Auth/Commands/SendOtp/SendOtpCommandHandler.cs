@@ -36,6 +36,24 @@ namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
 
         public async Task<Result<OtpResponseDto>> Handle(SendOtpCommand request, CancellationToken cancellationToken)
         {
+            // Check rate limiting - prevent sending OTP if less than 2 minutes since last request
+            var lastOtp = await _otpRepository.GetLatestOtpAsync(request.Request.PhoneNumber, cancellationToken);
+            if (lastOtp != null && !lastOtp.IsUsed)
+            {
+                var timeSinceLastOtp = DateTime.UtcNow - lastOtp.CreatedAt;
+                var rateLimitMinutes = 2;
+                
+                if (timeSinceLastOtp.TotalMinutes < rateLimitMinutes)
+                {
+                    var remainingSeconds = (int)((rateLimitMinutes * 60) - timeSinceLastOtp.TotalSeconds);
+                    _logger.LogWarning("OTP rate limit exceeded for {PhoneNumber}. Last OTP sent {Seconds} seconds ago", 
+                        request.Request.PhoneNumber, (int)timeSinceLastOtp.TotalSeconds);
+                    
+                    return Result<OtpResponseDto>.Failure(
+                        $"لطفاً {remainingSeconds} ثانیه دیگر صبر کنید و سپس دوباره تلاش کنید");
+                }
+            }
+
             // Invalidate all previous OTPs for this phone number
             await _otpRepository.InvalidatePreviousOtpsAsync(request.Request.PhoneNumber, cancellationToken);
 
@@ -46,7 +64,7 @@ namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
                 if (user == null)
                 {
                     _logger.LogWarning("SendOtp failed - user not found for login: {PhoneNumber}", request.Request.PhoneNumber);
-                    return Result<OtpResponseDto>.Failure("نام کاربری یا کلمه عبور اشتباه است");
+                    return Result<OtpResponseDto>.Failure("شما هنوز ثبت‌نام نکرده‌اید. لطفاً ابتدا ثبت‌نام کنید");
                 }
             }
 
