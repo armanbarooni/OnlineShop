@@ -10,23 +10,42 @@ class WishlistService {
 
     /**
      * Get user wishlist
+     * @param {string} userId - Optional user ID. If not provided, will be extracted from token
      */
-    async getWishlist() {
+    async getWishlist(userId = null) {
         try {
-            // Get current user ID from token
-            const token = localStorage.getItem('accessToken');
-            if (!token) {
+            let finalUserId = userId;
+
+            // If userId not provided, try to get from token (fallback for backward compatibility)
+            if (!finalUserId) {
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    return {
+                        success: false,
+                        error: 'User not authenticated'
+                    };
+                }
+
+                // Decode token to get user ID
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    finalUserId = payload.nameidentifier;
+                } catch (e) {
+                    return {
+                        success: false,
+                        error: 'Invalid token format'
+                    };
+                }
+            }
+
+            if (!finalUserId) {
                 return {
                     success: false,
-                    error: 'User not authenticated'
+                    error: 'User ID is required'
                 };
             }
 
-            // Decode token to get user ID
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const userId = payload.sub || payload.nameid;
-
-            const response = await this.apiClient.get(`/wishlist/user/${userId}`);
+            const response = await this.apiClient.get(`/wishlist/user/${finalUserId}`);
             return {
                 success: true,
                 data: response.data || response
@@ -108,7 +127,7 @@ class WishlistService {
             // Get current user ID from token
             const token = localStorage.getItem('accessToken');
             if (!token) {
-                return { success: false, error: 'ط§ط¨طھط¯ط§ ظˆط§ط±ط¯ ط­ط³ط§ط¨ ع©ط§ط±ط¨ط±غŒ ط´ظˆغŒط¯' };
+                return { success: false, error: 'ابتدا وارد حساب کاربری شوید' };
             }
 
             // Decode token to get user ID
@@ -431,8 +450,9 @@ if (typeof module !== 'undefined' && module.exports) {
  */
 WishlistService.prototype.getWishlistItems = async function(criteria = {}) {
     try {
-        // Get user wishlist
-        const response = await this.getWishlist();
+        // Get user wishlist with userId from criteria if provided
+        const userId = criteria.userId || null;
+        const response = await this.getWishlist(userId);
         
         if (!response.success) {
             return response;
@@ -441,10 +461,18 @@ WishlistService.prototype.getWishlistItems = async function(criteria = {}) {
         let items = response.data;
         
         // Handle different response structures
-        if (items && items.data) {
+        // If data is already an array, use it directly
+        if (Array.isArray(items)) {
+            // items is already an array, use it as is
+        } else if (items && items.data) {
+            // If data has a nested data property
             items = Array.isArray(items.data) ? items.data : (items.data.items || []);
-        } else if (!Array.isArray(items)) {
-            items = items.items || [];
+        } else if (items && Array.isArray(items.items)) {
+            // If data has an items property that is an array
+            items = items.items;
+        } else {
+            // Fallback to empty array
+            items = [];
         }
         
         // Apply filters if provided
