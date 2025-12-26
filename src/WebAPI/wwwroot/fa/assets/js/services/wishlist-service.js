@@ -108,7 +108,7 @@ class WishlistService {
             // Get current user ID from token
             const token = localStorage.getItem('accessToken');
             if (!token) {
-                return { success: false, error: 'ط§ط¨طھط¯ط§ ظˆط§ط±ط¯ ط­ط³ط§ط¨ ع©ط§ط±ط¨ط±غŒ ط´ظˆغŒط¯' };
+                return { success: false, error: 'ابتدا وارد حساب کاربری شوید' };
             }
 
             // Decode token to get user ID
