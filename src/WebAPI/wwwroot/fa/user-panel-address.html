@@ -83,62 +83,29 @@
                         </a>
 
                         <!-- Orders -->
-                        <div class="space-y-1">
-                            <button type="button"
-                                class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                                onclick="toggleMenu('order-menu','order-arrow')">
-                                <span class="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 3h18v4H3zM5 7v12a2 2 0 002 2h10a2 2 0 002-2V7" />
-                                    </svg>
-                                    سفارش‌ها
-                                </span>
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-4 w-4 transition-transform duration-300" id="order-arrow" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div id="order-menu" class="hidden me-6 space-y-1">
-                                <a href="user-panel-order.html"
-                                    class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5h6m4 4H5m0 0v9a2 2 0 002 2h10a2 2 0 002-2V9H5z" />
-                                    </svg>
-                                    لیست سفارش‌ها
-                                </a>
-                                <a href="user-panel-order-return-step-one.html"
-                                    class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 4v5h.582A10 10 0 1021 12" />
-                                    </svg>
-                                    مرجوعی
-                                </a>
-                            </div>
-                        </div>
+                        <a href="user-panel-order.html"
+                            class="block px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 3h18v4H3zM5 7v12a2 2 0 002 2h10a2 2 0 002-2V7" />
+                            </svg>
+                            سفارش‌ها
+                        </a>
 
                         <!-- Addresses -->
-                        <div class="space-y-1">
-                            <a href="user-panel-address.html"
-                                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 11c1.657 0 3-1.567 3-3.5S13.657 4 12 4 9 5.567 9 7.5 10.343 11 12 11z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 21a7 7 0 10-14 0h14z" />
-                                </svg>
-                                آدرس‌ها
-                                <span class="ms-auto w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-400"></span>
-                            </a>
-                        </div>
+                        <a href="user-panel-address.html"
+                            class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 11c1.657 0 3-1.567 3-3.5S13.657 4 12 4 9 5.567 9 7.5 10.343 11 12 11z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 21a7 7 0 10-14 0h14z" />
+                            </svg>
+                            آدرس‌ها
+                            <span class="ms-auto w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-400"></span>
+                        </a>
                     </nav>
                     <!-- user profile -->
                     <div class="mt-auto p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
@@ -553,62 +520,29 @@
                         </a>
 
                         <!-- Orders -->
-                        <div class="space-y-1">
-                            <button type="button"
-                                class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                                onclick="toggleMenu('mobile-order-menu','mobile-order-arrow')">
-                                <span class="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 3h18v4H3zM5 7v12a2 2 0 002 2h10a2 2 0 002-2V7" />
-                                    </svg>
-                                    سفارش‌ها
-                                </span>
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-4 w-4 transition-transform duration-300" id="mobile-order-arrow"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div id="mobile-order-menu" class="hidden me-6 space-y-1">
-                                <a href="user-panel-order.html"
-                                    class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5h6m4 4H5m0 0v9a2 2 0 002 2h10a2 2 0 002-2V9H5z" />
-                                    </svg>
-                                    لیست سفارش‌ها
-                                </a>
-                                <a href="user-panel-order-return-step-one.html"
-                                    class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 4v5h.582A10 10 0 1021 12" />
-                                    </svg>
-                                    مرجوعی
-                                </a>
-                            </div>
-                        </div>
+                        <a href="user-panel-order.html"
+                            class="block px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 3h18v4H3zM5 7v12a2 2 0 002 2h10a2 2 0 002-2V7" />
+                            </svg>
+                            سفارش‌ها
+                        </a>
 
                         <!-- Addresses -->
-                        <div class="space-y-1">
-                            <a href="user-panel-address.html"
-                                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 11c1.657 0 3-1.567 3-3.5S13.657 4 12 4 9 5.567 9 7.5 10.343 11 12 11z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 21a7 7 0 10-14 0h14z" />
-                                </svg>
-                                آدرس‌ها
-                                <span class="ms-auto w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-400"></span>
-                            </a>
-                        </div>
+                        <a href="user-panel-address.html"
+                            class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 11c1.657 0 3-1.567 3-3.5S13.657 4 12 4 9 5.567 9 7.5 10.343 11 12 11z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 21a7 7 0 10-14 0h14z" />
+                            </svg>
+                            آدرس‌ها
+                            <span class="ms-auto w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-400"></span>
+                        </a>
                     </nav>
                     <!-- user profile -->
                     <div class="mt-auto p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
