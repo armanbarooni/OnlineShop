@@ -49,14 +49,34 @@ class ApiClient {
                     config.credentials = 'include';
                     config.mode = 'cors';
                     const retryResponse = await fetch(url, config);
-                    const retryData = await retryResponse.json();
+                    
+                    // Parse retry response - handle empty responses
+                    let retryData;
+                    const retryContentType = retryResponse.headers.get('content-type');
+                    if (retryContentType && retryContentType.includes('application/json')) {
+                        try {
+                            const retryText = await retryResponse.text();
+                            retryData = retryText ? JSON.parse(retryText) : {};
+                        } catch (e) {
+                            // If JSON parsing fails, treat as empty object
+                            retryData = {};
+                        }
+                    } else {
+                        const retryText = await retryResponse.text();
+                        retryData = retryText || {};
+                    }
 
                     if (!retryResponse.ok) {
                         // Parse error message from different response structures
                         let errorMessage = '';
                         
+                        // Check if retryData is empty or just an empty object (response body is empty)
+                        const isEmpty = !retryData || 
+                            (typeof retryData === 'object' && Object.keys(retryData).length === 0) ||
+                            (typeof retryData === 'string' && retryData.trim() === '');
+                        
                         // If retryData is a string, try to parse it as JSON first
-                        if (typeof retryData === 'string') {
+                        if (typeof retryData === 'string' && retryData.trim() !== '') {
                             try {
                                 const parsed = JSON.parse(retryData);
                                 if (parsed && typeof parsed === 'object') {
@@ -70,21 +90,32 @@ class ApiClient {
                             }
                         }
 
-                        // Now extract errorMessage from parsed retryData
-                        if (!errorMessage) {
+                        // Now extract errorMessage from parsed retryData (only if retryData is not empty)
+                        if (!errorMessage && !isEmpty) {
                             if (retryData?.errorMessage) {
                                 errorMessage = retryData.errorMessage;
                             } else if (retryData?.message) {
                                 errorMessage = retryData.message;
-                            } else if (Array.isArray(retryData)) {
+                            } else if (Array.isArray(retryData) && retryData.length > 0) {
                                 errorMessage = retryData.join(', ');
-                            } else if (retryData?.errors && Array.isArray(retryData.errors)) {
+                            } else if (retryData?.errors && Array.isArray(retryData.errors) && retryData.errors.length > 0) {
                                 errorMessage = retryData.errors.join(', ');
                             } else if (retryData?.title) {
                                 errorMessage = retryData.title;
-                            } else {
-                                errorMessage = `HTTP error! status: ${retryResponse.status}`;
                             }
+                        }
+
+                        // Handle specific HTTP status codes with user-friendly messages
+                        // If response is empty or errorMessage is still empty, use status-specific messages
+                        if (retryResponse.status === 404) {
+                            // Always show friendly message for 404, especially when response is empty
+                            errorMessage = 'سرویس مورد نظر یافت نشد. لطفاً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.';
+                        } else if (retryResponse.status >= 400 && retryResponse.status < 500) {
+                            errorMessage = errorMessage || 'خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.';
+                        } else if (retryResponse.status >= 500) {
+                            errorMessage = errorMessage || 'خطای سرور. لطفاً بعداً تلاش کنید.';
+                        } else {
+                            errorMessage = errorMessage || 'خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.';
                         }
                         
                         throw new Error(errorMessage);
@@ -103,16 +134,17 @@ class ApiClient {
                 }
             }
 
-            // Parse response - handle non-JSON responses
+            // Parse response - handle non-JSON responses and empty responses
             let data;
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
                 try {
-                    data = await response.json();
-                } catch (e) {
-                    // If JSON parsing fails, treat as text
+                    // Read as text first to handle empty responses
                     const text = await response.text();
-                    data = text || {};
+                    data = text ? JSON.parse(text) : {};
+                } catch (e) {
+                    // If JSON parsing fails, treat as empty object
+                    data = {};
                 }
             } else {
                 const text = await response.text();
@@ -129,8 +161,13 @@ class ApiClient {
                     throw new Error(errorMessage);
                 }
 
+                // Check if data is empty or just an empty object (response body is empty)
+                const isEmpty = !data || 
+                    (typeof data === 'object' && Object.keys(data).length === 0) ||
+                    (typeof data === 'string' && data.trim() === '');
+
                 // If data is a string, try to parse it as JSON first
-                if (typeof data === 'string') {
+                if (typeof data === 'string' && data.trim() !== '') {
                     try {
                         const parsed = JSON.parse(data);
                         if (parsed && typeof parsed === 'object') {
@@ -144,44 +181,44 @@ class ApiClient {
                     }
                 }
 
-                // Now extract errorMessage from parsed data
-                if (!errorMessage) {
+                // Now extract errorMessage from parsed data (only if data is not empty)
+                if (!errorMessage && !isEmpty) {
                     if (data?.errorMessage) {
                         errorMessage = data.errorMessage;
                     } else if (data?.message) {
                         errorMessage = data.message;
-                    } else if (Array.isArray(data)) {
+                    } else if (Array.isArray(data) && data.length > 0) {
                         errorMessage = data.join(', ');
-                    } else if (data?.errors && Array.isArray(data.errors)) {
+                    } else if (data?.errors && Array.isArray(data.errors) && data.errors.length > 0) {
                         errorMessage = data.errors.join(', ');
                     } else if (data?.title) {
                         errorMessage = data.title;
-                    } else if (typeof data === 'object' && Object.keys(data).length === 0) {
-                        errorMessage = `HTTP error! status: ${response.status}`;
-                    } else if (typeof data === 'object' && data !== null) {
-                        // Don't stringify the whole object - just show a generic error
-                        // The errorMessage should have been caught above if it exists
-                        errorMessage = `HTTP error! status: ${response.status}`;
-                    } else {
-                        errorMessage = `HTTP error! status: ${response.status}`;
                     }
                 }
 
-                // Add status code to error message for debugging
+                // Handle specific HTTP status codes with user-friendly messages
+                // If response is empty or errorMessage is still empty, use status-specific messages
                 if (response.status >= 400 && response.status < 500) {
                     if (response.status === 400) {
-                        errorMessage = errorMessage || 'درخواست نامعتبر است';
+                        errorMessage = errorMessage || 'درخواست نامعتبر است. لطفاً اطلاعات را بررسی کنید.';
                     } else if (response.status === 401) {
-                        errorMessage = errorMessage || 'احراز هویت ناموفق';
+                        errorMessage = errorMessage || 'احراز هویت ناموفق. لطفاً دوباره وارد شوید.';
                     } else if (response.status === 403) {
-                        errorMessage = errorMessage || 'دسترسی غیرمجاز';
+                        errorMessage = errorMessage || 'دسترسی غیرمجاز. شما مجوز دسترسی به این بخش را ندارید.';
                     } else if (response.status === 404) {
-                        errorMessage = errorMessage || 'منبع یافت نشد';
+                        // Always show friendly message for 404, especially when response is empty
+                        errorMessage = 'سرویس مورد نظر یافت نشد. لطفاً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.';
                     } else if (response.status === 405) {
                         errorMessage = 'متد درخواست اشتباه است. لطفاً صفحه را رفرش کنید و دوباره تلاش کنید.';
+                    } else {
+                        // For other 4xx errors, use a generic message if no specific message exists
+                        errorMessage = errorMessage || 'خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.';
                     }
                 } else if (response.status >= 500) {
                     errorMessage = errorMessage || 'خطای سرور. لطفاً بعداً تلاش کنید.';
+                } else {
+                    // For any other error status, use a generic message if no specific message exists
+                    errorMessage = errorMessage || 'خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.';
                 }
 
                 throw new Error(errorMessage);
@@ -319,15 +356,17 @@ class ApiClient {
                 body: formData
             });
 
-            // Parse response - handle non-JSON responses
+            // Parse response - handle non-JSON responses and empty responses
             let data;
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
                 try {
-                    data = await response.json();
-                } catch (e) {
+                    // Read as text first to handle empty responses
                     const text = await response.text();
-                    data = text || {};
+                    data = text ? JSON.parse(text) : {};
+                } catch (e) {
+                    // If JSON parsing fails, treat as empty object
+                    data = {};
                 }
             } else {
                 const text = await response.text();
@@ -338,8 +377,13 @@ class ApiClient {
                 // Parse error message from different response structures
                 let errorMessage = '';
 
+                // Check if data is empty or just an empty object (response body is empty)
+                const isEmpty = !data || 
+                    (typeof data === 'object' && Object.keys(data).length === 0) ||
+                    (typeof data === 'string' && data.trim() === '');
+
                 // If data is a string, try to parse it as JSON first
-                if (typeof data === 'string') {
+                if (typeof data === 'string' && data.trim() !== '') {
                     try {
                         const parsed = JSON.parse(data);
                         if (parsed && typeof parsed === 'object') {
@@ -353,21 +397,32 @@ class ApiClient {
                     }
                 }
 
-                // Now extract errorMessage from parsed data
-                if (!errorMessage) {
+                // Now extract errorMessage from parsed data (only if data is not empty)
+                if (!errorMessage && !isEmpty) {
                     if (data?.errorMessage) {
                         errorMessage = data.errorMessage;
                     } else if (data?.message) {
                         errorMessage = data.message;
-                    } else if (Array.isArray(data)) {
+                    } else if (Array.isArray(data) && data.length > 0) {
                         errorMessage = data.join(', ');
-                    } else if (data?.errors && Array.isArray(data.errors)) {
+                    } else if (data?.errors && Array.isArray(data.errors) && data.errors.length > 0) {
                         errorMessage = data.errors.join(', ');
                     } else if (data?.title) {
                         errorMessage = data.title;
-                    } else {
-                        errorMessage = `HTTP error! status: ${response.status}`;
                     }
+                }
+
+                // Handle specific HTTP status codes with user-friendly messages
+                // If response is empty or errorMessage is still empty, use status-specific messages
+                if (response.status === 404) {
+                    // Always show friendly message for 404, especially when response is empty
+                    errorMessage = 'سرویس مورد نظر یافت نشد. لطفاً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.';
+                } else if (response.status >= 400 && response.status < 500) {
+                    errorMessage = errorMessage || 'خطا در ارسال درخواست. لطفاً دوباره تلاش کنید.';
+                } else if (response.status >= 500) {
+                    errorMessage = errorMessage || 'خطای سرور. لطفاً بعداً تلاش کنید.';
+                } else {
+                    errorMessage = errorMessage || 'خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.';
                 }
 
                 throw new Error(errorMessage);
