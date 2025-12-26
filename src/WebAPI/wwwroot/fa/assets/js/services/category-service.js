@@ -12,16 +12,17 @@ class CategoryService {
      */
     async getAllCategories() {
         try {
-            const response = await this.apiClient.get('/api/ProductCategory');
+            const response = await this.apiClient.get('/ProductCategory');
             if (response.success !== undefined && !response.success) {
                 return response;
             }
             
             // Handle different response structures
             const data = response.data || response;
+            const finalData = data.data || data;
             return {
                 success: true,
-                data: data.data || data
+                data: finalData
             };
         } catch (error) {
             window.logger.error('Error getting categories:', error);
@@ -37,7 +38,7 @@ class CategoryService {
      */
     async getCategoryById(categoryId) {
         try {
-            const response = await this.apiClient.get(`/api/ProductCategory/${categoryId}`);
+            const response = await this.apiClient.get(`/ProductCategory/${categoryId}`);
             if (response.success !== undefined && !response.success) {
                 return response;
             }
@@ -61,7 +62,7 @@ class CategoryService {
      */
     async getCategoryTree() {
         try {
-            const response = await this.apiClient.get('/api/ProductCategory/tree');
+            const response = await this.apiClient.get('/ProductCategory/tree');
             if (response.success !== undefined && !response.success) {
                 return response;
             }
@@ -85,7 +86,7 @@ class CategoryService {
      */
     async getSubCategories(categoryId) {
         try {
-            const response = await this.apiClient.get(`/api/ProductCategory/${categoryId}/subcategories`);
+            const response = await this.apiClient.get(`/ProductCategory/${categoryId}/subcategories`);
             if (response.success !== undefined && !response.success) {
                 return response;
             }
@@ -183,6 +184,56 @@ class CategoryService {
         });
         
         return ids;
+    }
+
+    /**
+     * Render categories in mega menu
+     * @param {string} containerId - ID of container element
+     */
+    async renderMegaMenu(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        try {
+            const result = await this.getAllCategories();
+            if (!result.success || !result.data || result.data.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 p-4">دسته‌بندی یافت نشد</p>';
+                return;
+            }
+
+            const categories = result.data;
+            // Render category list
+            let html = '<ul class="my-2 space-y-1">';
+            categories.forEach((category) => {
+                html += `
+                    <li data-mega-id="${category.id}" 
+                        class="px-4 w-full hover:bg-opacity-70 border-opacity-0 hover:border-opacity-100 rounded-lg dark:hover:text-zinc-950 mega-menu-li">
+                        <a href="shop.html?category=${category.id}" class="flex items-center justify-between py-3">
+                            <div class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l4-2 4 2V6z" clip-rule="evenodd"/>
+                                </svg>
+                                <div class="ms-1">
+                                    <p class="text-xs">${category.name || 'بدون نام'}</p>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </a>
+                    </li>
+                `;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        } catch (error) {
+            if (window.logger) {
+                window.logger.error('Error rendering mega menu:', error);
+            } else {
+                console.error('Error rendering mega menu:', error);
+            }
+            container.innerHTML = '<p class="text-gray-500 p-4">خطا در بارگذاری دسته‌بندی‌ها</p>';
+        }
     }
 }
 

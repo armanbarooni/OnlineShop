@@ -179,14 +179,21 @@ namespace OnlineShop.Infrastructure.Services
                 }
 
                 // StoreId is required as per Mahak support
-                // Using default StoreId = 1 (you may need to configure this)
+                // Get from configuration
+                var storeIdStr = _configuration["Mahak:DefaultStoreId"];
+                if (string.IsNullOrEmpty(storeIdStr) || !int.TryParse(storeIdStr, out int storeId))
+                {
+                    _logger.LogWarning("Mahak:DefaultStoreId not configured, using default value 31940");
+                    storeId = 31940; // Default fallback
+                }
+
                 mahakOrderDetails.Add(new MahakOrderDetailModel
                 {
                     OrderDetailClientId = item.Id.GetHashCode(),
                     ItemType = 1, // ProductDetail (required by Mahak v14+ when using ProductDetailId)
                     OrderClientId = mahakOrder.OrderClientId,
                     ProductDetailId = productDetailMapping.MahakEntityId,
-                    StoreId = 1, // Default store - REQUIRED by Mahak
+                    StoreId = storeId, // REQUIRED by Mahak
                     Price = item.UnitPrice,
                     Count1 = item.Quantity,
                     Count2 = 0,
@@ -243,11 +250,20 @@ namespace OnlineShop.Infrastructure.Services
             _logger.LogInformation("Syncing customer {UserId} ({Name}) to Mahak", 
                 user.Id, $"{user.FirstName} {user.LastName}");
 
+            // Get PersonGroupId from configuration (required by Mahak)
+            var personGroupIdStr = _configuration["Mahak:DefaultPersonGroupId"];
+            if (string.IsNullOrEmpty(personGroupIdStr) || !int.TryParse(personGroupIdStr, out int personGroupId))
+            {
+                _logger.LogWarning("Mahak:DefaultPersonGroupId not configured, using default value 102479");
+                personGroupId = 102479; // Default fallback
+            }
+
             // Create Person model
             var personClientId = Math.Abs(user.Id.GetHashCode());
             var mahakPerson = new MahakPersonModel
             {
                 PersonClientId = personClientId,
+                PersonGroupId = personGroupId, // Required for creating person
                 Name = user.FirstName,
                 Family = user.LastName,
                 Mobile = user.PhoneNumber ?? string.Empty,
@@ -256,12 +272,46 @@ namespace OnlineShop.Infrastructure.Services
                 Deleted = false
             };
 
-            // Send to Mahak
-            var request = new
+            // Prepare request with Person
+            var request = new SaveAllDataRequest
             {
-                People = new[] { mahakPerson }
+                People = new List<MahakPersonModel> { mahakPerson }
             };
 
+            // Add profile picture if exists
+            if (user.UserProfile?.ProfileImageUrl != null)
+            {
+                try
+                {
+                    var pictureModel = await CreateProfilePictureModelAsync(user, personClientId, cancellationToken);
+                    if (pictureModel != null)
+                    {
+                        request.Pictures = new List<MahakPictureModel> { pictureModel };
+                        _logger.LogInformation("Including profile picture for user {UserId}", user.Id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to prepare profile picture for user {UserId}, continuing without it", user.Id);
+                }
+            }
+
+            // Create VisitorPeople link (REQUIRED for real sales with inventory deduction)
+            var visitorPersonClientId = Math.Abs((user.Id.ToString() + "_visitor").GetHashCode());
+            var visitorPerson = new MahakVisitorPersonModel
+            {
+                VisitorPersonClientId = visitorPersonClientId,
+                VisitorId = _visitorId,
+                PersonClientId = personClientId,
+                Deleted = false
+            };
+            request.VisitorPeople = new List<MahakVisitorPersonModel> { visitorPerson };
+
+            // Log the request for debugging
+            var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+            _logger.LogDebug("Sending customer to Mahak. Request: {Request}", requestJson);
+
+            // Send to Mahak
             var content = new StringContent(
                 JsonSerializer.Serialize(request),
                 System.Text.Encoding.UTF8,
@@ -278,8 +328,8 @@ namespace OnlineShop.Infrastructure.Services
             }
 
             var responseText = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Customer {UserId} synced to Mahak successfully. PersonClientId: {PersonClientId}", 
-                user.Id, personClientId);
+            _logger.LogInformation("Customer {UserId} synced to Mahak successfully. PersonClientId: {PersonClientId}, VisitorPersonClientId: {VisitorPersonClientId}", 
+                user.Id, personClientId, visitorPersonClientId);
 
             // Save PersonClientId to user
             // Note: Mahak doesn't return the server-generated PersonId in SaveAllDataV2 response
@@ -289,6 +339,78 @@ namespace OnlineShop.Infrastructure.Services
             await _userManager.UpdateAsync(user);
             
             return personClientId;
+        }
+
+        private async Task<MahakPictureModel?> CreateProfilePictureModelAsync(ApplicationUser user, long personClientId, CancellationToken cancellationToken)
+        {
+            if (user.UserProfile?.ProfileImageUrl == null)
+                return null;
+
+            try
+            {
+                var imageUrl = user.UserProfile.ProfileImageUrl;
+                
+                // If it's a local file path, read it
+                if (System.IO.File.Exists(imageUrl))
+                {
+                    var imageBytes = await System.IO.File.ReadAllBytesAsync(imageUrl, cancellationToken);
+                    var base64 = Convert.ToBase64String(imageBytes);
+                    var fileName = $"person-{personClientId}.jpg";
+
+                    // Check size (should be < 300KB)
+                    if (imageBytes.Length > 300 * 1024)
+                    {
+                        _logger.LogWarning("Profile image for user {UserId} is too large ({Size} bytes), skipping", 
+                            user.Id, imageBytes.Length);
+                        return null;
+                    }
+
+                    var pictureClientId = Math.Abs((user.Id.ToString() + "_picture").GetHashCode());
+                    return new MahakPictureModel
+                    {
+                        PictureClientId = pictureClientId,
+                        FileName = fileName,
+                        BinaryData = base64, // Pure Base64 without prefix
+                        Deleted = false
+                    };
+                }
+                // If it's a URL, download it
+                else if (Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri))
+                {
+                    using var httpClient = new HttpClient();
+                    var imageBytes = await httpClient.GetByteArrayAsync(uri, cancellationToken);
+                    
+                    // Check size (should be < 300KB)
+                    if (imageBytes.Length > 300 * 1024)
+                    {
+                        _logger.LogWarning("Profile image for user {UserId} is too large ({Size} bytes), skipping", 
+                            user.Id, imageBytes.Length);
+                        return null;
+                    }
+
+                    var base64 = Convert.ToBase64String(imageBytes);
+                    var fileName = $"person-{personClientId}.jpg";
+                    var pictureClientId = Math.Abs((user.Id.ToString() + "_picture").GetHashCode());
+
+                    return new MahakPictureModel
+                    {
+                        PictureClientId = pictureClientId,
+                        FileName = fileName,
+                        BinaryData = base64, // Pure Base64 without prefix
+                        Deleted = false
+                    };
+                }
+                else
+                {
+                    _logger.LogWarning("Profile image URL for user {UserId} is not valid: {Url}", user.Id, imageUrl);
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating profile picture model for user {UserId}", user.Id);
+                return null;
+            }
         }
 
         private async Task LoginAsync(CancellationToken cancellationToken)

@@ -15,5 +15,6 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         Task DeleteAsync(Guid id, CancellationToken cancellationToken);
         Task CleanupOldLogsAsync(int daysToKeep, CancellationToken cancellationToken);
         Task<long> GetLastRowVersionAsync(string entityType, CancellationToken cancellationToken);
+        Task ResetRowVersionAsync(string entityType, CancellationToken cancellationToken);
     }
 }

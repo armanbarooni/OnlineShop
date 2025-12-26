@@ -31,6 +31,18 @@ namespace OnlineShop.Application.Features.Product.Command.Update
                 request.Product?.Price ?? 0, 
                 request.Product?.StockQuantity ?? 0, 
                 null);
+            
+            // Update CategoryId if provided
+            if (request.Product?.CategoryId.HasValue == true)
+            {
+                product.SetCategoryId(request.Product.CategoryId.Value);
+            }
+            else if (request.Product?.CategoryId == null && request.Product != null)
+            {
+                // If CategoryId is explicitly set to null, clear it
+                product.SetCategoryId(null);
+            }
+            
             await _repository.UpdateAsync(product,cancellationToken);
             return Result<ProductDto>.Success(_mapper.Map<ProductDto>(product));
         }

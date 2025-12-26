@@ -5,7 +5,7 @@
 class ProductService {
     constructor() {
         this.apiClient = window.apiClient;
-        this.baseUrl = '/api/Product';
+        this.baseUrl = '/Product';
     }
 
     /**

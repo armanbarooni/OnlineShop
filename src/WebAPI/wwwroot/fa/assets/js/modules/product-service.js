@@ -238,6 +238,45 @@ class ProductService {
         const products = await this.searchProducts(query);
         this.renderProductsGrid(containerId, products);
     }
+    /**
+     * Render product slides for Swiper
+     * @param {HTMLElement|string} container - Container element or ID
+     * @param {string} type - 'featured' | 'latest'
+     * @param {number} limit
+     */
+    async renderProductSection(container, type, limit = 8) {
+        const targetElement = typeof container === 'string' ? document.getElementById(container) : container;
+        if (!targetElement) return;
+
+        const products = await this.getProducts();
+        // In a real app we'd filter by 'type' (featured, latest, etc.)
+        // For now, reverse for latest, or slice differently
+        let displayProducts = products;
+
+        if (type === 'latest') {
+            displayProducts = [...products].reverse();
+        }
+
+        displayProducts = limit ? displayProducts.slice(0, limit) : displayProducts;
+
+        if (displayProducts.length === 0) {
+            targetElement.innerHTML = '';
+            return;
+        }
+
+        const html = displayProducts.map(product => {
+            // We wrap the card in a Swiper slide
+            // Adjust styling classes to match template
+            return `<div class="swiper-slide !w-auto p-1" style="width: fit-content; min-width: 250px;">
+                        ${this.renderProductCard(product)}
+                     </div>`;
+        }).join('');
+
+        targetElement.innerHTML = html;
+
+        // Dispatch event in case we need to notify Swiper
+        window.dispatchEvent(new CustomEvent('product-section-rendered', { detail: { container: targetElement } }));
+    }
 }
 
 // Export for use in other modules

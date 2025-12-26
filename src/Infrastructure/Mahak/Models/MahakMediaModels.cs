@@ -1,5 +1,8 @@
 namespace OnlineShop.Infrastructure.Mahak.Models
 {
+    /// <summary>
+    /// Model for Picture data from Mahak (incoming)
+    /// </summary>
     public class PictureModel
     {
         public int PictureId { get; set; }
@@ -14,6 +17,17 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public long RowVersion { get; set; }
         public int PictureClientId { get; set; }
         public int PictureCode { get; set; }
+    }
+
+    /// <summary>
+    /// Model for sending Picture to Mahak (outgoing)
+    /// </summary>
+    public class MahakPictureModel
+    {
+        public long PictureClientId { get; set; }
+        public string FileName { get; set; } = string.Empty;
+        public string BinaryData { get; set; } = string.Empty; // Base64 without prefix
+        public bool Deleted { get; set; } = false;
     }
 
     public class PhotoGalleryModel

@@ -167,8 +167,11 @@ namespace OnlineShop.Infrastructure.Mahak.Models
     /// </summary>
     public class SaveAllDataRequest
     {
+        public List<MahakPersonModel>? People { get; set; }
+        public List<MahakPictureModel>? Pictures { get; set; }
+        public List<MahakVisitorPersonModel>? VisitorPeople { get; set; }
         public List<MahakOrderModel>? Orders { get; set; }
         public List<MahakOrderDetailModel>? OrderDetails { get; set; }
-        // Add other entities as needed (people, products, etc.)
+        // Add other entities as needed
     }
 }
