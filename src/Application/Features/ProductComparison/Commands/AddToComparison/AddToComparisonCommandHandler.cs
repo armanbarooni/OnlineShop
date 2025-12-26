@@ -32,10 +32,10 @@ namespace OnlineShop.Application.Features.ProductComparison.Commands.AddToCompar
                     return Result<ProductComparisonDto>.Failure("Product not found");
 
                 // Get or create comparison
-                var comparison = await _repository.GetByUserIdAsync(request.UserId, cancellationToken);
+                var comparison = await _repository.GetByUserIdAsync(Guid.Parse(request.UserId), cancellationToken);
                 if (comparison == null)
                 {
-                    comparison = Domain.Entities.ProductComparison.Create(request.UserId);
+                    comparison = Domain.Entities.ProductComparison.Create(Guid.Parse(request.UserId));
                     await _repository.AddAsync(comparison, cancellationToken);
                 }
 

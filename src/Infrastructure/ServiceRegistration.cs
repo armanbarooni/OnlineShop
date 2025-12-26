@@ -106,6 +106,14 @@ public static class ServiceRegistration
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<Domain.Interfaces.Services.IInvoiceService, Infrastructure.Services.InvoiceService>();
+        services.AddHttpClient<MahakSyncService>();
+        services.AddScoped<MahakSyncService>();
+        services.AddHttpClient<MahakOutgoingSyncService>();
+        services.AddScoped<MahakOutgoingSyncService>();
+
+        services.AddHttpClient();
+        services.AddScoped<Domain.Interfaces.Services.IPaymentGateway, 
+            OnlineShop.Infrastructure.PaymentGateways.Sadad.SadadGatewayService>();
         
         // SMS Service Configuration (runtime selection via options)
         services.Configure<SmsSettings>(configuration.GetSection("SmsSettings"));
@@ -120,6 +128,22 @@ public static class ServiceRegistration
             }
 
             var legacy = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<SmsSettings>>().Value;
+
+            // Support legacy provider=SmsIr with ApiKey configured under SmsSettings
+            if ((legacy.Provider ?? string.Empty).Equals("smsir", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(legacy.ApiKey))
+            {
+                var mergedOptions = Microsoft.Extensions.Options.Options.Create(new OnlineShop.Application.Settings.SmsIrSettings
+                {
+                    ApiKey = legacy.ApiKey,
+                    TemplateId = smsIr.TemplateId,      // keep template if provided via SmsIr section
+                    UseSandbox = smsIr.UseSandbox,
+                    OtpParamName = smsIr.OtpParamName
+                });
+
+                return new SmsIrSmsService(mergedOptions, sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<SmsIrSmsService>>());
+            }
+
             if ((legacy.Provider ?? string.Empty).Equals("kavenegar", StringComparison.OrdinalIgnoreCase))
             {
                 // We need HttpClient for KavenegarSmsService; resolve a typed instance

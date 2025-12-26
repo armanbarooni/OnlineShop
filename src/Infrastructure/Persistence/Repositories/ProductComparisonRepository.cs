@@ -13,7 +13,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<ProductComparison?> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+        public async Task<ProductComparison?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             return await _context.Set<ProductComparison>()
                 .FirstOrDefaultAsync(pc => pc.UserId == userId, cancellationToken);

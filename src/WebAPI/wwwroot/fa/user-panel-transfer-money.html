@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -108,7 +108,7 @@
                                 </svg>
                                 لیست سفارش‌ها
                             </a>
-                            <a href="user-panel-order-detail.html"
+                            <a href="user-panel-order.html"
                                class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor">
@@ -177,7 +177,7 @@
                                 </svg>
                                 لیست آدرس‌ها
                             </a>
-                            <a href="user-panel-edit-address.html"
+                            <a href="user-panel-address.html"
                                class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor">
@@ -1284,10 +1284,53 @@
 ></div>
 
 <!-- /canvas responsive menu -->
-
-
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>`n<script src="assets/js/user-panel-common.js"></script>
+<script src="config.js"></script>
+<script src="assets/js/utils/logger.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/user-profile-service.js"></script>
+<script>
+ document.addEventListener('DOMContentLoaded', async ()=>{
+   try {
+     // Get wallet balance
+     const balanceResult = await window.userProfileService.getWalletBalance();
+     if (balanceResult.success && balanceResult.data) {
+       const balanceElement = document.getElementById('walletBalance');
+       if (balanceElement) {
+         balanceElement.textContent = window.utils?.formatPrice(balanceResult.data.balance || balanceResult.data) || (balanceResult.data.balance || balanceResult.data);
+       }
+     }
+     
+     // Handle transfer form submission
+     const transferForm = document.getElementById('transferForm');
+     if (transferForm) {
+       transferForm.addEventListener('submit', async (e) => {
+         e.preventDefault();
+         const formData = new FormData(e.target);
+         const recipientId = formData.get('recipientId');
+         const amount = parseFloat(formData.get('amount'));
+         
+         if (!recipientId || !amount || amount <= 0) {
+           window.utils?.showToast('لطفاً اطلاعات را به درستی وارد کنید', 'error');
+           return;
+         }
+         
+         // Note: This feature requires a backend API endpoint for wallet transfer
+         window.utils?.showToast('این قابلیت در حال حاضر در دسترس نیست. لطفاً با پشتیبانی تماس بگیرید.', 'info');
+       });
+     }
+   } catch (error) {
+     console.error('Error loading transfer page:', error);
+   }
+ });
+ </script>
 
 </body>
 </html>
+
+
+

@@ -19,7 +19,7 @@ namespace OnlineShop.Application.Features.ProductComparison.Queries.GetUserCompa
 
         public async Task<Result<ProductComparisonDto?>> Handle(GetUserComparisonQuery request, CancellationToken cancellationToken)
         {
-            var comparison = await _repository.GetByUserIdAsync(request.UserId, cancellationToken);
+            var comparison = await _repository.GetByUserIdAsync(Guid.Parse(request.UserId), cancellationToken);
             if (comparison == null)
                 return Result<ProductComparisonDto?>.Success(null);
 

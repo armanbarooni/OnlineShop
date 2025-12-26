@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -104,7 +104,7 @@
                                 </svg>
                                 لیست سفارش‌ها
                             </a>
-                            <a href="user-panel-order-detail.html"
+                            <a href="user-panel-order.html"
                                class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor">
@@ -173,7 +173,7 @@
                                 </svg>
                                 لیست آدرس‌ها
                             </a>
-                            <a href="user-panel-edit-address.html"
+                            <a href="user-panel-address.html"
                                class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor">
@@ -1157,6 +1157,342 @@
 
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>`n<script src="assets/js/user-panel-common.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/coupon-service.js"></script>
+
+<script>
+    let currentPage = 1;
+    let totalPages = 1;
+    let currentFilters = {};
+
+    // Load coupons when page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadCoupons();
+        setupEventListeners();
+    });
+
+    // Setup event listeners
+    function setupEventListeners() {
+        // Search form
+        const searchForm = document.getElementById('searchForm');
+        if (searchForm) {
+            searchForm.addEventListener('submit', handleSearch);
+        }
+
+        // Filter buttons
+        const filterButtons = document.querySelectorAll('[data-filter]');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', handleFilter);
+        });
+
+        // Pagination
+        const paginationContainer = document.getElementById('pagination');
+        if (paginationContainer) {
+            paginationContainer.addEventListener('click', handlePagination);
+        }
+    }
+
+    // Load user coupons
+    async function loadCoupons(filters = {}) {
+        try {
+            window.utils.showLoading(document.getElementById('couponsContainer'), 'در حال بارگذاری...');
+            
+            const searchCriteria = {
+                page: currentPage,
+                pageSize: 12,
+                ...filters
+            };
+
+            const response = await couponService.getUserCoupons(searchCriteria);
+            
+            if (response.success && response.data) {
+                displayCoupons(response.data.items || []);
+                updatePagination(response.data.totalPages || 1);
+                updateCouponStats(response.data.totalCount || 0);
+            } else {
+                window.utils.showToast('خطا در بارگذاری کوپن‌ها', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading coupons:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        } finally {
+            window.utils.hideLoading(document.getElementById('couponsContainer'));
+        }
+    }
+
+    // Display coupons in the UI
+    function displayCoupons(coupons) {
+        const container = document.getElementById('couponsContainer');
+        if (!container) return;
+
+        if (!Array.isArray(coupons) || coupons.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">کوپن تخفیف یافت نشد</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-4">هنوز کوپن تخفیفی دریافت نکرده‌اید</p>
+                    <a href="/shop" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90">
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+                        </svg>
+                        شروع خرید
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                ${coupons.map(coupon => `
+                    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2 space-x-reverse">
+                                    <span class="px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(coupon.status)}">
+                                        ${getStatusText(coupon.status)}
+                                    </span>
+                                    ${coupon.isExpired ? '<span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">منقضی شده</span>' : ''}
+                                </div>
+                                <button onclick="copyCouponCode('${coupon.code}')" 
+                                        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="text-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                                    ${coupon.title}
+                                </h3>
+                                <div class="text-3xl font-bold text-primary mb-2">
+                                    ${coupon.discountType === 'Percentage' ? 
+                                        `${coupon.discountValue}%` : 
+                                        `${window.utils.formatPrice(coupon.discountValue)} تومان`
+                                    }
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    ${coupon.discountType === 'Percentage' ? 'تخفیف درصدی' : 'تخفیف مبلغی'}
+                                </p>
+                            </div>
+
+                            <div class="space-y-2 mb-4">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500 dark:text-gray-400">کد کوپن:</span>
+                                    <span class="font-mono font-medium text-gray-900 dark:text-white">${coupon.code}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500 dark:text-gray-400">حداقل خرید:</span>
+                                    <span class="text-gray-900 dark:text-white">${window.utils.formatPrice(coupon.minimumAmount)} تومان</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500 dark:text-gray-400">حداکثر تخفیف:</span>
+                                    <span class="text-gray-900 dark:text-white">${coupon.maximumDiscount ? window.utils.formatPrice(coupon.maximumDiscount) + ' تومان' : 'نامحدود'}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500 dark:text-gray-400">تاریخ انقضا:</span>
+                                    <span class="text-gray-900 dark:text-white">${window.utils.formatDate(coupon.expiryDate)}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-2 space-x-reverse">
+                                <button onclick="copyCouponCode('${coupon.code}')" 
+                                        class="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium">
+                                    کپی کد
+                                </button>
+                                <button onclick="useCoupon('${coupon.id}')" 
+                                        class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // Update coupon statistics
+    function updateCouponStats(totalCount) {
+        const statsContainer = document.getElementById('couponStats');
+        if (statsContainer) {
+            statsContainer.innerHTML = `
+                <div class="bg-primary/10 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <svg class="w-8 h-8 text-primary ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">کوپن‌های تخفیف</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">${totalCount} کوپن تخفیف در دسترس</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Get status color class
+    function getStatusColor(status) {
+        const statusColors = {
+            'Active': 'bg-green-100 text-green-800',
+            'Used': 'bg-blue-100 text-blue-800',
+            'Expired': 'bg-red-100 text-red-800',
+            'Inactive': 'bg-gray-100 text-gray-800'
+        };
+        return statusColors[status] || 'bg-gray-100 text-gray-800';
+    }
+
+    // Get status text
+    function getStatusText(status) {
+        const statusTexts = {
+            'Active': 'فعال',
+            'Used': 'استفاده شده',
+            'Expired': 'منقضی شده',
+            'Inactive': 'غیرفعال'
+        };
+        return statusTexts[status] || status;
+    }
+
+    // Copy coupon code
+    function copyCouponCode(code) {
+        navigator.clipboard.writeText(code).then(() => {
+            window.utils.showToast('کد کوپن کپی شد', 'success');
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = code;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            window.utils.showToast('کد کوپن کپی شد', 'success');
+        });
+    }
+
+    // Use coupon
+    function useCoupon(couponId) {
+        // This would typically redirect to shop or cart page with coupon applied
+        window.location.href = `/shop?coupon=${couponId}`;
+    }
+
+    // Handle search
+    async function handleSearch(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        const filters = {
+            searchTerm: formData.get('searchTerm'),
+            status: formData.get('status'),
+            discountType: formData.get('discountType'),
+            startDate: formData.get('startDate'),
+            endDate: formData.get('endDate')
+        };
+
+        // Remove empty filters
+        Object.keys(filters).forEach(key => {
+            if (!filters[key]) {
+                delete filters[key];
+            }
+        });
+
+        currentFilters = filters;
+        currentPage = 1;
+        await loadCoupons(filters);
+    }
+
+    // Handle filter buttons
+    async function handleFilter(e) {
+        const filter = e.target.dataset.filter;
+        
+        if (filter === 'all') {
+            currentFilters = {};
+        } else if (filter === 'active') {
+            currentFilters = { status: 'Active' };
+        } else if (filter === 'used') {
+            currentFilters = { status: 'Used' };
+        } else if (filter === 'expired') {
+            currentFilters = { status: 'Expired' };
+        }
+        
+        currentPage = 1;
+        await loadCoupons(currentFilters);
+    }
+
+    // Handle pagination
+    async function handlePagination(e) {
+        if (e.target.classList.contains('page-link')) {
+            e.preventDefault();
+            const page = parseInt(e.target.dataset.page);
+            if (page && page !== currentPage) {
+                currentPage = page;
+                await loadCoupons(currentFilters);
+            }
+        }
+    }
+
+    // Update pagination
+    function updatePagination(totalPages) {
+        const container = document.getElementById('pagination');
+        if (!container) return;
+
+        this.totalPages = totalPages;
+        
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let paginationHTML = '<nav class="flex items-center justify-center space-x-1 space-x-reverse">';
+        
+        // Previous button
+        if (currentPage > 1) {
+            paginationHTML += `
+                <button class="page-link px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50" 
+                        data-page="${currentPage - 1}">
+                    قبلی
+                </button>
+            `;
+        }
+
+        // Page numbers
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const isActive = i === currentPage;
+            paginationHTML += `
+                <button class="page-link px-3 py-2 text-sm font-medium ${isActive ? 
+                    'text-white bg-primary border-primary' : 
+                    'text-gray-500 bg-white border-gray-300 hover:bg-gray-50'
+                } border rounded-lg" data-page="${i}">
+                    ${i}
+                </button>
+            `;
+        }
+
+        // Next button
+        if (currentPage < totalPages) {
+            paginationHTML += `
+                <button class="page-link px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50" 
+                        data-page="${currentPage + 1}">
+                    بعدی
+                </button>
+            `;
+        }
+
+        paginationHTML += '</nav>';
+        container.innerHTML = paginationHTML;
+    }
+</script>
 
 </body>
 </html>

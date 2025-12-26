@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دستورالعمل تست OnlineShop</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+            direction: rtl;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            background: #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        h3 {
+            color: #16a085;
+        }
+
+        .test-step {
+            background: #fff;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 3px;
+        }
+
+        .checklist li:before {
+            content: "☐ ";
+            font-size: 20px;
+            margin-left: 10px;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .phone-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            direction: ltr;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📋 دستورالعمل کامل تست سیستم OnlineShop</h1>
+
+        <div class="info-box">
+            <h3>📱 شماره تست:</h3>
+            <div class="phone-number">09168044154</div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ توجه:</strong> قبل از شروع تست، مطمئن شوید که هر دو سرور در حال اجرا هستند:
+            <ul>
+                <li>✅ Frontend: <code>http://localhost:8080</code></li>
+                <li>✅ Backend API: <code>http://localhost:5000</code></li>
+            </ul>
+        </div>
+
+        <h2>🎯 مرحله 1: تست ثبت‌نام (Registration)</h2>
+
+        <div class="test-step">
+            <h3>گام 1: باز کردن صفحه ثبت‌نام</h3>
+            <ol>
+                <li>مرورگر Brave را باز کنید</li>
+                <li>به آدرس <code>http://localhost:8080/register.html</code> بروید</li>
+                <li>کلید <code>F12</code> را فشار دهید تا Developer Tools باز شود</li>
+                <li>به تب <strong>Console</strong> بروید</li>
+                <li>به تب <strong>Network</strong> بروید و فیلتر را روی <code>XHR</code> بگذارید</li>
+            </ol>
+        </div>
+
+        <div class="test-step">
+            <h3>گام 2: پر کردن فرم مرحله 1 (اطلاعات شخصی)</h3>
+            <ul class="checklist">
+                <li>نام: <code>تست</code></li>
+                <li>نام خانوادگی: <code>کاربر</code></li>
+                <li>شماره موبایل: <code>09168044154</code></li>
+                <li>ایمیل: <code>test@example.com</code></li>
+            </ul>
+        </div>
+
+        <div class="test-step">
+            <h3>گام 3: ارسال فرم</h3>
+            <ol>
+                <li>روی دکمه "مرحله بعد" کلیک کنید</li>
+                <li><strong>فوراً به تب Console نگاه کنید</strong></li>
+                <li><strong>به تب Network نگاه کنید</strong></li>
+            </ol>
+        </div>
+
+        <div class="error">
+            <h3>❌ خطاهای احتمالی:</h3>
+            <p><strong>خطای CORS:</strong></p>
+            <code>Access to fetch at 'http://localhost:5000/api/auth/register-phone' from origin 'http://localhost:8080' has been blocked by CORS policy</code>
+
+            <p><strong>خطای Network:</strong></p>
+            <code>Failed to fetch</code>
+
+            <p><strong>خطای 404:</strong></p>
+            <code>POST http://localhost:5000/api/auth/register-phone 404 (Not Found)</code>
+
+            <p><strong>خطای 500:</strong></p>
+            <code>POST http://localhost:5000/api/auth/register-phone 500 (Internal Server Error)</code>
+        </div>
+
+        <div class="success">
+            <h3>✅ رفتار مورد انتظار:</h3>
+            <ol>
+                <li>درخواست به <code>/api/auth/register-phone</code> ارسال شود</li>
+                <li>پاسخ 200 OK دریافت شود</li>
+                <li>پیام موفقیت نمایش داده شود</li>
+                <li>کد OTP به شماره 09168044154 ارسال شود</li>
+                <li>فرم به مرحله 2 (وارد کردن کد OTP) برود</li>
+            </ol>
+        </div>
+
+        <h2>🔍 چک‌لیست بررسی Console</h2>
+
+        <div class="test-step">
+            <h3>چیزهایی که باید در Console بررسی کنید:</h3>
+            <ul class="checklist">
+                <li>آیا خطای قرمز رنگ وجود دارد؟</li>
+                <li>آیا پیام "CORS" در خطا دیده می‌شود؟</li>
+                <li>آیا پیام "Failed to fetch" وجود دارد؟</li>
+                <li>آیا پیام "404" یا "500" وجود دارد؟</li>
+                <li>آیا لاگ‌های مربوط به API call وجود دارد؟</li>
+            </ul>
+        </div>
+
+        <h2>🌐 چک‌لیست بررسی Network Tab</h2>
+
+        <div class="test-step">
+            <h3>چیزهایی که باید در Network بررسی کنید:</h3>
+            <ul class="checklist">
+                <li>آیا درخواست به <code>register-phone</code> ارسال شده؟</li>
+                <li>Status Code چیست؟ (200, 404, 500, ...)</li>
+                <li>روی درخواست کلیک کنید و تب <strong>Headers</strong> را ببینید</li>
+                <li>تب <strong>Payload</strong> را ببینید - آیا داده‌ها درست ارسال شده؟</li>
+                <li>تب <strong>Response</strong> را ببینید - پاسخ سرور چیست؟</li>
+            </ul>
+        </div>
+
+        <h2>📸 اسکرین‌شات‌های مورد نیاز</h2>
+
+        <div class="warning">
+            <p>لطفاً از موارد زیر اسکرین‌شات بگیرید و برای من ارسال کنید:</p>
+            <ol>
+                <li>صفحه ثبت‌نام قبل از پر کردن فرم</li>
+                <li>صفحه ثبت‌نام بعد از پر کردن فرم</li>
+                <li>تب Console بعد از کلیک روی "مرحله بعد"</li>
+                <li>تب Network بعد از کلیک روی "مرحله بعد"</li>
+                <li>جزئیات درخواست در Network (Headers, Payload, Response)</li>
+            </ol>
+        </div>
+
+        <h2>🔧 راه‌حل‌های سریع</h2>
+
+        <div class="test-step">
+            <h3>اگر خطای CORS دیدید:</h3>
+            <p>Backend را restart کنید و مطمئن شوید که در <code>appsettings.Development.json</code> آدرس
+                <code>http://localhost:8080</code> در لیست CORS وجود دارد.</p>
+        </div>
+
+        <div class="test-step">
+            <h3>اگر خطای 404 دیدید:</h3>
+            <p>مطمئن شوید Backend در حال اجرا است. آدرس <code>http://localhost:5000/api/health</code> را در مرورگر باز
+                کنید. باید پاسخ JSON دریافت کنید.</p>
+        </div>
+
+        <div class="test-step">
+            <h3>اگر خطای "Failed to fetch" دیدید:</h3>
+            <p>Backend احتمالاً در حال اجرا نیست. Terminal را چک کنید و مطمئن شوید که پیام "Now listening on:
+                http://localhost:5000" را می‌بینید.</p>
+        </div>
+
+        <h2>📞 مرحله 2: تست ورود (Login)</h2>
+
+        <div class="test-step">
+            <h3>بعد از ثبت‌نام موفق:</h3>
+            <ol>
+                <li>به <code>http://localhost:8080/login.html</code> بروید</li>
+                <li>شماره موبایل: <code>09168044154</code> را وارد کنید</li>
+                <li>روش ورود را انتخاب کنید:
+                    <ul>
+                        <li>با رمز عبور (اگر در ثبت‌نام تنظیم کردید)</li>
+                        <li>با کد یکبار مصرف (OTP)</li>
+                    </ul>
+                </li>
+                <li>Console و Network را مانند قبل بررسی کنید</li>
+            </ol>
+        </div>
+
+        <h2>🐛 مرحله 3: تست باگ‌های گزارش شده</h2>
+
+        <div class="test-step">
+            <h3>بعد از ورود موفق به سیستم:</h3>
+            <p>به ترتیب این صفحات را تست کنید:</p>
+            <ol>
+                <li><code>/user-panel-order-detail.html</code> - صفحه جزئیات سفارش</li>
+                <li><code>/user-panel-edit-address.html</code> - صفحه ویرایش آدرس</li>
+                <li><code>/user-panel-address.html</code> - صفحه لیست آدرس‌ها</li>
+                <li><code>/user-panel-wallet.html</code> - صفحه کیف پول</li>
+                <li><code>/user-panel-ticket.html</code> - صفحه تیکت‌ها</li>
+            </ol>
+            <p>برای هر صفحه:</p>
+            <ul class="checklist">
+                <li>آیا صفحه باز می‌شود؟</li>
+                <li>آیا محتوا نمایش داده می‌شود؟</li>
+                <li>آیا دکمه‌ها کار می‌کنند؟</li>
+                <li>آیا خطایی در Console وجود دارد؟</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h3>💡 نکته مهم:</h3>
+            <p>اگر در هر مرحله‌ای به مشکل خوردید، فوراً:</p>
+            <ol>
+                <li>اسکرین‌شات از Console بگیرید</li>
+                <li>اسکرین‌شات از Network بگیرید</li>
+                <li>متن دقیق خطا را کپی کنید</li>
+                <li>برای من ارسال کنید</li>
+            </ol>
+            <p>من فوراً مشکل را حل می‌کنم! 🚀</p>
+        </div>
+
+        <div class="success">
+            <h3>✅ موفقیت!</h3>
+            <p>اگر همه مراحل بدون خطا انجام شد، به من اطلاع دهید تا بقیه تست‌ها را انجام دهیم.</p>
+        </div>
+    </div>
+</body>
+
+</html>

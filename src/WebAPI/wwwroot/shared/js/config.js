@@ -17,8 +17,9 @@ const API_CONFIG = {
                 : `${protocol}//${hostname}:7001`; // Default to 7001 for API
         }
         
-        // Production environment
-        return `${protocol}//api.yourdomain.com`;
+        // Production environment: استفاده از همان hostname (نه subdomain)
+        // این باعث می‌شود frontend و API از همان دامنه استفاده کنند
+        return `${protocol}//${hostname}${port ? ':' + port : ''}`;
     })(),
     
     // Request timeout in milliseconds

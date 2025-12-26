@@ -24,7 +24,7 @@ namespace OnlineShop.Application.Features.StockAlert.Queries.GetStockAlerts
 
             if (!string.IsNullOrEmpty(request.UserId))
             {
-                alerts = await _stockAlertRepository.GetByUserIdAsync(request.UserId, cancellationToken);
+                alerts = await _stockAlertRepository.GetByUserIdAsync(Guid.Parse(request.UserId), cancellationToken);
             }
             else if (request.ProductId.HasValue)
             {

@@ -311,6 +311,14 @@
         // Show next step
         document.getElementById(`step${next}`).classList.add('active');
         currentStep = next;
+
+        // Update step indicator
+        updateStepIndicator(current, next);
+
+        // If next step is review, update summary
+        if (next === 3) {
+            updateReviewSection();
+        }
     }
 
     // Validate step 1 (Personal Info)
@@ -549,15 +557,6 @@
             firstInput.focus();
         }
     });
-
-        // Update step indicator
-        updateStepIndicator(current, next);
-
-        // If next step is review, show the info
-        if(next === 3) {
-            updateReviewSection();
-        }
-    }
 
     function prevStep(current, prev) {
         // Hide current step

@@ -2,6 +2,7 @@
 using System.Net;
 using System.Text.Json;
 using FluentValidation;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Exceptions;
@@ -13,11 +14,13 @@ namespace OnlineShop.API.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+        private readonly IWebHostEnvironment _environment;
 
-        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger, IWebHostEnvironment environment)
         {
             _next = next;
             _logger = logger;
+            _environment = environment;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -28,11 +31,11 @@ namespace OnlineShop.API.Middleware
             }
             catch (Exception ex)
             {
-                await HandleExceptionAsync(context, ex, _logger);
+                await HandleExceptionAsync(context, ex, _logger, _environment);
             }
         }
 
-        private static async Task HandleExceptionAsync(HttpContext context, Exception ex, ILogger logger)
+        private static async Task HandleExceptionAsync(HttpContext context, Exception ex, ILogger logger, IWebHostEnvironment environment)
         {
 
             logger.LogError(ex, "Unhandled exception occurred.");
@@ -70,15 +73,23 @@ namespace OnlineShop.API.Middleware
 
                 default:
                     statusCode = (int)HttpStatusCode.InternalServerError;
-                    message = "خطای غیرمنتظره‌ای رخ داده است.";
+                    // In production, don't expose internal error details
+                    message = environment.IsDevelopment() ? ex.Message : "خطای غیرمنتظره‌ای رخ داده است. لطفاً بعداً تلاش کنید.";
                     break;
             }
 
             var result = Result<string>.Failure(message);
 
-            context.Response.ContentType = "application/json";
+            context.Response.ContentType = "application/json; charset=utf-8";
             context.Response.StatusCode = statusCode;
-            await context.Response.WriteAsync(JsonSerializer.Serialize(result));
+            
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+            
+            await context.Response.WriteAsync(JsonSerializer.Serialize(result, jsonOptions));
         }
     }
 }

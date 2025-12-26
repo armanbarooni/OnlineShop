@@ -15,6 +15,8 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
     {
         private readonly Mock<IOtpRepository> _mockOtpRepository;
         private readonly Mock<ISmsService> _mockSmsService;
+        private readonly Mock<Microsoft.Extensions.Logging.ILogger<SendOtpCommandHandler>> _mockLogger;
+        private readonly Mock<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>> _mockUserManager;
         private readonly IOptions<SmsSettings> _smsSettings;
         private readonly SendOtpCommandHandler _handler;
 
@@ -22,6 +24,11 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
         {
             _mockOtpRepository = new Mock<IOtpRepository>();
             _mockSmsService = new Mock<ISmsService>();
+            _mockLogger = new Mock<Microsoft.Extensions.Logging.ILogger<SendOtpCommandHandler>>();
+            _mockUserManager = new Mock<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>>(
+                new Mock<Microsoft.AspNetCore.Identity.IUserStore<ApplicationUser>>().Object, 
+                null, null, null, null, null, null, null, null);
+
             _smsSettings = Options.Create(new SmsSettings
             {
                 OtpLength = 6,
@@ -31,7 +38,9 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
             _handler = new SendOtpCommandHandler(
                 _mockOtpRepository.Object,
                 _mockSmsService.Object,
-                _smsSettings
+                _smsSettings,
+                _mockUserManager.Object,
+                _mockLogger.Object
             );
         }
 
@@ -44,7 +53,7 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
                 Request = new SendOtpDto
                 {
                     PhoneNumber = "09123456789",
-                    Purpose = "Login"
+                    Purpose = "Registration"
                 }
             };
 
@@ -99,7 +108,7 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
                 Request = new SendOtpDto
                 {
                     PhoneNumber = "09123456789",
-                    Purpose = "Login"
+                    Purpose = "Registration"
                 }
             };
 
@@ -176,7 +185,7 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
                 Request = new SendOtpDto
                 {
                     PhoneNumber = "09123456789",
-                    Purpose = "Login"
+                    Purpose = "Registration"
                 }
             };
 

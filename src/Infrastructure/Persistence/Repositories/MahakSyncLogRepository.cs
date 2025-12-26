@@ -95,5 +95,12 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 await _context.SaveChangesAsync(cancellationToken);
             }
         }
+        public async Task<long> GetLastRowVersionAsync(string entityType, CancellationToken cancellationToken)
+        {
+            return await _context.MahakSyncLogs
+                .AsNoTracking()
+                .Where(msl => msl.EntityType == entityType && msl.MahakRowVersion.HasValue)
+                .MaxAsync(msl => msl.MahakRowVersion, cancellationToken) ?? 0;
+        }
     }
 }

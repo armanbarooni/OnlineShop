@@ -23,6 +23,12 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
+        public async Task<Product?> GetByIdTrackedAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        }
+
         public async Task<Product?> GetByIdWithIncludesAsync(Guid id, CancellationToken cancellationToken)
         {
             return await _context.Products

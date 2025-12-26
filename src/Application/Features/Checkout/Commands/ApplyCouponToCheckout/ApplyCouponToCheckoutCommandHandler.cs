@@ -62,7 +62,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ApplyCouponToCheckou
             // Check single-use constraint
             if (coupon.IsSingleUse)
             {
-                var hasUsed = await _userCouponUsageRepository.HasUserUsedCouponAsync(request.UserId.ToString(), coupon.Id, cancellationToken);
+                var hasUsed = await _userCouponUsageRepository.HasUserUsedCouponAsync(request.UserId, coupon.Id, cancellationToken);
                 if (hasUsed)
                     return Result<ApplyCouponToCheckoutResultDto>.Failure("شما قبلاً از این کوپن استفاده کرده‌اید");
             }

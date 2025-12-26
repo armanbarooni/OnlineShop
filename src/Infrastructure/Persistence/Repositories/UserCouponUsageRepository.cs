@@ -54,7 +54,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             }
         }
 
-        public async Task<IEnumerable<UserCouponUsage>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<UserCouponUsage>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             return await _context.UserCouponUsages
                 .Include(ucu => ucu.Coupon)
@@ -84,13 +84,13 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<bool> HasUserUsedCouponAsync(string userId, Guid couponId, CancellationToken cancellationToken = default)
+        public async Task<bool> HasUserUsedCouponAsync(Guid userId, Guid couponId, CancellationToken cancellationToken = default)
         {
             return await _context.UserCouponUsages
                 .AnyAsync(ucu => ucu.UserId == userId && ucu.CouponId == couponId && !ucu.Deleted, cancellationToken);
         }
 
-        public async Task<int> GetUsageCountByUserAsync(string userId, Guid couponId, CancellationToken cancellationToken = default)
+        public async Task<int> GetUsageCountByUserAsync(Guid userId, Guid couponId, CancellationToken cancellationToken = default)
         {
             return await _context.UserCouponUsages
                 .CountAsync(ucu => ucu.UserId == userId && ucu.CouponId == couponId && !ucu.Deleted, cancellationToken);

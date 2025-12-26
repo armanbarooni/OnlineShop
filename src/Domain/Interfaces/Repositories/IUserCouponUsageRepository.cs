@@ -13,7 +13,7 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         /// <summary>
         /// Get usage history for a user
         /// </summary>
-        Task<IEnumerable<UserCouponUsage>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+        Task<IEnumerable<UserCouponUsage>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get usage history for a coupon
@@ -28,11 +28,11 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         /// <summary>
         /// Check if user has used a specific coupon
         /// </summary>
-        Task<bool> HasUserUsedCouponAsync(string userId, Guid couponId, CancellationToken cancellationToken = default);
+        Task<bool> HasUserUsedCouponAsync(Guid userId, Guid couponId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get usage count for a coupon by user
         /// </summary>
-        Task<int> GetUsageCountByUserAsync(string userId, Guid couponId, CancellationToken cancellationToken = default);
+        Task<int> GetUsageCountByUserAsync(Guid userId, Guid couponId, CancellationToken cancellationToken = default);
     }
 }

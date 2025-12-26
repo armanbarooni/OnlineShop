@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Serilog;
 using Serilog.Events;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.DataProtection;
 
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
 var isDevelopmentEnvironment = environmentName.Equals(Environments.Development, StringComparison.OrdinalIgnoreCase);
@@ -70,11 +71,59 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// Add Background Workers
+builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.MahakSyncWorker>();
+builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.MahakOutgoingSyncWorker>();
+
+// Localization (set default culture to fa-IR, support fa and en)
+var supportedCultures = new[] { new System.Globalization.CultureInfo("fa-IR"), new System.Globalization.CultureInfo("en-US") };
+builder.Services.Configure<Microsoft.AspNetCore.Builder.RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture("fa-IR");
+    options.SupportedCultures = supportedCultures.ToList();
+    options.SupportedUICultures = supportedCultures.ToList();
+});
+
 var frontendOrigins = builder.Configuration.GetSection("Cors:AllowFrontend").Get<string[]>() ?? Array.Empty<string>();
 
 // CORS configuration for Frontend
 builder.Services.AddCors(options =>
 {
+    // Development policy - allow all localhost origins
+    options.AddPolicy("DevelopmentCors", policy =>
+        policy
+            .SetIsOriginAllowed(origin =>
+            {
+                // Allow all localhost and 127.0.0.1 origins on any port
+                if (string.IsNullOrEmpty(origin)) return false;
+                
+                // Try to parse as URI
+                try
+                {
+                    var uri = new Uri(origin);
+                    var host = uri.Host.ToLowerInvariant();
+                    
+                    // Allow localhost, 127.0.0.1, and private network IPs
+                    return host == "localhost" || 
+                           host == "127.0.0.1" || 
+                           host.StartsWith("192.168.") || 
+                           host.StartsWith("172.") ||
+                           host.StartsWith("10.") ||
+                           // Allow any IP that looks like a local development server
+                           (host.Contains("localhost") || host.Contains("127.0.0.1"));
+                }
+                catch
+                {
+                    // If parsing fails, allow it in development (for flexibility)
+                    return builder.Environment.IsDevelopment();
+                }
+            })
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .WithExposedHeaders("*")
+            .SetPreflightMaxAge(TimeSpan.FromHours(1))); // Cache preflight for 1 hour
+
     // Main policy for frontend - with credentials support
     options.AddPolicy("AllowFrontend", policy =>
     {
@@ -96,16 +145,14 @@ builder.Services.AddCors(options =>
         }
     });
 
-    // Fallback for development - allow all origins (but without credentials)
-    if (builder.Environment.IsDevelopment())
-    {
-        options.AddPolicy("DefaultCors", policy =>
-            policy
-                .SetIsOriginAllowed(_ => true)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials());
-    }
+    // Fallback for development - allow all origins (with credentials)
+    // TODO: In production, restrict this to specific origins for security
+    options.AddPolicy("DefaultCors", policy =>
+        policy
+            .SetIsOriginAllowed(_ => true)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 // JWT Authentication
@@ -152,12 +199,32 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// Configure DataProtection for Production (persist keys to disk instead of in-memory)
+if (!builder.Environment.IsDevelopment())
+{
+    var keysPath = Path.Combine(builder.Environment.ContentRootPath, "keys");
+    Directory.CreateDirectory(keysPath);
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+        .SetApplicationName("OnlineShop");
+}
+
 var app = builder.Build();
 
 var shouldSeedDefaults = !string.Equals(
     Environment.GetEnvironmentVariable("SEED_DEFAULT_USERS"),
     "false",
     StringComparison.OrdinalIgnoreCase);
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    if (db.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+    {
+        db.Database.Migrate();
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -175,11 +242,6 @@ if (app.Environment.IsDevelopment())
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        if (db.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
-        {
-            db.Database.Migrate();
-        }
-
         if (shouldSeedDefaults)
         {
             await OnlineShop.Infrastructure.Data.DatabaseSeeder.SeedRolesAsync(scope.ServiceProvider);
@@ -190,18 +252,25 @@ if (app.Environment.IsDevelopment())
 
 // CORS must be before UseAuthentication and UseAuthorization
 // CORS middleware must be called BEFORE UseAuthentication/UseAuthorization
-app.UseCors(app.Environment.IsDevelopment() ? "DefaultCors" : "AllowFrontend");
+// UseCors automatically handles preflight (OPTIONS) requests
+app.UseCors(app.Environment.IsDevelopment() ? "DevelopmentCors" : "AllowFrontend");
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();
 
-// Serve static files from wwwroot
-app.UseStaticFiles();
+// Apply request localization
+app.UseRequestLocalization();
 
-// Serve default files (index.html) for SPA routing
+// Serve default files (index.html) for SPA routing - MUST be before UseStaticFiles
 app.UseDefaultFiles();
 
-if (!app.Environment.IsDevelopment())
+// Serve static files from wwwroot - MUST be after UseDefaultFiles
+app.UseStaticFiles();
+
+// HTTPS Redirection - only enable if HTTPS is properly configured
+// On IIS with HTTPS binding, this will work automatically
+// For HTTP-only deployments, this causes warnings but won't break functionality
+if (!app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("EnableHttpsRedirection", false))
 {
     app.UseHttpsRedirection();
 }
@@ -209,15 +278,34 @@ if (!app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Ensure UTF-8 encoding for JSON responses
+// Ensure UTF-8 encoding and Persian language headers where applicable
 app.Use(async (context, next) =>
 {
-    if (context.Response.ContentType?.StartsWith("application/json") == true)
+    context.Response.OnStarting(() =>
     {
-        context.Response.ContentType = "application/json; charset=utf-8";
-    }
+        var path = context.Request.Path.Value ?? string.Empty;
+        var acceptLang = context.Request.Headers["Accept-Language"].ToString();
+
+        if (context.Response.ContentType?.StartsWith("application/json") == true)
+        {
+            context.Response.ContentType = "application/json; charset=utf-8";
+        }
+        else if (context.Response.ContentType?.StartsWith("text/html") == true)
+        {
+            context.Response.ContentType = "text/html; charset=utf-8";
+        }
+
+        if (path.StartsWith("/fa", StringComparison.OrdinalIgnoreCase) || acceptLang.StartsWith("fa", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Response.Headers["Content-Language"] = "fa-IR";
+        }
+        return Task.CompletedTask;
+    });
     await next();
 });
+
+// Inject global RTL CSS/meta for Farsi pages
+app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RtlLocalizationMiddleware>();
 
 app.MapControllers();
 

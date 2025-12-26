@@ -127,7 +127,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
 
                 if (coupon.UsageLimit > 0)
                 {
-                    var usageCount = await _userCouponUsageRepository.GetUsageCountByUserAsync(request.UserId.ToString(), coupon.Id, cancellationToken);
+                    var usageCount = await _userCouponUsageRepository.GetUsageCountByUserAsync(request.UserId, coupon.Id, cancellationToken);
                     if (usageCount >= coupon.UsageLimit)
                         return Result<CheckoutResultDto>.Failure("حد مجاز استفاده از این کوپن تمام شده است");
                 }
@@ -172,7 +172,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
             if (appliedCouponId.HasValue)
             {
                 var couponUsage = Domain.Entities.UserCouponUsage.Create(
-                    request.UserId.ToString(),
+                    request.UserId,
                     appliedCouponId.Value,
                     order.Id,
                     discountAmount,

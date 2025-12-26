@@ -4,22 +4,22 @@ namespace OnlineShop.Domain.Entities
 {
     public class ProductComparison : BaseEntity
     {
-        public string UserId { get; private set; } = string.Empty;
+        public Guid UserId { get; private set; }
         public List<Guid> ProductIds { get; private set; } = new();
         private const int MaxProductsLimit = 5;
 
         protected ProductComparison() { }
 
-        private ProductComparison(string userId)
+        private ProductComparison(Guid userId)
         {
             UserId = userId;
             ProductIds = new List<Guid>();
             CreatedAt = DateTime.UtcNow;
         }
 
-        public static ProductComparison Create(string userId)
+        public static ProductComparison Create(Guid userId)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            if (userId == Guid.Empty)
                 throw new ArgumentException("User ID cannot be empty");
             
             return new ProductComparison(userId);

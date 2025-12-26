@@ -14,5 +14,6 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         Task UpdateAsync(MahakSyncLog mahakSyncLog, CancellationToken cancellationToken);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken);
         Task CleanupOldLogsAsync(int daysToKeep, CancellationToken cancellationToken);
+        Task<long> GetLastRowVersionAsync(string entityType, CancellationToken cancellationToken);
     }
 }

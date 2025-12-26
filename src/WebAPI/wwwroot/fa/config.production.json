@@ -1,0 +1,13 @@
+{
+  "environment": "production",
+  "apiBaseUrl": "http://130.185.73.167:8080/api",
+  "frontendBaseUrl": "http://130.185.73.167:8080",
+  "apiTimeout": 30000,
+  "apiRetryAttempts": 3,
+  "auth": {
+    "tokenKey": "accessToken",
+    "refreshTokenKey": "refreshToken",
+    "userKey": "userData"
+  }
+}
+

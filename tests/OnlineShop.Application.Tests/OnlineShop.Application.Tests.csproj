@@ -32,6 +32,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Application\OnlineShop.Application.csproj" />
 		<ProjectReference Include="..\..\src\Domain\OnlineShop.Domain.csproj" />
+		<ProjectReference Include="..\..\src\Infrastructure\OnlineShop.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

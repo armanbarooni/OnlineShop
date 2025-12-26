@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -104,7 +104,7 @@
                                 </svg>
                                 لیست سفارش‌ها
                             </a>
-                            <a href="user-panel-order-detail.html"
+                            <a href="user-panel-order.html"
                                class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor">
@@ -173,7 +173,7 @@
                                 </svg>
                                 لیست آدرس‌ها
                             </a>
-                            <a href="user-panel-edit-address.html"
+                            <a href="user-panel-address.html"
                                class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor">
@@ -1057,6 +1057,175 @@
 
 <script src="assets/js/plugin/chart-js/chart.js"></script>
 <script src="assets/js/dependencies/app.js"></script>
+<script src="assets/js/api-client.js"></script>
+<script src="assets/js/auth-service.js"></script>
+<script src="assets/js/auth-guard.js"></script>`n<script src="assets/js/user-panel-common.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/services/review-service.js"></script>
+
+<script>
+    let currentReviewId = null;
+
+    // Load review data when page loads
+    document.addEventListener('DOMContentLoaded', async function() {
+        currentReviewId = sessionStorage.getItem('editingReviewId');
+        
+        if (!currentReviewId) {
+            window.utils.showToast('نظر مورد نظر یافت نشد', 'error');
+            setTimeout(() => {
+                window.location.href = 'user-panel-comment.html';
+            }, 2000);
+            return;
+        }
+
+        await loadReviewData();
+    });
+
+    // Load review data for editing
+    async function loadReviewData() {
+        try {
+            window.utils.showLoading(document.getElementById('editReviewForm'), 'در حال بارگذاری...');
+            
+            const response = await reviewService.getReviewById(currentReviewId);
+            
+            if (response.success && response.data) {
+                populateForm(response.data);
+            } else {
+                // Show error message but don't crash
+                const errorMsg = response.error || 'نظر مورد نظر یافت نشد';
+                window.utils.showToast(errorMsg, 'warning');
+                setTimeout(() => {
+                    window.location.href = 'user-panel-comment.html';
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error loading review data:', error);
+            // Handle error gracefully
+            const errorMsg = error.response?.status === 404 ? 'نظر مورد نظر یافت نشد' : 'خطا در اتصال به سرور';
+            window.utils.showToast(errorMsg, 'warning');
+            setTimeout(() => {
+                window.location.href = 'user-panel-comment.html';
+            }, 2000);
+        } finally {
+            window.utils.hideLoading(document.getElementById('editReviewForm'));
+        }
+    }
+
+    // Populate form with review data
+    function populateForm(review) {
+        document.getElementById('productName').textContent = review.productName;
+        document.getElementById('productImage').src = review.productImage || '/assets/images/placeholder.jpg';
+        document.getElementById('rating').value = review.rating;
+        document.getElementById('comment').value = review.comment || '';
+        
+        // Update star display
+        updateStarDisplay(review.rating);
+    }
+
+    // Update star display
+    function updateStarDisplay(rating) {
+        const stars = document.querySelectorAll('.star-rating .star');
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('text-yellow-400');
+                star.classList.remove('text-gray-300');
+            } else {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-300');
+            }
+        });
+    }
+
+    // Handle star rating
+    function setRating(rating) {
+        document.getElementById('rating').value = rating;
+        updateStarDisplay(rating);
+    }
+
+    // Handle edit review form submission
+    document.getElementById('editReviewForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const reviewData = {
+            rating: parseInt(formData.get('rating')),
+            comment: formData.get('comment')
+        };
+
+        // Validate review data
+        const validation = reviewService.validateReviewData(reviewData);
+        if (!validation.isValid) {
+            displayValidationErrors(validation.errors);
+            return;
+        }
+
+        try {
+            const submitButton = this.querySelector('button[type="submit"]');
+            window.utils.showLoading(submitButton, 'در حال ذخیره...');
+            
+            const response = await reviewService.updateReview(currentReviewId, reviewData);
+            
+            if (response.success) {
+                window.utils.showToast('نظر با موفقیت ویرایش شد', 'success');
+                setTimeout(() => {
+                    window.location.href = 'user-panel-comment.html';
+                }, 1500);
+            } else {
+                window.utils.showToast(response.error || 'خطا در ویرایش نظر', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating review:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        } finally {
+            const submitButton = this.querySelector('button[type="submit"]');
+            window.utils.hideLoading(submitButton);
+        }
+    });
+
+    // Handle delete review
+    async function deleteReview() {
+        if (!confirm('آیا مطمئن هستید که می‌خواهید این نظر را حذف کنید؟')) {
+            return;
+        }
+
+        try {
+            const response = await reviewService.deleteReview(currentReviewId);
+            
+            if (response.success) {
+                window.utils.showToast('نظر با موفقیت حذف شد', 'success');
+                setTimeout(() => {
+                    window.location.href = 'user-panel-comment.html';
+                }, 1500);
+            } else {
+                window.utils.showToast(response.error || 'خطا در حذف نظر', 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting review:', error);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        }
+    }
+
+    // Display validation errors
+    function displayValidationErrors(errors) {
+        // Clear previous errors
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+        // Display new errors
+        Object.keys(errors).forEach(field => {
+            const input = document.getElementById(field);
+            if (input) {
+                input.classList.add('input-error');
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message text-red-500 text-sm mt-1';
+                errorDiv.textContent = errors[field];
+                
+                input.parentNode.appendChild(errorDiv);
+            }
+        });
+    }
+</script>
 
 </body>
 </html>

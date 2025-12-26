@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using OnlineShop.Application.DTOs.Auth;
 using OnlineShop.Application.DTOs.UserProfile;
@@ -46,21 +47,35 @@ namespace OnlineShop.WebAPI.Controllers
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		public async Task<IActionResult> Login([FromBody] LoginDto dto)
 		{
-			_logger.LogInformation("Login attempt for email: {Email}", dto.Email);
+			_logger.LogInformation("Login attempt for: {Identifier}", dto.Email);
 
 			if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
 			{
-				_logger.LogWarning("Login failed - missing email or password for {Email}", dto.Email);
-				return Unauthorized(new { message = "ایمیل و رمز عبور الزامی است" });
+				_logger.LogWarning("Login failed - missing identifier or password for {Identifier}", dto.Email);
+				return Unauthorized(new { message = "ایمیل/شماره موبایل و رمز عبور الزامی است" });
 			}
 
-			var user = await _userManager.FindByEmailAsync(dto.Email);
+			// Try to find user by phone number OR email
+			ApplicationUser user = null;
+			if (dto.Email.StartsWith("09") && dto.Email.Length == 11)
+			{
+				// Phone number format
+				_logger.LogInformation("Attempting login with phone number: {Phone}", dto.Email);
+				user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == dto.Email);
+			}
+			else
+			{
+				// Email format
+				_logger.LogInformation("Attempting login with email: {Email}", dto.Email);
+				user = await _userManager.FindByEmailAsync(dto.Email);
+			}
+
 			if (user == null)
 			{
 				user = await EnsureDevelopmentUserAsync(dto.Email);
 				if (user == null)
 				{
-					_logger.LogWarning("Login failed - user not found for email: {Email}", dto.Email);
+					_logger.LogWarning("Login failed - user not found for: {Identifier}", dto.Email);
 					return Unauthorized(new { message = "نام کاربری یا رمز عبور اشتباه است" });
 				}
 			}
@@ -138,12 +153,27 @@ namespace OnlineShop.WebAPI.Controllers
 				});
 			}
 
+            if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
+            {
+                var existingPhoneUser = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == dto.PhoneNumber);
+                if (existingPhoneUser != null)
+                {
+                    _logger.LogWarning("Registration failed - user already exists for phone: {Phone}", dto.PhoneNumber);
+                    return BadRequest(new { 
+                        message = "کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است",
+                        code = "PHONE_EXISTS"
+                    });
+                }
+            }
+
 			var user = new ApplicationUser
 			{
 				UserName = dto.Email,
 				Email = dto.Email,
 				FirstName = dto.FirstName ?? string.Empty,
-				LastName = dto.LastName ?? string.Empty
+				LastName = dto.LastName ?? string.Empty,
+                PhoneNumber = dto.PhoneNumber,
+                PhoneNumberConfirmed = true // Assuming OTP verification was done on frontend before calling Register
 			};
 
 			var result = await _userManager.CreateAsync(user, dto.Password);
@@ -267,6 +297,107 @@ namespace OnlineShop.WebAPI.Controllers
 
 			_logger.LogWarning("Failed to login with phone {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
 			return Unauthorized(result);
+		}
+
+		/// <summary>
+		/// Forgot password - send OTP to phone number
+		/// </summary>
+		[HttpPost("forgot-password")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto, CancellationToken cancellationToken = default)
+		{
+			_logger.LogInformation("Forgot password request for phone: {PhoneNumber}", dto.PhoneNumber);
+
+			if (string.IsNullOrWhiteSpace(dto.PhoneNumber))
+			{
+				return BadRequest(new { message = "شماره تلفن الزامی است" });
+			}
+
+			// Check if user exists with this phone number
+			var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == dto.PhoneNumber);
+			if (user == null)
+			{
+				// Don't reveal that user doesn't exist for security reasons
+				_logger.LogWarning("Forgot password request for non-existent phone: {PhoneNumber}", dto.PhoneNumber);
+				return Ok(new { message = "در صورت وجود حساب کاربری با این شماره، کد بازیابی ارسال شد" });
+			}
+
+			// Send OTP for password reset
+			var sendOtpDto = new SendOtpDto
+			{
+				PhoneNumber = dto.PhoneNumber,
+				Purpose = "PasswordReset"
+			};
+
+			var command = new SendOtpCommand { Request = sendOtpDto };
+			var result = await _mediator.Send(command, cancellationToken);
+
+			if (result.IsSuccess)
+			{
+				_logger.LogInformation("Password reset OTP sent successfully to {PhoneNumber}", dto.PhoneNumber);
+				return Ok(new { message = "کد بازیابی رمز عبور به شماره موبایل شما ارسال شد" });
+			}
+
+			_logger.LogWarning("Failed to send password reset OTP to {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
+			return BadRequest(new { message = result.ErrorMessage ?? "خطا در ارسال کد بازیابی" });
+		}
+
+		/// <summary>
+		/// Reset password with OTP
+		/// </summary>
+		[HttpPost("reset-password")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto, CancellationToken cancellationToken = default)
+		{
+			_logger.LogInformation("Reset password request for phone: {PhoneNumber}", dto.PhoneNumber);
+
+			if (string.IsNullOrWhiteSpace(dto.PhoneNumber) || string.IsNullOrWhiteSpace(dto.OtpCode) || string.IsNullOrWhiteSpace(dto.NewPassword))
+			{
+				return BadRequest(new { message = "شماره تلفن، کد تایید و رمز عبور جدید الزامی است" });
+			}
+
+			// Verify OTP
+			var verifyOtpDto = new VerifyOtpDto
+			{
+				PhoneNumber = dto.PhoneNumber,
+				Code = dto.OtpCode
+			};
+
+			var verifyCommand = new VerifyOtpCommand { Request = verifyOtpDto };
+			var verifyResult = await _mediator.Send(verifyCommand, cancellationToken);
+
+			if (!verifyResult.IsSuccess)
+			{
+				_logger.LogWarning("OTP verification failed for password reset: {Error}", verifyResult.ErrorMessage);
+				return BadRequest(new { message = verifyResult.ErrorMessage ?? "کد تایید نامعتبر است" });
+			}
+
+			// Find user by phone number
+			var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == dto.PhoneNumber);
+			if (user == null)
+			{
+				_logger.LogWarning("User not found for phone number: {PhoneNumber}", dto.PhoneNumber);
+				return BadRequest(new { message = "کاربری با این شماره تلفن یافت نشد" });
+			}
+
+			// Reset password
+			var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+			var result = await _userManager.ResetPasswordAsync(user, token, dto.NewPassword);
+
+			if (result.Succeeded)
+			{
+				_logger.LogInformation("Password reset successful for user: {UserId}", user.Id);
+				return Ok(new { message = "رمز عبور با موفقیت تغییر یافت" });
+			}
+
+			var errors = result.Errors.Select(e => e.Description).ToList();
+			_logger.LogWarning("Password reset failed for user {UserId}: {Errors}", user.Id, string.Join(", ", errors));
+			return BadRequest(new { 
+				message = "خطا در تغییر رمز عبور",
+				errors = errors 
+			});
 		}
 
 		/// <summary>

@@ -7,9 +7,9 @@ namespace OnlineShop.Application.Validators.Auth
     {
         public ForgotPasswordDtoValidator()
         {
-            RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("ایمیل الزامی است")
-                .EmailAddress().WithMessage("فرمت ایمیل نامعتبر است");
+            RuleFor(x => x.PhoneNumber)
+                .NotEmpty().WithMessage("شماره تلفن الزامی است")
+                .Matches(@"^09\d{9}$").WithMessage("فرمت شماره تلفن نامعتبر است");
         }
     }
 }

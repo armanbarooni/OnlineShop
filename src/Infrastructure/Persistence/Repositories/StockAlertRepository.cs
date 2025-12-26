@@ -25,7 +25,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<StockAlert>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
+        public async Task<List<StockAlert>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             return await _context.StockAlerts
                 .Where(sa => sa.UserId == userId && !sa.Deleted)
@@ -50,7 +50,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<bool> ExistsAsync(Guid productId, Guid? productVariantId, string userId, CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsAsync(Guid productId, Guid? productVariantId, Guid userId, CancellationToken cancellationToken = default)
         {
             return await _context.StockAlerts
                 .AnyAsync(sa => sa.ProductId == productId && 

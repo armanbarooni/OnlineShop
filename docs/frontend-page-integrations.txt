@@ -1,0 +1,172 @@
+Summary of frontend pages (front/FA/public) and their button/section-to-function/service mappings. Many JS dependencies referenced by these pages are missing from front/FA/public/assets/js but exist under presentation/assets/js. Until those files are copied over (api-client.js, auth-service.js, auth-guard.js, utils.js, and most services), referenced handlers throw ReferenceError or never hit backend endpoints.
+
+=====================================================================
+product.html
+=====================================================================
+Scripts expected:
+  assets/js/plugin/swiper/swiper-bundle.min.js (exists)
+  assets/js/dependencies/swiper-script.js (missing in front)
+  assets/js/dependencies/app.js (missing)
+  assets/js/api-client.js (missing)
+  assets/js/auth-service.js (missing)
+  assets/js/auth-guard.js (missing)
+  assets/js/utils.js (missing)
+  assets/js/services/product-service.js (exists)
+  assets/js/services/review-service.js (missing)
+  assets/js/services/cart-service.js (exists)
+  assets/js/services/wishlist-service.js (missing)
+  assets/js/services/comparison-service.js (exists)
+
+DOMContentLoaded (line 4043): calls getProductIdFromUrl + loadProductData + loadProductReviews + loadRelatedProducts + setupEventListeners. Requires productService, reviewService, utils (missing). 
+setupEventListeners (4065): wires quantity buttons (changeQuantity), add-to-cart (handleAddToCart), wishlist (handleAddToWishlist), compare (handleAddToComparison), review form (handleReviewSubmission), variant buttons (handleVariantSelection -> NOT defined).
+Quantity +/- icons (lines 2005/2014) call increment/decrement wrappers but only changeQuantity is defined; increment/decrement functions absent.
+Add to cart button #addToCartBtn (line 3084) -> handleAddToCart (4436) -> cartService.addToCart + window.utils. cartService exists but utils missing.
+Wishlist button #addToWishlistBtn -> handleAddToWishlist -> wishlistService.addToWishlist (missing script).
+Compare button #compareBtn -> handleAddToComparison -> comparisonService.addToComparison (works) + updateComparisonCount (needs comparisonService.getComparisonCount() not implemented).
+Variant buttons (line 4240) -> onclick selectVariant(...) inline plus setupEventListeners expects handleVariantSelection (missing). selectVariant defined (4497).
+Reviews pagination buttons generated in updatePagination (4591) -> loadProductReviews (4309) -> window.reviewService.getProductReviews (script missing).
+Review form #reviewForm -> handleReviewSubmission (4513) -> authService.isAuthenticated + reviewService.createReview (both missing). 
+OTP buttons within login modal (lines 3661-3764) call switchTab, togglePassword, sendOTP; none exist locally (should come from shared auth JS).
+Offcanvas/toggle buttons (lines 33,104,3429,3511,3974 etc.) rely on closeOffcanvas/toggleOffcanvas/toggleDropdown (expected in app.js; missing). 
+Misc utilities: updateLastViewed uses window.LastViewedManager (not provided); updateCartCount manipulates DOM only.
+
+=====================================================================
+register.html
+=====================================================================
+Scripts expected:
+  assets/js/dependencies/app.js (missing)
+  assets/js/api-client.js (missing)
+  assets/js/auth-service.js (missing)
+  assets/js/auth-guard.js (missing)
+  assets/js/utils.js (missing)
+
+Step buttons:
+  Next buttons (lines 113 & 206) -> nextStep (292) -> validateStep1/2 (317/341). Validation uses window.utils for toasts (missing). 
+  Prev buttons (200/252) -> prevStep (562) (UI only).
+OTP flow:
+  send-otp/resend buttons (lines 3756/3764? in product, but in register lines 156 etc) -> sendOTP (388) -> window.authService.sendOtp -> window.utils -> authService missing.
+  completeRegistration (443) -> authService.registerWithPhone (missing) + utils.
+Password form submit (submitForm 599) -> authService.register (missing) + utils.
+Password toggles (521/706) rely on DOM only but call window.utils for toasts.
+Without auth-service/api-client/utils none of the backend-dependent actions work.
+
+=====================================================================
+user-panel-comment.html
+=====================================================================
+Scripts expected:
+  chart.js (exists under presentation, not front)
+  assets/js/dependencies/app.js (missing)
+  assets/js/api-client.js (missing)
+  assets/js/auth-service.js (missing)
+  assets/js/auth-guard.js (missing)
+  assets/js/utils.js (missing)
+  assets/js/services/review-service.js (missing)
+
+DOMContentLoaded -> loadReviews (1238) + setupEventListeners.
+loadReviews -> reviewService.getUserReviews (missing) + utils for loading/toasts.
+Search form (#searchForm) -> handleSearch (1425) -> loadReviews.
+Filter buttons data-filter -> handleFilter (1449) -> loadReviews.
+Pagination (#pagination) -> handlePagination (1463) -> loadReviews.
+Review cards use editReview/deleteReview buttons (1308/1314) -> editReview (1398) uses sessionStorage; deleteReview (1404) -> reviewService.deleteReview (missing).
+
+=====================================================================
+user-panel-edit-comment.html
+=====================================================================
+Scripts expected: same as comment page.
+DOMContentLoaded loads sessionStorage editingReviewId + loadReviewData (1085) -> reviewService.getReviewById (missing) + utils.
+Form submit (#editReviewForm) -> reviewService.updateReview (1162) + utils.
+Delete button -> deleteReview (1188) -> reviewService.deleteReview (missing).
+
+=====================================================================
+user-panel-discount.html
+=====================================================================
+Scripts expected:
+  chart.js (missing)
+  dependencies/app.js (missing)
+  api-client.js (missing)
+  auth-service.js (missing)
+  auth-guard.js (missing)
+  utils.js (missing)
+  services/coupon-service.js (missing)
+
+DOMContentLoaded -> loadCoupons (1199) -> couponService.getUserCoupons (missing) + utils.
+Search form -> handleSearch (1388) -> loadCoupons.
+Filter buttons -> handleFilter (1413) -> loadCoupons.
+Pagination -> handlePagination (1431) -> loadCoupons.
+copyCouponCode (1366) uses navigator.clipboard (works offline).
+useCoupon (1382) just redirects to `/shop?coupon=ID`.
+
+=====================================================================
+user-panel-last-viewd.html
+=====================================================================
+Scripts expected:
+  chart.js (missing)
+  dependencies/app.js (missing)
+  api-client.js (missing)
+  auth-service.js (missing)
+  auth-guard.js (missing)
+  utils.js (missing)
+
+Page logic fully local (localStorage). loadLastViewedProducts (1424) uses window.utils for loading/toasts (missing). Actions:
+  removeFromLastViewed (1652) modifies localStorage + utils toast.
+  viewProduct (1674) -> window.location `/product/${id}` (hardcoded path mismatch vs existing product.html).
+  addToWishlist (1679) just shows toast, no API.
+  clearAllLastViewed (1685) removes localStorage + toast.
+  handleSearch/filter/pagination operate on local data only.
+
+=====================================================================
+user-panel-order-return-step-one.html
+=====================================================================
+Scripts expected:
+  chart.js (missing)
+  dependencies/app.js (missing)
+  api-client.js (missing)
+  auth-service.js (missing)
+  auth-guard.js (missing)
+  utils.js (missing)
+  services/order-service.js (missing)
+  services/return-service.js (missing)
+
+DOMContentLoaded -> loadReturnableOrders (1080) -> orderService.searchOrders (missing) + utils.
+Search form -> handleSearch (1210) -> loadReturnableOrders.
+Pagination -> handlePagination (1233) -> loadReturnableOrders.
+Buttons:
+  selectOrderForReturn (1198) -> sessionStorage + redirect to step two (works offline).
+  viewOrderDetails (1204) -> sessionStorage + redirect to user-panel-order-detail.html (page not provided).
+
+=====================================================================
+user-panel-order-return-step-two.html
+=====================================================================
+Scripts expected: same as step one.
+DOMContentLoaded -> loadOrderData (1124) -> orderService.getOrderById (missing) + utils.
+Return form (#returnForm) -> handleReturnSubmission (1323) -> returnService.validateReturnData + returnService.createReturnRequest (missing). 
+Image upload -> handleImageUpload (1360) works offline, uses utils for toasts.
+selectAllItems/deselectAllItems (1393/1403) update selectedItems array; updateSelectedItemsDisplay (1411) uses utils for toast text.
+
+=====================================================================
+user-panel-order-return-step-three.html
+=====================================================================
+Scripts expected:
+  chart.js (missing)
+  dependencies/app.js (missing)
+  api-client.js (missing)
+  auth-service.js (missing)
+  auth-guard.js (missing)
+  utils.js (missing)
+  services/return-service.js (missing)
+
+DOMContentLoaded -> loadReturnRequestData (1108) -> returnService.getUserReturnRequests (missing) + utils.
+Action buttons:
+  cancelReturnRequest (1274) -> returnService.cancelReturnRequest (missing).
+  trackReturnRequest (1297) -> window.location.href = 'user-panel-order-return-tracking.html' (page not available).
+  printReturnRequest (1303) -> window.print() (works).
+  downloadReturnRequest (1308) -> just shows toast (needs utils).
+
+=====================================================================
+General observations
+=====================================================================
+1. Only five services exist under front/FA/public/assets/js/services (cart, checkout, comparison, payment, product). All other services referenced by HTML files (wishlist, review, coupon, order, return, auth, api-client, utils, auth-guard, chart dependencies) are missing. Identical filenames live in presentation/assets/js and appear to be the intended implementations; copying or bundling them into front is required for functionality.
+2. Multiple inline handlers reference undefined functions: handleVariantSelection (product page), toggleOffcanvas/closeOffcanvas/toggleDropdown (navigation across pages), sendOTP/togglePassword/switchTab (product modal & register page) because shared scripts are absent.
+3. Many actions only manipulate UI state or localStorage and never call backend even when services exist (e.g., addToWishlist in last-viewed page). After restoring services, review logic to ensure endpoints align with backend routes (/api/Wishlist, /productreview, /api/orders, etc.).
+4. Navigation paths are inconsistent (`viewProduct` on last-viewed sends `/product/${id}` while actual file is product.html?id=...).
+5. To unblock functionality: move/copy presentation/assets/js/{api-client.js,auth-service.js,auth-guard.js,utils.js,services/*.js,dependencies/app.js,plugin/chart-js/chart.js,...} into front/FA/public/assets/js (respecting subfolders) or adjust build tooling to serve shared bundle. Then retest each page’s buttons/forms per the mapping above.

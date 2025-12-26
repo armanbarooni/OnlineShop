@@ -25,11 +25,34 @@ namespace OnlineShop.IntegrationTests.Infrastructure
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            // Force Development environment for tests
-            builder.UseEnvironment("Development");
+            // Configure appsettings for testing FIRST (must be before UseEnvironment)
+            builder.ConfigureAppConfiguration((context, config) =>
+            {
+                // Try to find appsettings.Testing.json in multiple locations
+                var testAssemblyPath = Path.GetDirectoryName(typeof(CustomWebApplicationFactory<TProgram>).Assembly.Location)!;
+                var appsettingsPath = Path.Combine(testAssemblyPath, "appsettings.Testing.json");
+                
+                if (File.Exists(appsettingsPath))
+                {
+                    config.AddJsonFile(appsettingsPath, optional: false, reloadOnChange: false);
+                }
+                else
+                {
+                    // Fallback: try relative path from project root
+                    var projectRoot = Path.GetFullPath(Path.Combine(testAssemblyPath, "..", "..", ".."));
+                    var fallbackPath = Path.Combine(projectRoot, "tests", "OnlineShop.IntegrationTests", "appsettings.Testing.json");
+                    if (File.Exists(fallbackPath))
+                    {
+                        config.AddJsonFile(fallbackPath, optional: false, reloadOnChange: false);
+                    }
+                }
+            });
+
+            // Use Testing environment for tests (after configuration is loaded)
+            builder.UseEnvironment("Testing");
             
             // Set environment variable explicitly
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
             Environment.SetEnvironmentVariable("SEED_DEFAULT_USERS", "false");
 
             builder.ConfigureServices(services =>

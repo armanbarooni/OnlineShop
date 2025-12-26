@@ -1,11 +1,10 @@
 using AutoMapper;
 using MediatR;
 using OnlineShop.Application.Common.Models;
-
 using OnlineShop.Application.Features.Product.Commands.TrackProductView;
 using OnlineShop.Domain.Entities;
-
 using OnlineShop.Domain.Interfaces.Repositories;
+
 namespace OnlineShop.Application.Features.Product.Commands.TrackProductView
 {
     public class TrackProductViewCommandHandler : IRequestHandler<TrackProductViewCommand, Result<bool>>
@@ -33,7 +32,7 @@ namespace OnlineShop.Application.Features.Product.Commands.TrackProductView
                 }
 
                 // Check if user already viewed this product recently (within last hour)
-                var recentViews = await _userProductViewRepository.GetByUserIdAsync(request.UserId, 50, cancellationToken);
+                var recentViews = await _userProductViewRepository.GetByUserIdAsync(Guid.Parse(request.UserId), 50, cancellationToken);
                 var recentView = recentViews
                     .Where(rv => rv.ProductId == request.ProductId)
                     .OrderByDescending(rv => rv.ViewedAt)
@@ -49,7 +48,7 @@ namespace OnlineShop.Application.Features.Product.Commands.TrackProductView
                 {
                     // Create new view record
                     var userProductView = UserProductView.Create(
-                        request.UserId,
+                        Guid.Parse(request.UserId),
                         request.ProductId,
                         request.SessionId,
                         request.UserAgent,
@@ -67,5 +66,3 @@ namespace OnlineShop.Application.Features.Product.Commands.TrackProductView
         }
     }
 }
-
-

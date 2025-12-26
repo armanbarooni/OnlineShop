@@ -17,7 +17,7 @@ namespace OnlineShop.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.21")
+                .HasAnnotation("ProductVersion", "8.0.22")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -190,6 +190,15 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("MahakPersonClientId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("MahakPersonId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("MahakSyncedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("NormalizedEmail")
@@ -955,7 +964,8 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ChangedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -964,7 +974,9 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -979,7 +991,8 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Note")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid");
@@ -989,6 +1002,7 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<int>("Status")
+                        .HasMaxLength(50)
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -999,9 +1013,13 @@ namespace OnlineShop.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ChangedAt");
+
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderStatusHistories");
+                    b.HasIndex("Status");
+
+                    b.ToTable("OrderStatusHistories", (string)null);
                 });
 
             modelBuilder.Entity("OnlineShop.Domain.Entities.Otp", b =>
@@ -1329,10 +1347,9 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
+                    b.Property<Guid>("UserId")
                         .HasMaxLength(450)
-                        .HasColumnType("character varying(450)");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -1603,7 +1620,9 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1656,10 +1675,14 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<DateTime?>("LastModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1681,7 +1704,8 @@ namespace OnlineShop.Infrastructure.Migrations
 
                     b.Property<string>("RelationType")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<long>("RowVersion")
                         .IsConcurrencyToken()
@@ -1694,15 +1718,23 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("Weight")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
 
                     b.HasIndex("ProductId");
 
                     b.HasIndex("RelatedProductId");
 
-                    b.ToTable("ProductRelations");
+                    b.HasIndex("RelationType");
+
+                    b.HasIndex("ProductId", "RelatedProductId");
+
+                    b.ToTable("ProductRelations", (string)null);
                 });
 
             modelBuilder.Entity("OnlineShop.Domain.Entities.ProductReview", b =>
@@ -1821,7 +1853,9 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2146,11 +2180,14 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<DateTime?>("LastModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2165,16 +2202,20 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("NotificationMethod")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<bool>("Notified")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("NotifiedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
@@ -2192,22 +2233,23 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId1")
+                    b.Property<Guid>("UserId")
+                        .HasMaxLength(450)
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Notified");
 
                     b.HasIndex("ProductId");
 
                     b.HasIndex("ProductVariantId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("StockAlerts");
+                    b.HasIndex("ProductId", "UserId");
+
+                    b.ToTable("StockAlerts", (string)null);
                 });
 
             modelBuilder.Entity("OnlineShop.Domain.Entities.SyncErrorLog", b =>
@@ -2513,6 +2555,9 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<Guid>("CouponId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("CouponId1")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -2520,10 +2565,12 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<decimal>("DiscountAmount")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("LastModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2538,13 +2585,14 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<Guid?>("OrderId")
                         .HasColumnType("uuid");
 
                     b.Property<decimal>("OrderTotal")
-                        .HasColumnType("numeric");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<long>("RowVersion")
                         .IsConcurrencyToken()
@@ -2559,22 +2607,23 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<DateTime>("UsedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId1")
+                    b.Property<Guid>("UserId")
+                        .HasMaxLength(450)
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CouponId");
 
+                    b.HasIndex("CouponId1");
+
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UsedAt");
 
-                    b.ToTable("UserCouponUsages");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserCouponUsages", (string)null);
                 });
 
             modelBuilder.Entity("OnlineShop.Domain.Entities.UserOrder", b =>
@@ -2637,6 +2686,12 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<int?>("MahakId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("MahakOrderId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("MahakSyncedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -2670,6 +2725,9 @@ namespace OnlineShop.Infrastructure.Migrations
 
                     b.Property<decimal>("SubTotal")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("SyncedToMahak")
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("TaxAmount")
                         .ValueGeneratedOnAdd()
@@ -2917,7 +2975,8 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Browser")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2926,16 +2985,22 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("DeviceType")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("IpAddress")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<bool>("IsReturningView")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastModifiedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2950,20 +3015,23 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("OperatingSystem")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ReferrerUrl")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<long>("RowVersion")
                         .IsConcurrencyToken()
                         .HasColumnType("bigint");
 
                     b.Property<string>("SessionId")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2972,17 +3040,17 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("UserAgent")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId1")
+                    b.Property<Guid>("UserId")
+                        .HasMaxLength(450)
                         .HasColumnType("uuid");
 
                     b.Property<int>("ViewDuration")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime>("ViewedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2991,9 +3059,13 @@ namespace OnlineShop.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("UserProductViews");
+                    b.HasIndex("ViewedAt");
+
+                    b.HasIndex("UserId", "ProductId");
+
+                    b.ToTable("UserProductViews", (string)null);
                 });
 
             modelBuilder.Entity("OnlineShop.Domain.Entities.UserProfile", b =>
@@ -3564,11 +3636,12 @@ namespace OnlineShop.Infrastructure.Migrations
 
                     b.HasOne("OnlineShop.Domain.Entities.ProductVariant", "ProductVariant")
                         .WithMany()
-                        .HasForeignKey("ProductVariantId");
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("OnlineShop.Domain.Entities.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId1")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -3593,18 +3666,23 @@ namespace OnlineShop.Infrastructure.Migrations
             modelBuilder.Entity("OnlineShop.Domain.Entities.UserCouponUsage", b =>
                 {
                     b.HasOne("OnlineShop.Domain.Entities.Coupon", "Coupon")
-                        .WithMany("UserCouponUsages")
+                        .WithMany()
                         .HasForeignKey("CouponId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("OnlineShop.Domain.Entities.Coupon", null)
+                        .WithMany("UserCouponUsages")
+                        .HasForeignKey("CouponId1");
 
                     b.HasOne("OnlineShop.Domain.Entities.UserOrder", "Order")
                         .WithMany()
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("OnlineShop.Domain.Entities.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId1")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -3687,7 +3765,7 @@ namespace OnlineShop.Infrastructure.Migrations
 
                     b.HasOne("OnlineShop.Domain.Entities.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId1")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

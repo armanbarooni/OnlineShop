@@ -25,4 +25,10 @@
     <ProjectReference Include="..\..\src\WebAPI\OnlineShop.WebAPI.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.Testing.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

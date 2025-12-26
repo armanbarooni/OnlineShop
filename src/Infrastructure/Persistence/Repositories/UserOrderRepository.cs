@@ -97,5 +97,15 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 await _context.SaveChangesAsync(cancellationToken);
             }
         }
+
+        public async Task<List<UserOrder>> GetUnsyncedOrdersAsync(CancellationToken cancellationToken)
+        {
+            return await _context.UserOrders
+                .Include(o => o.OrderItems)
+                .Include(o => o.User) // Include user for customer sync to Mahak
+                .Where(o => !o.SyncedToMahak && o.OrderStatus == "Completed" && !o.Deleted)
+                .OrderBy(o => o.CreatedAt)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

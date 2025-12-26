@@ -1,0 +1,94 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Test files
+tests/
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+
+# Documentation
+docs/
+documents/
+*.md
+!README.md
+
+# Development tools
+dev-tools/
+*.ps1
+*.bat
+*.sh
+*.txt
+!NuGet.Config
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+*.nupkg
+*.snupkg
+publish/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.cache
+
+# Presentation folder (frontend served from wwwroot)
+# presentation/
+
+# Pictures and assets (if not needed in container)
+pic/
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+!presentation/node_modules/
+
+# Docker files themselves
+docker-compose*.yml
+.dockerignore
+Dockerfile*
+
+# GitHub
+.github/
+
+# Cursor plans
+.cursor/
+

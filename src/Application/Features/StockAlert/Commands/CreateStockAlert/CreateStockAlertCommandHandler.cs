@@ -55,7 +55,7 @@ namespace OnlineShop.Application.Features.StockAlert.Commands.CreateStockAlert
             var stockAlert = Domain.Entities.StockAlert.Create(
                 request.ProductId,
                 request.ProductVariantId,
-                request.UserId,
+                Guid.Parse(request.UserId),
                 request.Email,
                 request.PhoneNumber,
                 request.NotificationMethod);
