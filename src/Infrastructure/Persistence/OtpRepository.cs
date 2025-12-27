@@ -93,6 +93,14 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
 
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<Otp?> GetLatestOtpAsync(string phoneNumber, CancellationToken cancellationToken = default)
+        {
+            return await _context.Otps
+                .Where(o => o.PhoneNumber == phoneNumber && !o.Deleted)
+                .OrderByDescending(o => o.CreatedAt)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }
 

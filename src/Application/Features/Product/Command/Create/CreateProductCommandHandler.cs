@@ -21,6 +21,12 @@ namespace OnlineShop.Application.Features.Product.Command.Create
                 request.Product?.StockQuantity ?? 0
             );
 
+            // Assign CategoryId if provided
+            if (request.Product?.CategoryId.HasValue == true)
+            {
+                product.SetCategoryId(request.Product.CategoryId.Value);
+            }
+
             await repository.AddAsync(product, cancellationToken);
             return Result<ProductDto>.Success(mapper.Map<ProductDto>(product));
         }
