@@ -84,6 +84,11 @@ const ProfileManager = {
             window.utils.initDarkMode('dark-mode-toggle');
         }
 
+        // Persian Date Picker for Birth Date - Initialize after a short delay to ensure libraries are loaded
+        setTimeout(() => {
+            this.initPersianDatePicker();
+        }, 300);
+
         // Profile Form Submission
         const profileForm = document.getElementById('profileForm');
         if (profileForm) {
@@ -99,6 +104,73 @@ const ProfileManager = {
             imgInput.addEventListener('change', async (e) => {
                 await this.handleImageUpload(e.target);
             });
+        }
+    },
+
+    initPersianDatePicker: function () {
+        const birthDateInput = document.getElementById('birthDate');
+        if (!birthDateInput) {
+            console.warn('Birth date input not found');
+            return;
+        }
+
+        // Function to initialize the date picker
+        const initPicker = () => {
+            if (typeof $ !== 'undefined' && $.fn.persianDatepicker) {
+                try {
+                    // Initialize persian datepicker using jQuery
+                    $('#birthDate').persianDatepicker({
+                        observer: true,
+                        format: 'YYYY/MM/DD',
+                        altField: '#birthDate',
+                        altFormat: 'YYYY/MM/DD',
+                        calendarType: 'persian',
+                        timePicker: {
+                            enabled: false
+                        },
+                        initialValue: false,
+                        autoClose: true,
+                        position: 'auto',
+                        calendar: {
+                            persian: {
+                                locale: 'fa'
+                            }
+                        }
+                    });
+                    console.log('Persian DatePicker initialized successfully');
+                } catch (error) {
+                    console.error('Error initializing Persian DatePicker:', error);
+                }
+            } else {
+                console.warn('jQuery or persianDatepicker not available yet');
+                return false;
+            }
+            return true;
+        };
+
+        // Try to initialize immediately if jQuery is ready
+        if (typeof $ !== 'undefined' && $.fn.persianDatepicker) {
+            if ($(document).ready()) {
+                initPicker();
+            } else {
+                $(document).ready(function() {
+                    initPicker();
+                });
+            }
+        } else {
+            // Retry mechanism if libraries not loaded yet
+            let retryCount = 0;
+            const maxRetries = 20; // 2 seconds total
+            const retryInterval = setInterval(() => {
+                retryCount++;
+                if (typeof $ !== 'undefined' && $.fn.persianDatepicker) {
+                    clearInterval(retryInterval);
+                    initPicker();
+                } else if (retryCount >= maxRetries) {
+                    clearInterval(retryInterval);
+                    console.error('Persian DatePicker library failed to load after', maxRetries * 100, 'ms');
+                }
+            }, 100);
         }
     },
 
