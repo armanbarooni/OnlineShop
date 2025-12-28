@@ -119,7 +119,7 @@ namespace OnlineShop.WebAPI.Controllers
 
         [HttpPost("upload-picture")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<Result<string>>> UploadProfilePicture(IFormFile file)
+        public async Task<ActionResult> UploadProfilePicture(IFormFile file)
         {
             // Get current user ID from claims
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -192,11 +192,9 @@ namespace OnlineShop.WebAPI.Controllers
                 }
 
                 _logger.LogInformation("Profile picture uploaded successfully for user: {UserId}, URL: {ImageUrl}", userGuid, imageUrl);
-                return Ok(new Result<string>
-                {
-                    IsSuccess = true,
-                    Data = imageUrl,
-                    Message = "تصویر پروفایل با موفقیت آپلود شد"
+                return Ok(new { 
+                    imageUrl = imageUrl,
+                    message = "تصویر پروفایل با موفقیت آپلود شد"
                 });
             }
             catch (Exception ex)
