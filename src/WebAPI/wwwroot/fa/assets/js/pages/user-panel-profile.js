@@ -79,6 +79,11 @@ const ProfileManager = {
             });
         }
 
+        // Dark Mode Toggle
+        if (window.utils && typeof window.utils.initDarkMode === 'function') {
+            window.utils.initDarkMode('dark-mode-toggle');
+        }
+
         // Profile Form Submission
         const profileForm = document.getElementById('profileForm');
         if (profileForm) {
