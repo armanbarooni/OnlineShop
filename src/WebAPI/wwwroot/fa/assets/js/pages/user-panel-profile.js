@@ -181,28 +181,28 @@ const ProfileManager = {
             const result = await window.userProfileService.updateProfile(data);
 
             if (result.success) {
-                if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
+                if (typeof window.utils !== 'undefined' && window.utils.showToast) {
+                    window.utils.showToast('تغییرات با موفقیت ذخیره شد.', 'success');
+                } else if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
                     window.Utils.showToast('تغییرات با موفقیت ذخیره شد.', 'success');
-                } else {
-                    alert('تغییرات با موفقیت ذخیره شد.');
                 }
 
                 // Refresh data to ensure UI reflects valid state
                 await this.checkAuthAndLoad();
             } else {
                 const errorMsg = result.error || 'خطا در ذخیره تغییرات';
-                if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
+                if (typeof window.utils !== 'undefined' && window.utils.showToast) {
+                    window.utils.showToast(errorMsg, 'error');
+                } else if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
                     window.Utils.showToast(errorMsg, 'error');
-                } else {
-                    alert(errorMsg);
                 }
             }
         } catch (error) {
             console.error('Update error:', error);
-            if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
+            if (typeof window.utils !== 'undefined' && window.utils.showToast) {
+                window.utils.showToast('خطا در ارتباط با سرور.', 'error');
+            } else if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
                 window.Utils.showToast('خطا در ارتباط با سرور.', 'error');
-            } else {
-                alert('خطا در ارتباط با سرور.');
             }
         } finally {
             btn.textContent = originalText;
@@ -214,11 +214,14 @@ const ProfileManager = {
         if (!input.files || !input.files[0]) return;
 
         const file = input.files[0];
+        const img = document.getElementById('profileImage');
+        
+        // ذخیره تصویر قبلی برای بازگردانی در صورت خطا
+        const previousImageSrc = img ? img.src : null;
 
         // Preview
         const reader = new FileReader();
         reader.onload = function (e) {
-            const img = document.getElementById('profileImage');
             if (img) img.src = e.target.result;
         }
         reader.readAsDataURL(file);
@@ -233,10 +236,10 @@ const ProfileManager = {
             const result = await window.userProfileService.uploadProfilePicture(file);
 
             if (result.success) {
-                if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
+                if (typeof window.utils !== 'undefined' && window.utils.showToast) {
+                    window.utils.showToast('تصویر با موفقیت آپلود شد', 'success');
+                } else if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
                     window.Utils.showToast('تصویر با موفقیت آپلود شد', 'success');
-                } else {
-                    alert('تصویر با موفقیت آپلود شد');
                 }
 
                 if (result.data && result.data.imageUrl) {
@@ -244,23 +247,37 @@ const ProfileManager = {
                     document.querySelectorAll('img[alt="پروفایل کاربر"]').forEach(img => img.src = result.data.imageUrl);
                 }
             } else {
+                // بازگردانی تصویر قبلی در صورت خطا
+                if (img && previousImageSrc) {
+                    img.src = previousImageSrc;
+                }
+                
                 const errorMsg = result.error || 'خطا در آپلود تصویر';
-                if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
+                if (typeof window.utils !== 'undefined' && window.utils.showToast) {
+                    window.utils.showToast(errorMsg, 'error');
+                } else if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
                     window.Utils.showToast(errorMsg, 'error');
-                } else {
-                    alert(errorMsg);
                 }
             }
         } catch (err) {
             console.error(err);
-            if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
-                window.Utils.showToast('خطا در آپلود.', 'error');
-            } else {
-                alert('خطا در آپلود.');
+            
+            // بازگردانی تصویر قبلی در صورت خطا
+            if (img && previousImageSrc) {
+                img.src = previousImageSrc;
+            }
+            
+            const errorMsg = err.message || 'خطا در آپلود تصویر';
+            if (typeof window.utils !== 'undefined' && window.utils.showToast) {
+                window.utils.showToast(errorMsg, 'error');
+            } else if (typeof window.Utils !== 'undefined' && window.Utils.showToast) {
+                window.Utils.showToast(errorMsg, 'error');
             }
         } finally {
             if (btn) btn.disabled = false;
             if (typeof window.Utils !== 'undefined' && window.Utils.hideLoading) window.Utils.showLoading(false);
+            // پاک کردن مقدار input برای امکان انتخاب مجدد همان فایل
+            input.value = '';
         }
     }
 };
