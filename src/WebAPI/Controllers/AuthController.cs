@@ -12,6 +12,7 @@ using OnlineShop.Application.Features.Auth.Commands.RegisterWithPhone;
 using OnlineShop.Application.Features.Auth.Commands.LoginWithPhone;
 using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Domain.Entities;
+using System.Text.Json;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -224,10 +225,42 @@ namespace OnlineShop.WebAPI.Controllers
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public async Task<IActionResult> SendOtp([FromBody] SendOtpDto dto, CancellationToken cancellationToken = default)
 		{
+			// #region agent log
+			try {
+				var logEntry = new {
+					id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_{Guid.NewGuid():N}",
+					timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+					location = "AuthController.cs:225",
+					message = "SendOtp endpoint entry",
+					data = new { phoneNumber = dto.PhoneNumber, purpose = dto.Purpose },
+					sessionId = "debug-session",
+					runId = "run1",
+					hypothesisId = "A"
+				};
+				await System.IO.File.AppendAllTextAsync(@"c:\Users\Tommy2sec\Desktop\New folder\.cursor\debug.log", JsonSerializer.Serialize(logEntry) + "\n", cancellationToken);
+			} catch { }
+			// #endregion
+
 			_logger.LogInformation("Send OTP request for phone: {PhoneNumber}, Purpose: {Purpose}", dto.PhoneNumber, dto.Purpose);
 
 			var command = new SendOtpCommand { Request = dto };
 			var result = await _mediator.Send(command, cancellationToken);
+
+			// #region agent log
+			try {
+				var logEntry = new {
+					id = $"log_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}_{Guid.NewGuid():N}",
+					timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+					location = "AuthController.cs:232",
+					message = "SendOtp endpoint result",
+					data = new { phoneNumber = dto.PhoneNumber, isSuccess = result.IsSuccess, errorMessage = result.ErrorMessage },
+					sessionId = "debug-session",
+					runId = "run1",
+					hypothesisId = "A"
+				};
+				await System.IO.File.AppendAllTextAsync(@"c:\Users\Tommy2sec\Desktop\New folder\.cursor\debug.log", JsonSerializer.Serialize(logEntry) + "\n", cancellationToken);
+			} catch { }
+			// #endregion
 
 			if (result.IsSuccess)
 			{
