@@ -15,5 +15,6 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         Task UpdateAsync(UserOrder userOrder, CancellationToken cancellationToken);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken);
         Task<List<UserOrder>> GetUnsyncedOrdersAsync(CancellationToken cancellationToken);
+        Task<UserOrder?> GetByPaymentAuthorityAsync(string authority, CancellationToken cancellationToken);
     }
 }

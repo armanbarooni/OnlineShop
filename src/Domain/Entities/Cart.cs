@@ -104,5 +104,10 @@ namespace OnlineShop.Domain.Entities
             UpdatedBy = updatedBy;
             UpdatedAt = DateTime.UtcNow;
         }
+        public void AddItem(CartItem item)
+        {
+            CartItems.Add(item);
+            UpdatedAt = DateTime.UtcNow;
+        }
     }
 }

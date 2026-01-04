@@ -33,6 +33,7 @@ namespace OnlineShop.Application.DTOs.UserProfile
         public string UserName { get; set; } = string.Empty;
         public string UserEmail { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
+        public string? Mobile { get; set; } // Alias for PhoneNumber check
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string? NationalCode { get; set; }

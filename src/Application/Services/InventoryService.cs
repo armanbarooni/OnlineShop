@@ -8,6 +8,7 @@ namespace OnlineShop.Application.Services
     {
         Task<bool> CheckStockAvailability(Guid productId, int quantity, CancellationToken cancellationToken);
         Task ReserveStockForOrder(Guid orderId, List<(Guid ProductId, int Quantity)> items, CancellationToken cancellationToken);
+        Task CommitOrder(Guid orderId, CancellationToken cancellationToken);
         Task ReleaseStockForCancelledOrder(Guid orderId, CancellationToken cancellationToken);
         Task<int> GetAvailableStock(Guid productId, CancellationToken cancellationToken);
     }
@@ -58,6 +59,48 @@ namespace OnlineShop.Application.Services
                     // optimistic concurrency conflict - retry entire order reservation
                     await Task.Delay(50, cancellationToken);
                     continue;
+                }
+            }
+        }
+
+        public async Task CommitOrder(Guid orderId, CancellationToken cancellationToken)
+        {
+            var orderItems = await _orderItemRepository.GetByOrderIdAsync(orderId, cancellationToken);
+            const int maxRetries = 3;
+
+            foreach (var item in orderItems)
+            {
+                var attempt = 0;
+                while (true)
+                {
+                    attempt++;
+                    var inventory = await _inventoryRepository.GetByProductIdAsync(item.ProductId, cancellationToken);
+                    if (inventory == null)
+                    {
+                        break;
+                    }
+
+                    try
+                    {
+                        if (inventory.ReservedQuantity >= item.Quantity)
+                        {
+                            inventory.CommitSale(item.Quantity);
+                            await _inventoryRepository.UpdateAsync(inventory, cancellationToken);
+                        }
+                        else
+                        {
+                            // If reservation is missing, try to reduce from available directly?
+                            // For safety in this project, assuming reservation exists.
+                            // If not, we might want to just log usage.
+                             throw new InvalidOperationException($"No reservation found for Product {item.ProductId} in Order {orderId}");
+                        }
+                        break; // success
+                    }
+                    catch (DbUpdateConcurrencyException) when (attempt < maxRetries)
+                    {
+                        await Task.Delay(50, cancellationToken);
+                        continue;
+                    }
                 }
             }
         }

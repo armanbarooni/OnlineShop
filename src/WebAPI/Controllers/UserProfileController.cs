@@ -97,7 +97,7 @@ namespace OnlineShop.WebAPI.Controllers
         public async Task<ActionResult<Result<UserProfileDto>>> UpdateProfile(Guid id, [FromBody] UpdateUserProfileDto profile)
         {
             if (id != profile.Id)
-                return BadRequest("ID mismatch");
+                return BadRequest(new { message = "شناسه پروفایل با شناسه مسیر مطابقت ندارد" });
 
             var result = await _mediator.Send(new UpdateUserProfileCommand { UserProfile = profile });
             if (!result.IsSuccess)
@@ -118,8 +118,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpPost("upload-picture")]
-        [Consumes("multipart/form-data")]
-        public async Task<ActionResult> UploadProfilePicture(IFormFile file)
+        public async Task<ActionResult> UploadProfilePicture([FromForm] IFormFile file)
         {
             // Get current user ID from claims
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;

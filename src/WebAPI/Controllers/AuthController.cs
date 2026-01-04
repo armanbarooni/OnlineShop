@@ -430,6 +430,7 @@ namespace OnlineShop.WebAPI.Controllers
 				UserName = user.UserName ?? string.Empty,
 				UserEmail = user.Email ?? string.Empty,
 				PhoneNumber = user.PhoneNumber,
+				Mobile = user.PhoneNumber,
 				FirstName = user.FirstName,
 				LastName = user.LastName,
 				IsEmailVerified = user.EmailConfirmed,

@@ -24,7 +24,8 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         public async Task<Cart?> GetActiveCartByUserIdAsync(Guid userId, CancellationToken cancellationToken)
         {
             return await _context.Carts
-                .AsNoTracking()
+                .Include(c => c.CartItems).ThenInclude(ci => ci.Product).ThenInclude(p => p.ProductImages)
+                .Include(c => c.CartItems).ThenInclude(ci => ci.ProductVariant)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.IsActive && (!c.ExpiresAt.HasValue || c.ExpiresAt.Value > DateTime.UtcNow), cancellationToken);
         }
 
