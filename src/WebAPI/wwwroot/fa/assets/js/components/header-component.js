@@ -5,14 +5,16 @@
 
 class HeaderComponent {
     constructor() {
-        this.init();
+        // Don't call init() in constructor to avoid duplicate initialization
+        // init() will be called explicitly when needed
     }
 
     async init() {
         // Update cart count on load
         await this.updateCartCount();
         await this.updateComparisonCount();
-        await this.updateUserMenu();
+        // updateUserMenu is called separately to avoid duplicate API calls
+        // It will be called by individual pages after they load user profile
         await this.loadCategoryMenu();
         this.setupEventListeners();
     }
@@ -196,6 +198,31 @@ class HeaderComponent {
             if (userMenu) userMenu.style.display = 'none';
             const loginButton = document.getElementById('loginButton');
             if (loginButton) loginButton.style.display = 'block';
+        }
+    }
+
+    /**
+     * Update user menu with provided user data (without API call)
+     */
+    updateUserMenuWithData(userData) {
+        try {
+            if (!userData) return;
+
+            const userMenu = document.getElementById('userMenu');
+            const loginButton = document.getElementById('loginButton');
+
+            if (userMenu) {
+                const userNameEl = userMenu.querySelector('[data-user-name]');
+                if (userNameEl) {
+                    const userName = userData.userName || userData.email || 
+                                   `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'کاربر';
+                    userNameEl.textContent = userName;
+                }
+                userMenu.style.display = 'block';
+            }
+            if (loginButton) loginButton.style.display = 'none';
+        } catch (error) {
+            window.logger.error('Error updating user menu with data:', error);
         }
     }
 
@@ -426,6 +453,10 @@ window.toggleDropdown = function(menuId) {
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof window.HeaderComponent === 'undefined') {
         window.headerComponent = new HeaderComponent();
+        // Initialize header component (but don't call updateUserMenu to avoid duplicate API calls)
+        if (window.headerComponent) {
+            window.headerComponent.init();
+        }
     }
 });
 

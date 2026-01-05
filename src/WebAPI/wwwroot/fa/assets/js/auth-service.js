@@ -439,6 +439,7 @@ class AuthService {
 
     /**
      * Get current user information
+     * Uses userProfileService to leverage caching and prevent duplicate API calls
      */
     async getCurrentUser() {
         try {
@@ -446,6 +447,16 @@ class AuthService {
                 return null;
             }
 
+            // Use userProfileService to leverage caching mechanism
+            if (window.userProfileService) {
+                const result = await window.userProfileService.getUserProfile();
+                if (result.success && result.data) {
+                    return result.data;
+                }
+                return null;
+            }
+
+            // Fallback to direct API call if userProfileService is not available
             const response = await this.apiClient.get('/auth/me');
             return response.data || response;
         } catch (error) {

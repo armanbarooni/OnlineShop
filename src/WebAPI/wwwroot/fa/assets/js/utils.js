@@ -431,6 +431,70 @@ class Utils {
             }
         });
     }
+
+    /**
+     * Initialize Dark Mode Toggle
+     * Features:
+     * - Reads system dark mode preference if no saved preference exists
+     * - Checks and applies saved dark mode preference
+     * - Toggles dark mode on button click
+     * - Watches for system theme changes
+     * 
+     * @param {string} buttonId - ID of the dark mode toggle button (default: 'dark-mode-toggle')
+     * 
+     * @example
+     * // Basic usage with default button ID
+     * window.utils.initDarkMode();
+     * 
+     * // Custom button ID
+     * window.utils.initDarkMode('my-dark-toggle');
+     * 
+     * // In page initialization
+     * document.addEventListener('DOMContentLoaded', () => {
+     *     window.utils.initDarkMode();
+     * });
+     */
+    static initDarkMode(buttonId = 'dark-mode-toggle') {
+        const toggleButton = document.getElementById(buttonId);
+        const htmlElement = document.documentElement;
+
+        if (!toggleButton) {
+            window.logger?.warn('Dark mode toggle button not found:', buttonId);
+            return;
+        }
+
+        // Read saved preference OR fallback to system preference
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+            htmlElement.classList.add('dark');
+        } else {
+            htmlElement.classList.remove('dark');
+        }
+
+        // Watch for system changes in real time
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                if (e.matches) {
+                    htmlElement.classList.add('dark');
+                } else {
+                    htmlElement.classList.remove('dark');
+                }
+            }
+        });
+
+        // Toggle theme on click
+        toggleButton.addEventListener('click', function () {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    }
 }
 
 // Create global instance

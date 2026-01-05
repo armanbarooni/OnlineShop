@@ -158,6 +158,11 @@ const ProfileManager = {
             const imgs = document.querySelectorAll('img[alt="پروفایل کاربر"]');
             imgs.forEach(img => img.src = user.profilePictureUrl);
         }
+
+        // Update header component with user data (avoid duplicate API call)
+        if (window.headerComponent && window.headerComponent.updateUserMenuWithData) {
+            window.headerComponent.updateUserMenuWithData(user);
+        }
     },
 
     handleProfileSubmit: async function (form) {
