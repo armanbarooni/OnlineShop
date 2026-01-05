@@ -84,46 +84,15 @@
                         </a>
 
                         <!-- Orders -->
-                        <div class="space-y-1">
-                            <button type="button"
-                                class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                                onclick="toggleMenu('order-menu','order-arrow')">
-                                <span class="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 3h18v4H3zM5 7v12a2 2 0 002 2h10a2 2 0 002-2V7" />
-                                    </svg>
-                                    سفارش‌ها
-                                </span>
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-4 w-4 transition-transform duration-300" id="order-arrow" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div id="order-menu" class="hidden me-6 space-y-1">
-                                <a href="user-panel-order.html"
-                                    class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5h6m4 4H5m0 0v9a2 2 0 002 2h10a2 2 0 002-2V9H5z" />
-                                    </svg>
-                                    لیست سفارش‌ها
-                                </a>
-                                <a href="user-panel-order-return-step-one.html"
-                                    class="block text-sm px-4 py-2 rounded hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline me-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 4v5h.582A10 10 0 1021 12" />
-                                    </svg>
-                                    مرجوعی
-                                </a>
-                            </div>
-                        </div>
+                        <a href="user-panel-order.html"
+                            class="block px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 3h18v4H3zM5 7v12a2 2 0 002 2h10a2 2 0 002-2V7" />
+                            </svg>
+                            سفارش‌ها
+                        </a>
 
                         <!-- Addresses -->
                         <a href="user-panel-address.html"
@@ -137,35 +106,7 @@
                             </svg>
                             آدرس‌ها
                         </a>
-
-
                     </nav>
-                    <!-- user profile -->
-                    <div class="mt-auto p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
-                        <div class="flex items-center">
-                            <div class="relative">
-                                <img class="h-12 w-12 rounded-full border-2 border-white dark:border-gray-800 shadow"
-                                    src="assets/images/user/user.jpg" alt="پروفایل کاربر">
-                                <span
-                                    class="absolute bottom-0 start-0 w-3 h-3 rounded-full bg-success dark:bg-success-dark border-2 border-white dark:border-gray-800"></span>
-                            </div>
-                            <div class="ms-3">
-                                <p class="text-sm font-medium text-dark dark:text-light" data-user-name="true">کاربر
-                                    مهمان</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">سطح طلایی</p>
-                            </div>
-                        </div>
-                        <button id="logoutButton"
-                            class="mt-4 w-full flex items-center justify-center px-4 py-2 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            خروج از حساب
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -187,8 +128,8 @@
                     </button>
 
                     <!-- search -->
-                    <div class="relative max-lg:hidden ms-4 lg:ms-0 lg:w-96">
-                        <span class="absolute inset-y-0 start-0 flex items-center ps-3">
+                    <form id="searchForm" class="relative max-lg:hidden ms-4 lg:ms-0 lg:w-96">
+                        <span class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20"
                                 fill="currentColor">
                                 <path fill-rule="evenodd"
@@ -196,10 +137,10 @@
                                     clip-rule="evenodd" />
                             </svg>
                         </span>
-                        <input type="text" id="searchInput"
+                        <input type="text" name="search" id="searchInput"
                             class="w-full ps-10 pe-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white placeholder-gray-500"
                             placeholder="جستجو در پنل کاربری...">
-                    </div>
+                    </form>
                 </div>
 
                 <!-- top menu -->
@@ -219,12 +160,13 @@
                         </svg>
                     </button>
 
-
+               
 
                     <!-- user drop down -->
                     <div class="relative ms-3" id="user-dropdown">
                         <!-- Dropdown Button -->
-                        <button id="user-dropdown-button" class="flex items-center focus:outline-none">
+                        <button onclick="toggleUserDropdown()" id="user-dropdown-button"
+                            class="flex items-center focus:outline-none">
                             <div class="relative">
                                 <img class="h-8 w-8 max-sm:hidden rounded-full border-2 border-white dark:border-gray-800 shadow"
                                     src="assets/images/user/user.png" alt="پروفایل کاربر">
@@ -335,31 +277,31 @@
                                             <div>
                                                 <label for="firstName"
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام</label>
-                                                <input type="text" id="firstName" name="firstName"
-                                                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                <input type="text" id="firstName" name="firstName" disabled
+                                                    class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed opacity-70 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
                                             </div>
                                             <div>
                                                 <label for="lastName"
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام
                                                     خانوادگی</label>
-                                                <input type="text" id="lastName" name="lastName"
-                                                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                <input type="text" id="lastName" name="lastName" disabled
+                                                    class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed opacity-70 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
                                             </div>
                                         </div>
                                         <div>
                                             <label for="email"
                                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">پست
                                                 الکترونیک</label>
-                                            <input type="email" id="email" name="email"
-                                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                            <input type="email" id="email" name="email" disabled
+                                                class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed opacity-70 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
                                         </div>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label for="phone"
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">شماره
                                                     موبایل</label>
-                                                <input type="tel" id="phone" name="phone"
-                                                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                <input type="tel" id="phone" name="phone" disabled
+                                                    class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed opacity-70 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
                                             </div>
                                             <div>
                                                 <label for="birthDate"
@@ -489,32 +431,6 @@
                             آدرس‌ها
                         </a>
                     </nav>
-
-                    <!-- user profile -->
-                    <div class="mt-auto p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
-                        <div class="flex items-center">
-                            <div class="relative">
-                                <img class="h-12 w-12 rounded-full border-2 border-white dark:border-gray-800 shadow"
-                                    src="assets/images/user/user.jpg" alt="پروفایل کاربر">
-                                <span
-                                    class="absolute bottom-0 start-0 w-3 h-3 rounded-full bg-success dark:bg-success-dark border-2 border-white dark:border-gray-800"></span>
-                            </div>
-                            <div class="ms-3">
-                                <p class="text-sm font-medium text-dark dark:text-light">مریم محمدی</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">سطح طلایی</p>
-                            </div>
-                        </div>
-                        <button id="logoutButton"
-                            class="mt-4 w-full flex items-center justify-center px-4 py-2 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            خروج از حساب
-                        </button>
-                    </div>
                 </div>
             </div>
         </main>
@@ -529,19 +445,13 @@
     <!-- Core JS -->
     <script src="assets/js/api-client.js"></script>
     <script src="assets/js/utils.js"></script>
-    <script src="assets/js/utils/logger.js"></script>
     <script src="assets/js/auth-service.js"></script>
-    <script src="assets/js/auth-guard.js"></script>
     <script src="assets/js/services/user-profile-service.js"></script>
     <script src="assets/js/components/header-component.js"></script>
     <script src="assets/js/pages/user-panel-profile.js"></script>
     <script>
-        // Init Header
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.headerComponent) {
-                window.headerComponent.init();
-            }
-        });
+        // Header component will be initialized automatically via DOMContentLoaded event in header-component.js
+        // No need to call init() here to avoid duplicate initialization
     </script>
 </body>
 

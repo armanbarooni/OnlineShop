@@ -19,6 +19,8 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             return await _context.UserOrders
                 .AsNoTracking()
                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p.ProductImages)
                 .Include(o => o.Payments)
                 .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
         }
@@ -36,6 +38,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.UserOrders
                 .AsNoTracking()
+                .Include(o => o.OrderItems)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync(cancellationToken);
@@ -103,9 +106,21 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             return await _context.UserOrders
                 .Include(o => o.OrderItems)
                 .Include(o => o.User) // Include user for customer sync to Mahak
-                .Where(o => !o.SyncedToMahak && o.OrderStatus == "Completed" && !o.Deleted)
+                .Where(o => !o.SyncedToMahak && (o.OrderStatus == "Completed" || o.OrderStatus == "Confirmed") && !o.Deleted)
                 .OrderBy(o => o.CreatedAt)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<UserOrder?> GetByPaymentAuthorityAsync(string authority, CancellationToken cancellationToken)
+        {
+            // We need to find an order that has a payment with this authority (TransactionId)
+            // Assuming Authority is stored in TransactionId or we add a field. 
+            // In Mock/Sadad, Authority is usually the TransactionId during processing.
+            
+            return await _context.UserOrders
+                .Include(o => o.Payments)
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Payments.Any(p => p.TransactionId == authority), cancellationToken);
         }
     }
 }

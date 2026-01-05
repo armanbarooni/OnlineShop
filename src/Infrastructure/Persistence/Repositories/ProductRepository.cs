@@ -86,6 +86,21 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             return await _context.Products.AnyAsync(p => p.Name == name, cancellationToken);
         }
 
+        public async Task<IQueryable<Product>> GetQueryableWithIncludesAsync(CancellationToken cancellationToken)
+        {
+            return await Task.FromResult(_context.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Unit)
+                .Include(p => p.ProductImages.OrderBy(i => i.DisplayOrder))
+                .Include(p => p.ProductVariants.OrderBy(v => v.DisplayOrder))
+                .Include(p => p.ProductMaterials).ThenInclude(pm => pm.Material)
+                .Include(p => p.ProductSeasons).ThenInclude(ps => ps.Season)
+                .Include(p => p.ProductReviews)
+                .AsQueryable());
+        }
+
         public async Task AddAsync(Product product, CancellationToken cancellationToken)
         {
             await _context.Products.AddAsync(product, cancellationToken);

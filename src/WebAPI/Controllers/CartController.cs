@@ -1,165 +1,124 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.DTOs.Cart;
-using OnlineShop.Application.Features.Cart.Command.AddItem;
-using OnlineShop.Application.Features.Cart.Command.Create;
-using OnlineShop.Application.Features.Cart.Command.Update;
-using OnlineShop.Application.Features.Cart.Command.Delete;
-using OnlineShop.Application.Features.Cart.Commands.ApplyCoupon;
-using OnlineShop.Application.Features.Cart.Commands.RemoveCoupon;
-using OnlineShop.Application.Features.Cart.Queries.GetByUserId;
-using OnlineShop.Application.Features.Cart.Queries.GetAll;
-using OnlineShop.Application.Features.Cart.Queries.GetById;
+using OnlineShop.Application.Features.Cart.Commands.AddToCart;
+using OnlineShop.Application.Features.Cart.Commands.RemoveFromCart;
+using OnlineShop.Application.Features.Cart.Commands.UpdateCart;
+using OnlineShop.Application.Features.Cart.Queries.GetCart;
+using System.Security.Claims;
 
 namespace OnlineShop.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class CartController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<CartController> _logger;
 
-        public CartController(IMediator mediator)
+        public CartController(IMediator mediator, ILogger<CartController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
-        [HttpGet("all")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Result<IEnumerable<CartDto>>>> GetAll()
+        [HttpPost("add")]
+        [Authorize]
+        public async Task<IActionResult> AddToCart([FromBody] AddToCartDto dto, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetAllCartsQuery());
-            return Ok(result);
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized(new { message = "کاربر یافت نشد" });
+            }
+
+            _logger.LogInformation("Adding item to cart for user {UserId}", userId);
+
+            var command = new AddToCartCommand
+            {
+                UserId = userId,
+                Item = dto
+            };
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<CartDto?>>> GetOwn()
+        [Authorize]
+        public async Task<IActionResult> GetCart(CancellationToken cancellationToken)
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null || !Guid.TryParse(userId, out var userGuid))
-                return Unauthorized("User not authenticated");
-
-            var result = await _mediator.Send(new GetCartByUserIdQuery { UserId = userGuid });
-            return Ok(result);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Result<CartDto>>> GetById(Guid id)
-        {
-            var result = await _mediator.Send(new GetCartByIdQuery { Id = id });
-            if (!result.IsSuccess)
-                return NotFound(result);
-            return Ok(result);
-        }
-
-        [HttpGet("user/{userId}")]
-        public async Task<ActionResult<Result<CartDto?>>> GetByUserId(Guid userId)
-        {
-            var result = await _mediator.Send(new GetCartByUserIdQuery { UserId = userId });
-            return Ok(result);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Result<CartDto>>> CreateCart([FromBody] CreateCartDto cart)
-        {
-            // Get current user ID from claims
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null || !Guid.TryParse(userId, out var userGuid))
-                return Unauthorized("User not authenticated");
-
-            var result = await _mediator.Send(new CreateCartCommand 
-            { 
-                Cart = cart,
-                UserId = userGuid
-            });
-            
-            if (!result.IsSuccess)
-                return BadRequest(result);
-
-            return CreatedAtAction(nameof(GetByUserId), new { userId = userGuid }, result);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<ActionResult<Result<CartDto>>> UpdateCart(Guid id, [FromBody] UpdateCartDto cart)
-        {
-            if (id != cart.Id)
-                return BadRequest("ID mismatch");
-
-            var result = await _mediator.Send(new UpdateCartCommand { Cart = cart });
-            if (!result.IsSuccess)
-                return BadRequest(result);
-
-            return Ok(result);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteCart(Guid id)
-        {
-            var result = await _mediator.Send(new DeleteCartCommand { Id = id });
-            if (!result.IsSuccess)
-                return NotFound(result);
-
-            return NoContent();
-        }
-
-        [HttpPost("items")]
-        [HttpPost("add")] // Alternative route for backward compatibility with tests
-        public async Task<ActionResult<Result<CartItemDto>>> AddItem([FromBody] CreateCartItemDto cartItem)
-        {
-            var result = await _mediator.Send(new AddCartItemCommand 
-            { 
-                CartItem = cartItem
-            });
-            
-            if (!result.IsSuccess)
-                return BadRequest(result);
-
-            return CreatedAtAction(nameof(GetByUserId), new { userId = cartItem.CartId }, result);
-        }
-
-        [HttpPost("apply-coupon")]
-        public async Task<ActionResult<Result<ApplyCouponToCartResultDto>>> ApplyCoupon([FromBody] ApplyCouponToCartRequestDto request)
-        {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null || !Guid.TryParse(userId, out var userGuid))
-                return Unauthorized("User not authenticated");
-
-            var command = new ApplyCouponToCartCommand
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out var userId))
             {
-                UserId = userGuid,
-                Request = request
+                return Unauthorized(new { message = "کاربر یافت نشد" });
+            }
+
+            var query = new GetCartQuery { UserId = userId };
+            var result = await _mediator.Send(query, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
+        [HttpPut("update")]
+        [Authorize]
+        public async Task<IActionResult> UpdateCartItem([FromBody] UpdateCartItemDto dto, CancellationToken cancellationToken)
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized(new { message = "کاربر یافت نشد" });
+            }
+
+            var command = new UpdateCartCommand
+            {
+                UserId = userId,
+                Item = dto
             };
 
-            var result = await _mediator.Send(command);
-            
-            if (!result.IsSuccess)
-                return BadRequest(result);
+            var result = await _mediator.Send(command, cancellationToken);
 
-            return Ok(result);
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
 
-        [HttpDelete("remove-coupon")]
-        public async Task<ActionResult<Result<RemoveCouponFromCartResultDto>>> RemoveCoupon([FromQuery] Guid? cartId = null)
+        [HttpDelete("remove/{itemId}")]
+        [Authorize]
+        public async Task<IActionResult> RemoveFromCart([FromRoute] Guid itemId, CancellationToken cancellationToken)
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null || !Guid.TryParse(userId, out var userGuid))
-                return Unauthorized("User not authenticated");
-
-            var command = new RemoveCouponFromCartCommand
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !Guid.TryParse(userIdStr, out var userId))
             {
-                UserId = userGuid,
-                CartId = cartId
+                return Unauthorized(new { message = "کاربر یافت نشد" });
+            }
+
+            var command = new RemoveFromCartCommand
+            {
+                UserId = userId,
+                CartItemId = itemId
             };
 
-            var result = await _mediator.Send(command);
-            
-            if (!result.IsSuccess)
-                return BadRequest(result);
+            var result = await _mediator.Send(command, cancellationToken);
 
-            return Ok(result);
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
     }
 }
