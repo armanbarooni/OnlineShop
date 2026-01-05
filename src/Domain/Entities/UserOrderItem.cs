@@ -6,6 +6,7 @@ namespace OnlineShop.Domain.Entities
     {
         public Guid OrderId { get; private set; }
         public Guid ProductId { get; private set; }
+        public Guid? VariantId { get; private set; }
         public string ProductName { get; private set; } = string.Empty;
         public string? ProductDescription { get; private set; }
         public string? ProductSku { get; private set; }
@@ -18,14 +19,16 @@ namespace OnlineShop.Domain.Entities
         // Navigation Properties
         public virtual UserOrder Order { get; private set; } = null!;
         public virtual Product Product { get; private set; } = null!;
+        public virtual ProductVariant? ProductVariant { get; private set; }
 
         protected UserOrderItem() { }
 
-        private UserOrderItem(Guid orderId, Guid productId, string productName, int quantity, 
+        private UserOrderItem(Guid orderId, Guid productId, Guid? variantId, string productName, int quantity, 
             decimal unitPrice, decimal totalPrice)
         {
             OrderId = orderId;
             ProductId = productId;
+            VariantId = variantId;
             SetProductName(productName);
             SetQuantity(quantity);
             SetUnitPrice(unitPrice);
@@ -33,9 +36,9 @@ namespace OnlineShop.Domain.Entities
             Deleted = false;
         }
 
-        public static UserOrderItem Create(Guid orderId, Guid productId, string productName, 
+        public static UserOrderItem Create(Guid orderId, Guid productId, Guid? variantId, string productName, 
             int quantity, decimal unitPrice, decimal totalPrice)
-            => new(orderId, productId, productName, quantity, unitPrice, totalPrice);
+            => new(orderId, productId, variantId, productName, quantity, unitPrice, totalPrice);
 
         public void SetProductName(string productName)
         {

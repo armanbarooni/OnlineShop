@@ -191,6 +191,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 var orderItem = Domain.Entities.UserOrderItem.Create(
                     order.Id,
                     cartItem.ProductId,
+                    cartItem.VariantId,
                     productName,
                     cartItem.Quantity,
                     cartItem.UnitPrice,
