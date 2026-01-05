@@ -206,14 +206,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // Select all elements with [data-mega-id] (hoverable menu items)
-const dataMegaId = document.querySelectorAll("[data-mega-id]");
+// BUT exclude dynamically rendered categories in mega-menu-list-container
+// Those are handled by category-service.js
+const dataMegaId = document.querySelectorAll("[data-mega-id]:not(#mega-menu-list-container [data-mega-id])");
 
 // Select all elements with [data-mega-target] (target dropdowns)
 const dataMegaTarget = document.querySelectorAll("[data-mega-target]");
 
+// #region agent log
+fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.js:209',message:'data-mega-id elements check',data:{dataMegaIdCount:dataMegaId.length,dataMegaTargetCount:dataMegaTarget.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+// #endregion
+
 dataMegaId.forEach(item => {
     item.addEventListener("mouseenter", () => {
         const targetId = item.getAttribute("data-mega-id");
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.js:215',message:'Category hover triggered',data:{targetId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
 
         // Remove 'bg-gray-100' class from all [data-mega-id] elements
         dataMegaId.forEach(el => el.classList.remove("bg-gray-100"));
@@ -226,6 +235,9 @@ dataMegaId.forEach(item => {
 
         // Find and show the matching target element
         const matchedTarget = document.querySelector(`[data-mega-target="${targetId}"]`);
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.js:228',message:'Category target check',data:{targetId,matchedTargetExists:!!matchedTarget},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
         if (matchedTarget) {
             matchedTarget.classList.remove("hidden");
         }
@@ -236,12 +248,25 @@ dataMegaId.forEach(item => {
 const megaMenuFire = document.getElementById('mega-menu-fire');
 const megaMenuFireTarget = document.getElementById('mega-menu-fire-target');
 
+// #region agent log
+fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.js:236',message:'Mega menu elements check',data:{megaMenuFireExists:!!megaMenuFire,megaMenuFireTargetExists:!!megaMenuFireTarget},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+// #endregion
+
 // Check if elements exist to avoid errors
 if (megaMenuFire && megaMenuFireTarget) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.js:241',message:'Mega menu event listener attached',data:{megaMenuFireId:megaMenuFire.id,megaMenuFireTargetId:megaMenuFireTarget.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     // Show the menu when the mouse enters the trigger element
     megaMenuFire.addEventListener('mouseover', () => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.js:243',message:'Mega menu mouseover triggered',data:{hasBlockClass:megaMenuFireTarget.classList.contains('block'),hasHiddenClass:megaMenuFireTarget.classList.contains('hidden')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         megaMenuFireTarget.classList.add('block');  // Make the menu visible
         megaMenuFireTarget.classList.remove('hidden'); // Remove the hidden class
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.js:245',message:'Mega menu classes after toggle',data:{hasBlockClass:megaMenuFireTarget.classList.contains('block'),hasHiddenClass:megaMenuFireTarget.classList.contains('hidden')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
     });
 
     // Hide the menu when the mouse leaves both the trigger and the menu

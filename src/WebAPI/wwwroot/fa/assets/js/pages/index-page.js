@@ -5,8 +5,8 @@
 // Initialize home page
 document.addEventListener('DOMContentLoaded', async () => {
     // Wait for all services to load
-    if (typeof window.apiClient === 'undefined' || 
-        typeof window.productService === 'undefined' || 
+    if (typeof window.apiClient === 'undefined' ||
+        typeof window.productService === 'undefined' ||
         typeof window.categoryService === 'undefined') {
         if (window.logger) {
             window.logger.error('Required services not loaded');
@@ -19,28 +19,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Load categories
         await loadCategories();
-        
+
         // Load mega menu categories
         const megaMenuContainer = document.getElementById('mega-menu-list-container');
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'index-page.js:24', message: 'Mega menu container check', data: { megaMenuContainerExists: !!megaMenuContainer, categoryServiceExists: !!window.categoryService }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
+        // #endregion
         if (megaMenuContainer && window.categoryService) {
             await window.categoryService.renderMegaMenu('mega-menu-list-container');
+            // #region agent log
+            const afterRenderItems = document.querySelectorAll('#mega-menu-list-container [data-mega-id]');
+            fetch('http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'index-page.js:27', message: 'After renderMegaMenu', data: { itemsCount: afterRenderItems.length }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
+            // #endregion
         }
-        
-        // Load featured products
-        await loadFeaturedProducts();
-        
-        // Load new products
-        await loadNewProducts();
-        
-        // Load best selling products
-        await loadBestSellingProducts();
-        
+
+        // محصولات در صفحه اصلی نمایش داده نمی‌شوند
+        // فقط دسته‌بندی‌ها نمایش داده می‌شوند
+        // await loadFeaturedProducts();
+        // await loadNewProducts();
+        // await loadBestSellingProducts();
+
         // Load brands
         await loadBrands();
-        
+
         // Setup search functionality
         setupSearch();
-        
+
         // Update cart and comparison counts
         updateCartAndComparisonCounts();
     } catch (error) {
@@ -156,7 +160,7 @@ function renderProducts(products, containerId) {
     if (!Array.isArray(products) || products.length === 0) return;
 
     const html = products.map(product => createProductCard(product)).join('');
-    
+
     // If it's a swiper wrapper, add slides
     if (container.classList.contains('swiper-wrapper')) {
         container.innerHTML = html;
@@ -171,8 +175,8 @@ function renderProducts(products, containerId) {
 
 // Create product card HTML
 function createProductCard(product) {
-    const imageUrl = (product.productImages && product.productImages.length > 0) 
-        ? product.productImages[0].imageUrl 
+    const imageUrl = (product.productImages && product.productImages.length > 0)
+        ? product.productImages[0].imageUrl
         : (product.imageUrl || 'assets/images/product/mobile-1.png');
     const price = product.price || 0;
     const originalPrice = product.originalPrice || price;
@@ -263,20 +267,11 @@ function setupSearch() {
 
     if (!searchInput) return;
 
-    let searchTimeout;
-    searchInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        const query = e.target.value.trim();
-
-        if (query.length < 2) {
-            if (searchResults) searchResults.classList.add('hidden');
-            return;
-        }
-
-        searchTimeout = setTimeout(async () => {
-            await performSearch(query);
-        }, 500);
-    });
+    // جستجوی Real-time غیرفعال شد - فقط با Enter یا کلیک دکمه
+    // اگر نتایج جستجو باز است، بستن آن
+    if (searchResults) {
+        searchResults.classList.add('hidden');
+    }
 
     if (searchButton) {
         searchButton.addEventListener('click', async () => {
@@ -326,8 +321,8 @@ function renderSearchResults(products) {
     }
 
     const html = products.map(product => {
-        const imageUrl = (product.productImages && product.productImages.length > 0) 
-            ? product.productImages[0].imageUrl 
+        const imageUrl = (product.productImages && product.productImages.length > 0)
+            ? product.productImages[0].imageUrl
             : 'assets/images/product/mobile-1.png';
         return `
             <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
@@ -345,7 +340,7 @@ function renderSearchResults(products) {
 }
 
 // Add to cart function (global)
-window.addToCart = async function(productId) {
+window.addToCart = async function (productId) {
     if (!window.authService || !window.authService.isAuthenticated()) {
         window.location.href = 'login.html';
         return;
@@ -372,7 +367,7 @@ window.addToCart = async function(productId) {
 };
 
 // Add to wishlist function (global)
-window.addToWishlist = async function(productId) {
+window.addToWishlist = async function (productId) {
     if (!window.authService || !window.authService.isAuthenticated()) {
         window.location.href = 'login.html';
         return;
