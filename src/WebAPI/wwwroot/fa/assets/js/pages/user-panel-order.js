@@ -16,13 +16,45 @@ const OrderManager = {
         // Header Init
         if (window.headerComponent) window.headerComponent.init();
 
-        // Sidebar & Dropdown Toggles (Centralized)
-        window.toggleUserDropdown = () => {
-            const menu = document.getElementById('user-dropdown-menu');
-            const icon = document.getElementById('user-dropdown-icon');
-            if (menu) menu.classList.toggle('hidden');
-            if (icon) icon.classList.toggle('rotate-180');
-        };
+        // Dropdown setup - same logic as profile page
+        const btn = document.getElementById('user-dropdown-button');
+        const menu = document.getElementById('user-dropdown-menu');
+        const icon = document.getElementById('user-dropdown-icon');
+        
+        if (btn && menu) {
+            // Remove any inline display style that app.js might have set
+            menu.style.display = '';
+            
+            // Setup dropdown with direct event handler
+            // Use capture phase to run before app.js handlers
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                menu.classList.toggle('hidden');
+                menu.style.display = ''; // Ensure no inline style
+                if (icon) icon.classList.toggle('rotate-180');
+            }, true);
+            
+            // Close when clicking outside - override app.js handler
+            const closeHandler = function(e) {
+                if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.add('hidden');
+                    menu.style.display = '';
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            };
+            // Use capture phase to run before app.js handler
+            document.addEventListener('click', closeHandler, true);
+            
+            // Close on escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && menu && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    menu.style.display = '';
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            });
+        }
 
         window.toggleOffcanvas = (id) => {
             const el = document.getElementById(id);
@@ -39,16 +71,6 @@ const OrderManager = {
             if (overlay) overlay.classList.add('hidden');
         };
 
-        // Close dropdown on outside click
-        document.addEventListener('click', (event) => {
-            const menu = document.getElementById('user-dropdown-menu');
-            const btn = document.getElementById('user-dropdown-button');
-            if (menu && !menu.classList.contains('hidden') && !btn.contains(event.target) && !menu.contains(event.target)) {
-                menu.classList.add('hidden');
-                const icon = document.getElementById('user-dropdown-icon');
-                if (icon) icon.classList.remove('rotate-180');
-            }
-        });
 
         // Logout Handler
         const handleLogout = (e) => {

@@ -110,6 +110,11 @@ public static class ServiceRegistration
         services.AddScoped<MahakSyncService>();
         services.AddHttpClient<MahakOutgoingSyncService>();
         services.AddScoped<MahakOutgoingSyncService>();
+        
+        // Payment Gateway - ZarinPal (replace with MockPaymentService for testing)
+        services.AddHttpClient<ZarinPalPaymentService>();
+        services.AddScoped<IPaymentGatewayService, ZarinPalPaymentService>();
+        // For testing: services.AddScoped<IPaymentGatewayService, MockPaymentService>();
 
         services.AddHttpClient();
         services.AddScoped<Domain.Interfaces.Services.IPaymentGateway, 

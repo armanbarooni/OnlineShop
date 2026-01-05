@@ -29,6 +29,10 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         /// Invalidate all previous OTPs for a phone number
         /// </summary>
         Task InvalidatePreviousOtpsAsync(string phoneNumber, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Get the latest OTP for a phone number (for rate limiting)
+        /// </summary>
+        Task<Otp?> GetLatestOtpAsync(string phoneNumber, CancellationToken cancellationToken = default);
     }
 }
-

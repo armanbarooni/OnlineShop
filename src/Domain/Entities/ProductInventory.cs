@@ -135,6 +135,7 @@ namespace OnlineShop.Domain.Entities
                 throw new InvalidOperationException($"مقدار رزرو شده کافی نیست. رزرو شده: {ReservedQuantity}, درخواستی: {quantity}");
 
             ReservedQuantity -= quantity;
+            AvailableQuantity -= quantity; // Reduce physical stock
             SoldQuantity += quantity;
             UpdatedAt = DateTime.UtcNow;
         }

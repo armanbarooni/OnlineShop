@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OnlineShop.Application.Common.Models;
 
 using OnlineShop.Application.Contracts.Services;
@@ -36,10 +37,10 @@ namespace OnlineShop.Application.Features.Auth.Commands.LoginWithPhone
             }
 
             // Find user by phone number
-            var user = await _userManager.FindByNameAsync(request.Request.PhoneNumber);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == request.Request.PhoneNumber, cancellationToken);
             if (user == null)
             {
-                return Result<AuthResponseDto>.Failure("کاربری با این شماره تلفن یافت نشد. لطفاً ابتدا ثبت‌نام کنید");
+                return Result<AuthResponseDto>.Failure("شما هنوز ثبت‌نام نکرده‌اید. لطفاً ابتدا ثبت‌نام کنید");
             }
 
             // Update last login

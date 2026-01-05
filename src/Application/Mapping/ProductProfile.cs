@@ -17,7 +17,16 @@ namespace OnlineShop.Application.Mapping
                 .ForMember(d => d.AverageRating, opt => opt.MapFrom(s => 
                     s.ProductReviews.Any() ? s.ProductReviews.Average(r => r.Rating) : 0));
 
-            CreateMap<Product, ProductDetailsDto>();
+            CreateMap<Product, ProductDetailsDto>()
+                .ForMember(d => d.CategoryName, opt => opt.MapFrom(s => s.Category != null ? s.Category.Name : null))
+                .ForMember(d => d.BrandName, opt => opt.MapFrom(s => s.Brand != null ? s.Brand.Name : null))
+                .ForMember(d => d.Images, opt => opt.MapFrom(s => s.ProductImages.Where(i => !i.Deleted).OrderBy(i => i.DisplayOrder)))
+                .ForMember(d => d.Variants, opt => opt.MapFrom(s => s.ProductVariants.Where(v => !v.Deleted).OrderBy(v => v.DisplayOrder)))
+                .ForMember(d => d.Materials, opt => opt.MapFrom(s => s.ProductMaterials.Where(pm => !pm.Deleted).Select(pm => pm.Material.Name)))
+                .ForMember(d => d.Seasons, opt => opt.MapFrom(s => s.ProductSeasons.Where(ps => !ps.Deleted).Select(ps => ps.Season.Name)));
+            
+            CreateMap<ProductImage, ProductImageDto>();
+            CreateMap<ProductVariant, ProductVariantDto>();
 
             CreateMap<CreateProductDto, Product>()
                 .ForMember(d => d.Id, opt => opt.Ignore())
