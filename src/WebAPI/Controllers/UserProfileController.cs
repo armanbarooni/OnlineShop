@@ -1,15 +1,16 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Application.Common.Models;
+using OnlineShop.Application.DTOs.UploadProfilePicture;
 using OnlineShop.Application.DTOs.UserProfile;
 using OnlineShop.Application.Features.UserProfile.Command.Create;
-using OnlineShop.Application.Features.UserProfile.Command.Update;
 using OnlineShop.Application.Features.UserProfile.Command.Delete;
-using OnlineShop.Application.Features.UserProfile.Queries.GetByUserId;
+using OnlineShop.Application.Features.UserProfile.Command.Update;
 using OnlineShop.Application.Features.UserProfile.Queries.GetAll;
 using OnlineShop.Application.Features.UserProfile.Queries.GetById;
+using OnlineShop.Application.Features.UserProfile.Queries.GetByUserId;
 
 namespace OnlineShop.WebAPI.Controllers
 {
@@ -118,7 +119,9 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpPost("upload-picture")]
-        public async Task<ActionResult> UploadProfilePicture([FromForm] IFormFile file)
+        [Consumes("multipart/form-data")]
+
+        public async Task<ActionResult> UploadProfilePicture([FromForm] UploadProfilePictureRequest file)
         {
             // Get current user ID from claims
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -126,18 +129,18 @@ namespace OnlineShop.WebAPI.Controllers
                 return Unauthorized(new { message = "User not authenticated" });
 
             // Validate file
-            if (file == null || file.Length == 0)
+            if (file == null || file.File.Length == 0)
                 return BadRequest(new { message = "فایل انتخاب نشده است" });
 
             // Validate file type
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
-            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var fileExtension = Path.GetExtension(file.File.FileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(fileExtension))
                 return BadRequest(new { message = "فرمت فایل مجاز نیست. فقط تصاویر JPG، PNG، GIF و WEBP مجاز است" });
 
             // Validate file size (max 5MB)
             const long maxFileSize = 5 * 1024 * 1024; // 5MB
-            if (file.Length > maxFileSize)
+            if (file.File.Length > maxFileSize)
                 return BadRequest(new { message = "حجم فایل نباید بیشتر از 5 مگابایت باشد" });
 
             try
@@ -161,7 +164,7 @@ namespace OnlineShop.WebAPI.Controllers
                 // Save file
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await file.CopyToAsync(stream);
+                    await file.File.CopyToAsync(stream);
                 }
 
                 // Generate URL (relative to wwwroot)

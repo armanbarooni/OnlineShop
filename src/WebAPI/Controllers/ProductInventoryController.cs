@@ -243,7 +243,7 @@ namespace OnlineShop.WebAPI.Controllers
 
         // Support legacy test endpoint: POST /api/productinventory/update
         // Accepts { ProductId, Quantity, Operation } where Operation is Increase|Decrease|Set
-        [HttpPost("update")]
+        [HttpPut("update")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateByProduct([FromBody] UpdateInventoryByProductDto dto, CancellationToken cancellationToken = default)
         {
