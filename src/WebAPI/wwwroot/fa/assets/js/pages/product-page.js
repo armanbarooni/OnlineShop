@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Product Page (product.html) API Integration
  */
 
@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const productId = urlParams.get('id');
 
         if (!productId) {
-            showError('شناسه محصول یافت نشد');
+            // No id in query string: load a default product from API.
+            await loadDefaultProduct();
             return;
         }
 
@@ -37,6 +38,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+async function loadDefaultProduct() {
+    try {
+        showLoading();
+
+        const result = await window.productService.getAllProducts();
+        const products = Array.isArray(result.data)
+            ? result.data
+            : (
+                result.data && Array.isArray(result.data.items)
+                    ? result.data.items
+                    : (result.data && Array.isArray(result.data.products) ? result.data.products : [])
+              );
+        if (!result.success || products.length === 0) {
+            showError(result.error || 'No products available');
+            return;
+        }
+        const withImages = products.find(p => Array.isArray(p.productImages) && p.productImages.length > 0);
+        renderProduct(withImages || products[0]);
+    } catch (error) {
+        if (window.logger) {
+            window.logger.error('Error loading default product:', error);
+        } else {
+            console.error('Error loading default product:', error);
+        }
+        showError('Error loading default product');
+    } finally {
+        hideLoading();
+    }
+}
 // Load product by ID
 async function loadProduct(productId) {
     try {
@@ -120,8 +150,8 @@ function renderPrice(product) {
 
 // Render product gallery
 function renderGallery(product) {
-    const images = product.productImages || [];
-    
+    const images = pickImages(product);
+        
     if (images.length === 0) {
         // Use placeholder if no images
         images.push({
@@ -132,13 +162,16 @@ function renderGallery(product) {
     const gallery1 = document.querySelector('#productGalleryOne .swiper-wrapper');
     const gallery2 = document.querySelector('#productGalleryTwo .swiper-wrapper');
 
-    const slidesHtml = images.map(img => `
+    const slidesHtml = images.map(img => {
+        const url = normalizeImageUrl(img.imageUrl || img);
+        return `
         <div class="swiper-slide !pe-1 cursor-pointer">
-            <img src="${img.imageUrl || img}" alt="${product.name || 'محصول'}" 
+            <img src="${url}" alt="${product.name || 'محصول'}" 
                  class="rounded-lg border border-gray-300 p-2 w-full object-cover"
                  onerror="this.src='assets/images/product/mobile-1.png'">
         </div>
-    `).join('');
+    `;
+    }).join('');
 
     if (gallery1) gallery1.innerHTML = slidesHtml;
     if (gallery2) gallery2.innerHTML = slidesHtml;
@@ -153,22 +186,54 @@ function renderGallery(product) {
     }
 }
 
+function pickImages(product) {
+    if (Array.isArray(product.productImages) && product.productImages.length) return product.productImages;
+    if (Array.isArray(product.images) && product.images.length) return product.images;
+    return [];
+}
+
+function normalizeImageUrl(url) {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    if (url.startsWith('/')) return `${window.location.origin}${url}`;
+    return url;
+}
+
+function getProductColor(product) {
+    if (product.color) return product.color;
+    const variant = Array.isArray(product.variants) ? product.variants[0] : null;
+    if (variant?.color) return variant.color;
+    if (variant?.attributes?.color) return variant.attributes.color;
+    return null;
+}
+
+function getProductSize(product) {
+    if (product.size) return product.size;
+    const variant = Array.isArray(product.variants) ? product.variants[0] : null;
+    if (variant?.size) return variant.size;
+    if (variant?.attributes?.size) return variant.attributes.size;
+    return null;
+}
+
 // Render product description
 function renderDescription(product) {
     // Update Intro tab content
     const introTab = document.getElementById('Intro');
-    if (introTab && product.description) {
+    const descText = product.description && product.description.trim().length > 0
+        ? product.description
+        : 'توضیحات این محصول به‌زودی تکمیل می‌شود.';
+    if (introTab) {
         const descriptionPara = introTab.querySelector('p');
         if (descriptionPara) {
-            descriptionPara.textContent = product.description;
+            descriptionPara.textContent = descText;
         }
     }
 
     // Update features list
     const featuresList = document.getElementById('product-features-list');
-    if (featuresList && product.description) {
+    if (featuresList && descText) {
         // Split description by newlines or create list items
-        const features = product.description.split('\n').filter(f => f.trim());
+        const features = descText.split('\n').filter(f => f.trim());
         if (features.length > 0) {
             featuresList.innerHTML = features.map(feature => `
                 <li class="flex items-center space-x-3">
@@ -186,16 +251,17 @@ function renderSpecifications(product) {
     if (!specsTab) return;
 
     const specs = [];
+    const categoryName = product.category?.name || product.categoryName || product.category || '-';
+    const brandName = product.brand?.name || product.brandName || product.brand || '-';
+    const sku = product.sku || '-';
+    const color = getProductColor(product) || '-';
+    const size = getProductSize(product) || '-';
     
-    if (product.category) {
-        specs.push({ label: 'دسته‌بندی', value: product.category.name || product.category });
-    }
-    if (product.brand) {
-        specs.push({ label: 'برند', value: product.brand.name || product.brand });
-    }
-    if (product.sku) {
-        specs.push({ label: 'کد محصول', value: product.sku });
-    }
+    specs.push({ label: 'دسته‌بندی', value: categoryName });
+    specs.push({ label: 'برند', value: brandName });
+    specs.push({ label: 'کد محصول', value: sku });
+    specs.push({ label: 'رنگ', value: color });
+    specs.push({ label: 'سایز', value: size });
     if (product.weight) {
         specs.push({ label: 'وزن', value: `${product.weight} گرم` });
     }
@@ -253,4 +319,6 @@ function showError(message) {
         alert(message);
     }
 }
+
+
 

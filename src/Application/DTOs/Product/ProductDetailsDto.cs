@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using OnlineShop.Application.DTOs.ProductDetail;
 
 namespace OnlineShop.Application.DTOs.Product
 {
@@ -24,7 +25,10 @@ namespace OnlineShop.Application.DTOs.Product
         
         // Variants (Size/Color combinations)
         public List<ProductVariantDto> Variants { get; set; } = new();
-        
+
+        // Details (key/value specs)
+        public List<ProductDetail.ProductDetailDto> ProductDetails { get; set; } = new();
+
         // Materials
         public List<string> Materials { get; set; } = new();
         

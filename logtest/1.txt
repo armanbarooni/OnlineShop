@@ -1,0 +1,717 @@
+12:47:02 [INF] Loaded JWT settings for Development: Issuer='OnlineShop', Audience='OnlineShopClient', SecretLength=34 {"EnvironmentName": "Development", "ProcessId": 18828}
+12:47:04 [WRN] The foreign key property 'UserCouponUsage.CouponId1' was created in shadow state because a conflicting property with the simple name 'CouponId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core. {"EventId": {"Id": 10625, "Name": "Microsoft.EntityFrameworkCore.Model.Validation.ShadowForeignKeyPropertyCreated"}, "SourceContext": "Microsoft.EntityFrameworkCore.Model.Validation", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:06 [INF] MahakSyncWorker is starting. {"SourceContext": "OnlineShop.WebAPI.Workers.MahakSyncWorker", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:06 [INF] MahakSyncWorker running sync at: 02/01/2026 12:47:06 -08:00 {"SourceContext": "OnlineShop.WebAPI.Workers.MahakSyncWorker", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:06 [INF] Starting Mahak Sync... {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:06 [INF] Attempting Mahak login for user: bombonlineshop, MD5 Hash: d2c720c389f8028b280474f37a1ae29c {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:06 [INF] MahakOutgoingSyncWorker starting - will sync orders to Mahak every 1 minute {"SourceContext": "OnlineShop.WebAPI.Workers.MahakOutgoingSyncWorker", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:09 [DBG] Login response: {"Result":true,"Data":{"UserToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJNYWhha0lEIjoiM2I0N2JiMDYtODIyZi00ZDhmLWIwNGEtNWEzYTk2NzEyMWFhIiwidXNlclRva2VuIjoie1wiVXNlck5hbWVcIjpcImJvbWJvbmxpbmVzaG9wXCIsXCJQYXNzd29yZFwiOlwiZDJjNzIwYzM4OWY4MDI4YjI4MDQ3NGYzN2ExYWUyOWNcIixcIk1haGFrSURcIjpcIjNiNDdiYjA2LTgyMmYtNGQ4Zi1iMDRhLTVhM2E5NjcxMjFhYVwiLFwiQ3JlYXRlVGltZVwiOlwiMjAyNi0wMi0wMlQwMDoxNzowOS44NTU4MDcrMDM6MzBcIixcIklQXCI6XCI0NS4xMzAuODMuMTA4XCIsXCJEYXRhYmFzZUlkXCI6MjgwMDk5OCxcIkRhdGFiYXNlVHlwZVwiOjEzMDEsXCJTeW5jSWRcIjowLFwiVmlzaXRvcklkXCI6NDE4NzQsXCJMYW5ndWFnZVwiOlwiZW4tVVNcIixcIkNyZWRpdERheVwiOjgwLFwiUGFja2FnZU5vXCI6MzU1MDY3MX0iLCJuYmYiOjE3Njk5Nzg4MjksImV4cCI6MTc3MDU4MzYyOSwiaWF0IjoxNzY5OTc4ODI5fQ.NiDcztqvug5g1e7hnZInaiEIVMRMqUO7BKk8fSa3IhE","SyncId":0,"VisitorId":41874,"DatabaseId":2800998,"UserTitle":"?????? ??? ???","ServerTime":"2026-02-02T00:17:09.8520713+03:30","MahakId":"3b47bb06-822f-4d8f-b04a-5a3a967121aa","CreditDay":80,"HasRadara":false,"WithDataTransfer":false,"PackageNo":3550671}} {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:09 [INF] Mahak login successful. Token received (length: 707) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:09 [INF] Requesting data from Mahak with RowVersions - Product: 4059210120, ProductDetail: 4059210146, Category: 4028298546 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [INF] No categories to process from Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [INF] Processing 8 products from Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updating product: ????? ?????   (MahakId: 8262620) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updating product: ????? ?????? 204   (MahakId: 8656741) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updating product: ????? ??????????   (MahakId: 8262619) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updating product: ????? ???? ?? 508   (MahakId: 8656742) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updating product: ????? ??? 202   (MahakId: 8308737) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updating product: ????? ??? ?? 1101   (MahakId: 8609300) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updating product: ???? ???? ??? ???   (MahakId: 8609301) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updating product: ????? ??? ?? 1083   (MahakId: 8609299) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [INF] Product sync completed: 0 created, 8 updated, 0 errors {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [INF] Processing 51 product details from Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updated price for product 8262619: 9000000.000000000 (7 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updated price for product 8262620: 4000000.000000000 (5 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updated price for product 8308737: 12000000.000000000 (9 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updated price for product 8609299: 15000000.000000000 (6 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updated price for product 8609301: 16000000.000000000 (7 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updated price for product 8609300: 15000000.000000000 (6 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updated price for product 8656741: 14000000.000000000 (6 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Updated price for product 8656742: 17000000.000000000 (5 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [INF] ProductDetail sync completed: 8 updated, 0 errors {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [INF] No inventory to process from Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [INF] Processing 5 people from Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Person 9898935 ( ) already mapped to local entity da4f5ff8-aee8-41df-b530-7b1595bb3a73 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Person 9898936 ( ) already mapped to local entity d25a36c2-816e-4e85-a209-873bca7b35ec {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Person 9919862 ( ) already mapped to local entity d343f4e1-fbae-45ce-b322-621b285d3658 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Person 9919888 ( ) already mapped to local entity 395c475e-d08a-4d93-80d5-75ea840a3de0 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:15 [DBG] Person 9921681 ( ) already mapped to local entity 07706e13-44ce-4c9a-97db-0c31e7a161ba {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:16 [INF] People sync completed: 0 new, 5 existing, 0 errors {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:16 [INF] Mahak Sync Completed Successfully. {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:36 [INF] Starting outgoing sync to Mahak... {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:37 [INF] Request 01ea91e2: GET /fa/product.html from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:37 [INF] Request 01ea91e2 completed: 304 in 36ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:37 [INF] Request 683fe54a: GET /fa/assets/js/pages/product-page.js from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:37 [INF] Request 683fe54a completed: 200 in 21ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:37 [INF] Request 11d7c847: GET /api/Product from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:37 [WRN] You do not have a valid license key for the Lucky Penny software MediatR. This is allowed for development and testing scenarios. If you are running in production you are required to have a licensed version. Please visit https://luckypennysoftware.com to obtain a valid license. {"SourceContext": "LuckyPennySoftware.MediatR.License", "ActionId": "a359033c-1896-4b80-8791-0efdcbaaf8f3", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetAll (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104II:00000004", "RequestPath": "/api/Product", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:37 [INF] Getting all products {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "a359033c-1896-4b80-8791-0efdcbaaf8f3", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetAll (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104II:00000004", "RequestPath": "/api/Product", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:38 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'. {"EventId": {"Id": 20504, "Name": "Microsoft.EntityFrameworkCore.Query.MultipleCollectionIncludeWarning"}, "SourceContext": "Microsoft.EntityFrameworkCore.Query", "ActionId": "a359033c-1896-4b80-8791-0efdcbaaf8f3", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetAll (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104II:00000004", "RequestPath": "/api/Product", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:38 [INF] Successfully retrieved 8 products {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "a359033c-1896-4b80-8791-0efdcbaaf8f3", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetAll (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104II:00000004", "RequestPath": "/api/Product", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:38 [INF] Request 11d7c847 completed: 200 in 768ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:38 [INF] Request 85891b17: GET /fa/assets/images/product/mobile-1.png from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/images/product/mobile-1.png", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:38 [INF] Request 85891b17 completed: 200 in 42ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/images/product/mobile-1.png", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:43 [INF] Mahak outgoing sync login successful. VisitorId: 41874 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:43 [ERR] Failed executing DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT u."Id", u."ActualDeliveryDate", u."BillingAddressId", u."CancellationReason", u."CancelledAt", u."CreatedAt", u."CreatedBy", u."Currency", u."Deleted", u."DeliveredAt", u."DiscountAmount", u."EstimatedDeliveryDate", u."LastModifiedAt", u."LastModifiedBy", u."MahakClientId", u."MahakId", u."MahakOrderId", u."MahakSyncedAt", u."Notes", u."OrderNumber", u."OrderStatus", u."RowVersion", u."ShippedAt", u."ShippingAddressId", u."ShippingAmount", u."SubTotal", u."SyncedToMahak", u."TaxAmount", u."TotalAmount", u."TrackingNumber", u."UpdatedAt", u."UpdatedBy", u."UserId", a."Id", t."Id", t."CreatedAt", t."CreatedBy", t."Deleted", t."DiscountAmount", t."LastModifiedAt", t."LastModifiedBy", t."MahakClientId", t."MahakId", t."Notes", t."OrderId", t."ProductDescription", t."ProductId", t."ProductName", t."ProductSku", t."Quantity", t."RowVersion", t."TotalPrice", t."UnitPrice", t."UpdatedAt", t."UpdatedBy", t."VariantId", a."AccessFailedCount", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FirstName", a."LastLoginAt", a."LastName", a."LockoutEnabled", a."LockoutEnd", a."MahakPersonClientId", a."MahakPersonId", a."MahakSyncedAt", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "UserOrders" AS u
+INNER JOIN "AspNetUsers" AS a ON u."UserId" = a."Id"
+LEFT JOIN (
+    SELECT u0."Id", u0."CreatedAt", u0."CreatedBy", u0."Deleted", u0."DiscountAmount", u0."LastModifiedAt", u0."LastModifiedBy", u0."MahakClientId", u0."MahakId", u0."Notes", u0."OrderId", u0."ProductDescription", u0."ProductId", u0."ProductName", u0."ProductSku", u0."Quantity", u0."RowVersion", u0."TotalPrice", u0."UnitPrice", u0."UpdatedAt", u0."UpdatedBy", u0."VariantId"
+    FROM "UserOrderItems" AS u0
+    WHERE NOT (u0."Deleted")
+) AS t ON u."Id" = t."OrderId"
+WHERE NOT (u."Deleted") AND NOT (u."SyncedToMahak") AND u."OrderStatus" IN ('Completed', 'Confirmed') AND NOT (u."Deleted")
+ORDER BY u."CreatedAt", u."Id", a."Id" {"EventId": {"Id": 20102, "Name": "Microsoft.EntityFrameworkCore.Database.Command.CommandError"}, "SourceContext": "Microsoft.EntityFrameworkCore.Database.Command", "EnvironmentName": "Development", "ProcessId": 18828}
+12:47:43 [ERR] An exception occurred while iterating over the results of a query for context type 'OnlineShop.Infrastructure.Persistence.ApplicationDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn {"EventId": {"Id": 10100, "Name": "Microsoft.EntityFrameworkCore.Query.QueryIterationFailed"}, "SourceContext": "Microsoft.EntityFrameworkCore.Query", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:47:44 [ERR] Error during outgoing sync to Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at OnlineShop.Infrastructure.Persistence.Repositories.UserOrderRepository.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Persistence\Repositories\UserOrderRepository.cs:line 106
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 104
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.SyncOrdersToMahakAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 66
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:48:00 [INF] Request 498bb6d5: GET /fa/product.html from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:00 [INF] Request 498bb6d5 completed: 200 in 51ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:00 [INF] Request 6085fac4: GET /api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:00 [INF] Getting product by ID: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104II:00000009", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'. {"EventId": {"Id": 20504, "Name": "Microsoft.EntityFrameworkCore.Query.MultipleCollectionIncludeWarning"}, "SourceContext": "Microsoft.EntityFrameworkCore.Query", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104II:00000009", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:00 [INF] Successfully retrieved product: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104II:00000009", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:00 [INF] Request 6085fac4 completed: 200 in 339ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:00 [INF] Request 478ba984: GET /api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:00 [INF] Request 78a16669: GET /api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:00 [INF] Request 478ba984 completed: 404 in 31ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:00 [INF] Request 78a16669 completed: 404 in 47ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:36 [INF] Request ac27b415: GET /fa/product.html from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:36 [INF] Request ac27b415 completed: 200 in 65ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:36 [INF] Request bb938a60: GET /fa/assets/js/pages/product-page.js from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:36 [INF] Request bb938a60 completed: 304 in 21ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:36 [INF] Request 299efddb: GET /api/Product/2b4789b3-9562-4210-a381-541b60adbe33 from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/2b4789b3-9562-4210-a381-541b60adbe33", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:36 [INF] Getting product by ID: 2b4789b3-9562-4210-a381-541b60adbe33 {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IJ:00000005", "RequestPath": "/api/Product/2b4789b3-9562-4210-a381-541b60adbe33", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:36 [INF] Successfully retrieved product: 2b4789b3-9562-4210-a381-541b60adbe33 {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IJ:00000005", "RequestPath": "/api/Product/2b4789b3-9562-4210-a381-541b60adbe33", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:36 [INF] Request 299efddb completed: 200 in 76ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/2b4789b3-9562-4210-a381-541b60adbe33", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:40 [INF] Request 0aaf500a: GET /.well-known/appspecific/com.chrome.devtools.json from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:40 [INF] Request 0aaf500a completed: 404 in 10ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:40 [INF] Request 40b3a8fc: GET /fa/assets/js/plugin/swiper/swiper-bundle.min.js.map from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:40 [INF] Request 40b3a8fc completed: 404 in 9ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:44 [INF] Starting outgoing sync to Mahak... {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:44 [INF] Mahak outgoing sync login successful. VisitorId: 41874 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:44 [ERR] Failed executing DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT u."Id", u."ActualDeliveryDate", u."BillingAddressId", u."CancellationReason", u."CancelledAt", u."CreatedAt", u."CreatedBy", u."Currency", u."Deleted", u."DeliveredAt", u."DiscountAmount", u."EstimatedDeliveryDate", u."LastModifiedAt", u."LastModifiedBy", u."MahakClientId", u."MahakId", u."MahakOrderId", u."MahakSyncedAt", u."Notes", u."OrderNumber", u."OrderStatus", u."RowVersion", u."ShippedAt", u."ShippingAddressId", u."ShippingAmount", u."SubTotal", u."SyncedToMahak", u."TaxAmount", u."TotalAmount", u."TrackingNumber", u."UpdatedAt", u."UpdatedBy", u."UserId", a."Id", t."Id", t."CreatedAt", t."CreatedBy", t."Deleted", t."DiscountAmount", t."LastModifiedAt", t."LastModifiedBy", t."MahakClientId", t."MahakId", t."Notes", t."OrderId", t."ProductDescription", t."ProductId", t."ProductName", t."ProductSku", t."Quantity", t."RowVersion", t."TotalPrice", t."UnitPrice", t."UpdatedAt", t."UpdatedBy", t."VariantId", a."AccessFailedCount", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FirstName", a."LastLoginAt", a."LastName", a."LockoutEnabled", a."LockoutEnd", a."MahakPersonClientId", a."MahakPersonId", a."MahakSyncedAt", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "UserOrders" AS u
+INNER JOIN "AspNetUsers" AS a ON u."UserId" = a."Id"
+LEFT JOIN (
+    SELECT u0."Id", u0."CreatedAt", u0."CreatedBy", u0."Deleted", u0."DiscountAmount", u0."LastModifiedAt", u0."LastModifiedBy", u0."MahakClientId", u0."MahakId", u0."Notes", u0."OrderId", u0."ProductDescription", u0."ProductId", u0."ProductName", u0."ProductSku", u0."Quantity", u0."RowVersion", u0."TotalPrice", u0."UnitPrice", u0."UpdatedAt", u0."UpdatedBy", u0."VariantId"
+    FROM "UserOrderItems" AS u0
+    WHERE NOT (u0."Deleted")
+) AS t ON u."Id" = t."OrderId"
+WHERE NOT (u."Deleted") AND NOT (u."SyncedToMahak") AND u."OrderStatus" IN ('Completed', 'Confirmed') AND NOT (u."Deleted")
+ORDER BY u."CreatedAt", u."Id", a."Id" {"EventId": {"Id": 20102, "Name": "Microsoft.EntityFrameworkCore.Database.Command.CommandError"}, "SourceContext": "Microsoft.EntityFrameworkCore.Database.Command", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:44 [ERR] An exception occurred while iterating over the results of a query for context type 'OnlineShop.Infrastructure.Persistence.ApplicationDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn {"EventId": {"Id": 10100, "Name": "Microsoft.EntityFrameworkCore.Query.QueryIterationFailed"}, "SourceContext": "Microsoft.EntityFrameworkCore.Query", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:48:44 [ERR] Error during outgoing sync to Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at OnlineShop.Infrastructure.Persistence.Repositories.UserOrderRepository.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Persistence\Repositories\UserOrderRepository.cs:line 106
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 104
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.SyncOrdersToMahakAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 66
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:48:46 [INF] Request 1fefcb72: GET /.well-known/appspecific/com.chrome.devtools.json from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:46 [INF] Request 1fefcb72 completed: 404 in 18ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:46 [INF] Request 944689ae: GET /fa/assets/js/plugin/swiper/swiper-bundle.min.js.map from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:46 [INF] Request 944689ae completed: 404 in 10ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:46 [INF] Request ebb93c02: GET /api/Product/2b4789b3-9562-4210-a381-541b60adbe33 from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/2b4789b3-9562-4210-a381-541b60adbe33", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:46 [INF] Getting product by ID: 2b4789b3-9562-4210-a381-541b60adbe33 {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IJ:0000000B", "RequestPath": "/api/Product/2b4789b3-9562-4210-a381-541b60adbe33", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:46 [INF] Successfully retrieved product: 2b4789b3-9562-4210-a381-541b60adbe33 {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IJ:0000000B", "RequestPath": "/api/Product/2b4789b3-9562-4210-a381-541b60adbe33", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:48:46 [INF] Request ebb93c02 completed: 200 in 43ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/2b4789b3-9562-4210-a381-541b60adbe33", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:25 [INF] Request 902bcfbd: GET /fa/assets/js/pages/product-page.js from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:25 [INF] Request 38d8e9c8: GET /.well-known/appspecific/com.chrome.devtools.json from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:25 [INF] Request 902bcfbd completed: 304 in 33ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:25 [INF] Request 38d8e9c8 completed: 404 in 42ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:25 [INF] Request 54765f2e: GET /fa/assets/js/plugin/swiper/swiper-bundle.min.js.map from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:25 [INF] Request 54765f2e completed: 404 in 12ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:26 [INF] Request 5184757d: GET /api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:26 [INF] Getting product by ID: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IK:00000004", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:26 [INF] Successfully retrieved product: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IK:00000004", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:26 [INF] Request 5184757d completed: 200 in 61ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:26 [INF] Request 3d15897f: GET /api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:26 [INF] Request b2079c36: GET /api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:26 [INF] Request 3d15897f completed: 404 in 20ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:26 [INF] Request b2079c36 completed: 404 in 36ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:29 [INF] Request 749d1d4b: GET /api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:29 [INF] Getting product by ID: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IK:00000006", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:29 [INF] Successfully retrieved product: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IK:00000006", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:29 [INF] Request 749d1d4b completed: 200 in 56ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:29 [INF] Request 15944909: GET /favicon.ico from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/favicon.ico", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:29 [INF] Request 15944909 completed: 404 in 12ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/favicon.ico", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:44 [INF] Starting outgoing sync to Mahak... {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:46 [INF] Mahak outgoing sync login successful. VisitorId: 41874 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:46 [ERR] Failed executing DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT u."Id", u."ActualDeliveryDate", u."BillingAddressId", u."CancellationReason", u."CancelledAt", u."CreatedAt", u."CreatedBy", u."Currency", u."Deleted", u."DeliveredAt", u."DiscountAmount", u."EstimatedDeliveryDate", u."LastModifiedAt", u."LastModifiedBy", u."MahakClientId", u."MahakId", u."MahakOrderId", u."MahakSyncedAt", u."Notes", u."OrderNumber", u."OrderStatus", u."RowVersion", u."ShippedAt", u."ShippingAddressId", u."ShippingAmount", u."SubTotal", u."SyncedToMahak", u."TaxAmount", u."TotalAmount", u."TrackingNumber", u."UpdatedAt", u."UpdatedBy", u."UserId", a."Id", t."Id", t."CreatedAt", t."CreatedBy", t."Deleted", t."DiscountAmount", t."LastModifiedAt", t."LastModifiedBy", t."MahakClientId", t."MahakId", t."Notes", t."OrderId", t."ProductDescription", t."ProductId", t."ProductName", t."ProductSku", t."Quantity", t."RowVersion", t."TotalPrice", t."UnitPrice", t."UpdatedAt", t."UpdatedBy", t."VariantId", a."AccessFailedCount", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FirstName", a."LastLoginAt", a."LastName", a."LockoutEnabled", a."LockoutEnd", a."MahakPersonClientId", a."MahakPersonId", a."MahakSyncedAt", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "UserOrders" AS u
+INNER JOIN "AspNetUsers" AS a ON u."UserId" = a."Id"
+LEFT JOIN (
+    SELECT u0."Id", u0."CreatedAt", u0."CreatedBy", u0."Deleted", u0."DiscountAmount", u0."LastModifiedAt", u0."LastModifiedBy", u0."MahakClientId", u0."MahakId", u0."Notes", u0."OrderId", u0."ProductDescription", u0."ProductId", u0."ProductName", u0."ProductSku", u0."Quantity", u0."RowVersion", u0."TotalPrice", u0."UnitPrice", u0."UpdatedAt", u0."UpdatedBy", u0."VariantId"
+    FROM "UserOrderItems" AS u0
+    WHERE NOT (u0."Deleted")
+) AS t ON u."Id" = t."OrderId"
+WHERE NOT (u."Deleted") AND NOT (u."SyncedToMahak") AND u."OrderStatus" IN ('Completed', 'Confirmed') AND NOT (u."Deleted")
+ORDER BY u."CreatedAt", u."Id", a."Id" {"EventId": {"Id": 20102, "Name": "Microsoft.EntityFrameworkCore.Database.Command.CommandError"}, "SourceContext": "Microsoft.EntityFrameworkCore.Database.Command", "EnvironmentName": "Development", "ProcessId": 18828}
+12:49:46 [ERR] An exception occurred while iterating over the results of a query for context type 'OnlineShop.Infrastructure.Persistence.ApplicationDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn {"EventId": {"Id": 10100, "Name": "Microsoft.EntityFrameworkCore.Query.QueryIterationFailed"}, "SourceContext": "Microsoft.EntityFrameworkCore.Query", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:49:46 [ERR] Error during outgoing sync to Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at OnlineShop.Infrastructure.Persistence.Repositories.UserOrderRepository.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Persistence\Repositories\UserOrderRepository.cs:line 106
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 104
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.SyncOrdersToMahakAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 66
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:50:46 [INF] Starting outgoing sync to Mahak... {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:50:47 [INF] Mahak outgoing sync login successful. VisitorId: 41874 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:50:47 [ERR] Failed executing DbCommand (12ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT u."Id", u."ActualDeliveryDate", u."BillingAddressId", u."CancellationReason", u."CancelledAt", u."CreatedAt", u."CreatedBy", u."Currency", u."Deleted", u."DeliveredAt", u."DiscountAmount", u."EstimatedDeliveryDate", u."LastModifiedAt", u."LastModifiedBy", u."MahakClientId", u."MahakId", u."MahakOrderId", u."MahakSyncedAt", u."Notes", u."OrderNumber", u."OrderStatus", u."RowVersion", u."ShippedAt", u."ShippingAddressId", u."ShippingAmount", u."SubTotal", u."SyncedToMahak", u."TaxAmount", u."TotalAmount", u."TrackingNumber", u."UpdatedAt", u."UpdatedBy", u."UserId", a."Id", t."Id", t."CreatedAt", t."CreatedBy", t."Deleted", t."DiscountAmount", t."LastModifiedAt", t."LastModifiedBy", t."MahakClientId", t."MahakId", t."Notes", t."OrderId", t."ProductDescription", t."ProductId", t."ProductName", t."ProductSku", t."Quantity", t."RowVersion", t."TotalPrice", t."UnitPrice", t."UpdatedAt", t."UpdatedBy", t."VariantId", a."AccessFailedCount", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FirstName", a."LastLoginAt", a."LastName", a."LockoutEnabled", a."LockoutEnd", a."MahakPersonClientId", a."MahakPersonId", a."MahakSyncedAt", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "UserOrders" AS u
+INNER JOIN "AspNetUsers" AS a ON u."UserId" = a."Id"
+LEFT JOIN (
+    SELECT u0."Id", u0."CreatedAt", u0."CreatedBy", u0."Deleted", u0."DiscountAmount", u0."LastModifiedAt", u0."LastModifiedBy", u0."MahakClientId", u0."MahakId", u0."Notes", u0."OrderId", u0."ProductDescription", u0."ProductId", u0."ProductName", u0."ProductSku", u0."Quantity", u0."RowVersion", u0."TotalPrice", u0."UnitPrice", u0."UpdatedAt", u0."UpdatedBy", u0."VariantId"
+    FROM "UserOrderItems" AS u0
+    WHERE NOT (u0."Deleted")
+) AS t ON u."Id" = t."OrderId"
+WHERE NOT (u."Deleted") AND NOT (u."SyncedToMahak") AND u."OrderStatus" IN ('Completed', 'Confirmed') AND NOT (u."Deleted")
+ORDER BY u."CreatedAt", u."Id", a."Id" {"EventId": {"Id": 20102, "Name": "Microsoft.EntityFrameworkCore.Database.Command.CommandError"}, "SourceContext": "Microsoft.EntityFrameworkCore.Database.Command", "EnvironmentName": "Development", "ProcessId": 18828}
+12:50:47 [ERR] An exception occurred while iterating over the results of a query for context type 'OnlineShop.Infrastructure.Persistence.ApplicationDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn {"EventId": {"Id": 10100, "Name": "Microsoft.EntityFrameworkCore.Query.QueryIterationFailed"}, "SourceContext": "Microsoft.EntityFrameworkCore.Query", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:50:47 [ERR] Error during outgoing sync to Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at OnlineShop.Infrastructure.Persistence.Repositories.UserOrderRepository.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Persistence\Repositories\UserOrderRepository.cs:line 106
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 104
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.SyncOrdersToMahakAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 66
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:51:47 [INF] Starting outgoing sync to Mahak... {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:16 [INF] MahakSyncWorker running sync at: 02/01/2026 12:52:16 -08:00 {"SourceContext": "OnlineShop.WebAPI.Workers.MahakSyncWorker", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:16 [INF] Starting Mahak Sync... {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:16 [INF] Attempting Mahak login for user: bombonlineshop, MD5 Hash: d2c720c389f8028b280474f37a1ae29c {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:27 [DBG] Login response: {"Result":true,"Data":{"UserToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJNYWhha0lEIjoiM2I0N2JiMDYtODIyZi00ZDhmLWIwNGEtNWEzYTk2NzEyMWFhIiwidXNlclRva2VuIjoie1wiVXNlck5hbWVcIjpcImJvbWJvbmxpbmVzaG9wXCIsXCJQYXNzd29yZFwiOlwiZDJjNzIwYzM4OWY4MDI4YjI4MDQ3NGYzN2ExYWUyOWNcIixcIk1haGFrSURcIjpcIjNiNDdiYjA2LTgyMmYtNGQ4Zi1iMDRhLTVhM2E5NjcxMjFhYVwiLFwiQ3JlYXRlVGltZVwiOlwiMjAyNi0wMi0wMlQwMDoyMjoyNy4wNzg1NjUyKzAzOjMwXCIsXCJJUFwiOlwiNDUuMTMwLjgzLjEwOFwiLFwiRGF0YWJhc2VJZFwiOjI4MDA5OTgsXCJEYXRhYmFzZVR5cGVcIjoxMzAxLFwiU3luY0lkXCI6MCxcIlZpc2l0b3JJZFwiOjQxODc0LFwiTGFuZ3VhZ2VcIjpcImVuLVVTXCIsXCJDcmVkaXREYXlcIjo4MCxcIlBhY2thZ2VOb1wiOjM1NTA2NzF9IiwibmJmIjoxNzY5OTc5MTQ3LCJleHAiOjE3NzA1ODM5NDcsImlhdCI6MTc2OTk3OTE0N30.SrjZxT-UOqgJfvvbCqugLMtWW74QR3IDtCVeJrx66rU","SyncId":0,"VisitorId":41874,"DatabaseId":2800998,"UserTitle":"?????? ??? ???","ServerTime":"2026-02-02T00:22:27.0744195+03:30","MahakId":"3b47bb06-822f-4d8f-b04a-5a3a967121aa","CreditDay":80,"HasRadara":false,"WithDataTransfer":false,"PackageNo":3550671}} {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:27 [INF] Mahak login successful. Token received (length: 708) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:27 [INF] Requesting data from Mahak with RowVersions - Product: 4059210120, ProductDetail: 4059210146, Category: 4028298546 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:27 [INF] Mahak outgoing sync login successful. VisitorId: 41874 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:27 [ERR] Failed executing DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT u."Id", u."ActualDeliveryDate", u."BillingAddressId", u."CancellationReason", u."CancelledAt", u."CreatedAt", u."CreatedBy", u."Currency", u."Deleted", u."DeliveredAt", u."DiscountAmount", u."EstimatedDeliveryDate", u."LastModifiedAt", u."LastModifiedBy", u."MahakClientId", u."MahakId", u."MahakOrderId", u."MahakSyncedAt", u."Notes", u."OrderNumber", u."OrderStatus", u."RowVersion", u."ShippedAt", u."ShippingAddressId", u."ShippingAmount", u."SubTotal", u."SyncedToMahak", u."TaxAmount", u."TotalAmount", u."TrackingNumber", u."UpdatedAt", u."UpdatedBy", u."UserId", a."Id", t."Id", t."CreatedAt", t."CreatedBy", t."Deleted", t."DiscountAmount", t."LastModifiedAt", t."LastModifiedBy", t."MahakClientId", t."MahakId", t."Notes", t."OrderId", t."ProductDescription", t."ProductId", t."ProductName", t."ProductSku", t."Quantity", t."RowVersion", t."TotalPrice", t."UnitPrice", t."UpdatedAt", t."UpdatedBy", t."VariantId", a."AccessFailedCount", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FirstName", a."LastLoginAt", a."LastName", a."LockoutEnabled", a."LockoutEnd", a."MahakPersonClientId", a."MahakPersonId", a."MahakSyncedAt", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "UserOrders" AS u
+INNER JOIN "AspNetUsers" AS a ON u."UserId" = a."Id"
+LEFT JOIN (
+    SELECT u0."Id", u0."CreatedAt", u0."CreatedBy", u0."Deleted", u0."DiscountAmount", u0."LastModifiedAt", u0."LastModifiedBy", u0."MahakClientId", u0."MahakId", u0."Notes", u0."OrderId", u0."ProductDescription", u0."ProductId", u0."ProductName", u0."ProductSku", u0."Quantity", u0."RowVersion", u0."TotalPrice", u0."UnitPrice", u0."UpdatedAt", u0."UpdatedBy", u0."VariantId"
+    FROM "UserOrderItems" AS u0
+    WHERE NOT (u0."Deleted")
+) AS t ON u."Id" = t."OrderId"
+WHERE NOT (u."Deleted") AND NOT (u."SyncedToMahak") AND u."OrderStatus" IN ('Completed', 'Confirmed') AND NOT (u."Deleted")
+ORDER BY u."CreatedAt", u."Id", a."Id" {"EventId": {"Id": 20102, "Name": "Microsoft.EntityFrameworkCore.Database.Command.CommandError"}, "SourceContext": "Microsoft.EntityFrameworkCore.Database.Command", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:27 [ERR] An exception occurred while iterating over the results of a query for context type 'OnlineShop.Infrastructure.Persistence.ApplicationDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn {"EventId": {"Id": 10100, "Name": "Microsoft.EntityFrameworkCore.Query.QueryIterationFailed"}, "SourceContext": "Microsoft.EntityFrameworkCore.Query", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:52:27 [ERR] Error during outgoing sync to Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at OnlineShop.Infrastructure.Persistence.Repositories.UserOrderRepository.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Persistence\Repositories\UserOrderRepository.cs:line 106
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 104
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.SyncOrdersToMahakAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 66
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:52:30 [INF] No categories to process from Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [INF] Processing 8 products from Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updating product: ????? ?????   (MahakId: 8262620) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updating product: ????? ??? 202   (MahakId: 8308737) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updating product: ????? ??? ?? 1101   (MahakId: 8609300) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updating product: ????? ???? ?? 508   (MahakId: 8656742) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updating product: ???? ???? ??? ???   (MahakId: 8609301) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updating product: ????? ??????????   (MahakId: 8262619) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updating product: ????? ??? ?? 1083   (MahakId: 8609299) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updating product: ????? ?????? 204   (MahakId: 8656741) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [INF] Product sync completed: 0 created, 8 updated, 0 errors {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [INF] Processing 51 product details from Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updated price for product 8262619: 9000000.000000000 (7 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updated price for product 8262620: 4000000.000000000 (5 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updated price for product 8308737: 12000000.000000000 (9 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updated price for product 8609299: 15000000.000000000 (6 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updated price for product 8609301: 16000000.000000000 (7 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updated price for product 8609300: 15000000.000000000 (6 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updated price for product 8656741: 14000000.000000000 (6 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Updated price for product 8656742: 17000000.000000000 (5 variants) {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [INF] ProductDetail sync completed: 8 updated, 0 errors {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [INF] No inventory to process from Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [INF] Processing 5 people from Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Person 9898935 ( ) already mapped to local entity da4f5ff8-aee8-41df-b530-7b1595bb3a73 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Person 9898936 ( ) already mapped to local entity d25a36c2-816e-4e85-a209-873bca7b35ec {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Person 9919862 ( ) already mapped to local entity d343f4e1-fbae-45ce-b322-621b285d3658 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Person 9919888 ( ) already mapped to local entity 395c475e-d08a-4d93-80d5-75ea840a3de0 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [DBG] Person 9921681 ( ) already mapped to local entity 07706e13-44ce-4c9a-97db-0c31e7a161ba {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [INF] People sync completed: 0 new, 5 existing, 0 errors {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:30 [INF] Mahak Sync Completed Successfully. {"SourceContext": "OnlineShop.Infrastructure.Services.MahakSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:43 [INF] Request 69cdd76d: GET /fa/product.html from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:43 [INF] Request 69cdd76d completed: 304 in 35ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:43 [INF] Request 1a473e77: GET /.well-known/appspecific/com.chrome.devtools.json from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:43 [INF] Request 1a473e77 completed: 404 in 30ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:43 [INF] Request 64713102: GET /fa/assets/js/pages/product-page.js from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:43 [INF] Request 64713102 completed: 200 in 45ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:43 [INF] Request d2b123f5: GET /fa/assets/js/plugin/swiper/swiper-bundle.min.js.map from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:43 [INF] Request d2b123f5 completed: 404 in 17ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:44 [INF] Request 0281d3c8: GET /api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:44 [INF] Getting product by ID: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IK:0000000C", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:44 [INF] Successfully retrieved product: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IK:0000000C", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:44 [INF] Request 0281d3c8 completed: 200 in 92ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:51 [INF] Request b5a78e5b: GET /fa/product.html from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:51 [INF] Request b5a78e5b completed: 304 in 11ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:51 [INF] Request 6628d04b: GET /.well-known/appspecific/com.chrome.devtools.json from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:51 [INF] Request 6628d04b completed: 404 in 13ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:51 [INF] Request 3f3201df: GET /fa/assets/js/pages/product-page.js from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:51 [INF] Request 3f3201df completed: 200 in 31ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:52 [INF] Request 92cca20e: GET /fa/assets/js/plugin/swiper/swiper-bundle.min.js.map from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:52 [INF] Request 92cca20e completed: 404 in 22ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:52 [INF] Request 6be3c645: GET /api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:52 [INF] Getting product by ID: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IJ:00000014", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:52 [INF] Successfully retrieved product: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IJ:00000014", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:52 [INF] Request 6be3c645 completed: 200 in 51ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:53 [INF] Request 0ef0bf02: GET /api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:53 [INF] Request 35ad31af: GET /api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:53 [INF] Request 0ef0bf02 completed: 404 in 31ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:52:53 [INF] Request 35ad31af completed: 404 in 49ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:07 [INF] Request f8547a05: GET /fa/product.html from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:07 [INF] Request f8547a05 completed: 304 in 14ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/product.html", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:07 [INF] Request a255ea61: GET /fa/assets/js/pages/product-page.js from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:07 [INF] Request 6eb8bcbe: GET /.well-known/appspecific/com.chrome.devtools.json from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:07 [INF] Request a255ea61 completed: 200 in 41ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/pages/product-page.js", "ConnectionId": "0HNJ1QCH104IJ", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:07 [INF] Request 6eb8bcbe completed: 404 in 62ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/.well-known/appspecific/com.chrome.devtools.json", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:07 [INF] Request 930e118e: GET /fa/assets/js/plugin/swiper/swiper-bundle.min.js.map from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:07 [INF] Request 930e118e completed: 404 in 19ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/fa/assets/js/plugin/swiper/swiper-bundle.min.js.map", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:08 [INF] Request 2bfa49ee: GET /api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:08 [INF] Getting product by ID: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IK:00000014", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:08 [INF] Successfully retrieved product: 217f7f4d-ee71-4006-bb39-f5e30c48430a {"SourceContext": "OnlineShop.WebAPI.Controllers.ProductController", "ActionId": "e27f4ac6-183a-40fa-b9da-8ec7f2019173", "ActionName": "OnlineShop.WebAPI.Controllers.ProductController.GetById (OnlineShop.WebAPI)", "RequestId": "0HNJ1QCH104IK:00000014", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:08 [INF] Request 2bfa49ee completed: 200 in 40ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/Product/217f7f4d-ee71-4006-bb39-f5e30c48430a", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:08 [INF] Request 7f31109a: GET /api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:08 [INF] Request 538fc4de: GET /api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg from ::1 - UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 - AuthHeaderPresent: False {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:08 [INF] Request 7f31109a completed: 404 in 40ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711596-89e258c0-cbaf-4165-9690-349c8c6a1c1b.jpg", "ConnectionId": "0HNJ1QCH104IK", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:08 [INF] Request 538fc4de completed: 404 in 53ms {"SourceContext": "OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware", "RequestPath": "/api/v3/Content/Images/all/pic-1711597-b3a8ab0f-0e12-4d73-b918-c4cbced79303.jpg", "ConnectionId": "0HNJ1QCH104II", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:27 [INF] Starting outgoing sync to Mahak... {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:28 [INF] Mahak outgoing sync login successful. VisitorId: 41874 {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:28 [ERR] Failed executing DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT u."Id", u."ActualDeliveryDate", u."BillingAddressId", u."CancellationReason", u."CancelledAt", u."CreatedAt", u."CreatedBy", u."Currency", u."Deleted", u."DeliveredAt", u."DiscountAmount", u."EstimatedDeliveryDate", u."LastModifiedAt", u."LastModifiedBy", u."MahakClientId", u."MahakId", u."MahakOrderId", u."MahakSyncedAt", u."Notes", u."OrderNumber", u."OrderStatus", u."RowVersion", u."ShippedAt", u."ShippingAddressId", u."ShippingAmount", u."SubTotal", u."SyncedToMahak", u."TaxAmount", u."TotalAmount", u."TrackingNumber", u."UpdatedAt", u."UpdatedBy", u."UserId", a."Id", t."Id", t."CreatedAt", t."CreatedBy", t."Deleted", t."DiscountAmount", t."LastModifiedAt", t."LastModifiedBy", t."MahakClientId", t."MahakId", t."Notes", t."OrderId", t."ProductDescription", t."ProductId", t."ProductName", t."ProductSku", t."Quantity", t."RowVersion", t."TotalPrice", t."UnitPrice", t."UpdatedAt", t."UpdatedBy", t."VariantId", a."AccessFailedCount", a."ConcurrencyStamp", a."CreatedAt", a."Email", a."EmailConfirmed", a."FirstName", a."LastLoginAt", a."LastName", a."LockoutEnabled", a."LockoutEnd", a."MahakPersonClientId", a."MahakPersonId", a."MahakSyncedAt", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+FROM "UserOrders" AS u
+INNER JOIN "AspNetUsers" AS a ON u."UserId" = a."Id"
+LEFT JOIN (
+    SELECT u0."Id", u0."CreatedAt", u0."CreatedBy", u0."Deleted", u0."DiscountAmount", u0."LastModifiedAt", u0."LastModifiedBy", u0."MahakClientId", u0."MahakId", u0."Notes", u0."OrderId", u0."ProductDescription", u0."ProductId", u0."ProductName", u0."ProductSku", u0."Quantity", u0."RowVersion", u0."TotalPrice", u0."UnitPrice", u0."UpdatedAt", u0."UpdatedBy", u0."VariantId"
+    FROM "UserOrderItems" AS u0
+    WHERE NOT (u0."Deleted")
+) AS t ON u."Id" = t."OrderId"
+WHERE NOT (u."Deleted") AND NOT (u."SyncedToMahak") AND u."OrderStatus" IN ('Completed', 'Confirmed') AND NOT (u."Deleted")
+ORDER BY u."CreatedAt", u."Id", a."Id" {"EventId": {"Id": 20102, "Name": "Microsoft.EntityFrameworkCore.Database.Command.CommandError"}, "SourceContext": "Microsoft.EntityFrameworkCore.Database.Command", "EnvironmentName": "Development", "ProcessId": 18828}
+12:53:28 [ERR] An exception occurred while iterating over the results of a query for context type 'OnlineShop.Infrastructure.Persistence.ApplicationDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn {"EventId": {"Id": 10100, "Name": "Microsoft.EntityFrameworkCore.Query.QueryIterationFailed"}, "SourceContext": "Microsoft.EntityFrameworkCore.Query", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
+12:53:28 [ERR] Error during outgoing sync to Mahak {"SourceContext": "OnlineShop.Infrastructure.Services.MahakOutgoingSyncService", "EnvironmentName": "Development", "ProcessId": 18828}
+Npgsql.PostgresException (0x80004005): 42703: column u0.VariantId does not exist
+
+POSITION: 1782
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at OnlineShop.Infrastructure.Persistence.Repositories.UserOrderRepository.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Persistence\Repositories\UserOrderRepository.cs:line 106
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.GetUnsyncedOrdersAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 104
+   at OnlineShop.Infrastructure.Services.MahakOutgoingSyncService.SyncOrdersToMahakAsync(CancellationToken cancellationToken) in C:\Users\arman\source\repos\OnlineShop\src\Infrastructure\Services\MahakOutgoingSyncService.cs:line 66
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u0.VariantId does not exist
+    Position: 1782
+    File: parse_relation.c
+    Line: 3827
+    Routine: errorMissingColumn
