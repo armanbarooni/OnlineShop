@@ -46,10 +46,10 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetAll
                 new ProductDto { Id = Guid.NewGuid(), Name = "Product 2", Price = 200m }
             };
 
-            _repositoryMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(products);
+            _repositoryMock.Setup(r => r.GetQueryableWithIncludesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(products.AsQueryable());
 
-            _mapperMock.Setup(m => m.Map<IEnumerable<ProductDto>>(products))
+            _mapperMock.Setup(m => m.Map<List<ProductDto>>(It.IsAny<List<OnlineShop.Domain.Entities.Product>>()))
                 .Returns(productDtos);
 
             // Act
@@ -58,11 +58,11 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetAll
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
-            result.Data.Should().HaveCount(2);
-            result.Data.First().Name.Should().Be("Product 1");
+            result.Data.Items.Should().HaveCount(2);
+            result.Data.Items.First().Name.Should().Be("Product 1");
 
-            _repositoryMock.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
-            _mapperMock.Verify(m => m.Map<IEnumerable<ProductDto>>(products), Times.Once);
+            _repositoryMock.Verify(r => r.GetQueryableWithIncludesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _mapperMock.Verify(m => m.Map<List<ProductDto>>(It.IsAny<List<OnlineShop.Domain.Entities.Product>>()), Times.Once);
         }
 
         [Fact]
@@ -72,10 +72,10 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetAll
             var query = new GetAllProductsQuery();
             var emptyList = new List<OnlineShop.Domain.Entities.Product>();
 
-            _repositoryMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(emptyList);
+            _repositoryMock.Setup(r => r.GetQueryableWithIncludesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(emptyList.AsQueryable());
 
-            _mapperMock.Setup(m => m.Map<IEnumerable<ProductDto>>(emptyList))
+            _mapperMock.Setup(m => m.Map<List<ProductDto>>(It.IsAny<List<OnlineShop.Domain.Entities.Product>>()))
                 .Returns(new List<ProductDto>());
 
             // Act
@@ -84,9 +84,9 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetAll
             // Assert
             result.Should().NotBeNull();
             result.IsSuccess.Should().BeTrue();
-            result.Data.Should().BeEmpty();
+            result.Data.Items.Should().BeEmpty();
 
-            _repositoryMock.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(r => r.GetQueryableWithIncludesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace OnlineShop.Application.Tests.Features.Product.Queries.GetAll
             // Arrange
             var query = new GetAllProductsQuery();
 
-            _repositoryMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+            _repositoryMock.Setup(r => r.GetQueryableWithIncludesAsync(It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("Database error"));
 
             // Act

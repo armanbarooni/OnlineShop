@@ -142,6 +142,7 @@ namespace OnlineShop.Application.Tests.Domain
             var cartItem = OnlineShop.Domain.Entities.CartItem.Create(
                 cartId,
                 productId,
+                variantId: null,
                 quantity: 2,
                 unitPrice: 1000,
                 totalPrice: 2000
@@ -164,6 +165,7 @@ namespace OnlineShop.Application.Tests.Domain
             var cartItem = OnlineShop.Domain.Entities.CartItem.Create(
                 Guid.NewGuid(),
                 Guid.NewGuid(),
+                variantId: null,
                 quantity: 2,
                 unitPrice: 1000,
                 totalPrice: 2000
@@ -192,6 +194,7 @@ namespace OnlineShop.Application.Tests.Domain
             var cartItem = OnlineShop.Domain.Entities.CartItem.Create(
                 Guid.NewGuid(),
                 Guid.NewGuid(),
+                variantId: null,
                 quantity: 2,
                 unitPrice: 1000,
                 totalPrice: 2000
@@ -211,6 +214,7 @@ namespace OnlineShop.Application.Tests.Domain
             var cartItem = OnlineShop.Domain.Entities.CartItem.Create(
                 Guid.NewGuid(),
                 Guid.NewGuid(),
+                variantId: null,
                 quantity: 2,
                 unitPrice: 1000,
                 totalPrice: 2000
@@ -228,6 +232,7 @@ namespace OnlineShop.Application.Tests.Domain
             var cartItem = OnlineShop.Domain.Entities.CartItem.Create(
                 Guid.NewGuid(),
                 Guid.NewGuid(),
+                variantId: null,
                 quantity: 2,
                 unitPrice: 1000,
                 totalPrice: 2000
