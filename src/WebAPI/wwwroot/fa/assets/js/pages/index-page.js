@@ -6,8 +6,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // Wait for all services to load
     if (typeof window.apiClient === 'undefined' || 
-        typeof window.productService === 'undefined' || 
-        typeof window.categoryService === 'undefined') {
+        typeof window.productService === 'undefined') {
         if (window.logger) {
             window.logger.error('Required services not loaded');
         } else {
@@ -49,6 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load categories
 async function loadCategories() {
     try {
+        if (!window.categoryService) return;
         const result = await window.categoryService.getAllCategories();
         if (result.success && result.data) {
             renderCategories(result.data);
@@ -95,6 +95,14 @@ async function loadFeaturedProducts() {
         const products = extractProducts(result);
         if (products.length > 0) {
             renderProducts(products, 'featuredProducts');
+            return;
+        }
+
+        // Direct fallback against the known backend shape
+        const fallback = await window.apiClient.get('/Product/search?sortBy=Sales&sortDescending=true&pageNumber=1&pageSize=8');
+        const fallbackProducts = extractProducts(fallback);
+        if (fallbackProducts.length > 0) {
+            renderProducts(fallbackProducts, 'featuredProducts');
             return;
         }
 
@@ -148,9 +156,25 @@ function findProductContainer(containerId) {
 }
 
 function extractProducts(result) {
-    if (!result || !result.success || !result.data) return [];
+    if (!result) return [];
 
-    const payload = result.data;
+    // Normalize mixed response envelopes:
+    // - { success, data }
+    // - { isSuccess, data }
+    // - apiClient envelope: { success:true, data:{ isSuccess:true, data:{...} } }
+    // - direct payload: { products:{ items:[...] } }
+    let payload = result;
+
+    if (result.data !== undefined) {
+        payload = result.data;
+    }
+    if (payload && payload.data !== undefined && (payload.isSuccess === true || payload.success === true)) {
+        payload = payload.data;
+    }
+
+    if (result.success === false || result.isSuccess === false) return [];
+    if (!payload) return [];
+
     if (Array.isArray(payload)) return payload;
     if (Array.isArray(payload.products)) return payload.products;
     if (payload.products && Array.isArray(payload.products.items)) return payload.products.items;
