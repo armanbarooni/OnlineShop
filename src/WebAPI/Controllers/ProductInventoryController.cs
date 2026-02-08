@@ -80,85 +80,10 @@ namespace OnlineShop.WebAPI.Controllers
             return NotFound(result);
         }
 
-        // Compatibility endpoint expected by integration tests: POST /api/productinventory/update
-        // Accepts { ProductId, Quantity, Operation } and will create/update inventory as appropriate.
-        [HttpPost("update")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateByProduct([FromBody] InventoryUpdateRequestDto dto, CancellationToken cancellationToken = default)
-        {
-            if (dto == null)
-            {
-                return BadRequest(new { Message = "Invalid request" });
-            }
-
-            if (dto.Quantity < 0)
-            {
-                return BadRequest(new { Message = "Quantity cannot be negative" });
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Operation))
-            {
-                return BadRequest(new { Message = "Operation is required" });
-            }
-
-            // Try to find existing inventory by product id
-            var existing = await _mediator.Send(new GetProductInventoryByProductIdQuery { ProductId = dto.ProductId }, cancellationToken);
-
-            if (!existing.IsSuccess || existing.Data == null)
-            {
-                // No existing inventory - create if operation allows
-                if (dto.Operation.Equals("Increase", StringComparison.OrdinalIgnoreCase) || dto.Operation.Equals("Set", StringComparison.OrdinalIgnoreCase))
-                {
-                    var createDto = new CreateProductInventoryDto
-                    {
-                        ProductId = dto.ProductId,
-                        AvailableQuantity = dto.Quantity,
-                        ReservedQuantity = 0,
-                        SoldQuantity = 0
-                    };
-
-                    var createResult = await _mediator.Send(new CreateProductInventoryCommand { ProductInventory = createDto }, cancellationToken);
-                    if (createResult.IsSuccess)
-                        return CreatedAtAction(nameof(GetById), new { id = createResult.Data?.Id }, createResult);
-
-                    return BadRequest(createResult);
-                }
-
-                return NotFound(new { Message = "Inventory not found" });
-            }
-
-            // Update existing inventory
-            var current = existing.Data;
-            var updateDto = new UpdateProductInventoryDto();
-            updateDto.Id = current.Id; // ignored in JSON, but used by command mapping
-            updateDto.AvailableQuantity = current.AvailableQuantity;
-            updateDto.ReservedQuantity = current.ReservedQuantity;
-            updateDto.SoldQuantity = current.Quantity - current.AvailableQuantity; // best-effort mapping
-
-            if (dto.Operation.Equals("Increase", StringComparison.OrdinalIgnoreCase))
-            {
-                updateDto.AvailableQuantity = current.AvailableQuantity + dto.Quantity;
-            }
-            else if (dto.Operation.Equals("Decrease", StringComparison.OrdinalIgnoreCase))
-            {
-                updateDto.AvailableQuantity = Math.Max(0, current.AvailableQuantity - dto.Quantity);
-            }
-            else if (dto.Operation.Equals("Set", StringComparison.OrdinalIgnoreCase))
-            {
-                updateDto.AvailableQuantity = dto.Quantity;
-            }
-            else
-            {
-                return BadRequest(new { Message = "Invalid operation" });
-            }
-
-            var updateResult = await _mediator.Send(new UpdateProductInventoryCommand { ProductInventory = updateDto }, cancellationToken);
-            if (updateResult.IsSuccess)
-                return Ok(updateResult);
-
-            return BadRequest(updateResult);
-        }
-
+        /*
+         * Legacy POST /api/productinventory/update action commented out to avoid duplicate Swagger path.
+         * Use the UpdateByProduct endpoint defined below (same route) or give this one a different route if re-enabled.
+         */
         [HttpGet("low-stock")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetLowStock([FromQuery] int threshold = 10, CancellationToken cancellationToken = default)
@@ -400,3 +325,6 @@ namespace OnlineShop.WebAPI.Controllers
         }
     }
 }
+
+
+
