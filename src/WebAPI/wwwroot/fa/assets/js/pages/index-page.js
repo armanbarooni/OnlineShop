@@ -26,13 +26,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             await window.categoryService.renderMegaMenu('mega-menu-list-container');
         }
         
-        // Load featured products
+        // Load featured products (main home carousel)
         await loadFeaturedProducts();
         
-        // Load new products
+        // Load optional sections if corresponding containers exist
         await loadNewProducts();
-        
-        // Load best selling products
         await loadBestSellingProducts();
         
         // Load brands
@@ -94,26 +92,27 @@ function renderCategories(categories) {
 async function loadFeaturedProducts() {
     try {
         const result = await window.productService.getFeaturedProducts(8);
-        if (result.success && result.data) {
-            const products = result.data.products || result.data;
-            if (Array.isArray(products) && products.length > 0) {
-                renderProducts(products, 'featuredProducts');
-            }
+        const products = extractProducts(result);
+        if (products.length > 0) {
+            renderProducts(products, 'featuredProducts');
+            return;
         }
+
+        renderProductsState('featuredProducts', 'محصولی برای نمایش یافت نشد');
     } catch (error) {
         window.logger.error('Error loading featured products:', error);
+        renderProductsState('featuredProducts', 'خطا در دریافت محصولات');
     }
 }
 
 // Load new products
 async function loadNewProducts() {
     try {
+        if (!findProductContainer('newProducts')) return;
         const result = await window.productService.getNewProducts(8);
-        if (result.success && result.data) {
-            const products = result.data.products || result.data;
-            if (Array.isArray(products) && products.length > 0) {
-                renderProducts(products, 'newProducts');
-            }
+        const products = extractProducts(result);
+        if (products.length > 0) {
+            renderProducts(products, 'newProducts');
         }
     } catch (error) {
         window.logger.error('Error loading new products:', error);
@@ -123,35 +122,61 @@ async function loadNewProducts() {
 // Load best selling products
 async function loadBestSellingProducts() {
     try {
+        if (!findProductContainer('bestSellingProducts')) return;
         const result = await window.productService.getBestSellingProducts(8);
-        if (result.success && result.data) {
-            const products = result.data.products || result.data;
-            if (Array.isArray(products) && products.length > 0) {
-                renderProducts(products, 'bestSellingProducts');
-            }
+        const products = extractProducts(result);
+        if (products.length > 0) {
+            renderProducts(products, 'bestSellingProducts');
         }
     } catch (error) {
         window.logger.error('Error loading best selling products:', error);
     }
 }
 
-// Render products
-function renderProducts(products, containerId) {
+function findProductContainer(containerId) {
     let container = document.getElementById(containerId);
     if (!container) {
-        // Try to find by data attribute or class
         container = document.querySelector(`[data-products="${containerId}"]`);
         if (!container) {
-            // Try to find swiper wrapper for product sections
-            const swipers = document.querySelectorAll('.swiper-wrapper');
-            if (swipers.length > 0) {
-                // Use first swiper wrapper as fallback
-                container = swipers[0];
-            } else {
-                return;
+            // Fallback: homepage main product carousel for featured products
+            if (containerId === 'featuredProducts') {
+                container = document.querySelector('.product-carousel .swiper-wrapper');
             }
         }
     }
+    return container || null;
+}
+
+function extractProducts(result) {
+    if (!result || !result.success || !result.data) return [];
+
+    const payload = result.data;
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload.products)) return payload.products;
+    if (payload.products && Array.isArray(payload.products.items)) return payload.products.items;
+    if (Array.isArray(payload.items)) return payload.items;
+    if (payload.data && Array.isArray(payload.data)) return payload.data;
+
+    return [];
+}
+
+function renderProductsState(containerId, message) {
+    const container = findProductContainer(containerId);
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="swiper-slide px-1.5 py-2">
+            <article class="bg-white product-box-item drop-shadow-md rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1">
+                <p class="text-center text-gray-500 dark:text-gray-300 py-16">${message}</p>
+            </article>
+        </div>
+    `;
+}
+
+// Render products
+function renderProducts(products, containerId) {
+    const container = findProductContainer(containerId);
+    if (!container) return;
 
     if (!Array.isArray(products) || products.length === 0) return;
 
@@ -171,9 +196,16 @@ function renderProducts(products, containerId) {
 
 // Create product card HTML
 function createProductCard(product) {
-    const imageUrl = (product.productImages && product.productImages.length > 0) 
-        ? product.productImages[0].imageUrl 
-        : (product.imageUrl || 'assets/images/product/mobile-1.png');
+    const primaryImage = Array.isArray(product.images)
+        ? (product.images.find(i => i && i.isPrimary) || product.images[0])
+        : null;
+    const galleryImage = (product.productImages && product.productImages.length > 0)
+        ? product.productImages[0]
+        : null;
+    const rawImageUrl = primaryImage?.imageUrl || galleryImage?.imageUrl || product.imageUrl || '';
+    const imageUrl = rawImageUrl
+        ? (rawImageUrl.startsWith('http') ? rawImageUrl : `${window.location.origin}${rawImageUrl}`)
+        : 'assets/images/product/mobile-1.png';
     const price = product.price || 0;
     const originalPrice = product.originalPrice || price;
     const discount = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
@@ -204,7 +236,7 @@ function createProductCard(product) {
                 <div class="flex items-center justify-between mt-3">
                     <div class="flex flex-col">
                         ${discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ''}
-                        <span class="text-lg font-bold text-primary">${formatPrice(price)} طھظˆظ…ط§ظ†</span>
+                        <span class="text-lg font-bold text-primary">${formatPrice(price)} تومان</span>
                     </div>
                     <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -305,10 +337,7 @@ async function performSearch(query) {
             pageSize: 5
         });
 
-        if (result.success && result.data) {
-            const products = result.data.products || result.data;
-            renderSearchResults(Array.isArray(products) ? products : []);
-        }
+        renderSearchResults(extractProducts(result));
     } catch (error) {
         window.logger.error('Error searching:', error);
     }
@@ -326,15 +355,22 @@ function renderSearchResults(products) {
     }
 
     const html = products.map(product => {
-        const imageUrl = (product.productImages && product.productImages.length > 0) 
-            ? product.productImages[0].imageUrl 
+        const primaryImage = Array.isArray(product.images)
+            ? (product.images.find(i => i && i.isPrimary) || product.images[0])
+            : null;
+        const galleryImage = (product.productImages && product.productImages.length > 0)
+            ? product.productImages[0]
+            : null;
+        const rawImageUrl = primaryImage?.imageUrl || galleryImage?.imageUrl || '';
+        const imageUrl = rawImageUrl
+            ? (rawImageUrl.startsWith('http') ? rawImageUrl : `${window.location.origin}${rawImageUrl}`)
             : 'assets/images/product/mobile-1.png';
         return `
             <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
                 <img src="${imageUrl}" alt="${product.name || 'محصول'}" class="w-16 h-16 object-contain rounded me-3">
                 <div class="flex-1">
                     <h4 class="font-semibold text-sm dark:text-white">${product.name || 'محصول'}</h4>
-                    <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} طھظˆظ…ط§ظ†</p>
+                    <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} تومان</p>
                 </div>
             </a>
         `;
