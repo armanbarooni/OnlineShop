@@ -290,6 +290,27 @@ namespace OnlineShop.Infrastructure.Services
 
                         existingProduct.SetName(mahakProduct.Name);
                         existingProduct.SetDescription(mahakProduct.Description ?? "");
+
+                        // Link product to category when the Mahak category mapping exists.
+                        if (mahakProduct.ProductCategoryId > 0)
+                        {
+                            var categoryMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                                "ProductCategory",
+                                mahakProduct.ProductCategoryId,
+                                cancellationToken);
+
+                            if (categoryMapping != null)
+                            {
+                                existingProduct.SetCategoryId(categoryMapping.LocalEntityId);
+                            }
+                            else
+                            {
+                                _logger.LogWarning(
+                                    "Category mapping not found for Mahak ProductCategoryId {CategoryId} while updating product {ProductId}",
+                                    mahakProduct.ProductCategoryId,
+                                    mahakProduct.ProductId);
+                            }
+                        }
                         
                         // Note: Price and stock will be updated from ProductDetail and ProductDetailStoreAsset
                         // For now, we just update basic info
@@ -311,6 +332,27 @@ namespace OnlineShop.Infrastructure.Services
                             mahakClientId: mahakProduct.ProductClientId,
                             mahakId: mahakProduct.ProductId
                         );
+
+                        // Link product to category when the Mahak category mapping exists.
+                        if (mahakProduct.ProductCategoryId > 0)
+                        {
+                            var categoryMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                                "ProductCategory",
+                                mahakProduct.ProductCategoryId,
+                                cancellationToken);
+
+                            if (categoryMapping != null)
+                            {
+                                newProduct.SetCategoryId(categoryMapping.LocalEntityId);
+                            }
+                            else
+                            {
+                                _logger.LogWarning(
+                                    "Category mapping not found for Mahak ProductCategoryId {CategoryId} while creating product {ProductId}",
+                                    mahakProduct.ProductCategoryId,
+                                    mahakProduct.ProductId);
+                            }
+                        }
 
                         // Set additional properties
                         if (!string.IsNullOrEmpty(mahakProduct.UnitName))
@@ -575,6 +617,23 @@ namespace OnlineShop.Infrastructure.Services
                         {
                             variant.SetStockQuantity(inv.Quantity);
                             await _productVariantRepository.UpdateAsync(variant, cancellationToken);
+                        }
+                    }
+                    else
+                    {
+                        // Fallback: variants created from ProductDetail use "PD-{ProductDetailId}" SKU.
+                        var fallbackSku = $"PD-{inv.ProductDetailId}";
+                        var variantBySku = await _productVariantRepository.GetBySKUAsync(fallbackSku, cancellationToken);
+                        if (variantBySku != null)
+                        {
+                            variantBySku.SetStockQuantity(inv.Quantity);
+                            await _productVariantRepository.UpdateAsync(variantBySku, cancellationToken);
+
+                            var newVariantMapping = MahakMapping.Create(
+                                entityType: "ProductVariant",
+                                localEntityId: variantBySku.Id,
+                                mahakEntityId: inv.ProductDetailId);
+                            await _mahakMappingRepository.AddAsync(newVariantMapping, cancellationToken);
                         }
                     }
                 }
