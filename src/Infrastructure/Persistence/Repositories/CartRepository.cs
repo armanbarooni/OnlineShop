@@ -76,19 +76,6 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task UpdateAsync(Guid cartId, Action<Cart> mutate, CancellationToken ct)
-        {
-            var cart = await _context.Carts
-                .FirstOrDefaultAsync(x => x.Id == cartId, ct);
-
-            if (cart is null)
-                throw new CartNotFoundException();
-
-            mutate(cart);
-
-            await _context.SaveChangesAsync(ct);
-        }
-
         public async Task UpdateAsync(Cart cart, CancellationToken cancellationToken)
         {
             var cartEntry = _context.Entry(cart);
