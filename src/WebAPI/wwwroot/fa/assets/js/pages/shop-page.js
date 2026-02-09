@@ -4,25 +4,6 @@
 
 // Initialize shop page
 document.addEventListener("DOMContentLoaded", async () => {
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "shop-page.js:6",
-      message: "DOMContentLoaded fired for shop page",
-      data: {
-        apiClientExists: !!window.apiClient,
-        productServiceExists: !!window.productService,
-        categoryServiceExists: !!window.categoryService,
-      },
-      timestamp: Date.now(),
-      sessionId: "debug-session",
-      runId: "run1",
-      hypothesisId: "A",
-    }),
-  }).catch(() => {});
-  // #endregion
   // Wait for all services to load
   if (
     typeof window.apiClient === "undefined" ||
@@ -53,12 +34,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
+    // Load categories
+    await loadCategories();
+
+    // Load mega menu categories
+    const megaMenuContainer = document.getElementById(
+      "mega-menu-list-container",
+    );
+    if (megaMenuContainer && window.categoryService) {
+      await window.categoryService.renderMegaMenu("mega-menu-list-container");
+    }
     // Parse URL Parameters
     const urlParams = new URLSearchParams(window.location.search);
     const categoryId = urlParams.get("category");
     const searchQuery = urlParams.get("search") || urlParams.get("q");
     // #region agent log
-    fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
+    fetch("http:// .0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -657,4 +648,53 @@ window.addToWishlist = async function (productId) {
 // Show error message
 function showError(message, container) {
   container.innerHTML = `<div class="col-span-full text-center py-10"><p class="text-red-500">${message}</p></div>`;
+}
+
+// Load categories
+async function loadCategories() {
+  try {
+    if (!window.categoryService) return;
+    const result = await window.categoryService.getAllCategories();
+    if (result.success && result.data) {
+      renderCategories(result.data);
+    }
+  } catch (error) {
+    if (window.logger) {
+      window.logger.error("Error loading categories:", error);
+    } else {
+      console.error("Error loading categories:", error);
+    }
+  }
+}
+
+// Render categories
+function renderCategories(categories) {
+  const categoryContainer = document.querySelector("[data-categories]");
+  if (!categoryContainer) return;
+
+  const limitedCategories = Array.isArray(categories)
+    ? categories.slice(0, 8)
+    : [];
+  if (limitedCategories.length === 0) return;
+
+  const html = limitedCategories
+    .map(
+      (category) => `
+        <a href="shop.html?category=${category.id}" class="lg:col-span-3 sm:col-span-6 col-span-12 w-full block">
+            <article class="flex py-2 px-3 rounded-xl border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800">
+                <section class="space-y-2">
+                    <h3 class="text-lg font-bold dark:text-white">${category.name || "دسته‌بندی"}</h3>
+                    <span class="text-xs font-light text-neutral-500">${category.description || ""}</span>
+                </section>
+                <figure>
+                    <img src="${category.imageUrl || "assets/images/category/digitall.png"}" 
+                         class="size-20" loading="lazy" alt="${category.name || "دسته‌بندی"}">
+                </figure>
+            </article>
+        </a>
+    `,
+    )
+    .join("");
+
+  categoryContainer.innerHTML = html;
 }
