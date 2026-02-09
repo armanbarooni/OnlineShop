@@ -3,322 +3,403 @@
  */
 
 // Initialize product page
-document.addEventListener('DOMContentLoaded', async () => {
-    // Wait for all services to load
-    if (typeof window.apiClient === 'undefined' || 
-        typeof window.productService === 'undefined') {
-        if (window.logger) {
-            window.logger.error('Required services not loaded');
-        } else {
-            console.error('Required services not loaded');
-        }
-        return;
+document.addEventListener("DOMContentLoaded", async () => {
+  // Wait for all services to load
+  if (
+    typeof window.apiClient === "undefined" ||
+    typeof window.productService === "undefined"
+  ) {
+    if (window.logger) {
+      window.logger.error("Required services not loaded");
+    } else {
+      console.error("Required services not loaded");
+    }
+    return;
+  }
+
+  try {
+    // Load categories
+    await loadCategories();
+
+    // Load mega menu categories
+    const megaMenuContainer = document.getElementById(
+      "mega-menu-list-container",
+    );
+    if (megaMenuContainer && window.categoryService) {
+      await window.categoryService.renderMegaMenu("mega-menu-list-container");
     }
 
-    try {
-        // Parse product ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const productId = urlParams.get('id');
+    // Parse product ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get("id");
 
-        if (!productId) {
-            // No id in query string: load a default product from API.
-            await loadDefaultProduct();
-            return;
-        }
-
-        // Load product data
-        await loadProduct(productId);
-    } catch (error) {
-        if (window.logger) {
-            window.logger.error('Error initializing product page:', error);
-        } else {
-            console.error('Error initializing product page:', error);
-        }
-        showError('خطا در بارگذاری صفحه محصول');
+    if (!productId) {
+      // No id in query string: load a default product from API.
+      await loadDefaultProduct();
+      return;
     }
+
+    // Load product data
+    await loadProduct(productId);
+  } catch (error) {
+    if (window.logger) {
+      window.logger.error("Error initializing product page:", error);
+    } else {
+      console.error("Error initializing product page:", error);
+    }
+    showError("خطا در بارگذاری صفحه محصول");
+  }
 });
 
 async function loadDefaultProduct() {
-    try {
-        showLoading();
+  try {
+    showLoading();
 
-        const result = await window.productService.getAllProducts();
-        const products = Array.isArray(result.data)
-            ? result.data
-            : (
-                result.data && Array.isArray(result.data.items)
-                    ? result.data.items
-                    : (result.data && Array.isArray(result.data.products) ? result.data.products : [])
-              );
-        if (!result.success || products.length === 0) {
-            showError(result.error || 'No products available');
-            return;
-        }
-        const withImages = products.find(p => Array.isArray(p.productImages) && p.productImages.length > 0);
-        renderProduct(withImages || products[0]);
-    } catch (error) {
-        if (window.logger) {
-            window.logger.error('Error loading default product:', error);
-        } else {
-            console.error('Error loading default product:', error);
-        }
-        showError('Error loading default product');
-    } finally {
-        hideLoading();
+    const result = await window.productService.getAllProducts();
+    const products = Array.isArray(result.data)
+      ? result.data
+      : result.data && Array.isArray(result.data.items)
+        ? result.data.items
+        : result.data && Array.isArray(result.data.products)
+          ? result.data.products
+          : [];
+    if (!result.success || products.length === 0) {
+      showError(result.error || "No products available");
+      return;
     }
+    const withImages = products.find(
+      (p) => Array.isArray(p.productImages) && p.productImages.length > 0,
+    );
+    renderProduct(withImages || products[0]);
+  } catch (error) {
+    if (window.logger) {
+      window.logger.error("Error loading default product:", error);
+    } else {
+      console.error("Error loading default product:", error);
+    }
+    showError("Error loading default product");
+  } finally {
+    hideLoading();
+  }
 }
 // Load product by ID
 async function loadProduct(productId) {
-    try {
-        showLoading();
-        
-        const result = await window.productService.getProductById(productId);
-        
-        if (result.success && result.data) {
-            renderProduct(result.data);
-        } else {
-            showError(result.error || 'محصول یافت نشد');
-        }
-    } catch (error) {
-        if (window.logger) {
-            window.logger.error('Error loading product:', error);
-        } else {
-            console.error('Error loading product:', error);
-        }
-        showError('خطا در دریافت اطلاعات محصول');
-    } finally {
-        hideLoading();
+  try {
+    showLoading();
+
+    const result = await window.productService.getProductById(productId);
+
+    if (result.success && result.data) {
+      renderProduct(result.data);
+      hideLoading(); // ✅ فقط بعد از render کامل
+    } else {
+      showError(result.error || "محصول یافت نشد");
     }
+  } catch (error) {
+    if (window.logger) {
+      window.logger.error("Error loading product:", error);
+    } else {
+      console.error("Error loading product:", error);
+    }
+    showError("خطا در دریافت اطلاعات محصول");
+  } finally {
+    hideLoading();
+  }
 }
 
 // Render product data
 function renderProduct(product) {
-    // Product title
-    const titleFa = document.getElementById('product-title-fa');
-    if (titleFa) titleFa.textContent = product.name || 'محصول بدون نام';
+  // Product title
+  const titleFa = document.getElementById("product-title-fa");
+  if (titleFa) titleFa.textContent = product.name || "محصول بدون نام";
 
-    const titleEn = document.getElementById('product-title-en');
-    if (titleEn) titleEn.textContent = product.englishTitle || product.name || '';
+  const titleEn = document.getElementById("product-title-en");
+  if (titleEn) titleEn.textContent = product.englishTitle || product.name || "";
 
-    // Breadcrumb
-    const breadcrumbTitle = document.getElementById('breadcrumb-product-title');
-    if (breadcrumbTitle) breadcrumbTitle.textContent = product.name || 'محصول';
+  // Breadcrumb
+  const breadcrumbTitle = document.getElementById("breadcrumb-product-title");
+  if (breadcrumbTitle) breadcrumbTitle.textContent = product.name || "محصول";
 
-    // Price
-    renderPrice(product);
+  // Price
+  renderPrice(product);
 
-    // Images/Gallery
-    renderGallery(product);
+  // Images/Gallery
+  renderGallery(product);
 
-    // Description
-    renderDescription(product);
+  // Description
+  renderDescription(product);
 
-    // Specifications
-    renderSpecifications(product);
+  // Specifications
+  renderSpecifications(product);
 }
 
 // Render product price
 function renderPrice(product) {
-    const currentPriceEl = document.getElementById('product-current-price');
-    const oldPriceEl = document.getElementById('product-old-price');
-    const discountBadge = document.getElementById('product-discount-badge');
+  const currentPriceEl = document.getElementById("product-current-price");
+  const oldPriceEl = document.getElementById("product-old-price");
+  const discountBadge = document.getElementById("product-discount-badge");
 
-    const price = product.price || 0;
-    const salePrice = product.salePrice || null;
-    const finalPrice = salePrice || price;
+  const price = product.price || 0;
+  const salePrice = product.salePrice || null;
+  const finalPrice = salePrice || price;
 
-    if (currentPriceEl) {
-        currentPriceEl.textContent = formatPrice(finalPrice);
+  if (currentPriceEl) {
+    currentPriceEl.textContent = formatPrice(finalPrice);
+  }
+
+  // Show discount if sale price exists
+  if (salePrice && salePrice < price) {
+    if (oldPriceEl) {
+      oldPriceEl.textContent = formatPrice(price);
+      oldPriceEl.classList.remove("hidden");
     }
-
-    // Show discount if sale price exists
-    if (salePrice && salePrice < price) {
-        if (oldPriceEl) {
-            oldPriceEl.textContent = formatPrice(price);
-            oldPriceEl.classList.remove('hidden');
-        }
-        if (discountBadge) {
-            const discountPercent = Math.round(((price - salePrice) / price) * 100);
-            discountBadge.textContent = `${discountPercent}%`;
-            discountBadge.classList.remove('hidden');
-        }
-    } else {
-        if (oldPriceEl) oldPriceEl.classList.add('hidden');
-        if (discountBadge) discountBadge.classList.add('hidden');
+    if (discountBadge) {
+      const discountPercent = Math.round(((price - salePrice) / price) * 100);
+      discountBadge.textContent = `${discountPercent}%`;
+      discountBadge.classList.remove("hidden");
     }
+  } else {
+    if (oldPriceEl) oldPriceEl.classList.add("hidden");
+    if (discountBadge) discountBadge.classList.add("hidden");
+  }
 }
 
 // Render product gallery
 function renderGallery(product) {
-    const images = pickImages(product);
-        
-    if (images.length === 0) {
-        // Use placeholder if no images
-        images.push({
-            imageUrl: 'assets/images/product/mobile-1.png'
-        });
-    }
+  const images = pickImages(product);
 
-    const gallery1 = document.querySelector('#productGalleryOne .swiper-wrapper');
-    const gallery2 = document.querySelector('#productGalleryTwo .swiper-wrapper');
+  if (images.length === 0) {
+    // Use placeholder if no images
+    images.push({
+      imageUrl: "assets/images/product/nophotos.png",
+    });
+  }
 
-    const slidesHtml = images.map(img => {
-        const url = normalizeImageUrl(img.imageUrl || img);
-        return `
+  const gallery1 = document.querySelector("#productGalleryOne .swiper-wrapper");
+  const gallery2 = document.querySelector("#productGalleryTwo .swiper-wrapper");
+
+  const slidesHtml = images
+    .map((img) => {
+      const url = normalizeImageUrl(img.imageUrl || img);
+      return `
         <div class="swiper-slide !pe-1 cursor-pointer">
-            <img src="${url}" alt="${product.name || 'محصول'}" 
+            <img src="${url}" alt="${product.name || "محصول"}" 
                  class="rounded-lg border border-gray-300 p-2 w-full object-cover"
-                 onerror="this.src='assets/images/product/mobile-1.png'">
+                 onerror="this.src='assets/images/product/nophoto.png'">
         </div>
     `;
-    }).join('');
+    })
+    .join("");
 
-    if (gallery1) gallery1.innerHTML = slidesHtml;
-    if (gallery2) gallery2.innerHTML = slidesHtml;
+  if (gallery1) gallery1.innerHTML = slidesHtml;
+  if (gallery2) gallery2.innerHTML = slidesHtml;
 
-    // Reinitialize swiper if needed
-    if (window.swiperInstances) {
-        Object.values(window.swiperInstances).forEach(swiper => {
-            if (swiper && typeof swiper.update === 'function') {
-                swiper.update();
-            }
-        });
-    }
+  // Reinitialize swiper if needed
+  if (window.swiperInstances) {
+    Object.values(window.swiperInstances).forEach((swiper) => {
+      if (swiper && typeof swiper.update === "function") {
+        swiper.update();
+      }
+    });
+  }
 }
 
 function pickImages(product) {
-    if (Array.isArray(product.productImages) && product.productImages.length) return product.productImages;
-    if (Array.isArray(product.images) && product.images.length) return product.images;
-    return [];
+  if (Array.isArray(product.productImages) && product.productImages.length)
+    return product.productImages;
+  if (Array.isArray(product.images) && product.images.length)
+    return product.images;
+  return [];
 }
 
 function normalizeImageUrl(url) {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    if (url.startsWith('/')) return `${window.location.origin}${url}`;
-    return url;
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  if (url.startsWith("/")) return `https://mahakacc.mahaksoft.com${url}`;
+  return url;
 }
 
 function getProductColor(product) {
-    if (product.color) return product.color;
-    const variant = Array.isArray(product.variants) ? product.variants[0] : null;
-    if (variant?.color) return variant.color;
-    if (variant?.attributes?.color) return variant.attributes.color;
-    return null;
+  if (product.color) return product.color;
+  const variant = Array.isArray(product.variants) ? product.variants[0] : null;
+  if (variant?.color) return variant.color;
+  if (variant?.attributes?.color) return variant.attributes.color;
+  return null;
 }
 
 function getProductSize(product) {
-    if (product.size) return product.size;
-    const variant = Array.isArray(product.variants) ? product.variants[0] : null;
-    if (variant?.size) return variant.size;
-    if (variant?.attributes?.size) return variant.attributes.size;
-    return null;
+  if (product.size) return product.size;
+  const variant = Array.isArray(product.variants) ? product.variants[0] : null;
+  if (variant?.size) return variant.size;
+  if (variant?.attributes?.size) return variant.attributes.size;
+  return null;
 }
 
 // Render product description
 function renderDescription(product) {
-    // Update Intro tab content
-    const introTab = document.getElementById('Intro');
-    const descText = product.description && product.description.trim().length > 0
-        ? product.description
-        : 'توضیحات این محصول به‌زودی تکمیل می‌شود.';
-    if (introTab) {
-        const descriptionPara = introTab.querySelector('p');
-        if (descriptionPara) {
-            descriptionPara.textContent = descText;
-        }
+  // Update Intro tab content
+  const introTab = document.getElementById("Intro");
+  const descText =
+    product.description && product.description.trim().length > 0
+      ? product.description
+      : "توضیحات این محصول به‌زودی تکمیل می‌شود.";
+  if (introTab) {
+    const descriptionPara = introTab.querySelector("p");
+    if (descriptionPara) {
+      descriptionPara.textContent = descText;
     }
+  }
 
-    // Update features list
-    const featuresList = document.getElementById('product-features-list');
-    if (featuresList && descText) {
-        // Split description by newlines or create list items
-        const features = descText.split('\n').filter(f => f.trim());
-        if (features.length > 0) {
-            featuresList.innerHTML = features.map(feature => `
+  // Update features list
+  const featuresList = document.getElementById("product-features-list");
+  if (featuresList && descText) {
+    // Split description by newlines or create list items
+    const features = descText.split("\n").filter((f) => f.trim());
+    if (features.length > 0) {
+      featuresList.innerHTML = features
+        .map(
+          (feature) => `
                 <li class="flex items-center space-x-3">
                     <span class="inline-block text-base">${feature.trim()}</span>
                 </li>
-            `).join('');
-        }
+            `,
+        )
+        .join("");
     }
+  }
 }
 
 // Render product specifications
 function renderSpecifications(product) {
-    // Update Specifications tab content
-    const specsTab = document.getElementById('Specifications');
-    if (!specsTab) return;
+  // Update Specifications tab content
+  const specsTab = document.getElementById("Specifications");
+  if (!specsTab) return;
 
-    const specs = [];
-    const categoryName = product.category?.name || product.categoryName || product.category || '-';
-    const brandName = product.brand?.name || product.brandName || product.brand || '-';
-    const sku = product.sku || '-';
-    const color = getProductColor(product) || '-';
-    const size = getProductSize(product) || '-';
-    
-    specs.push({ label: 'دسته‌بندی', value: categoryName });
-    specs.push({ label: 'برند', value: brandName });
-    specs.push({ label: 'کد محصول', value: sku });
-    specs.push({ label: 'رنگ', value: color });
-    specs.push({ label: 'سایز', value: size });
-    if (product.weight) {
-        specs.push({ label: 'وزن', value: `${product.weight} گرم` });
-    }
-    if (product.dimensions) {
-        specs.push({ label: 'ابعاد', value: product.dimensions });
-    }
-    if (product.stockQuantity !== undefined) {
-        specs.push({ label: 'موجودی', value: product.stockQuantity > 0 ? `${product.stockQuantity} عدد` : 'ناموجود' });
-    }
+  const specs = [];
+  const categoryName =
+    product.category?.name || product.categoryName || product.category || "-";
+  const brandName =
+    product.brand?.name || product.brandName || product.brand || "-";
+  const sku = product.sku || "-";
+  const color = getProductColor(product) || "-";
+  const size = getProductSize(product) || "-";
 
-    if (specs.length > 0) {
-        const specsDiv = specsTab.querySelector('div.space-y-5 > div');
-        if (specsDiv) {
-            specsDiv.innerHTML = `
+  specs.push({ label: "دسته‌بندی", value: categoryName });
+  specs.push({ label: "برند", value: brandName });
+  specs.push({ label: "کد محصول", value: sku });
+  specs.push({ label: "رنگ", value: color });
+  specs.push({ label: "سایز", value: size });
+  if (product.weight) {
+    specs.push({ label: "وزن", value: `${product.weight} گرم` });
+  }
+  if (product.dimensions) {
+    specs.push({ label: "ابعاد", value: product.dimensions });
+  }
+  if (product.stockQuantity !== undefined) {
+    specs.push({
+      label: "موجودی",
+      value:
+        product.stockQuantity > 0 ? `${product.stockQuantity} عدد` : "ناموجود",
+    });
+  }
+
+  if (specs.length > 0) {
+    const specsDiv = specsTab.querySelector("div.space-y-5 > div");
+    if (specsDiv) {
+      specsDiv.innerHTML = `
                 <h2 class="text-2xl pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:start-0 before:h-1 before:w-22 before:bg-primary-500 before:rounded dark:text-white">مشخصات محصول</h2>
                 <div class="space-y-3">
-                    ${specs.map(spec => `
+                    ${specs
+                      .map(
+                        (spec) => `
                         <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-600">
                             <span class="font-medium text-gray-700 dark:text-gray-300">${spec.label}:</span>
                             <span class="text-gray-600 dark:text-gray-400">${spec.value}</span>
                         </div>
-                    `).join('')}
+                    `,
+                      )
+                      .join("")}
                 </div>
             `;
-        }
     }
+  }
 }
 
 // Format price
 function formatPrice(price) {
-    return new Intl.NumberFormat('fa-IR').format(Math.round(price));
+  return new Intl.NumberFormat("fa-IR").format(Math.round(price));
 }
 
 // Show loading state
 function showLoading() {
-    const loadingEl = document.getElementById('product-loading');
-    if (loadingEl) loadingEl.classList.remove('hidden');
+  document.getElementById("product-loading")?.classList.remove("hidden");
+  document.getElementById("product-content")?.classList.add("hidden");
 }
 
 // Hide loading state
 function hideLoading() {
-    const loadingEl = document.getElementById('product-loading');
-    if (loadingEl) loadingEl.classList.add('hidden');
+  document.getElementById("product-loading")?.classList.add("hidden");
+  document.getElementById("product-content")?.classList.remove("hidden");
 }
 
 // Show error message
 function showError(message) {
-    const errorEl = document.getElementById('product-error');
-    if (errorEl) {
-        errorEl.textContent = message;
-        errorEl.classList.remove('hidden');
-    } else if (window.utils && window.utils.showToast) {
-        window.utils.showToast(message, 'error');
-    } else {
-        alert(message);
-    }
+  const errorEl = document.getElementById("product-error");
+  if (errorEl) {
+    errorEl.textContent = message;
+    errorEl.classList.remove("hidden");
+  } else if (window.utils && window.utils.showToast) {
+    window.utils.showToast(message, "error");
+  } else {
+    alert(message);
+  }
 }
 
+// Load categories
+async function loadCategories() {
+  try {
+    if (!window.categoryService) return;
+    const result = await window.categoryService.getAllCategories();
+    if (result.success && result.data) {
+      renderCategories(result.data);
+    }
+  } catch (error) {
+    if (window.logger) {
+      window.logger.error("Error loading categories:", error);
+    } else {
+      console.error("Error loading categories:", error);
+    }
+  }
+}
 
+// Render categories
+function renderCategories(categories) {
+  const categoryContainer = document.querySelector("[data-categories]");
+  if (!categoryContainer) return;
 
+  const limitedCategories = Array.isArray(categories)
+    ? categories.slice(0, 8)
+    : [];
+  if (limitedCategories.length === 0) return;
+
+  const html = limitedCategories
+    .map(
+      (category) => `
+        <a href="shop.html?category=${category.id}" class="lg:col-span-3 sm:col-span-6 col-span-12 w-full block">
+            <article class="flex py-2 px-3 rounded-xl border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800">
+                <section class="space-y-2">
+                    <h3 class="text-lg font-bold dark:text-white">${category.name || "دسته‌بندی"}</h3>
+                    <span class="text-xs font-light text-neutral-500">${category.description || ""}</span>
+                </section>
+                <figure>
+                    <img src="${category.imageUrl || "assets/images/category/digitall.png"}" 
+                         class="size-20" loading="lazy" alt="${category.name || "دسته‌بندی"}">
+                </figure>
+            </article>
+        </a>
+    `,
+    )
+    .join("");
+
+  categoryContainer.innerHTML = html;
+}
