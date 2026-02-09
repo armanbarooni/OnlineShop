@@ -10,26 +10,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     typeof window.productService === "undefined" ||
     typeof window.categoryService === "undefined"
   ) {
-    // #region agent log
-    fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "shop-page.js:10",
-        message: "Required services missing",
-        data: {},
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run1",
-        hypothesisId: "A",
-      }),
-    }).catch(() => {});
-    // #endregion
-    if (window.logger) {
-      window.logger.error("Required services not loaded");
-    } else {
-      console.error("Required services not loaded");
-    }
     return;
   }
 
@@ -48,21 +28,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const categoryId = urlParams.get("category");
     const searchQuery = urlParams.get("search") || urlParams.get("q");
-    // #region agent log
-    fetch("http:// .0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "shop-page.js:22",
-        message: "URL params parsed",
-        data: { categoryId, searchQuery },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run1",
-        hypothesisId: "C",
-      }),
-    }).catch(() => {});
-    // #endregion
 
     // Load products
     await loadProducts(categoryId, searchQuery);
@@ -77,52 +42,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Load products based on category or search
 async function loadProducts(categoryId, searchQuery) {
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "shop-page.js:37",
-      message: "loadProducts called",
-      data: { categoryId, searchQuery },
-      timestamp: Date.now(),
-      sessionId: "debug-session",
-      runId: "run1",
-      hypothesisId: "C",
-    }),
-  }).catch(() => {});
-  // #endregion
   const gridContainer = document.getElementById("shop-products-grid");
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "shop-page.js:39",
-      message: "Grid container check",
-      data: { containerFound: !!gridContainer },
-      timestamp: Date.now(),
-      sessionId: "debug-session",
-      runId: "run1",
-      hypothesisId: "B",
-    }),
-  }).catch(() => {});
-  // #endregion
+
   if (!gridContainer) {
     // #region agent log
-    fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "shop-page.js:41",
-        message: "Grid container not found",
-        data: {},
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run1",
-        hypothesisId: "B",
-      }),
-    }).catch(() => {});
+
     // #endregion
     return;
   }
@@ -135,45 +59,9 @@ async function loadProducts(categoryId, searchQuery) {
     let result;
 
     if (categoryId) {
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "shop-page.js:50",
-            message: "Loading products by category",
-            data: { categoryId },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run1",
-            hypothesisId: "C",
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
       // Load products by category (categoryId is Guid string)
       result = await window.productService.getProductsByCategory(categoryId);
     } else if (searchQuery) {
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "shop-page.js:54",
-            message: "Searching products",
-            data: { searchQuery },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run1",
-            hypothesisId: "C",
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
       // Search products
       result = await window.productService.searchProducts({
         searchTerm: searchQuery,
@@ -181,88 +69,29 @@ async function loadProducts(categoryId, searchQuery) {
         pageSize: 20,
       });
     } else {
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "shop-page.js:63",
-            message: "Loading all products",
-            data: {},
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run1",
-            hypothesisId: "C",
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
       // Load all products
       result = await window.productService.getAllProducts();
     }
-    // #region agent log
-    fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "shop-page.js:68",
-        message: "Products API response",
-        data: {
-          hasSuccess: result.success !== undefined,
-          success: result.success,
-          hasData: !!result.data,
-          dataType: typeof result.data,
-          isArray: Array.isArray(result),
-          isDataArray: Array.isArray(result.data),
-          productsCount:
-            result.data?.products?.length ||
-            result.data?.items?.length ||
-            (Array.isArray(result.data) ? result.data.length : 0),
-        },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run1",
-        hypothesisId: "C",
-      }),
-    }).catch(() => {});
-    // #endregion
 
     if (result.success !== undefined) {
       // Result has success property
       if (result.success && result.data) {
-        // #region agent log
-        fetch(
-          "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              location: "shop-page.js:94",
-              message: "Processing result.data",
-              data: {
-                hasProducts: !!result.data.products,
-                hasItems: !!result.data.items,
-                productsIsObject:
-                  typeof result.data.products === "object" &&
-                  result.data.products !== null,
-                productsHasItems: !!(
-                  result.data.products && result.data.products.items
-                ),
-                isDataArray: Array.isArray(result.data),
-                dataKeys: Object.keys(result.data || {}),
-                dataType: typeof result.data,
-              },
-              timestamp: Date.now(),
-              sessionId: "debug-session",
-              runId: "run1",
-              hypothesisId: "C",
-            }),
-          },
-        ).catch(() => {});
-        // #endregion
         // Handle different response structures
+
+        console.log(result.data, "1-data");
+        if (result.data.availableColors) {
+          renderColors(result.data.availableColors);
+        }
+
+        if (result.data.availableSizes) {
+          renderSizes(result.data.availableSizes);
+        }
+
+        if (result.data.priceRanges) {
+          renderPriceFilter(result.data.priceRanges);
+          initPriceSlider();
+        }
+
         let products = [];
         if (result.data.products) {
           // products is an object with items property
@@ -279,117 +108,19 @@ async function loadProducts(categoryId, searchQuery) {
         } else if (Array.isArray(result.data)) {
           products = result.data;
         }
-        // #region agent log
-        fetch(
-          "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              location: "shop-page.js:108",
-              message: "Extracted products array",
-              data: {
-                productsIsArray: Array.isArray(products),
-                productsCount: products.length,
-                firstProductId: products[0]?.id,
-              },
-              timestamp: Date.now(),
-              sessionId: "debug-session",
-              runId: "run1",
-              hypothesisId: "C",
-            }),
-          },
-        ).catch(() => {});
-        // #endregion
+
         if (Array.isArray(products)) {
           renderProducts(products, gridContainer);
         } else {
-          // #region agent log
-          fetch(
-            "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                location: "shop-page.js:130",
-                message: "Products is not array",
-                data: { productsType: typeof products },
-                timestamp: Date.now(),
-                sessionId: "debug-session",
-                runId: "run1",
-                hypothesisId: "C",
-              }),
-            },
-          ).catch(() => {});
-          // #endregion
           showError("فرمت محصولات نامعتبر است", gridContainer);
         }
       } else {
-        // #region agent log
-        fetch(
-          "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              location: "shop-page.js:78",
-              message: "Products load failed",
-              data: { error: result.error },
-              timestamp: Date.now(),
-              sessionId: "debug-session",
-              runId: "run1",
-              hypothesisId: "C",
-            }),
-          },
-        ).catch(() => {});
-        // #endregion
         showError(result.error || "خطا در دریافت محصولات", gridContainer);
       }
     } else if (Array.isArray(result)) {
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "shop-page.js:120",
-            message: "Result is array",
-            data: { productsCount: result.length },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run1",
-            hypothesisId: "C",
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
       // Result is directly an array
       renderProducts(result, gridContainer);
     } else if (result.data) {
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "shop-page.js:124",
-            message: "Result has data property",
-            data: {
-              hasProducts: !!result.data.products,
-              productsHasItems: !!(
-                result.data.products && result.data.products.items
-              ),
-            },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run1",
-            hypothesisId: "C",
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
       // Result has data property - handle paginated response
       let products = [];
       if (
@@ -405,66 +136,16 @@ async function loadProducts(categoryId, searchQuery) {
       } else if (Array.isArray(result.data)) {
         products = result.data;
       }
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "shop-page.js:133",
-            message: "Extracted from result.data",
-            data: { productsCount: products.length },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run1",
-            hypothesisId: "C",
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
+
       if (Array.isArray(products) && products.length > 0) {
         renderProducts(products, gridContainer);
       } else {
         showError("محصولی یافت نشد", gridContainer);
       }
     } else {
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "shop-page.js:139",
-            message: "Invalid response format",
-            data: { resultKeys: Object.keys(result || {}) },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            runId: "run1",
-            hypothesisId: "C",
-          }),
-        },
-      ).catch(() => {});
-      // #endregion
       showError("فرمت پاسخ نامعتبر است", gridContainer);
     }
   } catch (error) {
-    // #region agent log
-    fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "shop-page.js:94",
-        message: "Error loading products",
-        data: { error: error.message, stack: error.stack },
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run1",
-        hypothesisId: "C",
-      }),
-    }).catch(() => {});
-    // #endregion
     if (window.logger) {
       window.logger.error("Error loading products:", error);
     } else {
@@ -476,37 +157,7 @@ async function loadProducts(categoryId, searchQuery) {
 
 // Render products in grid
 function renderProducts(products, container) {
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "shop-page.js:100",
-      message: "renderProducts called",
-      data: { productsCount: products.length, containerExists: !!container },
-      timestamp: Date.now(),
-      sessionId: "debug-session",
-      runId: "run1",
-      hypothesisId: "B",
-    }),
-  }).catch(() => {});
-  // #endregion
   if (!products || products.length === 0) {
-    // #region agent log
-    fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        location: "shop-page.js:102",
-        message: "No products to render",
-        data: {},
-        timestamp: Date.now(),
-        sessionId: "debug-session",
-        runId: "run1",
-        hypothesisId: "B",
-      }),
-    }).catch(() => {});
-    // #endregion
     container.innerHTML =
       '<div class="col-span-full text-center py-10"><p class="text-gray-500">محصولی یافت نشد</p></div>';
     return;
@@ -514,29 +165,24 @@ function renderProducts(products, container) {
 
   const html = products.map((product) => createProductCard(product)).join("");
   container.innerHTML = html;
-  // #region agent log
-  fetch("http://127.0.0.1:7242/ingest/5362cd3a-92d5-4b0b-8c4b-a9589c1b35a7", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "shop-page.js:109",
-      message: "Products rendered",
-      data: { renderedCount: products.length, htmlLength: html.length },
-      timestamp: Date.now(),
-      sessionId: "debug-session",
-      runId: "run1",
-      hypothesisId: "B",
-    }),
-  }).catch(() => {});
-  // #endregion
 }
 
 // Create product card HTML
 function createProductCard(product) {
-  const imageUrl =
+  const primaryImage = Array.isArray(product.images)
+    ? product.images.find((i) => i && i.isPrimary) || product.images[0]
+    : null;
+  const galleryImage =
     product.productImages && product.productImages.length > 0
-      ? product.productImages[0].imageUrl
-      : product.imageUrl || "assets/images/product/nophoto.png";
+      ? product.productImages[0]
+      : null;
+  const rawImageUrl =
+    primaryImage?.imageUrl || galleryImage?.imageUrl || product.imageUrl || "";
+  const imageUrl = rawImageUrl
+    ? rawImageUrl.startsWith("http")
+      ? rawImageUrl
+      : `https://mahakacc.mahaksoft.com${rawImageUrl}`
+    : "assets/images/product/nophoto.png";
   const price = product.price || product.unitPrice || 0;
   const salePrice = product.salePrice || null;
   const finalPrice = salePrice || price;
@@ -697,4 +343,229 @@ function renderCategories(categories) {
     .join("");
 
   categoryContainer.innerHTML = html;
+}
+
+function renderColors(sizes) {
+  const container = document.getElementById("product-colors-container");
+  if (!container) return;
+
+  if (!Array.isArray(sizes) || sizes.length === 0) {
+    container.innerHTML = `<p class="text-sm text-gray-400">سایزی برای این محصول موجود نیست</p>`;
+    return;
+  }
+
+  const html = sizes
+    .map((size, index) => {
+      const id = `size-${size.id || index}`;
+      const name = size.name || size.title || size;
+
+      return `
+        <div class="flex items-center">
+          <input
+            type="radio"
+            name="productSize"
+            id="${id}"
+            value="${name}"
+            class="hidden peer"
+          />
+          <label
+            for="${id}"
+            class="select-none dark:!text-white cursor-pointer flex items-center justify-center rounded-full border-2 border-gray-200 py-1 px-3 text-gray-700 transition-colors duration-200 ease-in-out
+                   peer-checked:text-gray-900 peer-checked:border-primary-500"
+          >
+            <span class="dir-ltr">${name}</span>
+          </label>
+        </div>
+      `;
+    })
+    .join("");
+
+  container.innerHTML = html;
+}
+
+function renderSizes(sizes) {
+  const container = document.getElementById("product-sizes-container");
+  if (!container) return;
+
+  if (!Array.isArray(sizes) || sizes.length === 0) {
+    container.innerHTML = `<p class="text-sm text-gray-400">سایزی برای این محصول موجود نیست</p>`;
+    return;
+  }
+
+  const html = sizes
+    .map((size, index) => {
+      const id = `product-size-${size.id || index}`;
+      const title = size.name || size.title || size;
+
+      return `
+        <div class="relative space-x-2 flex-wrap flex items-center">
+          <label class="inline-flex items-center space-x-3 cursor-pointer">
+            <input
+              type="checkbox"
+              id="${id}"
+              name="productSizes"
+              value="${title}"
+              class="hidden peer"
+            />
+            <div
+              class="w-5 h-5 border rounded bg-white border-gray-400
+                     peer-checked:bg-blue-600 peer-checked:border-blue-600
+                     flex items-center justify-center transition-all shadow-sm"
+            >
+              <svg
+                class="w-4 h-4 text-white hidden peer-checked:block"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4 4.5a.75.75 0 0 1-1.08.02l-2-2a.75.75 0 0 1 1.08-1.04l1.47 1.47 3.46-3.98z"
+                ></path>
+              </svg>
+            </div>
+            <span class="me-2 text-gray-700 dark:text-white">
+              ${title}
+            </span>
+          </label>
+        </div>
+      `;
+    })
+    .join("");
+
+  container.innerHTML = html;
+}
+
+function renderPriceFilter(priceRanges) {
+  const container = document.getElementById("price-filter-container");
+  if (!container) return;
+
+  if (!Array.isArray(priceRanges) || priceRanges.length === 0) {
+    container.innerHTML = `<p class="text-sm text-gray-400">فیلتر قیمتی موجود نیست</p>`;
+    return;
+  }
+
+  const minPrice = Math.min(...priceRanges.map((p) => p.minPrice));
+  const maxPrice = Math.max(...priceRanges.map((p) => p.maxPrice));
+
+  container.innerHTML = `
+  
+
+    <div class="p-4 rounded-lg space-y-4 mx-auto">
+        <div class="flex items-baseline gap-4">
+          <div class="flex-1">
+            <input
+              type="text"
+              id="min-price-input"
+              value="${formatPrice(minPrice)}"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-zinc-900 text-center"
+              disabled
+            />
+            <strong class="block text-center mt-3">تومان</strong>
+          </div>
+
+          <span class="text-gray-500 block">تا</span>
+
+          <div class="flex-1">
+            <input
+              type="text"
+              id="max-price-input"
+              value="${formatPrice(maxPrice)}"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-zinc-900 text-center"
+              disabled
+            />
+            <strong class="block text-center mt-3">تومان</strong>
+          </div>
+        </div>
+
+        <div
+          class="slider-container"
+          data-min="${minPrice}"
+          data-max="${maxPrice}"
+        >
+          <div class="slider-track"></div>
+          <div class="slider-range"></div>
+          <div class="slider-thumb min-thumb"></div>
+          <div class="slider-thumb max-thumb"></div>
+        </div>
+      </div>
+  `;
+}
+
+function initPriceSlider() {
+  const slider = document.querySelector(".slider-container");
+  if (!slider) return;
+
+  const minThumb = slider.querySelector(".min-thumb");
+  const maxThumb = slider.querySelector(".max-thumb");
+  const range = slider.querySelector(".slider-range");
+
+  const minInput = document.querySelector(".min-input");
+  const maxInput = document.querySelector(".max-input");
+
+  // ✅ جلوگیری از crash (علت اصلی ارور قبلی)
+  if (!minThumb || !maxThumb || !range || !minInput || !maxInput) {
+    console.warn("initPriceSlider: required elements not found");
+    return;
+  }
+
+  const min = Number(slider.dataset.min);
+  const max = Number(slider.dataset.max);
+
+  if (Number.isNaN(min) || Number.isNaN(max)) {
+    console.warn("initPriceSlider: invalid min/max values");
+    return;
+  }
+
+  let minVal = min;
+  let maxVal = max;
+
+  function percent(value) {
+    return ((value - min) / (max - min)) * 100;
+  }
+
+  function updateUI() {
+    const minPercent = percent(minVal);
+    const maxPercent = percent(maxVal);
+
+    minThumb.style.left = minPercent + "%";
+    maxThumb.style.left = maxPercent + "%";
+
+    range.style.left = minPercent + "%";
+    range.style.right = 100 - maxPercent + "%";
+
+    minInput.value = formatPrice(Math.round(minVal));
+    maxInput.value = formatPrice(Math.round(maxVal));
+  }
+
+  function startDrag(isMin) {
+    function onMove(e) {
+      const rect = slider.getBoundingClientRect();
+      const x = Math.min(Math.max(e.clientX - rect.left, 0), rect.width);
+
+      const value = min + (x / rect.width) * (max - min);
+
+      if (isMin) {
+        minVal = Math.min(Math.max(min, value), maxVal);
+      } else {
+        maxVal = Math.max(Math.min(max, value), minVal);
+      }
+
+      updateUI();
+    }
+
+    function onUp() {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    }
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  }
+
+  minThumb.addEventListener("mousedown", () => startDrag(true));
+  maxThumb.addEventListener("mousedown", () => startDrag(false));
+
+  // ✅ مقداردهی اولیه
+  updateUI();
 }
