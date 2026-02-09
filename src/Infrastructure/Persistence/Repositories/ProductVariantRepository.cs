@@ -14,7 +14,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         }
 
         public Task<ProductVariant?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-            => _context.ProductVariants.AsNoTracking().Include(pv => pv.Product).FirstOrDefaultAsync(pv => pv.Id == id && !pv.Deleted, cancellationToken);
+            => _context.ProductVariants.AsNoTracking().FirstOrDefaultAsync(pv => pv.Id == id && !pv.Deleted, cancellationToken);
 
         public Task<List<ProductVariant>> GetAllAsync(CancellationToken cancellationToken = default)
             => _context.ProductVariants.AsNoTracking().Where(pv => !pv.Deleted).OrderBy(pv => pv.DisplayOrder).ToListAsync(cancellationToken);
@@ -36,7 +36,20 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
 
         public async Task UpdateAsync(ProductVariant variant, CancellationToken cancellationToken = default)
         {
-            _context.ProductVariants.Update(variant);
+            // Avoid graph re-attachment conflicts (Product/ProductVariant already tracked in the same DbContext).
+            // Update only the variant scalar state.
+            var local = _context.ProductVariants.Local.FirstOrDefault(v => v.Id == variant.Id);
+            if (local != null)
+            {
+                _context.Entry(local).CurrentValues.SetValues(variant);
+                _context.Entry(local).State = EntityState.Modified;
+            }
+            else
+            {
+                _context.ProductVariants.Attach(variant);
+                _context.Entry(variant).State = EntityState.Modified;
+            }
+
             await _context.SaveChangesAsync(cancellationToken);
         }
 
@@ -52,4 +65,6 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         }
     }
 }
+
+
 
