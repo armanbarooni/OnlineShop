@@ -876,9 +876,9 @@
                     رنگ ها
                   </h2>
                   <div
-                    class="relative space-x-2 flex-wrap flex items-center w-full"
+                    class="relative space-x-2 flex-wrap flex items-center w-full" id="product-colors-container"
                   >
-                    <div class="flex items-center">
+                    <!-- <div class="flex items-center">
                       <input
                         type="radio"
                         name="color"
@@ -890,24 +890,10 @@
                         class="select-none dark:!text-white cursor-pointer flex items-center justify-center rounded-full border-2 border-gray-200 py-1 px-3 text-gray-700 transition-colors duration-200 ease-in-out peer-checked:text-gray-900 peer-checked:border-primary-500"
                       >
                         <span class="size-4 bg-green-600 rounded-full"></span>
-                        <span class="dir-ltr ms-2">سبز</span>
+                        <span class="dir-ltr ms-2"></span>
                       </label>
-                    </div>
-                    <div class="flex items-center">
-                      <input
-                        type="radio"
-                        name="color"
-                        id="blueColor"
-                        class="hidden peer"
-                      />
-                      <label
-                        for="blueColor"
-                        class="select-none dark:!text-white cursor-pointer flex items-center justify-center rounded-full border-2 border-gray-200 py-1 px-3 text-gray-700 transition-colors duration-200 ease-in-out peer-checked:text-gray-900 peer-checked:border-primary-500"
-                      >
-                        <span class="size-4 bg-blue-600 rounded-full"></span>
-                        <span class="dir-ltr ms-2">ابی</span>
-                      </label>
-                    </div>
+                    </div> -->
+                   
                   </div>
                 </div>
               </section>
@@ -924,53 +910,24 @@
                   <div
                     class="relative space-x-2 flex-wrap flex items-center w-full"
                   >
-                    <div class="price-filter">
-                      <div class="p-4 rounded-lg space-y-4 mx-auto">
-                        <div class="flex items-baseline gap-4">
-                          <div class="flex-1">
-                            <input
-                              type="text"
-                              class="min-input w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-zinc-900 text-center"
-                              disabled
-                            />
-                            <strong class="block text-center mt-3"
-                              >تومان</strong
-                            >
-                          </div>
-                          <span class="text-gray-500 block">تا</span>
-                          <div class="flex-1">
-                            <input
-                              type="text"
-                              class="max-input w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-zinc-900 text-center bg-gray-100"
-                              disabled
-                            />
-                            <strong class="block text-center mt-3"
-                              >تومان</strong
-                            >
-                          </div>
-                        </div>
-                        <div class="slider-container">
-                          <div class="slider-track"></div>
-                          <div class="slider-range"></div>
-                          <div class="slider-thumb min-thumb"></div>
-                          <div class="slider-thumb max-thumb"></div>
-                        </div>
-                      </div>
+                    <div id="price-filter-container" class="price-filter">
+                     
                     </div>
                   </div>
                 </div>
               </section>
-              <!-- brand -->
+              <!-- size -->
               <section>
                 <div
+                
                   class="dark:bg-zinc-900 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4"
                 >
                   <h2
                     class="font-bold text-lg mb-4 relative pb-4 before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg"
                   >
-                    برند ها
+                    سایز ها
                   </h2>
-                  <div class="space-y-3">
+                  <div class="space-y-3" id="product-sizes-container">
                     <div
                       class="relative space-x-2 flex-wrap flex items-center w-full"
                     >
@@ -998,60 +955,7 @@
                         >
                       </label>
                     </div>
-                    <div
-                      class="relative space-x-2 flex-wrap flex items-center w-full"
-                    >
-                      <label
-                        class="inline-flex items-center space-x-3 cursor-pointer"
-                      >
-                        <input type="checkbox" class="hidden peer" />
-                        <div
-                          class="w-5 h-5 border rounded bg-white border-gray-400 peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center transition-all shadow-sm"
-                        >
-                          <svg
-                            class="w-4 h-4 text-white peer-checked:block"
-                            fill="currentColor"
-                            viewBox="0 0 16 16"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              fill-rule="evenodd"
-                              d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4 4.5a.75.75 0 0 1-1.08.02l-2-2a.75.75 0 0 1 1.08-1.04l1.47 1.47 3.46-3.98z"
-                            ></path>
-                          </svg>
-                        </div>
-                        <span class="me-2 text-gray-700 dark:text-white"
-                          >اپل</span
-                        >
-                      </label>
-                    </div>
-                    <div
-                      class="relative space-x-2 flex-wrap flex items-center w-full"
-                    >
-                      <label
-                        class="inline-flex items-center space-x-3 cursor-pointer"
-                      >
-                        <input type="checkbox" class="hidden peer" />
-                        <div
-                          class="w-5 h-5 border rounded bg-white border-gray-400 peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center transition-all shadow-sm"
-                        >
-                          <svg
-                            class="w-4 h-4 text-white peer-checked:block"
-                            fill="currentColor"
-                            viewBox="0 0 16 16"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              fill-rule="evenodd"
-                              d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4 4.5a.75.75 0 0 1-1.08.02l-2-2a.75.75 0 0 1 1.08-1.04l1.47 1.47 3.46-3.98z"
-                            ></path>
-                          </svg>
-                        </div>
-                        <span class="me-2 text-gray-700 dark:text-white"
-                          >شیائومی</span
-                        >
-                      </label>
-                    </div>
+                 
                   </div>
                 </div>
               </section>
