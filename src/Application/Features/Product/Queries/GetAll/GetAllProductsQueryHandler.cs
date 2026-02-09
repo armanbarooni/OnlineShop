@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.DTOs.Product;
 using OnlineShop.Domain.Interfaces.Repositories;
@@ -103,14 +104,31 @@ namespace OnlineShop.Application.Features.Product.Queries.GetAll
                 _ => query.OrderBy(p => p.Name) // Default
             };
 
-            // Get total count before pagination
-            var totalCount = await query.CountAsync(cancellationToken);
+            // Get total count before pagination (support async and sync providers)
+            int totalCount;
+            if (query.Provider is IAsyncQueryProvider)
+            {
+                totalCount = await query.CountAsync(cancellationToken);
+            }
+            else
+            {
+                totalCount = query.Count();
+            }
 
             // Apply pagination
-            var products = await query
+            List<OnlineShop.Domain.Entities.Product> products;
+            var pagedQuery = query
                 .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
-                .ToListAsync(cancellationToken);
+                .Take(request.PageSize);
+
+            if (pagedQuery.Provider is IAsyncQueryProvider)
+            {
+                products = await pagedQuery.ToListAsync(cancellationToken);
+            }
+            else
+            {
+                products = pagedQuery.ToList();
+            }
 
             var dtoList = _mapper.Map<List<ProductDto>>(products);
 

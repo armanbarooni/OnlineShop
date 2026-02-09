@@ -27,6 +27,8 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public int ProductCode { get; set; }
         public string? Properties { get; set; }
         public string? Barcode { get; set; }
+        // Primary inventory count returned from Mahak detail payload
+        public decimal Count1 { get; set; }
         public decimal Price1 { get; set; }
         public decimal Price2 { get; set; }
         public decimal Price3 { get; set; }

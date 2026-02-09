@@ -24,7 +24,8 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         public async Task<Cart?> GetActiveCartByUserIdAsync(Guid userId, CancellationToken cancellationToken)
         {
             return await _context.Carts
-                .AsNoTracking()
+                .Include(c => c.CartItems).ThenInclude(ci => ci.Product).ThenInclude(p => p.ProductImages)
+                .Include(c => c.CartItems).ThenInclude(ci => ci.ProductVariant)
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.IsActive && (!c.ExpiresAt.HasValue || c.ExpiresAt.Value > DateTime.UtcNow), cancellationToken);
         }
 
@@ -75,10 +76,52 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task UpdateAsync(Guid cartId, Action<Cart> mutate, CancellationToken ct)
+        {
+            var cart = await _context.Carts
+                .FirstOrDefaultAsync(x => x.Id == cartId, ct);
+
+            if (cart is null)
+                throw new CartNotFoundException();
+
+            mutate(cart);
+
+            await _context.SaveChangesAsync(ct);
+        }
+
         public async Task UpdateAsync(Cart cart, CancellationToken cancellationToken)
         {
-            _context.Carts.Update(cart);
-            await _context.SaveChangesAsync(cancellationToken);
+            var cartEntry = _context.Entry(cart);
+
+            // Keep tracked aggregates as-is to avoid forcing full-graph updates
+            // that can trigger false concurrency conflicts on child rows.
+            if (cartEntry.State == EntityState.Detached)
+            {
+                _context.Carts.Attach(cart);
+                cartEntry.State = EntityState.Modified;
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // One refresh+retry for parallel cart updates (last-write-wins).
+                foreach (var entry in _context.ChangeTracker.Entries()
+                             .Where(e => e.State == EntityState.Modified || e.State == EntityState.Deleted))
+                {
+                    var databaseValues = await entry.GetDatabaseValuesAsync(cancellationToken);
+                    if (databaseValues == null)
+                    {
+                        throw;
+                    }
+
+                    entry.OriginalValues.SetValues(databaseValues);
+                }
+
+                await _context.SaveChangesAsync(cancellationToken);
+            }
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)

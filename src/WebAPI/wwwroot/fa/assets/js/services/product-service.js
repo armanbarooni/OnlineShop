@@ -267,14 +267,36 @@ class ProductService {
      */
     async getFeaturedProducts(limit = 8) {
         try {
-            const result = await this.getAllProducts();
-            if (result.success && Array.isArray(result.data)) {
+            // Prefer search endpoint because backend commonly returns `data.products.items`
+            const searchResult = await this.searchProducts({
+                sortBy: 'Sales',
+                sortDescending: true,
+                pageNumber: 1,
+                pageSize: limit
+            });
+            const searchProducts = this.extractProducts(searchResult?.data);
+            if (searchResult.success && searchProducts.length > 0) {
                 return {
                     success: true,
-                    data: result.data.slice(0, limit)
+                    data: searchProducts.slice(0, limit)
                 };
             }
-            return result;
+
+            // Fallback to generic list endpoint
+            const allResult = await this.getAllProducts();
+            const allProducts = this.extractProducts(allResult?.data);
+            if (allResult.success && allProducts.length > 0) {
+                return {
+                    success: true,
+                    data: allProducts.slice(0, limit)
+                };
+            }
+
+            return {
+                success: false,
+                data: [],
+                error: 'هیچ محصولی برای نمایش پیدا نشد'
+            };
         } catch (error) {
             window.logger.error('Error getting featured products:', error);
             return {
@@ -386,6 +408,16 @@ class ProductService {
             isValid: Object.keys(errors).length === 0,
             errors: errors
         };
+    }
+
+    extractProducts(data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.products)) return data.products;
+        if (data.products && Array.isArray(data.products.items)) return data.products.items;
+        if (Array.isArray(data.items)) return data.items;
+        if (data.data && Array.isArray(data.data)) return data.data;
+        return [];
     }
 }
 

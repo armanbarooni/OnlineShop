@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Infrastructure.Mahak.Models;
+using System.Text.Json.Serialization;
 
 namespace OnlineShop.Infrastructure.Services
 {
@@ -24,6 +25,7 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IProductCategoryRepository _productCategoryRepository;
         private readonly IMahakMappingRepository _mahakMappingRepository;
         private readonly IProductImageRepository _productImageRepository;
+        private readonly IProductVariantRepository _productVariantRepository;
 
         private string _token;
         private const string BaseUrl = "https://mahakacc.mahaksoft.com/API/v3/Sync/";
@@ -36,7 +38,8 @@ namespace OnlineShop.Infrastructure.Services
             IProductRepository productRepository,
             IProductCategoryRepository productCategoryRepository,
             IMahakMappingRepository mahakMappingRepository,
-            IProductImageRepository productImageRepository)
+            IProductImageRepository productImageRepository,
+            IProductVariantRepository productVariantRepository)
         {
             _httpClient = httpClient;
             _logger = logger;
@@ -46,6 +49,7 @@ namespace OnlineShop.Infrastructure.Services
             _productCategoryRepository = productCategoryRepository;
             _mahakMappingRepository = mahakMappingRepository;
             _productImageRepository = productImageRepository;
+            _productVariantRepository = productVariantRepository;
             
             _httpClient.BaseAddress = new Uri(BaseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -286,6 +290,27 @@ namespace OnlineShop.Infrastructure.Services
 
                         existingProduct.SetName(mahakProduct.Name);
                         existingProduct.SetDescription(mahakProduct.Description ?? "");
+
+                        // Link product to category when the Mahak category mapping exists.
+                        if (mahakProduct.ProductCategoryId > 0)
+                        {
+                            var categoryMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                                "ProductCategory",
+                                mahakProduct.ProductCategoryId,
+                                cancellationToken);
+
+                            if (categoryMapping != null)
+                            {
+                                existingProduct.SetCategoryId(categoryMapping.LocalEntityId);
+                            }
+                            else
+                            {
+                                _logger.LogWarning(
+                                    "Category mapping not found for Mahak ProductCategoryId {CategoryId} while updating product {ProductId}",
+                                    mahakProduct.ProductCategoryId,
+                                    mahakProduct.ProductId);
+                            }
+                        }
                         
                         // Note: Price and stock will be updated from ProductDetail and ProductDetailStoreAsset
                         // For now, we just update basic info
@@ -307,6 +332,27 @@ namespace OnlineShop.Infrastructure.Services
                             mahakClientId: mahakProduct.ProductClientId,
                             mahakId: mahakProduct.ProductId
                         );
+
+                        // Link product to category when the Mahak category mapping exists.
+                        if (mahakProduct.ProductCategoryId > 0)
+                        {
+                            var categoryMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                                "ProductCategory",
+                                mahakProduct.ProductCategoryId,
+                                cancellationToken);
+
+                            if (categoryMapping != null)
+                            {
+                                newProduct.SetCategoryId(categoryMapping.LocalEntityId);
+                            }
+                            else
+                            {
+                                _logger.LogWarning(
+                                    "Category mapping not found for Mahak ProductCategoryId {CategoryId} while creating product {ProductId}",
+                                    mahakProduct.ProductCategoryId,
+                                    mahakProduct.ProductId);
+                            }
+                        }
 
                         // Set additional properties
                         if (!string.IsNullOrEmpty(mahakProduct.UnitName))
@@ -499,24 +545,11 @@ namespace OnlineShop.Infrastructure.Services
 
                     await _productRepository.UpdateAsync(product, cancellationToken);
                     
-                    // Create mappings for ALL ProductDetails so inventory can find the product
-                    // Now that constraint is fixed to (EntityType, MahakEntityId), we can map all details
+                    // Create/update mappings for ProductDetail and ProductVariant (color/size)
                     foreach (var detail in group)
                     {
-                        var existingDetailMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
-                            "ProductDetail", detail.ProductDetailId, cancellationToken);
-                        
-                        if (existingDetailMapping == null)
-                        {
-                            var detailMapping = MahakMapping.Create(
-                                entityType: "ProductDetail",
-                                localEntityId: product.Id,
-                                mahakEntityId: detail.ProductDetailId
-                            );
-                            await _mahakMappingRepository.AddAsync(detailMapping, cancellationToken);
-                            _logger.LogDebug("Created ProductDetail mapping: {DetailId} -> Product {ProductId}", 
-                                detail.ProductDetailId, product.Id);
-                        }
+                        await EnsureProductDetailMapping(detail, product, cancellationToken);
+                        await UpsertVariantFromDetail(detail, product, cancellationToken);
                     }
                     
                     updated++;
@@ -573,6 +606,36 @@ namespace OnlineShop.Infrastructure.Services
                         productInventories[productId] = 0;
                     }
                     productInventories[productId] += inv.Quantity;
+
+                    // Update variant stock if we have a variant mapping for this ProductDetailId
+                    var variantMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                        "ProductVariant", inv.ProductDetailId, cancellationToken);
+                    if (variantMapping != null)
+                    {
+                        var variant = await _productVariantRepository.GetByIdAsync(variantMapping.LocalEntityId, cancellationToken);
+                        if (variant != null)
+                        {
+                            variant.SetStockQuantity(inv.Quantity);
+                            await _productVariantRepository.UpdateAsync(variant, cancellationToken);
+                        }
+                    }
+                    else
+                    {
+                        // Fallback: variants created from ProductDetail use "PD-{ProductDetailId}" SKU.
+                        var fallbackSku = $"PD-{inv.ProductDetailId}";
+                        var variantBySku = await _productVariantRepository.GetBySKUAsync(fallbackSku, cancellationToken);
+                        if (variantBySku != null)
+                        {
+                            variantBySku.SetStockQuantity(inv.Quantity);
+                            await _productVariantRepository.UpdateAsync(variantBySku, cancellationToken);
+
+                            var newVariantMapping = MahakMapping.Create(
+                                entityType: "ProductVariant",
+                                localEntityId: variantBySku.Id,
+                                mahakEntityId: inv.ProductDetailId);
+                            await _mahakMappingRepository.AddAsync(newVariantMapping, cancellationToken);
+                        }
+                    }
                 }
             }
 
@@ -762,6 +825,129 @@ namespace OnlineShop.Infrastructure.Services
             _logger.LogInformation(
                 "People sync completed: {Created} new, {Updated} existing, {Errors} errors",
                 created, updated, errors);
+        }
+
+        private async Task EnsureProductDetailMapping(ProductDetailModel detail, Product product, CancellationToken cancellationToken)
+        {
+            var existingDetailMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                "ProductDetail", detail.ProductDetailId, cancellationToken);
+            
+            if (existingDetailMapping == null)
+            {
+                var detailMapping = MahakMapping.Create(
+                    entityType: "ProductDetail",
+                    localEntityId: product.Id,
+                    mahakEntityId: detail.ProductDetailId
+                );
+                await _mahakMappingRepository.AddAsync(detailMapping, cancellationToken);
+                _logger.LogDebug("Created ProductDetail mapping: {DetailId} -> Product {ProductId}", 
+                    detail.ProductDetailId, product.Id);
+            }
+        }
+
+        private async Task UpsertVariantFromDetail(ProductDetailModel detail, Product product, CancellationToken cancellationToken)
+        {
+            var (color, size) = ParseProperties(detail.Properties);
+            if (string.IsNullOrWhiteSpace(color) && string.IsNullOrWhiteSpace(size))
+            {
+                return; // nothing to map
+            }
+
+            var variantMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                "ProductVariant", detail.ProductDetailId, cancellationToken);
+
+            var sku = !string.IsNullOrWhiteSpace(detail.Barcode)
+                ? detail.Barcode
+                : $"PD-{detail.ProductDetailId}";
+
+            var stock = (int)detail.Count1;
+            var price = detail.DefaultSellPriceLevel switch
+            {
+                1 => detail.Price1,
+                2 => detail.Price2,
+                3 => detail.Price3,
+                4 => detail.Price4,
+                5 => detail.Price5,
+                _ => detail.Price1
+            };
+
+            if (variantMapping != null)
+            {
+                var existing = await _productVariantRepository.GetByIdAsync(variantMapping.LocalEntityId, cancellationToken);
+                if (existing != null)
+                {
+                    existing.Update(size ?? existing.Size, color ?? existing.Color, sku, existing.StockQuantity, existing.AdditionalPrice, null);
+                    if (!string.IsNullOrEmpty(detail.Barcode))
+                        existing.SetBarcode(detail.Barcode);
+                    await _productVariantRepository.UpdateAsync(existing, cancellationToken);
+                    return;
+                }
+            }
+
+            // Create new variant
+            var variant = ProductVariant.Create(product.Id,
+                size ?? "یک‌سایز",
+                color ?? "نامشخص",
+                sku,
+                stock);
+
+            if (!string.IsNullOrEmpty(detail.Barcode))
+                variant.SetBarcode(detail.Barcode);
+            // Additional price not provided from Mahak detail; skip.
+
+            await _productVariantRepository.AddAsync(variant, cancellationToken);
+
+            var newVariantMapping = MahakMapping.Create(
+                entityType: "ProductVariant",
+                localEntityId: variant.Id,
+                mahakEntityId: detail.ProductDetailId
+            );
+            await _mahakMappingRepository.AddAsync(newVariantMapping, cancellationToken);
+            _logger.LogDebug("Created ProductVariant from detail {DetailId}: Color={Color}, Size={Size}", detail.ProductDetailId, color, size);
+        }
+
+        private (string? color, string? size) ParseProperties(string? propertiesJson)
+        {
+            if (string.IsNullOrWhiteSpace(propertiesJson))
+                return (null, null);
+
+            try
+            {
+                using var doc = JsonDocument.Parse(propertiesJson);
+                if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                    return (null, null);
+
+                string? color = null;
+                string? size = null;
+
+                foreach (var item in doc.RootElement.EnumerateArray())
+                {
+                    if (!item.TryGetProperty("C", out var cProp) || !item.TryGetProperty("V", out var vProp))
+                        continue;
+
+                    var code = cProp.GetString();
+                    var value = vProp.GetString();
+                    if (string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(value))
+                        continue;
+
+                    switch (code.Trim())
+                    {
+                        case "3": // color
+                            color ??= value.Trim();
+                            break;
+                        case "4": // size
+                            size ??= value.Trim();
+                            break;
+                    }
+                }
+
+                return (color, size);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to parse ProductDetail Properties JSON: {Json}", propertiesJson);
+                return (null, null);
+            }
         }
         
         private async Task LogSyncAsync(string entityType, long? rowVersion, int processed, string status, CancellationToken cancellationToken, string? error = null)

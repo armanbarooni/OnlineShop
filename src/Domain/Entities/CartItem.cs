@@ -6,6 +6,7 @@ namespace OnlineShop.Domain.Entities
     {
         public Guid CartId { get; private set; }
         public Guid ProductId { get; private set; }
+        public Guid? VariantId { get; private set; }
         public int Quantity { get; private set; }
         public decimal UnitPrice { get; private set; }
         public decimal TotalPrice { get; private set; }
@@ -14,21 +15,23 @@ namespace OnlineShop.Domain.Entities
         // Navigation Properties
         public virtual Cart Cart { get; private set; } = null!;
         public virtual Product Product { get; private set; } = null!;
+        public virtual ProductVariant? ProductVariant { get; private set; }
 
         protected CartItem() { }
 
-        private CartItem(Guid cartId, Guid productId, int quantity, decimal unitPrice, decimal totalPrice)
+        private CartItem(Guid cartId, Guid productId, Guid? variantId, int quantity, decimal unitPrice, decimal totalPrice)
         {
             CartId = cartId;
             ProductId = productId;
+            VariantId = variantId;
             SetQuantity(quantity);
             SetUnitPrice(unitPrice);
             SetTotalPrice(totalPrice);
             Deleted = false;
         }
 
-        public static CartItem Create(Guid cartId, Guid productId, int quantity, decimal unitPrice, decimal totalPrice)
-            => new(cartId, productId, quantity, unitPrice, totalPrice);
+        public static CartItem Create(Guid cartId, Guid productId, Guid? variantId, int quantity, decimal unitPrice, decimal totalPrice)
+            => new(cartId, productId, variantId, quantity, unitPrice, totalPrice);
 
         public void SetQuantity(int quantity)
         {

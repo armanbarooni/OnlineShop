@@ -3,188 +3,268 @@
  */
 
 // Initialize home page
-document.addEventListener('DOMContentLoaded', async () => {
-    // Wait for all services to load
-    if (typeof window.apiClient === 'undefined' || 
-        typeof window.productService === 'undefined' || 
-        typeof window.categoryService === 'undefined') {
-        if (window.logger) {
-            window.logger.error('Required services not loaded');
-        } else {
-            console.error('Required services not loaded');
-        }
-        return;
+document.addEventListener("DOMContentLoaded", async () => {
+  // Wait for all services to load
+  if (
+    typeof window.apiClient === "undefined" ||
+    typeof window.productService === "undefined"
+  ) {
+    if (window.logger) {
+      window.logger.error("Required services not loaded");
+    } else {
+      console.error("Required services not loaded");
+    }
+    return;
+  }
+
+  try {
+    // Load categories
+    await loadCategories();
+
+    // Load mega menu categories
+    const megaMenuContainer = document.getElementById(
+      "mega-menu-list-container",
+    );
+    if (megaMenuContainer && window.categoryService) {
+      await window.categoryService.renderMegaMenu("mega-menu-list-container");
     }
 
-    try {
-        // Load categories
-        await loadCategories();
-        
-        // Load mega menu categories
-        const megaMenuContainer = document.getElementById('mega-menu-list-container');
-        if (megaMenuContainer && window.categoryService) {
-            await window.categoryService.renderMegaMenu('mega-menu-list-container');
-        }
-        
-        // Load featured products
-        await loadFeaturedProducts();
-        
-        // Load new products
-        await loadNewProducts();
-        
-        // Load best selling products
-        await loadBestSellingProducts();
-        
-        // Load brands
-        await loadBrands();
-        
-        // Setup search functionality
-        setupSearch();
-        
-        // Update cart and comparison counts
-        updateCartAndComparisonCounts();
-    } catch (error) {
-        window.logger.error('Error initializing home page:', error);
-    }
+    // Load featured products (main home carousel)
+    await loadFeaturedProducts();
+
+    // Load optional sections if corresponding containers exist
+    await loadNewProducts();
+    await loadBestSellingProducts();
+
+    // Load brands
+    await loadBrands();
+
+    // Setup search functionality
+    setupSearch();
+
+    // Update cart and comparison counts
+    updateCartAndComparisonCounts();
+  } catch (error) {
+    window.logger.error("Error initializing home page:", error);
+  }
 });
 
 // Load categories
 async function loadCategories() {
-    try {
-        const result = await window.categoryService.getAllCategories();
-        if (result.success && result.data) {
-            renderCategories(result.data);
-        }
-    } catch (error) {
-        if (window.logger) {
-            window.logger.error('Error loading categories:', error);
-        } else {
-            console.error('Error loading categories:', error);
-        }
+  try {
+    if (!window.categoryService) return;
+    const result = await window.categoryService.getAllCategories();
+    if (result.success && result.data) {
+      renderCategories(result.data);
     }
+  } catch (error) {
+    if (window.logger) {
+      window.logger.error("Error loading categories:", error);
+    } else {
+      console.error("Error loading categories:", error);
+    }
+  }
 }
 
 // Render categories
 function renderCategories(categories) {
-    const categoryContainer = document.querySelector('[data-categories]');
-    if (!categoryContainer) return;
+  const categoryContainer = document.querySelector("[data-categories]");
+  if (!categoryContainer) return;
 
-    const limitedCategories = Array.isArray(categories) ? categories.slice(0, 8) : [];
-    if (limitedCategories.length === 0) return;
+  const limitedCategories = Array.isArray(categories)
+    ? categories.slice(0, 8)
+    : [];
+  if (limitedCategories.length === 0) return;
 
-    const html = limitedCategories.map(category => `
+  const html = limitedCategories
+    .map(
+      (category) => `
         <a href="shop.html?category=${category.id}" class="lg:col-span-3 sm:col-span-6 col-span-12 w-full block">
             <article class="flex py-2 px-3 rounded-xl border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800">
                 <section class="space-y-2">
-                    <h3 class="text-lg font-bold dark:text-white">${category.name || 'دسته‌بندی'}</h3>
-                    <span class="text-xs font-light text-neutral-500">${category.description || ''}</span>
+                    <h3 class="text-lg font-bold dark:text-white">${category.name || "دسته‌بندی"}</h3>
+                    <span class="text-xs font-light text-neutral-500">${category.description || ""}</span>
                 </section>
                 <figure>
-                    <img src="${category.imageUrl || 'assets/images/category/digitall.png'}" 
-                         class="size-20" loading="lazy" alt="${category.name || 'دسته‌بندی'}">
+                    <img src="${category.imageUrl || "assets/images/category/digitall.png"}" 
+                         class="size-20" loading="lazy" alt="${category.name || "دسته‌بندی"}">
                 </figure>
             </article>
         </a>
-    `).join('');
+    `,
+    )
+    .join("");
 
-    categoryContainer.innerHTML = html;
+  categoryContainer.innerHTML = html;
 }
 
 // Load featured products
 async function loadFeaturedProducts() {
-    try {
-        const result = await window.productService.getFeaturedProducts(8);
-        if (result.success && result.data) {
-            const products = result.data.products || result.data;
-            if (Array.isArray(products) && products.length > 0) {
-                renderProducts(products, 'featuredProducts');
-            }
-        }
-    } catch (error) {
-        window.logger.error('Error loading featured products:', error);
+  try {
+    const result = await window.productService.getFeaturedProducts(8);
+    const products = extractProducts(result);
+    if (products.length > 0) {
+      renderProducts(products, "featuredProducts");
+      return;
     }
+
+    // Direct fallback against the known backend shape
+    const fallback = await window.apiClient.get(
+      "/Product/search?sortBy=Sales&sortDescending=true&pageNumber=1&pageSize=8",
+    );
+    const fallbackProducts = extractProducts(fallback);
+    if (fallbackProducts.length > 0) {
+      renderProducts(fallbackProducts, "featuredProducts");
+      return;
+    }
+
+    renderProductsState("featuredProducts", "محصولی برای نمایش یافت نشد");
+  } catch (error) {
+    window.logger.error("Error loading featured products:", error);
+    renderProductsState("featuredProducts", "خطا در دریافت محصولات");
+  }
 }
 
 // Load new products
 async function loadNewProducts() {
-    try {
-        const result = await window.productService.getNewProducts(8);
-        if (result.success && result.data) {
-            const products = result.data.products || result.data;
-            if (Array.isArray(products) && products.length > 0) {
-                renderProducts(products, 'newProducts');
-            }
-        }
-    } catch (error) {
-        window.logger.error('Error loading new products:', error);
+  try {
+    if (!findProductContainer("newProducts")) return;
+    const result = await window.productService.getNewProducts(8);
+    const products = extractProducts(result);
+    if (products.length > 0) {
+      renderProducts(products, "newProducts");
     }
+  } catch (error) {
+    window.logger.error("Error loading new products:", error);
+  }
 }
 
 // Load best selling products
 async function loadBestSellingProducts() {
-    try {
-        const result = await window.productService.getBestSellingProducts(8);
-        if (result.success && result.data) {
-            const products = result.data.products || result.data;
-            if (Array.isArray(products) && products.length > 0) {
-                renderProducts(products, 'bestSellingProducts');
-            }
-        }
-    } catch (error) {
-        window.logger.error('Error loading best selling products:', error);
+  try {
+    if (!findProductContainer("bestSellingProducts")) return;
+    const result = await window.productService.getBestSellingProducts(8);
+    const products = extractProducts(result);
+    if (products.length > 0) {
+      renderProducts(products, "bestSellingProducts");
     }
+  } catch (error) {
+    window.logger.error("Error loading best selling products:", error);
+  }
+}
+
+function findProductContainer(containerId) {
+  let container = document.getElementById(containerId);
+  if (!container) {
+    container = document.querySelector(`[data-products="${containerId}"]`);
+    if (!container) {
+      // Fallback: homepage main product carousel for featured products
+      if (containerId === "featuredProducts") {
+        container = document.querySelector(".product-carousel .swiper-wrapper");
+      }
+    }
+  }
+  return container || null;
+}
+
+function extractProducts(result) {
+  if (!result) return [];
+
+  // Normalize mixed response envelopes:
+  // - { success, data }
+  // - { isSuccess, data }
+  // - apiClient envelope: { success:true, data:{ isSuccess:true, data:{...} } }
+  // - direct payload: { products:{ items:[...] } }
+  let payload = result;
+
+  if (result.data !== undefined) {
+    payload = result.data;
+  }
+  if (
+    payload &&
+    payload.data !== undefined &&
+    (payload.isSuccess === true || payload.success === true)
+  ) {
+    payload = payload.data;
+  }
+
+  if (result.success === false || result.isSuccess === false) return [];
+  if (!payload) return [];
+
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.products)) return payload.products;
+  if (payload.products && Array.isArray(payload.products.items))
+    return payload.products.items;
+  if (Array.isArray(payload.items)) return payload.items;
+  if (payload.data && Array.isArray(payload.data)) return payload.data;
+
+  return [];
+}
+
+function renderProductsState(containerId, message) {
+  const container = findProductContainer(containerId);
+  if (!container) return;
+
+  container.innerHTML = `
+        <div class="swiper-slide px-1.5 py-2">
+            <article class="bg-white product-box-item drop-shadow-md rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1">
+                <p class="text-center text-gray-500 dark:text-gray-300 py-16">${message}</p>
+            </article>
+        </div>
+    `;
 }
 
 // Render products
 function renderProducts(products, containerId) {
-    let container = document.getElementById(containerId);
-    if (!container) {
-        // Try to find by data attribute or class
-        container = document.querySelector(`[data-products="${containerId}"]`);
-        if (!container) {
-            // Try to find swiper wrapper for product sections
-            const swipers = document.querySelectorAll('.swiper-wrapper');
-            if (swipers.length > 0) {
-                // Use first swiper wrapper as fallback
-                container = swipers[0];
-            } else {
-                return;
-            }
-        }
-    }
+  const container = findProductContainer(containerId);
+  if (!container) return;
 
-    if (!Array.isArray(products) || products.length === 0) return;
+  if (!Array.isArray(products) || products.length === 0) return;
 
-    const html = products.map(product => createProductCard(product)).join('');
-    
-    // If it's a swiper wrapper, add slides
-    if (container.classList.contains('swiper-wrapper')) {
-        container.innerHTML = html;
-        // Reinitialize swiper if needed
-        if (window.swiperInstances && window.swiperInstances[containerId]) {
-            window.swiperInstances[containerId].update();
-        }
-    } else {
-        container.innerHTML = html;
+  const html = products.map((product) => createProductCard(product)).join("");
+
+  // If it's a swiper wrapper, add slides
+  if (container.classList.contains("swiper-wrapper")) {
+    container.innerHTML = html;
+    // Reinitialize swiper if needed
+    if (window.swiperInstances && window.swiperInstances[containerId]) {
+      window.swiperInstances[containerId].update();
     }
+  } else {
+    container.innerHTML = html;
+  }
 }
 
 // Create product card HTML
 function createProductCard(product) {
-    const imageUrl = (product.productImages && product.productImages.length > 0) 
-        ? product.productImages[0].imageUrl 
-        : (product.imageUrl || 'assets/images/product/mobile-1.png');
-    const price = product.price || 0;
-    const originalPrice = product.originalPrice || price;
-    const discount = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
-    const productUrl = `product.html?id=${product.id}`;
-    const name = product.name || 'نام محصول';
+  const primaryImage = Array.isArray(product.images)
+    ? product.images.find((i) => i && i.isPrimary) || product.images[0]
+    : null;
+  const galleryImage =
+    product.productImages && product.productImages.length > 0
+      ? product.productImages[0]
+      : null;
+  const rawImageUrl =
+    primaryImage?.imageUrl || galleryImage?.imageUrl || product.imageUrl || "";
+  const imageUrl = rawImageUrl
+    ? rawImageUrl.startsWith("http")
+      ? rawImageUrl
+      : `https://mahakacc.mahaksoft.com${rawImageUrl}`
+    : "assets/images/product/nophoto.png";
+  const price = product.price || 0;
+  const originalPrice = product.originalPrice || price;
+  const discount =
+    originalPrice > price
+      ? Math.round(((originalPrice - price) / originalPrice) * 100)
+      : 0;
+  const productUrl = `product.html?id=${product.id}`;
+  const name = product.name || "نام محصول";
 
-    return `
+  return `
         <div class="swiper-slide px-1.5 py-2">
             <article class="bg-white product-box-item drop-shadow-md rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1">
                 <header class="flex items-center relative justify-between">
-                    ${discount > 0 ? `<span class="absolute top-1 end-1 bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ''}
+                    ${discount > 0 ? `<span class="absolute top-1 end-1 bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ""}
                     <div class="flex flex-col absolute top-1 start-0 p-1 rounded space-y-3">
                         <button onclick="addToWishlist('${product.id}')" class="p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -203,8 +283,8 @@ function createProductCard(product) {
                 </a>
                 <div class="flex items-center justify-between mt-3">
                     <div class="flex flex-col">
-                        ${discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ''}
-                        <span class="text-lg font-bold text-primary">${formatPrice(price)} طھظˆظ…ط§ظ†</span>
+                        ${discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
+                        <span class="text-lg font-bold text-primary">${formatPrice(price)} تومان</span>
                     </div>
                     <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -219,214 +299,243 @@ function createProductCard(product) {
 
 // Format price
 function formatPrice(price) {
-    return new Intl.NumberFormat('fa-IR').format(Math.round(price));
+  return new Intl.NumberFormat("fa-IR").format(Math.round(price));
 }
 
 // Load brands
 async function loadBrands() {
-    try {
-        const response = await window.apiClient.get('/Brand');
-        if (response && response.data) {
-            const brands = Array.isArray(response.data.data) ? response.data.data : (Array.isArray(response.data) ? response.data : []);
-            if (brands.length > 0) {
-                renderBrands(brands);
-            }
-        }
-    } catch (error) {
-        window.logger.error('Error loading brands:', error);
+  try {
+    const response = await window.apiClient.get("/Brand");
+    if (response && response.data) {
+      const brands = Array.isArray(response.data.data)
+        ? response.data.data
+        : Array.isArray(response.data)
+          ? response.data
+          : [];
+      if (brands.length > 0) {
+        renderBrands(brands);
+      }
     }
+  } catch (error) {
+    window.logger.error("Error loading brands:", error);
+  }
 }
 
 // Render brands
 function renderBrands(brands) {
-    const brandContainer = document.querySelector('[data-brands]') || document.querySelector('.brand-swiper .swiper-wrapper');
-    if (!brandContainer) return;
+  const brandContainer =
+    document.querySelector("[data-brands]") ||
+    document.querySelector(".brand-swiper .swiper-wrapper");
+  if (!brandContainer) return;
 
-    const limitedBrands = brands.slice(0, 6);
-    const html = limitedBrands.map(brand => `
+  const limitedBrands = brands.slice(0, 6);
+  const html = limitedBrands
+    .map(
+      (brand) => `
         <div class="swiper-slide">
             <div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-md dark:bg-gray-800">
-                <img src="${brand.logoUrl || 'assets/images/brand/brand1-1.png'}" 
-                     alt="${brand.name || 'ط¨ط±ظ†ط¯'}" class="max-h-16 object-contain">
+                <img src="${brand.logoUrl || "assets/images/brand/brand1-1.png"}" 
+                     alt="${brand.name || "ط¨ط±ظ†ط¯"}" class="max-h-16 object-contain">
             </div>
         </div>
-    `).join('');
+    `,
+    )
+    .join("");
 
-    brandContainer.innerHTML = html;
+  brandContainer.innerHTML = html;
 }
 
 // Setup search functionality
 function setupSearch() {
-    const searchInput = document.getElementById('searchInput');
-    const searchButton = searchInput?.nextElementSibling;
-    const searchResults = document.getElementById('searchResults');
+  const searchInput = document.getElementById("searchInput");
+  const searchButton = searchInput?.nextElementSibling;
+  const searchResults = document.getElementById("searchResults");
 
-    if (!searchInput) return;
+  if (!searchInput) return;
 
-    let searchTimeout;
-    searchInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        const query = e.target.value.trim();
+  let searchTimeout;
+  searchInput.addEventListener("input", (e) => {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
 
-        if (query.length < 2) {
-            if (searchResults) searchResults.classList.add('hidden');
-            return;
-        }
-
-        searchTimeout = setTimeout(async () => {
-            await performSearch(query);
-        }, 500);
-    });
-
-    if (searchButton) {
-        searchButton.addEventListener('click', async () => {
-            const query = searchInput.value.trim();
-            if (query) {
-                window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
-            }
-        });
+    if (query.length < 2) {
+      if (searchResults) searchResults.classList.add("hidden");
+      return;
     }
 
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const query = searchInput.value.trim();
-            if (query) {
-                window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
-            }
-        }
+    searchTimeout = setTimeout(async () => {
+      await performSearch(query);
+    }, 500);
+  });
+
+  if (searchButton) {
+    searchButton.addEventListener("click", async () => {
+      const query = searchInput.value.trim();
+      if (query) {
+        window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+      }
     });
+  }
+
+  searchInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      const query = searchInput.value.trim();
+      if (query) {
+        window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+      }
+    }
+  });
 }
 
 // Perform search
 async function performSearch(query) {
-    try {
-        const result = await window.productService.searchProducts({
-            searchTerm: query,
-            pageSize: 5
-        });
+  try {
+    const result = await window.productService.searchProducts({
+      searchTerm: query,
+      pageSize: 5,
+    });
 
-        if (result.success && result.data) {
-            const products = result.data.products || result.data;
-            renderSearchResults(Array.isArray(products) ? products : []);
-        }
-    } catch (error) {
-        window.logger.error('Error searching:', error);
-    }
+    renderSearchResults(extractProducts(result));
+  } catch (error) {
+    window.logger.error("Error searching:", error);
+  }
 }
 
 // Render search results
 function renderSearchResults(products) {
-    const searchResults = document.getElementById('searchResults');
-    if (!searchResults) return;
+  const searchResults = document.getElementById("searchResults");
+  if (!searchResults) return;
 
-    if (products.length === 0) {
-        searchResults.innerHTML = '<div class="p-4 text-center text-gray-500">محصولی یافت نشد</div>';
-        searchResults.classList.remove('hidden');
-        return;
-    }
+  if (products.length === 0) {
+    searchResults.innerHTML =
+      '<div class="p-4 text-center text-gray-500">محصولی یافت نشد</div>';
+    searchResults.classList.remove("hidden");
+    return;
+  }
 
-    const html = products.map(product => {
-        const imageUrl = (product.productImages && product.productImages.length > 0) 
-            ? product.productImages[0].imageUrl 
-            : 'assets/images/product/mobile-1.png';
-        return `
+  const html = products
+    .map((product) => {
+      const primaryImage = Array.isArray(product.images)
+        ? product.images.find((i) => i && i.isPrimary) || product.images[0]
+        : null;
+      const galleryImage =
+        product.productImages && product.productImages.length > 0
+          ? product.productImages[0]
+          : null;
+      const rawImageUrl =
+        primaryImage?.imageUrl || galleryImage?.imageUrl || "";
+      const imageUrl = rawImageUrl
+        ? rawImageUrl.startsWith("http")
+          ? rawImageUrl
+          : `https://mahakacc.mahaksoft.com${rawImageUrl}`
+        : "assets/images/product/nophoto.png";
+      return `
             <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
-                <img src="${imageUrl}" alt="${product.name || 'محصول'}" class="w-16 h-16 object-contain rounded me-3">
+                <img src="${imageUrl}" alt="${product.name || "محصول"}" class="w-16 h-16 object-contain rounded me-3">
                 <div class="flex-1">
-                    <h4 class="font-semibold text-sm dark:text-white">${product.name || 'محصول'}</h4>
-                    <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} طھظˆظ…ط§ظ†</p>
+                    <h4 class="font-semibold text-sm dark:text-white">${product.name || "محصول"}</h4>
+                    <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} تومان</p>
                 </div>
             </a>
         `;
-    }).join('');
+    })
+    .join("");
 
-    searchResults.innerHTML = html;
-    searchResults.classList.remove('hidden');
+  searchResults.innerHTML = html;
+  searchResults.classList.remove("hidden");
 }
 
 // Add to cart function (global)
-window.addToCart = async function(productId) {
-    if (!window.authService || !window.authService.isAuthenticated()) {
-        window.location.href = 'login.html';
-        return;
-    }
+window.addToCart = async function (productId) {
+  if (!window.authService || !window.authService.isAuthenticated()) {
+    window.location.href = "login.html";
+    return;
+  }
 
-    try {
-        const result = await window.cartService.addToCart(productId, 1);
-        if (result.success) {
-            if (window.utils) {
-                window.utils.showToast('محصول به سبد خرید اضافه شد', 'success');
-            }
-            updateCartAndComparisonCounts();
-        } else {
-            if (window.utils) {
-                window.utils.showToast(result.error || 'خطا در افزودن به سبد خرید', 'error');
-            }
-        }
-    } catch (error) {
-        window.logger.error('Error adding to cart:', error);
-        if (window.utils) {
-            window.utils.showToast('خطا در اتصال به سرور', 'error');
-        }
+  try {
+    const result = await window.cartService.addToCart(productId, 1);
+    if (result.success) {
+      if (window.utils) {
+        window.utils.showToast("محصول به سبد خرید اضافه شد", "success");
+      }
+      updateCartAndComparisonCounts();
+    } else {
+      if (window.utils) {
+        window.utils.showToast(
+          result.error || "خطا در افزودن به سبد خرید",
+          "error",
+        );
+      }
     }
+  } catch (error) {
+    window.logger.error("Error adding to cart:", error);
+    if (window.utils) {
+      window.utils.showToast("خطا در اتصال به سرور", "error");
+    }
+  }
 };
 
 // Add to wishlist function (global)
-window.addToWishlist = async function(productId) {
-    if (!window.authService || !window.authService.isAuthenticated()) {
-        window.location.href = 'login.html';
-        return;
-    }
+window.addToWishlist = async function (productId) {
+  if (!window.authService || !window.authService.isAuthenticated()) {
+    window.location.href = "login.html";
+    return;
+  }
 
-    try {
-        if (window.wishlistService) {
-            const result = await window.wishlistService.addToWishlist(productId);
-            if (result.success) {
-                if (window.utils) {
-                    window.utils.showToast('به علاقه‌مندی‌ها اضافه شد', 'success');
-                }
-            }
+  try {
+    if (window.wishlistService) {
+      const result = await window.wishlistService.addToWishlist(productId);
+      if (result.success) {
+        if (window.utils) {
+          window.utils.showToast("به علاقه‌مندی‌ها اضافه شد", "success");
         }
-    } catch (error) {
-        window.logger.error('Error adding to wishlist:', error);
+      }
     }
+  } catch (error) {
+    window.logger.error("Error adding to wishlist:", error);
+  }
 };
 
 // Update cart and comparison counts
 async function updateCartAndComparisonCounts() {
-    // Update cart count
-    if (window.authService && window.authService.isAuthenticated()) {
-        try {
-            const cartResult = await window.cartService.getUserCart();
-            if (cartResult.success && cartResult.data) {
-                const itemCount = cartResult.data.items ? cartResult.data.items.length : 0;
-                const cartCountEl = document.getElementById('cartCount');
-                if (cartCountEl) cartCountEl.textContent = itemCount;
-            }
-        } catch (error) {
-            window.logger.error('Error updating cart count:', error);
-        }
-    }
-
-    // Update comparison count
+  // Update cart count
+  if (window.authService && window.authService.isAuthenticated()) {
     try {
-        if (window.comparisonService) {
-            const count = await window.comparisonService.getComparisonCount();
-            const comparisonCountEl = document.getElementById('comparisonCount');
-            if (comparisonCountEl) comparisonCountEl.textContent = count;
-        }
+      const cartResult = await window.cartService.getUserCart();
+      if (cartResult.success && cartResult.data) {
+        const itemCount = cartResult.data.items
+          ? cartResult.data.items.length
+          : 0;
+        const cartCountEl = document.getElementById("cartCount");
+        if (cartCountEl) cartCountEl.textContent = itemCount;
+      }
     } catch (error) {
-        window.logger.error('Error updating comparison count:', error);
+      window.logger.error("Error updating cart count:", error);
     }
+  }
+
+  // Update comparison count
+  try {
+    if (window.comparisonService) {
+      const count = await window.comparisonService.getComparisonCount();
+      const comparisonCountEl = document.getElementById("comparisonCount");
+      if (comparisonCountEl) comparisonCountEl.textContent = count;
+    }
+  } catch (error) {
+    window.logger.error("Error updating comparison count:", error);
+  }
 }
 
 // Hide search results when clicking outside
-document.addEventListener('click', (e) => {
-    const searchResults = document.getElementById('searchResults');
-    const searchInput = document.getElementById('searchInput');
-    if (searchResults && searchInput && !searchResults.contains(e.target) && !searchInput.contains(e.target)) {
-        searchResults.classList.add('hidden');
-    }
+document.addEventListener("click", (e) => {
+  const searchResults = document.getElementById("searchResults");
+  const searchInput = document.getElementById("searchInput");
+  if (
+    searchResults &&
+    searchInput &&
+    !searchResults.contains(e.target) &&
+    !searchInput.contains(e.target)
+  ) {
+    searchResults.classList.add("hidden");
+  }
 });
-
-

@@ -22,6 +22,7 @@ namespace OnlineShop.Application.Mapping
                 .ForMember(d => d.BrandName, opt => opt.MapFrom(s => s.Brand != null ? s.Brand.Name : null))
                 .ForMember(d => d.Images, opt => opt.MapFrom(s => s.ProductImages.Where(i => !i.Deleted).OrderBy(i => i.DisplayOrder)))
                 .ForMember(d => d.Variants, opt => opt.MapFrom(s => s.ProductVariants.Where(v => !v.Deleted).OrderBy(v => v.DisplayOrder)))
+                .ForMember(d => d.ProductDetails, opt => opt.MapFrom(s => s.ProductDetails.Where(pd => !pd.Deleted).OrderBy(pd => pd.DisplayOrder)))
                 .ForMember(d => d.Materials, opt => opt.MapFrom(s => s.ProductMaterials.Where(pm => !pm.Deleted).Select(pm => pm.Material.Name)))
                 .ForMember(d => d.Seasons, opt => opt.MapFrom(s => s.ProductSeasons.Where(ps => !ps.Deleted).Select(ps => ps.Season.Name)));
             

@@ -49,7 +49,7 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             // Indexes
             builder.HasIndex(ci => ci.CartId);
             builder.HasIndex(ci => ci.ProductId);
-            builder.HasIndex(ci => new { ci.CartId, ci.ProductId }).IsUnique();
+            builder.HasIndex(ci => new { ci.CartId, ci.ProductId, ci.VariantId }).IsUnique();
         }
     }
 }
