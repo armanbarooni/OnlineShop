@@ -486,3 +486,5 @@ $RECYCLE.BIN/
 *.rar
 *.bat
 /front
+/.codex-temp
+/pureFront
