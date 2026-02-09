@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OnlineShop.Application.Common.Models;
@@ -12,12 +12,12 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
     {
         private readonly ICartRepository _cartRepository;
         private readonly IProductRepository _productRepository;
-        private readonly Microsoft.Extensions.Logging.ILogger<AddToCartCommandHandler> _logger;
+        private readonly ILogger<AddToCartCommandHandler> _logger;
 
         public AddToCartCommandHandler(
             ICartRepository cartRepository,
             IProductRepository productRepository,
-            Microsoft.Extensions.Logging.ILogger<AddToCartCommandHandler> logger)
+            ILogger<AddToCartCommandHandler> logger)
         {
             _cartRepository = cartRepository;
             _productRepository = productRepository;
@@ -26,83 +26,98 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
 
         public async Task<Result<CartDto>> Handle(AddToCartCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Adding product {ProductId} to cart for user {UserId}", 
+            _logger.LogInformation("Adding product {ProductId} to cart for user {UserId}",
                 request.Item.ProductId, request.UserId);
 
-            // 1. Validate product exists
             var product = await _productRepository.GetByIdWithIncludesAsync(request.Item.ProductId, cancellationToken);
             if (product == null)
             {
-                return Result<CartDto>.Failure("محصول مورد نظر یافت نشد");
+                return Result<CartDto>.Failure("Product not found");
             }
 
-            // 2. Check stock availability
-            int availableStock = 0;
-            if (request.Item.VariantId.HasValue)
+            if (request.Item.VariantId == Guid.Empty)
             {
-                var variant = product.ProductVariants.FirstOrDefault(v => v.Id == request.Item.VariantId.Value);
-                if (variant == null)
-                {
-                    return Result<CartDto>.Failure("نوع محصول (سایز/رنگ) یافت نشد");
-                }
-                availableStock = variant.StockQuantity;
-            }
-            else
-            {
-                availableStock = product.StockQuantity;
+                return Result<CartDto>.Failure("Variant is required");
             }
 
+            var variant = product.ProductVariants.FirstOrDefault(v => v.Id == request.Item.VariantId);
+            if (variant == null)
+            {
+                return Result<CartDto>.Failure("Product variant not found");
+            }
+
+            var availableStock = variant.StockQuantity;
             if (availableStock < request.Item.Quantity)
             {
-                return Result<CartDto>.Failure($"موجودی کافی نیست. موجودی فعلی: {availableStock}");
+                return Result<CartDto>.Failure($"Insufficient stock. Available: {availableStock}");
             }
 
-            // 3. Get or create cart for user
-            var cart = await _cartRepository.GetActiveCartByUserIdAsync(request.UserId, cancellationToken);
-            if (cart == null)
-            {
-                cart = OnlineShop.Domain.Entities.Cart.Create(request.UserId, Guid.NewGuid().ToString());
-                await _cartRepository.AddAsync(cart, cancellationToken);
-            }
+            const int maxRetries = 3;
 
-            // 4. Check if item already exists in cart
-            var existingItem = cart.CartItems.FirstOrDefault(i => 
-                i.ProductId == request.Item.ProductId && 
-                i.VariantId == request.Item.VariantId);
-
-            if (existingItem != null)
+            for (var attempt = 1; attempt <= maxRetries; attempt++)
             {
-                // Update quantity
-                var newQuantity = existingItem.Quantity + request.Item.Quantity;
-                if (newQuantity > availableStock)
+                try
                 {
-                    return Result<CartDto>.Failure($"موجودی کافی نیست. حداکثر: {availableStock}");
+                    var cart = await _cartRepository.GetActiveCartByUserIdAsync(request.UserId, cancellationToken);
+                    if (cart == null)
+                    {
+                        cart = OnlineShop.Domain.Entities.Cart.Create(request.UserId, Guid.NewGuid().ToString());
+                        await _cartRepository.AddAsync(cart, cancellationToken);
+                    }
+
+                    var existingItem = cart.CartItems.FirstOrDefault(i =>
+                        i.ProductId == request.Item.ProductId &&
+                        i.VariantId == request.Item.VariantId);
+
+                    if (existingItem != null)
+                    {
+                        var newQuantity = existingItem.Quantity + request.Item.Quantity;
+                        if (newQuantity > availableStock)
+                        {
+                            return Result<CartDto>.Failure($"Insufficient stock. Max allowed: {availableStock}");
+                        }
+
+                        existingItem.UpdateQuantity(newQuantity);
+                    }
+                    else
+                    {
+                        var cartItem = CartItem.Create(
+                            cart.Id,
+                            request.Item.ProductId,
+                            request.Item.VariantId,
+                            request.Item.Quantity,
+                            product.Price,
+                            product.Price * request.Item.Quantity);
+
+                        cart.AddItem(cartItem);
+                    }
+
+                    await _cartRepository.UpdateAsync(cart, cancellationToken);
+
+                    var cartDto = MapToDto(cart, product);
+
+                    _logger.LogInformation("Successfully added product to cart. Cart now has {ItemCount} items",
+                        cart.CartItems.Count);
+
+                    return Result<CartDto>.Success(cartDto);
                 }
-                existingItem.UpdateQuantity(newQuantity);
+                catch (DbUpdateConcurrencyException ex) when (attempt < maxRetries)
+                {
+                    _logger.LogWarning(ex,
+                        "Concurrency conflict while adding product {ProductId} (attempt {Attempt}/{MaxAttempts})",
+                        request.Item.ProductId, attempt, maxRetries);
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    _logger.LogWarning(ex,
+                        "Failed to add product {ProductId} to cart after {MaxAttempts} attempts due to concurrency",
+                        request.Item.ProductId, maxRetries);
+
+                    return Result<CartDto>.Failure("Cart was changed concurrently. Please retry.");
+                }
             }
-            else
-            {
-                // Add new item
-                var cartItem = CartItem.Create(
-                    cart.Id,
-                    request.Item.ProductId,
-                    request.Item.VariantId,
-                    request.Item.Quantity,
-                    product.Price,
-                    product.Price * request.Item.Quantity
-                );
-                cart.AddItem(cartItem);
-            }
 
-            await _cartRepository.UpdateAsync(cart, cancellationToken);
-
-            // 5. Return cart DTO
-            var cartDto = MapToDto(cart, product);
-            
-            _logger.LogInformation("Successfully added product to cart. Cart now has {ItemCount} items", 
-                cart.CartItems.Count);
-
-            return Result<CartDto>.Success(cartDto);
+            return Result<CartDto>.Failure("Failed to add item to cart");
         }
 
         private CartDto MapToDto(OnlineShop.Domain.Entities.Cart cart, Domain.Entities.Product product)
@@ -112,7 +127,8 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
                 Id = item.Id,
                 ProductId = item.ProductId,
                 ProductName = item.Product?.Name ?? product.Name,
-                ProductImage = item.Product?.ProductImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl ?? product.ProductImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl,
+                ProductImage = item.Product?.ProductImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl
+                    ?? product.ProductImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl,
                 VariantId = item.VariantId,
                 VariantInfo = GetVariantInfo(item.Product ?? product, item.VariantId),
                 UnitPrice = item.UnitPrice,
@@ -122,27 +138,36 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
                 IsAvailable = GetAvailableStock(item.Product ?? product, item.VariantId) >= item.Quantity
             }).ToList();
 
+            var subtotal = items.Sum(i => i.TotalPrice);
+            var shipping = CalculateShipping(subtotal);
+
             return new CartDto
             {
                 Id = cart.Id,
                 UserId = cart.UserId.ToString(),
                 Items = items,
-                Subtotal = items.Sum(i => i.TotalPrice),
-                DiscountAmount = 0, 
-                ShippingCost = CalculateShipping(items.Sum(i => i.TotalPrice)),
-                TotalAmount = items.Sum(i => i.TotalPrice) + CalculateShipping(items.Sum(i => i.TotalPrice)),
+                Subtotal = subtotal,
+                DiscountAmount = 0,
+                ShippingCost = shipping,
+                TotalAmount = subtotal + shipping,
                 TotalItems = items.Sum(i => i.Quantity)
             };
         }
 
         private string? GetVariantInfo(Domain.Entities.Product product, Guid? variantId)
         {
-            if (!variantId.HasValue || product.ProductVariants == null) return null;
-            
-            var variant = product.ProductVariants.FirstOrDefault(v => v.Id == variantId.Value);
-            if (variant == null) return null;
+            if (!variantId.HasValue || product.ProductVariants == null)
+            {
+                return null;
+            }
 
-            return $"سایز: {variant.Size}, رنگ: {variant.Color}";
+            var variant = product.ProductVariants.FirstOrDefault(v => v.Id == variantId.Value);
+            if (variant == null)
+            {
+                return null;
+            }
+
+            return $"Size: {variant.Size}, Color: {variant.Color}";
         }
 
         private int GetAvailableStock(Domain.Entities.Product product, Guid? variantId)
@@ -152,6 +177,7 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
                 var variant = product.ProductVariants.FirstOrDefault(v => v.Id == variantId.Value);
                 return variant?.StockQuantity ?? 0;
             }
+
             return product.StockQuantity;
         }
 
