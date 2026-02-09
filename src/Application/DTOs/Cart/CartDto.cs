@@ -5,7 +5,7 @@ namespace OnlineShop.Application.DTOs.Cart
     public class AddToCartDto
     {
         public Guid ProductId { get; set; }
-        public Guid? VariantId { get; set; }  // Optional: specific size/color
+        public Guid VariantId { get; set; }  // Required: specific size/color
         public int Quantity { get; set; } = 1;
     }
     
