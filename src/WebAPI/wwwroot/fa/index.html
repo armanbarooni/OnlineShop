@@ -41,7 +41,7 @@
     <link rel="stylesheet" href="assets/css/app.css" />
     <link
       rel="preload"
-      href="assets/fonts/payda/PeydaWebFaNum-Medium.woff2"
+      href="assets/fonts/payda/PeydaWebFaNum-Regular.woff2"
       as="font"
       type="font/woff2"
       crossorigin
@@ -88,8 +88,10 @@
               <div class="lg:text-start text-center">
                 <img
                   class="md:h-12"
-                  src="assets/images/logo.png"
-                  loading="lazy"
+                  src="assets/images/logo.webp"
+                  loading="eager"
+                  fetchpriority="high"
+                  decoding="async"
                   alt=""
                 />
               </div>
@@ -810,10 +812,11 @@
               itemprop="url"
             >
               <img
-                src="assets/images/advert/banner-2.jpg"
+                src="assets/images/advert/banner-2.webp"
                 class="rounded-lg transition block duration-300 hover:-translate-y-2"
                 alt="تابستانه ویژه - تا ۵۰% تخفیف روی محصولات منتخب"
                 loading="lazy"
+                decoding="async"
                 itemprop="image"
               />
               <meta itemprop="name" content="تخفیف تابستانی" />
@@ -852,10 +855,11 @@
               itemprop="url"
             >
               <img
-                src="assets/images/advert/banner-1.jpg"
+                src="assets/images/advert/banner-1.webp"
                 class="rounded-lg transition block duration-300 hover:-translate-y-2"
                 alt="مجموعه جدید پاییزه - آخرین مدل‌های روز دنیا"
                 loading="lazy"
+                decoding="async"
                 itemprop="image"
               />
               <meta itemprop="name" content="مجموعه پاییزه" />
@@ -1007,10 +1011,11 @@
             itemprop="url"
           >
             <img
-              src="assets/images/slider/slider-2-3.jpg"
+              src="assets/images/slider/slider-2-3.webp"
               class="rounded-lg transition block duration-300 hover:-translate-y-2"
               alt="تابستانه ویژه - تا ۵۰% تخفیف روی محصولات منتخب"
               loading="lazy"
+              decoding="async"
               itemprop="image"
             />
             <meta itemprop="name" content="تخفیف تابستانی" />
@@ -1058,8 +1063,10 @@
                 itemtype="https://schema.org/ImageObject"
               >
                 <img
-                  src="assets/images/logo.png"
+                  src="assets/images/logo.webp"
                   class="h-12"
+                  loading="lazy"
+                  decoding="async"
                   alt="لوگوی فروشگاه  بالیگا"
                   itemprop="contentUrl"
                 />
@@ -1382,10 +1389,11 @@
             <div class="text-start w-1/3">
               <img
                 class="max-w-full"
-                src="assets/images/product/product-11.jpeg"
+                src="assets/images/product/product-11.webp"
                 alt="ساعت مچی عقربه‌ای مردانه اینویکتا مدل Automatico Ghost Reserve"
                 itemprop="image"
                 loading="lazy"
+                decoding="async"
               />
             </div>
             <div class="w-2/3 space-y-4">
@@ -1936,20 +1944,7 @@
     </nav>
     <!-- ================= end nav mobile menu ================= -->
 
-    <script src="config.js"></script>
-    <script src="assets/js/utils/logger.js"></script>
-    <script src="assets/js/dependencies/app.js"></script>
-    <script src="assets/js/api-client.js"></script>
-    <script src="assets/js/auth-service.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/services/category-service.js"></script>
-    <script src="assets/js/services/product-service.js"></script>
-    <script src="assets/js/services/cart-service.js"></script>
-    <script src="assets/js/services/wishlist-service.js"></script>
-    <script src="assets/js/plugin/story-player/story-player.js"></script>
-    <script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
-    <script src="assets/js/dependencies/swiper-script.js"></script>
-    <script src="assets/js/pages/index-page.js"></script>
+    <script defer src="assets/js/bundles/index.bundle.min.js"></script>
 
     <!-- initial story api -->
   </body>

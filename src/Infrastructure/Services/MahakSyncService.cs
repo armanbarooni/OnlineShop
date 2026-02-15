@@ -28,6 +28,9 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IProductVariantRepository _productVariantRepository;
 
         private string _token;
+        private static readonly SemaphoreSlim TokenSemaphore = new(1, 1);
+        private static string? _sharedToken;
+        private static DateTimeOffset _sharedTokenExpiresAt = DateTimeOffset.MinValue;
         private const string BaseUrl = "https://mahakacc.mahaksoft.com/API/v3/Sync/";
 
         public MahakSyncService(
@@ -53,6 +56,11 @@ namespace OnlineShop.Infrastructure.Services
             
             _httpClient.BaseAddress = new Uri(BaseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            if (HasValidSharedToken())
+            {
+                ApplyAuthorizationHeader(_sharedToken!);
+            }
         }
 
         public async Task SyncAsync(CancellationToken cancellationToken)
@@ -62,10 +70,7 @@ namespace OnlineShop.Infrastructure.Services
                 _logger.LogInformation("Starting Mahak Sync...");
 
                 // 1. Login
-                if (string.IsNullOrEmpty(_token))
-                {
-                    await LoginAsync(cancellationToken);
-                }
+                await EnsureAuthenticatedAsync(cancellationToken);
 
                 // 2. Get Last Row Versions
                 long fromProductVersion = await _mahakSyncLogRepository.GetLastRowVersionAsync("Product", cancellationToken);
@@ -210,9 +215,56 @@ namespace OnlineShop.Infrastructure.Services
             }
 
             _token = result.Data.UserToken; // Use UserToken from response
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            _sharedToken = _token;
+            _sharedTokenExpiresAt = ResolveSharedTokenExpiration();
+            ApplyAuthorizationHeader(_token);
             
             _logger.LogInformation("Mahak login successful. Token received (length: {Length})", _token?.Length ?? 0);
+        }
+
+        private async Task EnsureAuthenticatedAsync(CancellationToken cancellationToken)
+        {
+            if (HasValidSharedToken())
+            {
+                ApplyAuthorizationHeader(_sharedToken!);
+                return;
+            }
+
+            await TokenSemaphore.WaitAsync(cancellationToken);
+            try
+            {
+                if (!HasValidSharedToken())
+                {
+                    await LoginAsync(cancellationToken);
+                }
+                else
+                {
+                    ApplyAuthorizationHeader(_sharedToken!);
+                }
+            }
+            finally
+            {
+                TokenSemaphore.Release();
+            }
+        }
+
+        private bool HasValidSharedToken()
+        {
+            return !string.IsNullOrWhiteSpace(_sharedToken) &&
+                   _sharedTokenExpiresAt > DateTimeOffset.UtcNow.AddMinutes(1);
+        }
+
+        private void ApplyAuthorizationHeader(string token)
+        {
+            _token = token;
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        private DateTimeOffset ResolveSharedTokenExpiration()
+        {
+            var tokenCacheMinutes = _configuration.GetValue<int?>("Mahak:TokenCacheMinutes") ?? 20;
+            tokenCacheMinutes = Math.Clamp(tokenCacheMinutes, 1, 120);
+            return DateTimeOffset.UtcNow.AddMinutes(tokenCacheMinutes);
         }
 
         private async Task<GetAllDataResponse?> GetAllDataAsync(RequestAllDataModel request, CancellationToken cancellationToken)

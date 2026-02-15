@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -106,10 +107,19 @@ public static class ServiceRegistration
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<Domain.Interfaces.Services.IInvoiceService, Infrastructure.Services.InvoiceService>();
-        services.AddHttpClient<MahakSyncService>();
-        services.AddScoped<MahakSyncService>();
-        services.AddHttpClient<MahakOutgoingSyncService>();
-        services.AddScoped<MahakOutgoingSyncService>();
+
+        var mahakTimeoutSeconds = configuration.GetValue<int?>("BackgroundSync:MahakHttpTimeoutSeconds") ?? 20;
+        mahakTimeoutSeconds = Math.Clamp(mahakTimeoutSeconds, 5, 120);
+
+        services.AddHttpClient<MahakSyncService>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(mahakTimeoutSeconds);
+        });
+
+        services.AddHttpClient<MahakOutgoingSyncService>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(mahakTimeoutSeconds);
+        });
         
         // Payment Gateway - ZarinPal (replace with MockPaymentService for testing)
         services.AddHttpClient<ZarinPalPaymentService>();

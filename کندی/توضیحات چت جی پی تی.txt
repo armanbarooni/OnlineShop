@@ -1,0 +1,794 @@
+
+اول بگو راهی هست یک سری لاگی چیزی بزاریم دقیقا ببینیم پرا اینقد طول میکشه
+دوم اینکه ببین باید رای جلش چیکار کنیم
+
+درخواستت روشنه: می‌خوای دقیق بفهمیم کندی از کجاست و بعد راه‌حل عملی جلوش بذاریم. اول ساختار پروژه و نقطه‌های اجرای کند رو پیدا می‌کنم، بعد لاگ‌گذاری زمان‌سنجی اضافه می‌کنم و در آخر یک راهکار بهینه‌سازی قابل اجرا می‌دم.
+
+Ran Get-ChildItem -Force for 4s
+
+
+الان مشخص شد اینجا نسخه publish شده‌ی WebAPI هست و سورس کامل داخل همین پوشه نیست. قدم بعدی لاگ فعلی رو می‌خونم تا گلوگاه زمانی رو دقیق دربیارم، بعد اگر لازم شد روی همین باینری هم لاگ دقیق‌تر فعال می‌کنیم.
+
+Ran Get-Content -Path logs/log-20260209.txt -Tail 300 for 6s
+
+
+از لاگ همین الان یک نشانه مهم داریم: درخواست‌های کاربر عمدتا سریع‌اند (اکثرا زیر ~20ms) و بار پس‌زمینه‌ی Sync هر 60 ثانیه تکرار می‌شود. الان تنظیمات appsettings را بررسی می‌کنم تا ببینیم می‌شود با تنظیمات، لاگ دقیق‌تر و فشار اضافه را کم کرد.
+
+Ran Get-Content appsettings.json for 6s
+
+
+Ran Get-Content appsettings.Development.json for 3s
+
+
+Ran Get-Content appsettings.Production.json for 2s
+
+
+تنظیمات رو دیدم؛ الان می‌خوام web.config و ساختار logs رو هم چک کنم تا ببینیم چه گزینه‌هایی بدون دسترسی به سورس قابل اعماله (مثل لاگ کندی، window طولانی‌تر و کاهش نویز).
+
+Ran Get-ChildItem logs | Sort-Object LastWriteTime -Descending | Select-Object -First 5 Name,Length,LastWriteTime for 5s
+
+
+Ran Get-Content web.config for 4s
+
+
+فایل لاگ امروز هم وجود دارد؛ حالا سریع یک تحلیل عددی می‌گیرم تا ببینیم کندی واقعی روی کدام مسیرهاست (نه حدسی).
+
+Ran rg --version for 2s
+
+
+Ran $lines = rg "Request .* completed: .* in [0-9]+ms" logs/log-20260210.txt; $data = foreach($l in $lines){ if($l -match 'Request ([0-9a-f]+) completed: ([0-9]{3}) in ([0-9]+)ms'){ [pscustomobject]@{Code=[int]$matches[2];Ms=[int]$matches[3]} } }; $data | Measure-Object Ms -Average -Maximum -Minimum | Format-List; $data | Group-Object Code | Select-Object Name,Count | Sort-Object Count -Descending | Format-Table -AutoSize for 1s
+
+
+Ran rg --files -g "*.cs" -g "*.csproj" for 1s
+
+
+نتیجه اولیه: لاگ درخواست‌های HTTP الان زمان پاسخ را دارد و خیلی‌ها کند نیستند؛ بنابراین گلوگاه احتمالاً داخل jobهای Sync یا وابستگی بیرونی است. الان مدت اجرای خودِ Mahak Sync و outgoing sync را از روی timestamp حساب می‌کنم تا دقیق مشخص شود کجا وقت می‌رود.
+
+Ran $path='logs/log-20260210.txt'; $lines=Get-Content $path; $culture=[System.Globalization.CultureInfo]::InvariantCulture; $style=[System.Globalization.DateTimeStyles]::AllowWhiteSpaces; $syncRuns=@(); $outRuns=@(); $syncStart=$null; $outStart=$null; foreach($line in $lines){ if($line -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2})'){ $ts=[datetimeoffset]::ParseExact($matches.ts,'yyyy-MM-dd HH:mm:ss.fff zzz',$culture); if($line -like '*Starting Mahak Sync...*'){ $syncStart=$ts } elseif($line -like '*Mahak Sync Completed Successfully.*' -and $syncStart){ $syncRuns += [pscustomobject]@{Start=$syncStart; End=$ts; DurationMs=[math]::Round(($ts-$syncStart).TotalMilliseconds)}; $syncStart=$null } elseif($line -like '*Starting outgoing sync to Mahak...*'){ $outStart=$ts } elseif(($line -like '*No orders to sync to Mahak*' -or $line -like '*outgoing sync completed*' -or $line -like '*orders synced to Mahak*') -and $outStart){ $outRuns += [pscustomobject]@{Start=$outStart; End=$ts; DurationMs=[math]::Round(($ts-$outStart).TotalMilliseconds)}; $outStart=$null } } }; 'Mahak Sync stats:'; $syncRuns | Measure-Object DurationMs -Average -Maximum -Minimum | Format-List; 'Outgoing Sync stats:'; $outRuns | Measure-Object DurationMs -Average -Maximum -Minimum | Format-List; 'Top 5 Mahak Sync durations:'; $syncRuns | Sort-Object DurationMs -Descending | Select-Object -First 5 Start,DurationMs | Format-Table -AutoSize; 'Top 5 Outgoing Sync durations:'; $outRuns | Sort-Object DurationMs -Descending | Select-Object -First 5 Start,DurationMs | Format-Table -AutoSize for 2s
+
+
+Ran $path='logs/log-20260210.txt'; $start=@{}; $rows=@(); Get-Content $path | ForEach-Object { if($_ -match 'Request (?<id>[0-9a-f]+): (?<method>\S+) (?<path>\S+) '){ $start[$matches.id]=[pscustomobject]@{Method=$matches.method;Path=$matches.path} } elseif($_ -match 'Request (?<id>[0-9a-f]+) completed: (?<code>\d{3}) in (?<ms>\d+)ms'){ $id=$matches.id; if($start.ContainsKey($id)){ $meta=$start[$id]; $rows += [pscustomobject]@{Method=$meta.Method;Path=$meta.Path;Code=[int]$matches.code;Ms=[int]$matches.ms}; $start.Remove($id) | Out-Null } } }; 'Slowest 15 requests:'; $rows | Sort-Object Ms -Descending | Select-Object -First 15 Method,Path,Code,Ms | Format-Table -AutoSize; 'Average by path (min 3 hits):'; $rows | Group-Object Path | ForEach-Object { [pscustomobject]@{Path=$_.Name; Count=$_.Count; AvgMs=[math]::Round(($_.Group | Measure-Object Ms -Average).Average,1); MaxMs=($_.Group | Measure-Object Ms -Maximum).Maximum } } | Where-Object Count -ge 3 | Sort-Object AvgMs -Descending | Select-Object -First 15 Path,Count,AvgMs,MaxMs | Format-Table -AutoSize for 3s
+
+
+Ran $path='logs/log-20260210.txt'; $start=@{}; $rows=@(); Get-Content $path | ForEach-Object { if($_ -match 'Request (?<id>[0-9a-f]+): (?<method>\S+) (?<path>\S+) '){ $start[$matches.id]=[pscustomobject]@{Method=$matches.method;Path=$matches.path} } elseif($_ -match 'Request (?<id>[0-9a-f]+) completed: (?<code>\d{3}) in (?<ms>\d+)ms'){ $id=$matches.id; if($start.ContainsKey($id)){ $meta=$start[$id]; $rows += [pscustomobject]@{Method=$meta.Method;Path=$meta.Path;Code=[int]$matches.code;Ms=[int]$matches.ms}; $start.Remove($id) | Out-Null } } }; $rows | Where-Object Code -eq 404 | Group-Object Path | Sort-Object Count -Descending | Select-Object Count,Name | Format-Table -AutoSize for 1s
+
+
+قبل از تغییرات، یک ابزار تحلیل خودکار لاگ اضافه می‌کنم که هر بار سریع بگه کندی دقیقا روی کدام API/Sync افتاده. بعد یک اصلاح کم‌ریسک روی تنظیمات انجام می‌دم که فشار I/O لاگ در پروداکشن کم شود.
+
+Ran Get-ChildItem -Recurse -File wwwroot\fa\assets\images\slider | Select-Object FullName for 2s
+
+
+Ran Get-ChildItem -Recurse -File wwwroot\fa\assets\images\advert | Select-Object FullName for 2s
+
+
+Ran rg -n "banner-1\.jpg|banner-2\.jpg|slider-2-3\.webp|logo\.webp|favicon\.ico" wwwroot for 7s
+
+
+Ran Get-ChildItem -Recurse -File wwwroot\fa\assets\images\favicon_io | Select-Object Name,FullName for 1s
+
+
+یک نکته عملی پیدا شد: دو تصویر در index.html با پسوند .jpg صدا زده می‌شوند ولی فایل واقعی .webp است و 404 می‌دهد. این مورد را مستقیم اصلاح می‌کنم چون هم خطا کم می‌کند هم سرعت ادراکی صفحه را بهتر می‌کند.
+
+Edited file
+index.html
++2
+-2
+
+              <img
+                src="assets/images/advert/banner-2.jpg"
+                src="assets/images/advert/banner-2.webp"
+                class="rounded-lg transition block duration-300 hover:-translate-y-2"
+              <img
+                src="assets/images/advert/banner-1.jpg"
+                src="assets/images/advert/banner-1.webp"
+                class="rounded-lg transition block duration-300 hover:-translate-y-2"
+بعد از این، favicon.ico را هم روی ریشه wwwroot می‌گذارم تا 404 تکراری حذف شود. این کم‌ریسک است و یک درخواست خطادار هر بار لود صفحه را پاک می‌کند.
+
+Ran Copy-Item -Path wwwroot\fa\assets\images\favicon_io\favicon.ico -Destination wwwroot\favicon.ico -Force for 1s
+
+
+الان اسکریپت تحلیل لاگ اضافه می‌کنم تا هر لحظه با یک دستور بفهمی کندی روی کدام endpoint یا کدام سیکل sync بوده (میانگین/بیشینه و top slow).
+
+Created file
+analyze-performance.ps1
++110
+-0
+
+param(
+    [string]$LogPath = "logs/log-20260210.txt",
+    [int]$Top = 15
+)
+
+if (-not (Test-Path $LogPath)) {
+    Write-Error "Log file not found: $LogPath"
+    exit 1
+}
+
+$requestStartById = @{}
+$requests = @()
+$syncRuns = @()
+$outgoingRuns = @()
+$syncStart = $null
+$outgoingStart = $null
+
+Get-Content $LogPath | ForEach-Object {
+    $line = $_
+
+    if ($line -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2})') {
+        $timestamp = [DateTimeOffset]::ParseExact($matches.ts, 'yyyy-MM-dd HH:mm:ss.fff zzz', [Globalization.CultureInfo]::InvariantCulture)
+
+        if ($line -like '*Starting Mahak Sync...*') {
+            $syncStart = $timestamp
+        } elseif ($line -like '*Mahak Sync Completed Successfully.*' -and $syncStart) {
+            $syncRuns += [pscustomobject]@{
+                Start = $syncStart
+                End = $timestamp
+                DurationMs = [math]::Round(($timestamp - $syncStart).TotalMilliseconds)
+            }
+            $syncStart = $null
+        } elseif ($line -like '*Starting outgoing sync to Mahak...*') {
+            $outgoingStart = $timestamp
+        } elseif (($line -like '*No orders to sync to Mahak*' -or $line -like '*outgoing sync completed*' -or $line -like '*orders synced to Mahak*') -and $outgoingStart) {
+            $outgoingRuns += [pscustomobject]@{
+                Start = $outgoingStart
+                End = $timestamp
+                DurationMs = [math]::Round(($timestamp - $outgoingStart).TotalMilliseconds)
+            }
+            $outgoingStart = $null
+        }
+    }
+
+    if ($line -match 'Request (?<id>[0-9a-f]+): (?<method>\S+) (?<path>\S+) ') {
+        $requestStartById[$matches.id] = [pscustomobject]@{
+            Method = $matches.method
+            Path = $matches.path
+        }
+    } elseif ($line -match 'Request (?<id>[0-9a-f]+) completed: (?<code>\d{3}) in (?<ms>\d+)ms') {
+        $id = $matches.id
+        if ($requestStartById.ContainsKey($id)) {
+            $meta = $requestStartById[$id]
+            $requests += [pscustomobject]@{
+                Method = $meta.Method
+                Path = $meta.Path
+                Code = [int]$matches.code
+                Ms = [int]$matches.ms
+            }
+            $requestStartById.Remove($id) | Out-Null
+        }
+    }
+}
+
+Write-Host "=== Request Summary ==="
+if ($requests.Count -gt 0) {
+    $requests | Measure-Object Ms -Average -Maximum -Minimum | Format-List
+
+    Write-Host "`nTop $Top Slow Requests"
+    $requests | Sort-Object Ms -Descending | Select-Object -First $Top Method, Path, Code, Ms | Format-Table -AutoSize
+
+    Write-Host "`nAverage By Path (min 3 hits)"
+    $requests |
+        Group-Object Path |
+        ForEach-Object {
+            [pscustomobject]@{
+                Path = $_.Name
+                Count = $_.Count
+                AvgMs = [math]::Round(($_.Group | Measure-Object Ms -Average).Average, 1)
+                MaxMs = ($_.Group | Measure-Object Ms -Maximum).Maximum
+            }
+        } |
+        Where-Object Count -ge 3 |
+        Sort-Object AvgMs -Descending |
+        Select-Object -First $Top Path, Count, AvgMs, MaxMs |
+        Format-Table -AutoSize
+
+    Write-Host "`n404 Paths"
+    $requests | Where-Object Code -eq 404 | Group-Object Path | Sort-Object Count -Descending | Select-Object Count, Name | Format-Table -AutoSize
+} else {
+    Write-Host "No request entries found."
+}
+
+Write-Host "`n=== Mahak Sync Summary ==="
+if ($syncRuns.Count -gt 0) {
+    $syncRuns | Measure-Object DurationMs -Average -Maximum -Minimum | Format-List
+    Write-Host "`nTop $Top Mahak Sync Durations"
+    $syncRuns | Sort-Object DurationMs -Descending | Select-Object -First $Top Start, DurationMs | Format-Table -AutoSize
+} else {
+    Write-Host "No Mahak sync windows found."
+}
+
+Write-Host "`n=== Outgoing Sync Summary ==="
+if ($outgoingRuns.Count -gt 0) {
+    $outgoingRuns | Measure-Object DurationMs -Average -Maximum -Minimum | Format-List
+    Write-Host "`nTop $Top Outgoing Sync Durations"
+    $outgoingRuns | Sort-Object DurationMs -Descending | Select-Object -First $Top Start, DurationMs | Format-Table -AutoSize
+} else {
+    Write-Host "No outgoing sync windows found."
+}
+یک بهینه‌سازی سریع دیگر هم می‌زنم: stdout لاگ IIS را خاموش می‌کنم چون در حالت عادی فقط I/O اضافه می‌دهد و برای Debug مقطعی بهتر است روشن شود.
+
+Edited file
+web.config
++2
+-2
+
+      </handlers>
+      <aspNetCore processPath="dotnet" arguments=".\OnlineShop.WebAPI.dll" stdoutLogEnabled="true" stdoutLogFile=".\logs\stdout" hostingModel="inprocess">
+      <aspNetCore processPath="dotnet" arguments=".\OnlineShop.WebAPI.dll" stdoutLogEnabled="false" stdoutLogFile=".\logs\stdout" hostingModel="inprocess">
+        <environmentVariables>
+</configuration>
+<!--ProjectGuid: BCB53899-6575-4384-9341-655AAE429CD6-->
+<!--ProjectGuid: BCB53899-6575-4384-9341-655AAE429CD6-->
+Ran rg -n "banner-1\.webp|banner-2\.webp" wwwroot/fa/index.html for 2s
+
+
+Ran powershell -ExecutionPolicy Bypass -File scripts/analyze-performance.ps1 -LogPath logs/log-20260210.txt -Top 5 for 8s
+
+
+Ran rg -n "stdoutLogEnabled" web.config for 2s
+
+
+تغییرات تایید شد و اسکریپت خروجی درست می‌دهد. یک چک نهایی می‌زنم که favicon.ico هم در مسیر درست قرار گرفته باشد.
+
+Ran Get-Item wwwroot\favicon.ico | Select-Object FullName,Length,LastWriteTime for 2s
+
+
+Ran git status --short for 6s
+
+
+Worked for 5m 52s
+بله، راهش هست و انجامش دادم.
+
+چی اضافه/اصلاح شد
+
+ابزار تحلیل لاگ ساختم: analyze-performance.ps1
+مرجع‌های اشتباه تصویر که 404 می‌دادند اصلاح شد:
+index.html (line 813)
+index.html (line 855)
+favicon ریشه اضافه شد تا 404 حذف شود: favicon.ico
+لاگ stdout دائمی IIS خاموش شد (I/O اضافه را کم می‌کند): web.config (line 8)
+چطور دقیق بفهمی کندی از کجاست
+این دستور را بزن:
+
+powershell -ExecutionPolicy Bypass -File scripts/analyze-performance.ps1 -LogPath logs/log-20260210.txt -Top 15
+خروجی‌اش مستقیم می‌دهد:
+
+کندترین Requestها
+میانگین/بیشینه هر Path
+404های پرتکرار
+مدت اجرای Mahak Sync و Outgoing Sync
+نتیجه‌ای که از لاگ فعلی گرفتم
+
+HTTP خیلی کند نیست: میانگین حدود 40ms، بیشینه 433ms
+گلوگاه اصلی بیشتر در Sync است:
+Mahak Sync میانگین حدود 1.9s، تا 5.3s
+Outgoing Sync میانگین حدود 265ms، تا 1.3s
+404های تکراری داشتیم که اصلاح شدند (2.jpg و favicon.ico)
+برای جلوی کندی چه کار کنیم
+
+همین اسکریپت را روتین اجرا کن تا قبل/بعد هر تغییر عدد دقیق داشته باشی.
+اگر سورس را بدهی، مرحله بعدی را پیاده می‌کنم: لاگ زمان‌سنجی ریز داخل MahakSyncService (لاگین، fetch، DB save، هر step جدا).
+فرکانس Outgoing Sync را کمتر کنیم (الان هر ~60 ثانیه اجرا می‌شود) تا فشار پس‌زمینه کم شود.
+لاگ Request برای فایل‌های استاتیک را محدود کنیم (فقط slow requestها لاگ شوند).
+اگر خواستی، قدم بعدی را خودم انجام می‌دهم: یک نسخه slow-only logging + تایمر ریز برای Sync (با آستانه مثلا 200ms).
+
+
+3 files changed
++114
+-4
+Undo
+
+Review
+scripts/analyze-performance.ps1
+web.config
+wwwroot/fa/index.html
+الان چیکار کنم؟
+
+الان این 4 کار رو انجام بده:
+
+سرویس/اپلیکیشن رو یکبار restart کن
+چون web.config و فایل‌های استاتیک عوض شده‌اند.
+
+10 تا 15 دقیقه ترافیک واقعی بگیر
+بعد لاگ جدید (مثلا log-20260210.txt) رو تحلیل کن:
+
+powershell -ExecutionPolicy Bypass -File scripts/analyze-performance.ps1 -LogPath logs/log-20260210.txt -Top 15
+خروجی رو روی این 3 مورد چک کن
+Top Slow Requests
+Mahak Sync Summary
+Outgoing Sync Summary
+نتیجه رو بفرست تا مرحله بعد رو اعمال کنم
+اگر Mahak Sync هنوز بالای 2-3 ثانیه بود، قدم بعدی باید داخل سورس انجام بشه (timer ریز برای هر step و کاهش فرکانس sync).
+اگر بخوای، الان خودم یک چک‌لیست دقیق می‌دم که از خروجی اسکریپت دقیقا چه عددی خوبه/بده.
+
+
+ببین لاگ تولید شد؟
+
+الان پوشه logs را چک می‌کنم و آخرین فایل‌های لاگ را می‌بینم تا مشخص شود لاگ جدید ساخته شده یا نه.
+
+Ran Get-ChildItem logs | Sort-Object LastWriteTime -Descending | Select-Object -First 10 Name,Length,LastWriteTime for 3s
+
+
+Worked for 23s
+بله، لاگ تولید شده.
+
+جدیدترین‌ها:
+
+log-20260210.txt (آخرین تغییر: 2026-02-10 03 (line 42, column 27))
+stdout_20260210105338_6712.log (آخرین تغییر: 2026-02-10 03 (line 42, column 38))
+اگر بخوای الان همون log-20260210.txt رو برات سریع تحلیل می‌کنم و می‌گم الان کندی دقیقاً کجاست.
+
+
+اره
+
+الان همان لاگ log-20260210.txt را تحلیل می‌کنم و خلاصه دقیق گلوگاه‌ها را می‌دهم.
+
+Ran powershell -ExecutionPolicy Bypass -File scripts/analyze-performance.ps1 -LogPath logs/log-20260210.txt -Top 15 for 8s
+
+
+Worked for 30s
+تحلیل انجام شد. جمع‌بندی:
+
+کندی اصلی روی APIهاست، نه فایل‌های استاتیک:
+/api/Product/search میانگین 193ms و تا 606ms
+/api/ProductCategory میانگین 87.5ms و تا 403ms
+Mahak Sync سنگین‌ترین کار پس‌زمینه است:
+میانگین حدود 2.0s، پیک تا 5.3s
+Outgoing Sync سبک‌تر است:
+میانگین حدود 260ms، پیک تا 1.3s
+404ها هنوز در لاگ دیده می‌شوند (banner-1.jpg, banner-2.jpg, favicon.ico) که به احتمال زیاد مربوط به قبل از ریستارت/کش قدیمی است.
+کار بعدی که الان باید بکنی:
+
+سرویس را یکبار restart کن (تا تغییرات index.html و favicon.ico قطعی اعمال شود).
+5-10 دقیقه بعد دوباره همین تحلیل را بگیر.
+اگر 404 دوباره آمد، مسیر واقعی درخواست‌شده را از لاگ جدید می‌گیرم و همان را دقیق patch می‌کنم.
+برای کندی واقعی، مرحله بعد باید داخل سورس باشد: تایمر ریز برای Product/search و ProductCategory + تایمر step-by-step داخل MahakSyncService.
+اگر خواستی، همین الان یک اسکریپت می‌گذارم که فقط 404های جدید بعد از زمان ریستارت را نشان بدهد.
+
+
+Request URL
+https://baliga.shop/cdn-cgi/rum?
+Request Method
+POST
+Status Code
+204 No Content
+Remote Address
+188.114.97.3:443
+Referrer Policy
+strict-origin-when-cross-origin
+access-control-allow-credentials
+true
+access-control-allow-methods
+POST,OPTIONS
+access-control-allow-origin
+https://baliga.shop
+access-control-max-age
+86400
+alt-svc
+h3=":443"; ma=86400
+cf-ray
+9cbb8fc21f6b4dc6-FRA
+content-type
+text/plain
+date
+Tue, 10 Feb 2026 12:20:37 GMT
+nel
+{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to
+{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=sMada%2Bd63XSnSoSVZqdjPJR8uLMhasVpZsRYlpK1xkFqVtNxF%2B0K5mGumPR8%2BHcuQ9gm%2F2TgDxahuCgqKoJWC4sE%2BXUWs8o7Un7d"}]}
+
+server
+cloudflare
+strict-transport-security
+max-age=15552000
+vary
+Origin
+x-content-type-options
+nosniff
+ببین مثن اینو هر سری فراخانی میکنه
+میشه یکبار دیگه لاگ هار ببینی؟
+
+درست می‌گی؛ cdn-cgi/rum اگر مدام زده شود باید معلوم کنیم به سرور خودت می‌رسد یا فقط روی Cloudflare هندل می‌شود. الان لاگ‌های جدید را برای همین مسیر و همچنین کندترین درخواست‌های اخیر دوباره چک می‌کنم.
+
+Ran Get-ChildItem logs | Sort-Object LastWriteTime -Descending | Select-Object -First 5 Name,Length,LastWriteTime for 4s
+
+
+Ran powershell -ExecutionPolicy Bypass -File scripts/analyze-performance.ps1 -LogPath logs/log-20260210.txt -Top 10 for 8s
+
+
+Ran rg -n "cdn-cgi|rum|Request .* /cdn-cgi|/cdn-cgi/rum" logs\*.txt logs\stdout_*.log for 2s
+
+
+یک جستجوی مستقیم هم روی همه فایل‌های logs می‌زنم تا مطمئن شویم اصلا cdn-cgi/rum وارد لاگ اپلیکیشن شده یا نه.
+
+Ran Get-ChildItem logs -File | ForEach-Object { rg -n "cdn-cgi|/cdn-cgi/rum|rum\?" $_.FullName } for 2s
+
+
+نتیجه این جستجو صفر بود؛ یعنی cdn-cgi/rum به لاگ اپ شما نمی‌رسد. برای 404های banner-*.jpg هم مسیرهای فرانت را دوباره چک می‌کنم ببینیم هنوز جایی .jpg مانده یا از کش قدیمی می‌آید.
+
+Ran rg -n "banner-1\.jpg|banner-2\.jpg|favicon\.ico|swiper-bundle\.min\.js\.map" wwwroot for 2s
+
+
+Ran rg -n "banner-1\.jpg|banner-2\.jpg|/favicon\.ico" logs/log-20260210.txt | Select-Object -Last 20 for 1s
+
+
+Worked for 1m 30s
+چک کردم، نتیجه:
+
+cdn-cgi/rum اصلا داخل لاگ اپلیکیشن شما نیست.
+جستجو روی همه فایل‌های logs برای cdn-cgi و rum هیچ نتیجه‌ای نداشت.
+یعنی این درخواست POST https://baliga.shop/cdn-cgi/rum روی Cloudflare هندل می‌شود (204 هم نرمال است) و به بک‌اند شما نمی‌رسد.
+لاگ‌ها الان چه می‌گویند:
+
+آخرین لاگ اصلی: log-20260210.txt تا 2026-02-10 04:18:59 -08 (line 0)
+کندی هنوز بیشتر روی این‌هاست:
+/api/Product/search (تا 606ms)
+/api/ProductCategory (تا 403ms)
+Mahak Sync میانگین ~2s (پیک تا 5.3s)
+در مورد 404های banner-1.jpg/banner-2.jpg:
+
+آخرین رخدادشان در لاگ فعلی 2026-02-10 03:17:18 -08 (line 0) بوده.
+بعد از آن در همین فایل رخداد جدیدی برایشان ندیدم (احتمالا قبل از اعمال تغییر/کش قدیمی بوده).
+اگر بخوای، قدم بعدی را انجام می‌دهم: یک گزارش “فقط رخدادهای بعد از ساعت فعلی” بگیرم تا دقیق ببینیم بعد از تغییرات هنوز 404 یا کندی تکرار می‌شود یا نه.
+
+
+User attachment
+(No content)
+این اسکرین‌شات خیلی مفیده؛ الان اندازه فایل‌ها و همان خطوط index.html که توی Network نشان داده را بررسی می‌کنم تا دقیق بگم کندی از وزن فایل است یا از سرور.
+
+Ran $c=Get-Content wwwroot\fa\index.html; $c[35..110] for 5s
+
+
+Ran Get-Item wwwroot\fa\assets\images\logo.png, wwwroot\fa\assets\slider\1.jpg, wwwroot\fa\assets\slider\2.jpg, wwwroot\fa\assets\slider\3.jpg, wwwroot\fa\assets\slider\4.jpg, wwwroot\fa\assets\fonts\payda\PeydaWebFaNum-Medium.woff2, wwwroot\fa\assets\fonts\payda\PeydaWebFaNum-Regular.woff2, wwwroot\fa\assets\fonts\payda\PeydaWebFaNum-Bold.woff2 | Select-Object Name,Length for 4s
+
+
+Ran $c=Get-Content wwwroot\fa\index.html; $c[660..740] for 3s
+
+
+الان ارجاع مستقیم فایل‌های اسلایدر داخل index.html را هم پیدا می‌کنم تا دقیق همان درخواست‌های کند را هدف بگیریم.
+
+Ran rg -n "assets/slider/[1-4]\.jpg|logo\.png|swiper-bundle\.min\.css|PeydaWebFaNum" wwwroot/fa/index.html
+
+
+عامل اصلی توی اسکرین‌شات، لود همزمان چند تصویر اسلایدر است. الان app.css را هم چک می‌کنم که فونت‌ها چه‌طور لود می‌شوند (برای جلوگیری از تاخیر رندر متن).
+
+Ran rg -n "@font-face|font-display|PeydaWebFaNum" wwwroot/fa/assets/css/app.css for 1s
+
+
+یک اصلاح سریع و کم‌ریسک می‌زنم: اولویت لود لوگو و اسلاید اول را بالا می‌برم، اسلایدهای بعدی را lazy می‌کنم تا درخواست‌های سنگین همزمان نیاید.
+
+Ran $c=Get-Content wwwroot\fa\index.html; $c[470..550] for 2s
+
+
+داخل کد دیدم اسلایدرها قبلا lazy هستند، اما لوگوی بالای صفحه هم اشتباهی lazy بوده و می‌تواند LCP را بدتر کند. الان اولویت منابع بالای صفحه را اصلاح می‌کنم (logo + slide اول).
+
+Ran rg -n "assets/slider/1\.jpg|assets/slider/2\.jpg|assets/slider/3\.jpg|assets/slider/4\.jpg|assets/images/logo\.png|loading=\"lazy\"|preload\" href=\"assets/fonts/payda/PeydaWebFaNum-Medium\.woff2\"" wwwroot/fa/index.html for 1s
+
+
+Ran rg -n 'assets/slider/1\.jpg|assets/slider/2\.jpg|assets/slider/3\.jpg|assets/slider/4\.jpg|assets/images/logo\.png|loading="lazy"|PeydaWebFaNum-Medium\.woff2' wwwroot/fa/index.html for 1s
+
+
+Ran Select-String -Path wwwroot\fa\index.html -Pattern 'src="assets/images/logo.png"|src="assets/slider/1.jpg"|src="assets/slider/2.jpg"|src="assets/slider/3.jpg"|src="assets/slider/4.jpg"' -Context 0,5 for 2s
+
+
+Ran $c=Get-Content wwwroot\fa\index.html; $c[36..50] for 2s
+
+
+پچ را با متن دقیق فایل اعمال می‌کنم تا خطای قبلی (encoding/context) ندهد.
+
+Edited file
+index.html
++48
+-37
+
+    <link rel="stylesheet" href="assets/css/app.css" />
+    <link
+      rel="preload"
+      href="assets/fonts/payda/PeydaWebFaNum-Medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="assets/fonts/payda/PeydaWebFaNum-Medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="preload" href="assets/slider/1.jpg" as="image" />
+  </head>
+              <div class="lg:text-start text-center">
+                <img
+                  class="md:h-12"
+                  src="assets/images/logo.png"
+                  loading="lazy"
+                  alt=""
+                />
+                <img
+                  class="md:h-12"
+                  src="assets/images/logo.png"
+                  loading="eager"
+                  fetchpriority="high"
+                  decoding="async"
+                  alt=""
+                />
+              </div>
+                <div class="h-90 flex justify-center items-center">
+                  <img
+                    src="assets/slider/1.jpg"
+                    class="h-full w-full object-cover rounded-lg"
+                    loading="lazy"
+                    alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 1"
+                  />
+                  <img
+                    src="assets/slider/1.jpg"
+                    class="h-full w-full object-cover rounded-lg"
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
+                    alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 1"
+                  />
+                </div>
+                <div class="h-90 flex justify-center items-center">
+                  <img
+                    src="assets/slider/2.jpg"
+                    class="h-full object-cover w-full rounded-lg"
+                    loading="lazy"
+                    alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 2"
+                  />
+                  <img
+                    src="assets/slider/2.jpg"
+                    class="h-full object-cover w-full rounded-lg"
+                    loading="lazy"
+                    fetchpriority="low"
+                    decoding="async"
+                    alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 2"
+                  />
+                </div>
+                <div class="h-90 flex justify-center items-center">
+                  <img
+                    src="assets/slider/3.jpg"                    
+                     class="h-full object-cover w-full rounded-lg"
+                    loading="lazy"
+                    alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 4"
+                  />
+                  <img
+                    src="assets/slider/3.jpg"                    
+                     class="h-full object-cover w-full rounded-lg"
+                    loading="lazy"
+                    fetchpriority="low"
+                    decoding="async"
+                    alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 4"
+                  />
+                </div>
+                <div class="h-90 flex justify-center items-center">
+                  <img
+                    src="assets/slider/4.jpg"                    
+                     class="h-full object-cover w-full rounded-lg"
+                    loading="lazy"
+                    alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 3"
+                  />
+                  <img
+                    src="assets/slider/4.jpg"                    
+                     class="h-full object-cover w-full rounded-lg"
+                    loading="lazy"
+                    fetchpriority="low"
+                    decoding="async"
+                    alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 3"
+                  />
+                </div>
+Ran Select-String -Path wwwroot\fa\index.html -Pattern 'assets/slider/1.jpg|assets/slider/2.jpg|assets/slider/3.jpg|assets/slider/4.jpg|assets/images/logo.png|fetchpriority|decoding="async"|rel="preload" href="assets/slider/1.jpg"' -Context 0,3 for 2s
+
+
+Worked for 3m 25s
+این اسکرین‌شات تایید می‌کنه کندی فعلی بیشتر فرانت/دانلود فایل‌ها است، نه خود API.
+
+نتیجه دقیق:
+
+cdn-cgi/rum مربوط Cloudflare است و به بک‌اند تو نمی‌رسد (لاگ اپ هم نشانش نمی‌دهد).
+فایل‌های سنگین داری:
+4.jpg حدود 820KB
+1.jpg حدود 419KB
+همین‌ها باعث 1.8s ~ 2.8s در Network شده‌اند.
+من همین الان این بهینه‌سازی‌ها را اعمال کردم:
+
+index.html (line 49)
+preload برای تصویر اسلاید اول
+index.html (line 92)
+لوگوی هدر از lazy به eager + fetchpriority=high
+index.html (line 498)
+اسلاید اول eager + high
+index.html (line 512)
+index.html (line 526)
+index.html (line 540)
+اسلایدهای 2/3/4 با fetchpriority=low و decoding=async
+الان کاری که انجام بده:
+
+یک Hard Refresh بزن (Ctrl+F5) و اگر Cloudflare داری یک Purge Cache برای index.html بزن.
+دوباره Network بگیر و زمان logo.png و 1.jpg و 4.jpg را چک کن.
+اگر هنوز بالاست، قدم بعدی قطعی: تبدیل 1.jpg و 4.jpg به webp/avif (بیشترین اثر همین است).
+
+1 file changed
+Undo
+
+Review
+wwwroot/fa/index.html
+Web server is returning an unknown error Error code 520
+Visit cloudflare.com for more information.
+2026-02-10 12:31:17 UTC
+You
+Browser Working
+Frankfurt
+Cloudflare Working
+baliga.shop
+Host Error
+What happened?
+There is an unknown connection issue between Cloudflare and the origin web server. As a result, the web page can not be displayed.
+
+What can I do?
+If you are a visitor of this website:
+Please try again in a few minutes.
+
+If you are the owner of this website:
+There is an issue between Cloudflare's cache and your origin web server. Cloudflare monitors for these errors and automatically investigates the cause. To help support the investigation, you can pull the corresponding error log from your web server and submit it our support team. Please include the Ray ID (which is at the bottom of this error page). Additional troubleshooting resources.
+
+Cloudflare Ray ID: 9cbb9e26bbf4dbf2
+Your IP: Click to reveal
+Performance & security by Cloudflare
+بعضی وقتا اینقد طول میکشه این صحفحه میاد
+
+این خطا مهمه؛ الان لاگ‌های همون بازه زمانی 2026-02-10 12:31:17 UTC (معادل 2026-02-10 04:31:17 -08 (line 0)) را چک می‌کنم تا ببینیم دقیقاً سمت origin قطع شده، timeout بوده یا اپ کرش کرده.
+
+Ran Get-ChildItem logs | Sort-Object LastWriteTime -Descending | Select-Object -First 8 Name,Length,LastWriteTime for 4s
+
+
+Ran Select-String -Path logs\log-20260210.txt -Pattern '2026-02-10 04:3[01]:' | Select-Object -First 120 for 7s
+
+
+Ran Get-Process dotnet -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,StartTime,CPU,WorkingSet for 2s
+
+
+الان یک لایه عمیق‌تر چک می‌کنم: آیا همون بازه Recycle/Crash یا خطای IIS/ASP.NET Core ثبت شده یا نه. این مشخص می‌کند 520 از قطع اتصال لحظه‌ای بوده یا مشکل داخلی سرور.
+
+Ran $path='logs/log-20260210.txt'; $items=Get-Content $path | Where-Object {$_ -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2}).*"ProcessId":(?<pid>\d+)'} | ForEach-Object { [pscustomobject]@{Ts=$matches.ts;Pid=[int]$matches.pid} }; $items | Group-Object Pid | ForEach-Object { [pscustomobject]@{Pid=$_.Name; Count=$_.Count; First=($_.Group | Select-Object -First 1).Ts; Last=($_.Group | Select-Object -Last 1).Ts } } | Sort-Object First | Format-Table -AutoSize for 7s
+
+
+Ran Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=(Get-Date).AddHours(-12)} | Where-Object { $_.ProviderName -match 'IIS AspNetCore Module V2|ASP.NET Core|WAS|W3SVC|Application Error|.NET Runtime' } | Select-Object -First 60 TimeCreated,ProviderName,Id,LevelDisplayName,Message | Format-List for 17s
+
+
+Ran try { Get-Process w3wp -ErrorAction Stop | Select-Object Id,StartTime,CPU,WorkingSet } catch { 'No w3wp process found right now' } for 3s
+
+
+الان IIS access log خود ویندوز را هم چک می‌کنم (UTC است) تا ببینیم دقیق لحظه 12:31:17 UTC چه statusی از origin خارج شده؛ این بهترین شاهد برای 520 است.
+
+Ran $iis='C:\inetpub\logs\LogFiles'; if(Test-Path $iis){ Get-ChildItem $iis -Recurse -File -Filter u_ex*.log | Sort-Object LastWriteTime -Descending | Select-Object -First 5 FullName,LastWriteTime,Length } else { 'IIS log path not found: ' + $iis } for 1s
+
+
+Ran $start=[datetime]'2026-02-10T12:25:00Z'; $end=[datetime]'2026-02-10T12:40:00Z'; Get-WinEvent -FilterHashtable @{LogName='System'; StartTime=$start.ToLocalTime().AddHours(-8); EndTime=$end.ToLocalTime().AddHours(-8)} -ErrorAction SilentlyContinue | Where-Object { $_.ProviderName -match 'WAS|W3SVC|HTTP|IIS|Tcpip|Service Control Manager' } | Select-Object -First 50 TimeCreated,ProviderName,Id,LevelDisplayName,Message | Format-List for 2s
+
+
+Ran $start=[datetime]'2026-02-10T04:25:00'; $end=[datetime]'2026-02-10T04:40:00'; Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=$start; EndTime=$end} -ErrorAction SilentlyContinue | Where-Object { $_.ProviderName -match 'IIS AspNetCore Module V2|ASP.NET Core|WAS|W3SVC|Application Error|.NET Runtime' } | Select-Object TimeCreated,ProviderName,Id,LevelDisplayName,Message | Format-List for 2s
+
+
+Ran $start=[datetime]'2026-02-10T04:25:00'; $end=[datetime]'2026-02-10T04:40:00'; Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=$start; EndTime=$end} -ErrorAction SilentlyContinue | Select-Object -First 80 TimeCreated,ProviderName,Id,LevelDisplayName | Format-Table -AutoSize for 2s
+
+
+یک الگوی مهم هم پیدا شده: اپلیکیشن مرتب shutdown/start می‌شود. سریع فاصله‌ی این چرخه‌ها را درمیارم تا ببینیم Cold Start می‌تواند دلیل همان کندی/520 باشد یا نه.
+
+Ran $ev=Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=(Get-Date).AddDays(-2)} | Where-Object {$_.ProviderName -eq 'IIS AspNetCore Module V2' -and ($_.Id -eq 1032 -or $_.Id -eq 1033)} | Sort-Object TimeCreated; $ev | Select-Object TimeCreated,Id,@{n='Type';e={if($_.Id -eq 1032){'Start'}else{'Shutdown'}}} | Format-Table -AutoSize; '---'; $pairs=@(); $lastShutdown=$null; foreach($e in $ev){ if($e.Id -eq 1033){$lastShutdown=$e.TimeCreated}; if($e.Id -eq 1032 -and $lastShutdown){ $pairs += [pscustomobject]@{Shutdown=$lastShutdown; NextStart=$e.TimeCreated; DownMinutes=[math]::Round(($e.TimeCreated-$lastShutdown).TotalMinutes,2)}; $lastShutdown=$null } }; $pairs | Sort-Object NextStart -Descending | Select-Object -First 10 | Format-Table -AutoSize for 5s
+
+
+Worked for 3m 52s
+لاگ‌ها را دوباره چک کردم. نتیجه دقیق:
+
+زمان خطای شما 2026-02-10 12:31:17 UTC است (لوکال سرور: 2026-02-10 04:31:17 -08 (line 0)).
+در همان بازه، اپلیکیشن درخواست موفق داشته:
+04 (line 31, column 14) outgoing sync موفق
+04 (line 31, column 37) login.html با 200 در 4ms
+یعنی 520 در آن لحظه به اپلیکیشن نرسیده و بین Cloudflare و Origin بوده.
+نکته مهمی که از Event Log پیدا شد:
+
+سرویس IIS/ASP.NET Core شما خیلی زیاد Shutdown/Start می‌شود (ANCM event 1033/1032).
+این الگو معمولاً باعث cold start و بعضی وقت‌ها خطا/تاخیر در Cloudflare می‌شود.
+کار فوری که باید انجام بدهی (روی IIS):
+
+App Pool مربوط به سایت:
+Idle Time-out (minutes) = 0
+Start Mode = AlwaysRunning
+خود سایت:
+Preload Enabled = True
+Recycling:
+Regular time interval را خاموش/خیلی زیاد کن یا فقط یک زمان کم‌ترافیک تنظیم کن.
+یک warm-up ping هر 1 دقیقه بزن به index.html یا /api/health.
+اگر بخوای، قدم بعدی را خودم انجام می‌دم: یک چک‌اسکریپت می‌گذارم که هر بار 520 اتفاق افتاد، همان دقیقه را با restart/sync لاگ کورلِیت کند تا علت قطعی مشخص شود.
+
+
+ببین الان استاپ کردم سرئر رئ
+با دقت لاگ هارو بخن دلیل کندی رو بگو
+چون api های بک کلی پندینگ میمونن
+
+الان با دقت لاگ‌ها را خط‌به‌خط تحلیل می‌کنم روی سه محور: requestهای pending، هم‌زمانی با sync job، و restart/recycle پروسه. بعد یک نتیجه قطعی با شواهد زمانی می‌دهم.
+
+Ran (Get-Content logs/log-20260210.txt -Tail 120) for 6s
+
+
+Ran Get-ChildItem logs | Sort-Object LastWriteTime -Descending | Select-Object -First 6 Name,Length,LastWriteTime for 6s
+
+
+Ran (Get-Content logs/log-20260209_001.txt -Tail 120) for 6s
+
+
+الان دقیقاً روی «پندینگ» حساب می‌گیرم: درخواست‌هایی که شروع شده‌اند ولی completed ندارند، و اینکه این‌ها قبل از shutdown افتاده‌اند یا نه.
+
+Ran $path='logs/log-20260210.txt'; $starts=@{}; $completed=@(); $orphans=@(); Get-Content $path | ForEach-Object { if($_ -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2}).*Request (?<id>[0-9a-f]+): (?<method>\S+) (?<path>\S+) .*"ProcessId":(?<pid>\d+)'){ $starts[$matches.id]=[pscustomobject]@{Ts=$matches.ts;Method=$matches.method;Path=$matches.path;Pid=[int]$matches.pid} } elseif($_ -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2}).*Request (?<id>[0-9a-f]+) completed: (?<code>\d{3}) in (?<ms>\d+)ms .*"ProcessId":(?<pid>\d+)'){ $id=$matches.id; if($starts.ContainsKey($id)){ $s=$starts[$id]; $completed += [pscustomobject]@{Id=$id;Path=$s.Path;Method=$s.Method;Pid=$s.Pid;Ms=[int]$matches.ms;Code=[int]$matches.code;Start=$s.Ts;End=$matches.ts}; $starts.Remove($id) | Out-Null } else { $orphans += $_ } } }; 'CompletedCount=' + $completed.Count; 'UnmatchedStarts=' + $starts.Count; if($starts.Count -gt 0){ $starts.Values | Group-Object Path | Sort-Object Count -Descending | Select-Object -First 20 Count,Name | Format-Table -AutoSize; 'Recent unmatched:'; $starts.Values | Sort-Object Ts -Descending | Select-Object -First 20 Ts,Pid,Method,Path | Format-Table -AutoSize } for 3s
+
+
+Ran $path='logs/log-20260210.txt'; $rows=@(); $open=@{}; Get-Content $path | ForEach-Object { if($_ -match 'Request (?<id>[0-9a-f]+): (?<method>\S+) (?<path>\S+) .*"ProcessId":(?<pid>\d+)'){ $open[$matches.id]=[pscustomobject]@{Path=$matches.path;Pid=[int]$matches.pid} } elseif($_ -match 'Request (?<id>[0-9a-f]+) completed: (?<code>\d{3}) in (?<ms>\d+)ms .*"ProcessId":(?<pid>\d+)'){ $id=$matches.id; if($open.ContainsKey($id)){ $m=$open[$id]; $rows += [pscustomobject]@{Pid=$m.Pid;Path=$m.Path;Ms=[int]$matches.ms;Code=[int]$matches.code}; $open.Remove($id) | Out-Null } } }; $rows | Group-Object Pid | ForEach-Object { $g=$_.Group; [pscustomobject]@{Pid=$_.Name;Count=$g.Count;AvgMs=[math]::Round(($g|Measure-Object Ms -Average).Average,1);P95Ms=($g|Sort-Object Ms|Select-Object -Index ([math]::Floor($g.Count*0.95)-1)).Ms;MaxMs=($g|Measure-Object Ms -Maximum).Maximum;Over500=($g|Where-Object Ms -gt 500).Count } } | Sort-Object {[int]$_.Pid} | Format-Table -AutoSize for 4s
+
+
+یک محاسبه هم انجام می‌دهم که ببینیم وقتی Mahak Sync در حال اجراست، میانگین پاسخ APIها بدتر می‌شود یا نه؛ این مستقیم فرضیه pending را تایید/رد می‌کند.
+
+Ran $path='logs/log-20260210.txt'; $sync=@(); $syncStart=$null; $req=[]; $open=@{}; $culture=[Globalization.CultureInfo]::InvariantCulture; foreach($line in Get-Content $path){ if($line -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2})'){ $ts=[DateTimeOffset]::ParseExact($matches.ts,'yyyy-MM-dd HH:mm:ss.fff zzz',$culture); if($line -like '*Starting Mahak Sync...*'){ $syncStart=$ts } elseif($line -like '*Mahak Sync Completed Successfully.*' -and $syncStart){ $sync += [pscustomobject]@{Start=$syncStart;End=$ts}; $syncStart=$null } if($line -match 'Request (?<id>[0-9a-f]+): (?<method>\S+) (?<path>\S+) '){ $open[$matches.id]=[pscustomobject]@{Ts=$ts;Path=$matches.path;Method=$matches.method} } elseif($line -match 'Request (?<id>[0-9a-f]+) completed: (?<code>\d{3}) in (?<ms>\d+)ms'){ $id=$matches.id; if($open.ContainsKey($id)){ $s=$open[$id]; $inSync=$false; foreach($w in $sync){ if($s.Ts -ge $w.Start -and $s.Ts -le $w.End){ $inSync=$true; break } }; $req += [pscustomobject]@{Ts=$s.Ts;Path=$s.Path;Ms=[int]$matches.ms;Code=[int]$matches.code;InSync=$inSync}; $open.Remove($id) | Out-Null } } } }; 'TotalRequests=' + $req.Count; $req | Group-Object InSync | ForEach-Object { $g=$_.Group; [pscustomobject]@{InSync=$_.Name;Count=$g.Count;AvgMs=[math]::Round(($g|Measure-Object Ms -Average).Average,1);MaxMs=($g|Measure-Object Ms -Maximum).Maximum;Over200=($g|Where-Object Ms -gt 200).Count;Over500=($g|Where-Object Ms -gt 500).Count} } | Format-Table -AutoSize; 'API only:'; $req | Where-Object Path -like '/api/*' | Group-Object InSync | ForEach-Object { $g=$_.Group; [pscustomobject]@{InSync=$_.Name;Count=$g.Count;AvgMs=[math]::Round(($g|Measure-Object Ms -Average).Average,1);MaxMs=($g|Measure-Object Ms -Maximum).Maximum;Over200=($g|Where-Object Ms -gt 200).Count;Over500=($g|Where-Object Ms -gt 500).Count} } | Format-Table -AutoSize for 1s
+
+
+Ran $path='logs/log-20260210.txt'; $sync=@(); $syncStart=$null; $req=@(); $open=@{}; $culture=[Globalization.CultureInfo]::InvariantCulture; foreach($line in Get-Content $path){ if($line -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2})'){ $ts=[DateTimeOffset]::ParseExact($matches.ts,'yyyy-MM-dd HH:mm:ss.fff zzz',$culture); if($line -like '*Starting Mahak Sync...*'){ $syncStart=$ts } elseif($line -like '*Mahak Sync Completed Successfully.*' -and $syncStart){ $sync += [pscustomobject]@{Start=$syncStart;End=$ts}; $syncStart=$null } if($line -match 'Request (?<id>[0-9a-f]+): (?<method>\S+) (?<path>\S+) '){ $open[$matches.id]=[pscustomobject]@{Ts=$ts;Path=$matches.path;Method=$matches.method} } elseif($line -match 'Request (?<id>[0-9a-f]+) completed: (?<code>\d{3}) in (?<ms>\d+)ms'){ $id=$matches.id; if($open.ContainsKey($id)){ $s=$open[$id]; $inSync=$false; foreach($w in $sync){ if($s.Ts -ge $w.Start -and $s.Ts -le $w.End){ $inSync=$true; break } }; $req += [pscustomobject]@{Ts=$s.Ts;Path=$s.Path;Ms=[int]$matches.ms;Code=[int]$matches.code;InSync=$inSync}; $open.Remove($id) | Out-Null } } } }; 'TotalRequests=' + $req.Count; $req | Group-Object InSync | ForEach-Object { $g=$_.Group; [pscustomobject]@{InSync=$_.Name;Count=$g.Count;AvgMs=[math]::Round(($g|Measure-Object Ms -Average).Average,1);MaxMs=($g|Measure-Object Ms -Maximum).Maximum;Over200=($g|Where-Object Ms -gt 200).Count;Over500=($g|Where-Object Ms -gt 500).Count} } | Format-Table -AutoSize; 'API only:'; $req | Where-Object Path -like '/api/*' | Group-Object InSync | ForEach-Object { $g=$_.Group; [pscustomobject]@{InSync=$_.Name;Count=$g.Count;AvgMs=[math]::Round(($g|Measure-Object Ms -Average).Average,1);MaxMs=($g|Measure-Object Ms -Maximum).Maximum;Over200=($g|Where-Object Ms -gt 200).Count;Over500=($g|Where-Object Ms -gt 500).Count} } | Format-Table -AutoSize for 3s
+
+
+Ran $path='logs/log-20260210.txt'; $culture=[Globalization.CultureInfo]::InvariantCulture; $lines=Get-Content $path; $sync=@(); $syncStart=$null; foreach($line in $lines){ if($line -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2})'){ $ts=[DateTimeOffset]::ParseExact($matches.ts,'yyyy-MM-dd HH:mm:ss.fff zzz',$culture); if($line -like '*Starting Mahak Sync...*'){ $syncStart=$ts } elseif($line -like '*Mahak Sync Completed Successfully.*' -and $syncStart){ $sync += [pscustomobject]@{Start=$syncStart;End=$ts}; $syncStart=$null } } }; $req=@(); $open=@{}; foreach($line in $lines){ if($line -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2})'){ $ts=[DateTimeOffset]::ParseExact($matches.ts,'yyyy-MM-dd HH:mm:ss.fff zzz',$culture); if($line -match 'Request (?<id>[0-9a-f]+): (?<method>\S+) (?<path>\S+) '){ $open[$matches.id]=[pscustomobject]@{Ts=$ts;Path=$matches.path;Method=$matches.method} } elseif($line -match 'Request (?<id>[0-9a-f]+) completed: (?<code>\d{3}) in (?<ms>\d+)ms'){ $id=$matches.id; if($open.ContainsKey($id)){ $s=$open[$id]; $inSync=$false; foreach($w in $sync){ if($s.Ts -ge $w.Start -and $s.Ts -le $w.End){ $inSync=$true; break } }; $req += [pscustomobject]@{Ts=$s.Ts;Path=$s.Path;Ms=[int]$matches.ms;Code=[int]$matches.code;InSync=$inSync}; $open.Remove($id) | Out-Null } } } }; 'SyncWindows=' + $sync.Count; $sync | Select-Object -First 5 Start,End,@{n='DurMs';e={[math]::Round(($_.End-$_.Start).TotalMilliseconds)}} | Format-Table -AutoSize; 'TotalRequests=' + $req.Count; $req | Group-Object InSync | ForEach-Object { $g=$_.Group; [pscustomobject]@{InSync=$_.Name;Count=$g.Count;AvgMs=[math]::Round(($g|Measure-Object Ms -Average).Average,1);MaxMs=($g|Measure-Object Ms -Maximum).Maximum;Over200=($g|Where-Object Ms -gt 200).Count;Over500=($g|Where-Object Ms -gt 500).Count} } | Format-Table -AutoSize; 'API only:'; $req | Where-Object Path -like '/api/*' | Group-Object InSync | ForEach-Object { $g=$_.Group; [pscustomobject]@{InSync=$_.Name;Count=$g.Count;AvgMs=[math]::Round(($g|Measure-Object Ms -Average).Average,1);MaxMs=($g|Measure-Object Ms -Maximum).Maximum;Over200=($g|Where-Object Ms -gt 200).Count;Over500=($g|Where-Object Ms -gt 500).Count} } | Format-Table -AutoSize for 3s
+
+
+یک تحلیل زمانی هم می‌گیرم که کندترین APIها دقیقاً چه ساعتی و روی کدام ProcessId رخ داده‌اند تا ببینیم به cold-start/restart مرتبط‌اند یا نه.
+
+Ran $path='logs/log-20260210.txt'; $open=@{}; $rows=@(); Get-Content $path | ForEach-Object { if($_ -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2}).*Request (?<id>[0-9a-f]+): (?<method>\S+) (?<path>\S+) .*"ProcessId":(?<pid>\d+)'){ $open[$matches.id]=[pscustomobject]@{Ts=$matches.ts;Method=$matches.method;Path=$matches.path;Pid=[int]$matches.pid} } elseif($_ -match 'Request (?<id>[0-9a-f]+) completed: (?<code>\d{3}) in (?<ms>\d+)ms .*"ProcessId":(?<pid>\d+)'){ $id=$matches.id; if($open.ContainsKey($id)){ $s=$open[$id]; $rows += [pscustomobject]@{Ts=$s.Ts;Pid=$s.Pid;Method=$s.Method;Path=$s.Path;Code=[int]$matches.code;Ms=[int]$matches.ms}; $open.Remove($id) | Out-Null } } }; 'Top slow API calls'; $rows | Where-Object Path -like '/api/*' | Sort-Object Ms -Descending | Select-Object -First 20 Ts,Pid,Method,Path,Code,Ms | Format-Table -AutoSize; ''; 'Process first-seen times'; $rows | Group-Object Pid | ForEach-Object { [pscustomobject]@{Pid=[int]$_.Name;First=($_.Group|Select-Object -First 1).Ts;Last=($_.Group|Select-Object -Last 1).Ts;Count=$_.Count } } | Sort-Object First | Format-Table -AutoSize for 4s
+
+
+Ran $path='logs/log-20260210.txt'; $culture=[Globalization.CultureInfo]::InvariantCulture; $rows=@(); foreach($line in Get-Content $path){ if($line -match '^(?<ts>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2})'){ $ts=[DateTimeOffset]::ParseExact($matches.ts,'yyyy-MM-dd HH:mm:ss.fff zzz',$culture); $rows += [pscustomobject]@{Ts=$ts;Line=$line} } }; $gaps=@(); for($i=1;$i -lt $rows.Count;$i++){ $d=($rows[$i].Ts-$rows[$i-1].Ts).TotalSeconds; if($d -ge 20){ $gaps += [pscustomobject]@{GapSec=[math]::Round($d,1);Prev=$rows[$i-1].Ts;Next=$rows[$i].Ts;PrevLine=$rows[$i-1].Line;NextLine=$rows[$i].Line} } }; 'GapCount>=20s=' + $gaps.Count; $gaps | Sort-Object GapSec -Descending | Select-Object -First 15 GapSec,Prev,Next | Format-Table -AutoSize for 3s
+
+
+یک چیز حیاتی دیگر را چک می‌کنم: داخل stdout آیا exception/crash داریم که باعث recycle و pending شده باشد یا نه.
+
+Ran Get-ChildItem logs -Filter "stdout_*.log" | Sort-Object LastWriteTime -Descending | ForEach-Object { "### $($_.Name)"; rg -n "Unhandled|Exception|fatal|fail|terminated|stack|OutOfMemory|Kestrel|connection reset|timeout" $_.FullName } for 3s
+
+
+Ran Get-Content logs/stdout_20260210105338_6712.log | Select-Object -Index (330..510) for 9s
+
+
+یک شواهد قوی پیدا شد: داخل stdout چند OperationCanceledException روی کوئری‌های EF/Npgsql داریم. الان بررسی می‌کنم آیا همزمان با این‌ها پیام shutting down هم داریم یا نه تا علت اصلی پندینگ قطعی شود.
+
+Ran rg -n "shutting down|Application is shutting down|shutdown|Stopping|host is stopping|fail fast|crash|Killed|recycle" logs/stdout_20260210105338_6712.log for 1s
+
+
+Ran rg -n "04:10:42\.629|04:20:42\.597|04:10:41\.365|Starting outgoing sync to Mahak|MahakSyncWorker running sync at|Request 5993d677 failed with exception|Unhandled exception occurred|OperationCanceledException|Request 9a312682 completed: 400" logs/log-20260210.txt logs/stdout_20260210105338_6712.log for 1s
+
+
+Ran Get-Process w3wp,dotnet -ErrorAction SilentlyContinue | Select-Object ProcessName,Id,StartTime,CPU,WorkingSet for 1s
+
+
+Worked for 5m 36s
+نتیجه‌ی دقیق از لاگ‌ها:
+
+مشکل اصلی pending به‌احتمال زیاد از recycle/stop شدن origin است، نه کندی شدید داخل خود API.
+در لاگ اپ، بین پروسه‌ها گپ‌های خیلی بزرگ داریم (مثلا 01:28 -> 02 (line 53) و 03:42 -> 04 (line 10)) که یعنی اپ مدتی بالا نبوده.
+همین باعث می‌شود از سمت Cloudflare درخواست‌ها معطل/520 شوند و در مرورگر pending دیده شود.
+شواهد زمانی را قبلا از Event Log گرفتم: IIS AspNetCore Module V2 با shutdown/startهای تکراری.
+داخل خود API هم خطای لغو درخواست داریم (OperationCanceledException) که به pending کاربر نزدیک است.
+log-20260210.txt (line 770)
+log-20260210.txt (line 805)
+log-20260210.txt (line 874)
+همین خطاها در stdout هم هست:
+stdout_20260210105338_6712.log (line 359)
+stdout_20260210105338_6712.log (line 394)
+این یعنی request/cancellation token وسط کوئری DB لغو شده (کاربر timeout/abort کرده یا کانکشن قطع شده).
+از نظر زمان پاسخ ثبت‌شده‌ی API:
+کندترین‌ها حدود ~600ms بودند، نه چندین ثانیه.
+log-20260210.txt (line 1108) (/api/Product/search)
+log-20260210.txt (line 1095) (/api/ProductCategory)
+درخواستی که شروع شده و completed نداشته باشد در لاگ پیدا نشد (UnmatchedStarts=0).
+جمع‌بندی علت:
+
+علت اول و اصلی: ناپایداری پروسه IIS/ASP.NET Core (shutdown/start مکرر).
+علت دوم: cancellation روی کوئری‌های EF/Npgsql وقتی درخواست از کلاینت/پروکسی قطع می‌شود.
+کندی خام API به‌تنهایی توضیح‌دهنده‌ی آن pendingهای طولانی نیست.
+اگر بخوای، قدم بعدی را همین الان انجام می‌دهم: یک چک لیست عملی دقیق برای IIS/AppPool می‌دهم (AlwaysRunning, IdleTimeout=0, Recycling) + الگوی لاگ‌گیری که هر pending را مستقیم به recycle یا cancellation وصل کند.
+
+

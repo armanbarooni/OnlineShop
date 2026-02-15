@@ -27,6 +27,10 @@ namespace OnlineShop.Infrastructure.Services
 
         private string? _token;
         private int _visitorId;
+        private static readonly SemaphoreSlim TokenSemaphore = new(1, 1);
+        private static string? _sharedToken;
+        private static int _sharedVisitorId;
+        private static DateTimeOffset _sharedTokenExpiresAt = DateTimeOffset.MinValue;
         private const string BaseUrl = "https://mahakacc.mahaksoft.com/API/v3/Sync/";
 
         public MahakOutgoingSyncService(
@@ -48,6 +52,11 @@ namespace OnlineShop.Infrastructure.Services
             
             _httpClient.BaseAddress = new Uri(BaseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            if (HasValidSharedToken())
+            {
+                ApplyAuthorizationHeader(_sharedToken!, _sharedVisitorId);
+            }
         }
 
         public async Task SyncOrdersToMahakAsync(CancellationToken cancellationToken)
@@ -57,10 +66,7 @@ namespace OnlineShop.Infrastructure.Services
                 _logger.LogInformation("Starting outgoing sync to Mahak...");
 
                 // 1. Login
-                if (string.IsNullOrEmpty(_token))
-                {
-                    await LoginAsync(cancellationToken);
-                }
+                await EnsureAuthenticatedAsync(cancellationToken);
 
                 // 2. Get unsync orders (paid but not synced to Mahak)
                 var unsyncedOrders = await GetUnsyncedOrdersAsync(cancellationToken);
@@ -460,9 +466,58 @@ namespace OnlineShop.Infrastructure.Services
 
             _token = result.Data.UserToken;
             _visitorId = (int)result.Data.VisitorId;
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            _sharedToken = _token;
+            _sharedVisitorId = _visitorId;
+            _sharedTokenExpiresAt = ResolveSharedTokenExpiration();
+            ApplyAuthorizationHeader(_token, _visitorId);
 
             _logger.LogInformation("Mahak outgoing sync login successful. VisitorId: {VisitorId}", _visitorId);
+        }
+
+        private async Task EnsureAuthenticatedAsync(CancellationToken cancellationToken)
+        {
+            if (HasValidSharedToken())
+            {
+                ApplyAuthorizationHeader(_sharedToken!, _sharedVisitorId);
+                return;
+            }
+
+            await TokenSemaphore.WaitAsync(cancellationToken);
+            try
+            {
+                if (!HasValidSharedToken())
+                {
+                    await LoginAsync(cancellationToken);
+                }
+                else
+                {
+                    ApplyAuthorizationHeader(_sharedToken!, _sharedVisitorId);
+                }
+            }
+            finally
+            {
+                TokenSemaphore.Release();
+            }
+        }
+
+        private bool HasValidSharedToken()
+        {
+            return !string.IsNullOrWhiteSpace(_sharedToken) &&
+                   _sharedTokenExpiresAt > DateTimeOffset.UtcNow.AddMinutes(1);
+        }
+
+        private void ApplyAuthorizationHeader(string token, int visitorId)
+        {
+            _token = token;
+            _visitorId = visitorId;
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        private DateTimeOffset ResolveSharedTokenExpiration()
+        {
+            var tokenCacheMinutes = _configuration.GetValue<int?>("Mahak:TokenCacheMinutes") ?? 20;
+            tokenCacheMinutes = Math.Clamp(tokenCacheMinutes, 1, 120);
+            return DateTimeOffset.UtcNow.AddMinutes(tokenCacheMinutes);
         }
     }
 }
