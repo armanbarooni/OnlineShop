@@ -305,16 +305,47 @@ namespace OnlineShop.Infrastructure.Services
             
             int created = 0;
             int updated = 0;
+            int deleted = 0;
             int errors = 0;
 
             foreach (var mahakProduct in products)
             {
                 try
                 {
-                    // Skip deleted products
+                    // Delete local product when Mahak marks it as deleted
                     if (mahakProduct.Deleted)
                     {
-                        _logger.LogDebug("Skipping deleted product: {ProductId}", mahakProduct.ProductId);
+                        var deletedMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                            "Product",
+                            mahakProduct.ProductId,
+                            cancellationToken);
+
+                        if (deletedMapping == null)
+                        {
+                            _logger.LogDebug("Deleted product from Mahak has no local mapping: {ProductId}", mahakProduct.ProductId);
+                            continue;
+                        }
+
+                        var localProduct = await _productRepository.GetByIdAsync(deletedMapping.LocalEntityId, cancellationToken);
+                        if (localProduct != null)
+                        {
+                            await _productRepository.DeleteAsync(deletedMapping.LocalEntityId, cancellationToken);
+                            deleted++;
+                            _logger.LogInformation(
+                                "Deleted local product for Mahak deleted product: MahakId={MahakId}, LocalId={LocalId}",
+                                mahakProduct.ProductId,
+                                deletedMapping.LocalEntityId);
+                        }
+                        else
+                        {
+                            _logger.LogDebug(
+                                "Local product already missing/deleted for Mahak deleted product: MahakId={MahakId}, LocalId={LocalId}",
+                                mahakProduct.ProductId,
+                                deletedMapping.LocalEntityId);
+                        }
+
+                        // Remove mapping so future non-deleted records can be re-created cleanly.
+                        await _mahakMappingRepository.DeleteAsync(deletedMapping.Id, cancellationToken);
                         continue;
                     }
 
@@ -437,8 +468,8 @@ namespace OnlineShop.Infrastructure.Services
             }
 
             _logger.LogInformation(
-                "Product sync completed: {Created} created, {Updated} updated, {Errors} errors", 
-                created, updated, errors);
+                "Product sync completed: {Created} created, {Updated} updated, {Deleted} deleted, {Errors} errors",
+                created, updated, deleted, errors);
         }
 
         private async Task ProcessCategoriesAsync(List<ProductCategoryModel>? categories, CancellationToken cancellationToken)

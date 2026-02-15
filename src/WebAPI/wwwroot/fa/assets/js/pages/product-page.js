@@ -2,6 +2,8 @@
  * Product Page (product.html) API Integration
  */
 
+let normalizedVariants = [];
+
 // Initialize product page
 document.addEventListener("DOMContentLoaded", async () => {
   // Wait for all services to load
@@ -129,6 +131,9 @@ function renderProduct(product) {
   // Description
   renderDescription(product);
 
+  // Variant selectors
+  renderVariantSelectors(product);
+
   // Specifications
   renderSpecifications(product);
 }
@@ -235,6 +240,252 @@ function getProductSize(product) {
   return null;
 }
 
+function toArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function toNumber(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function stringOrEmpty(value) {
+  return value === null || value === undefined ? "" : String(value).trim();
+}
+
+function extractVariantAttributes(row, product) {
+  let color =
+    stringOrEmpty(row.color) ||
+    stringOrEmpty(row.Color) ||
+    stringOrEmpty(row.colorName) ||
+    stringOrEmpty(row.ColorName) ||
+    stringOrEmpty(row.attributes?.color) ||
+    stringOrEmpty(row.attributes?.Color);
+
+  let size =
+    stringOrEmpty(row.size) ||
+    stringOrEmpty(row.Size) ||
+    stringOrEmpty(row.attributes?.size) ||
+    stringOrEmpty(row.attributes?.Size);
+
+  const rowProperties = [
+    ...toArray(row.productProperties),
+    ...toArray(row.ProductProperties),
+    ...toArray(row.properties),
+    ...toArray(row.Properties),
+  ];
+  const productProperties = [
+    ...toArray(product.productProperties),
+    ...toArray(product.ProductProperties),
+  ];
+
+  let feature8Title = "";
+  let feature8Value = "";
+  let feature9Title = "";
+  let feature9Value = "";
+  [...rowProperties, ...productProperties].forEach((prop) => {
+    const code = String(
+      prop.propertyDescriptionCode ??
+        prop.PropertyDescriptionCode ??
+        prop.code ??
+        prop.Code ??
+        "",
+    ).replace(/^0+/, "");
+
+    const title = stringOrEmpty(
+      prop.title ??
+        prop.Title ??
+        prop.name ??
+        prop.Name ??
+        prop.propertyDescriptionTitle ??
+        prop.PropertyDescriptionTitle,
+    );
+
+    const value = stringOrEmpty(
+      prop.value ??
+        prop.Value ??
+        prop.text ??
+        prop.Text ??
+        prop.valueTitle ??
+        prop.ValueTitle ??
+        prop.propertyDescriptionValueTitle ??
+        prop.PropertyDescriptionValueTitle,
+    );
+
+    const normalizedTitle = title.toLowerCase();
+
+    if (!color && (code === "3" || title.includes("رنگ") || normalizedTitle === "color")) {
+      color = value || title;
+    }
+    if (!size && (code === "4" || title.includes("سایز") || normalizedTitle === "size")) {
+      size = value || title;
+    }
+
+    if (code === "8" && !feature8Title) feature8Title = title || "ویژگی ۸";
+    if (code === "9" && !feature9Title) feature9Title = title || "ویژگی ۹";
+    if (code === "8" && !feature8Value) feature8Value = value || "";
+    if (code === "9" && !feature9Value) feature9Value = value || "";
+  });
+
+  return {
+    color,
+    size,
+    feature8Title: feature8Title || "ویژگی ۸",
+    feature8Value,
+    feature9Title: feature9Title || "ویژگی ۹",
+    feature9Value,
+  };
+}
+
+function resolveVariantStock(row, product) {
+  const directStock = toNumber(
+    row.count1 ??
+      row.Count1 ??
+      row.stockQuantity ??
+      row.StockQuantity ??
+      row.quantity ??
+      row.Quantity,
+  );
+  if (directStock !== null) return directStock;
+
+  const fallbackStock = toNumber(
+    product.stockQuantity ?? product.StockQuantity ?? product.quantity,
+  );
+  return fallbackStock ?? 0;
+}
+
+function buildSizeVariants(product) {
+  const rows = [
+    ...toArray(product.productDetails),
+    ...toArray(product.ProductDetails),
+    ...toArray(product.details),
+    ...toArray(product.variants),
+    ...toArray(product.Variants),
+  ];
+  const sourceRows = rows.length > 0 ? rows : [product];
+
+  return sourceRows.map((row) => {
+    const attrs = extractVariantAttributes(row, product);
+    return {
+      size: attrs.size || "",
+      color: attrs.color || "",
+      feature8Title: attrs.feature8Title || "ویژگی ۸",
+      feature8Value: attrs.feature8Value || "",
+      feature9Title: attrs.feature9Title || "ویژگی ۹",
+      feature9Value: attrs.feature9Value || "",
+      stock: resolveVariantStock(row, product),
+    };
+  });
+}
+
+function extractUniqueValues(items, key) {
+  const set = new Set();
+  items.forEach((item) => {
+    const value = stringOrEmpty(item[key]);
+    if (value) set.add(value);
+  });
+  return Array.from(set);
+}
+
+function fillSelect(selectEl, values, defaultLabel) {
+  const options = [`<option value="">${defaultLabel}</option>`];
+  values.forEach((value) => {
+    options.push(`<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`);
+  });
+  selectEl.innerHTML = options.join("");
+}
+
+function toggleAddToCartByStock(inStock) {
+  const addToCartBtn = document.getElementById("product-add-to-cart-btn");
+  if (!addToCartBtn) return;
+  addToCartBtn.disabled = !inStock;
+  addToCartBtn.classList.toggle("opacity-60", !inStock);
+  addToCartBtn.classList.toggle("cursor-not-allowed", !inStock);
+}
+
+function updateStockBySelectedVariant() {
+  const colorSelect = document.getElementById("product-color-select");
+  const sizeSelect = document.getElementById("product-size-select");
+  const statusEl = document.getElementById("product-stock-status");
+
+  const colors = extractUniqueValues(normalizedVariants, "color");
+  const sizes = extractUniqueValues(normalizedVariants, "size");
+  const needColor = colors.length > 0;
+  const needSize = sizes.length > 0;
+
+  const selectedColor = colorSelect ? stringOrEmpty(colorSelect.value) : "";
+  const selectedSize = sizeSelect ? stringOrEmpty(sizeSelect.value) : "";
+
+  if ((needColor && !selectedColor) || (needSize && !selectedSize)) {
+    if (statusEl) statusEl.classList.add("hidden");
+    toggleAddToCartByStock(false);
+    return;
+  }
+
+  const matched = normalizedVariants.filter((variant) => {
+    const colorOk = !needColor || variant.color === selectedColor;
+    const sizeOk = !needSize || variant.size === selectedSize;
+    return colorOk && sizeOk;
+  });
+
+  const stockCount = matched.reduce((sum, item) => sum + (toNumber(item.stock) || 0), 0);
+
+  if (!statusEl) {
+    toggleAddToCartByStock(stockCount > 0);
+    return;
+  }
+
+  statusEl.classList.remove("hidden", "text-red-600", "text-green-600");
+  if (stockCount > 0) {
+    statusEl.textContent = "موجود است";
+    statusEl.classList.add("text-green-600");
+    toggleAddToCartByStock(true);
+  } else {
+    statusEl.textContent = "موجود نیست";
+    statusEl.classList.add("text-red-600");
+    toggleAddToCartByStock(false);
+  }
+}
+
+function renderVariantSelectors(product) {
+  const container = document.getElementById("product-variant-container");
+  const colorSelect = document.getElementById("product-color-select");
+  const sizeSelect = document.getElementById("product-size-select");
+  const colorWrap = document.getElementById("product-color-select-wrap");
+  const sizeWrap = document.getElementById("product-size-select-wrap");
+  const statusEl = document.getElementById("product-stock-status");
+
+  if (!container || !colorSelect || !sizeSelect) return;
+
+  normalizedVariants = buildSizeVariants(product);
+  const colors = extractUniqueValues(normalizedVariants, "color");
+  const sizes = extractUniqueValues(normalizedVariants, "size");
+
+  if (colors.length === 0 && sizes.length === 0) {
+    container.classList.add("hidden");
+    if (statusEl) statusEl.classList.add("hidden");
+    toggleAddToCartByStock(true);
+    return;
+  }
+
+  container.classList.remove("hidden");
+  fillSelect(colorSelect, colors, "انتخاب رنگ");
+  fillSelect(sizeSelect, sizes, "انتخاب سایز");
+
+  if (colors.length === 1) colorSelect.value = colors[0];
+  if (sizes.length === 1) sizeSelect.value = sizes[0];
+
+  if (colorWrap) colorWrap.classList.toggle("hidden", colors.length === 0);
+  if (sizeWrap) sizeWrap.classList.toggle("hidden", sizes.length === 0);
+
+  colorSelect.onchange = updateStockBySelectedVariant;
+  sizeSelect.onchange = updateStockBySelectedVariant;
+
+  if (statusEl) statusEl.classList.add("hidden");
+  updateStockBySelectedVariant();
+}
+
 // Render product description
 function renderDescription(product) {
   // Update Intro tab content
@@ -271,63 +522,115 @@ function renderDescription(product) {
 
 // Render product specifications
 function renderSpecifications(product) {
-  // Update Specifications tab content
   const specsTab = document.getElementById("Specifications");
   if (!specsTab) return;
 
-  const specs = [];
-  const categoryName =
-    product.category?.name || product.categoryName || product.category || "-";
-  const brandName =
-    product.brand?.name || product.brandName || product.brand || "-";
-  const sku = product.sku || "-";
-  const color = getProductColor(product) || "-";
-  const size = getProductSize(product) || "-";
+  const specsDiv =
+    specsTab.querySelector("div.space-y-5 > div") ||
+    specsTab.querySelector("div.space-y-5");
+  if (!specsDiv) return;
 
-  specs.push({ label: "دسته‌بندی", value: categoryName });
-  specs.push({ label: "برند", value: brandName });
-  specs.push({ label: "کد محصول", value: sku });
-  specs.push({ label: "رنگ", value: color });
-  specs.push({ label: "سایز", value: size });
-  if (product.weight) {
-    specs.push({ label: "وزن", value: `${product.weight} گرم` });
-  }
-  if (product.dimensions) {
-    specs.push({ label: "ابعاد", value: product.dimensions });
-  }
-  if (product.stockQuantity !== undefined) {
-    specs.push({
-      label: "موجودی",
-      value:
-        product.stockQuantity > 0 ? `${product.stockQuantity} عدد` : "ناموجود",
-    });
-  }
+  const variants = buildSizeVariants(product);
+  const rowsBySize = new Map();
+  let column8Title = "ویژگی ۸";
+  let column9Title = "ویژگی ۹";
 
-  if (specs.length > 0) {
-    const specsDiv = specsTab.querySelector("div.space-y-5 > div");
-    if (specsDiv) {
-      specsDiv.innerHTML = `
-                <h2 class="text-2xl pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:start-0 before:h-1 before:w-22 before:bg-primary-500 before:rounded dark:text-white">مشخصات محصول</h2>
-                <div class="space-y-3">
-                    ${specs
-                      .map(
-                        (spec) => `
-                        <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-600">
-                            <span class="font-medium text-gray-700 dark:text-gray-300">${spec.label}:</span>
-                            <span class="text-gray-600 dark:text-gray-400">${spec.value}</span>
-                        </div>
-                    `,
-                      )
-                      .join("")}
-                </div>
-            `;
+  variants.forEach((variant) => {
+    if (variant.feature8Title && variant.feature8Title !== "ویژگی ۸") {
+      column8Title = variant.feature8Title;
     }
-  }
+    if (variant.feature9Title && variant.feature9Title !== "ویژگی ۹") {
+      column9Title = variant.feature9Title;
+    }
+
+    const sizeLabel = variant.size || "تک سایز";
+    if (!rowsBySize.has(sizeLabel)) {
+      rowsBySize.set(sizeLabel, {
+        size: sizeLabel,
+        stock: 0,
+        feature8Value: "",
+        feature9Value: "",
+      });
+    }
+
+    const row = rowsBySize.get(sizeLabel);
+    row.stock += toNumber(variant.stock) || 0;
+    if (!row.feature8Value && variant.feature8Value) {
+      row.feature8Value = variant.feature8Value;
+    }
+    if (!row.feature9Value && variant.feature9Value) {
+      row.feature9Value = variant.feature9Value;
+    }
+  });
+
+  const sizeRows = Array.from(rowsBySize.values());
+  const hasData = sizeRows.length > 0;
+
+  specsDiv.innerHTML = `
+    <h2 class="text-2xl pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:start-0 before:h-1 before:w-22 before:bg-primary-500 before:rounded dark:text-white">جدول سایز</h2>
+    <div class="rounded-xl border border-gray-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-100 dark:bg-zinc-700">
+            <tr>
+              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">سایز</th>
+              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">${escapeHtml(column8Title)}</th>
+              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">${escapeHtml(column9Title)}</th>
+              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">موجودی</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${
+              hasData
+                ? sizeRows
+                    .map((row) => {
+                      return `
+                        <tr class="border-b border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800/60">
+                          <td class="py-3 px-4 font-semibold text-primary-700 dark:text-primary-300">${escapeHtml(row.size)}</td>
+                          <td class="py-3 px-4 text-gray-700 dark:text-gray-300">${escapeHtml(row.feature8Value || "")}</td>
+                          <td class="py-3 px-4 text-gray-700 dark:text-gray-300">${escapeHtml(row.feature9Value || "")}</td>
+                          <td class="py-3 px-4">
+                            <span class="${row.stock > 0 ? "text-green-600" : "text-red-600"} font-semibold">
+                              ${row.stock > 0 ? `${formatCount(row.stock)} عدد` : "ناموجود"}
+                            </span>
+                          </td>
+                        </tr>
+                      `;
+                    })
+                    .join("")
+                : `
+                  <tr>
+                    <td colspan="4" class="py-6 px-4 text-center text-gray-500 dark:text-gray-400">
+                      اطلاعاتی برای جدول سایز این محصول ثبت نشده است.
+                    </td>
+                  </tr>
+                `
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatCount(value) {
+  return new Intl.NumberFormat("fa-IR").format(Math.round(value));
 }
 
 // Format price
 function formatPrice(price) {
-  return new Intl.NumberFormat("fa-IR").format(Math.round(price));
+  const normalizedPrice = toNumber(price) || 0;
+  const rialPrice = normalizedPrice * 10;
+  return new Intl.NumberFormat("fa-IR").format(Math.round(rialPrice));
 }
 
 // Show loading state

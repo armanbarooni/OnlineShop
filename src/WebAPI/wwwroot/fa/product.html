@@ -736,29 +736,39 @@
                 <div class="grid grid-cols-4 gap-4">
                   <!-- feature -->
                   <section class="lg:col-span-2 col-span-4 w-full">
-                    <!-- color -->
-                    <div class="my-4">
-                      <h4 class="font-bold text-lg">رنگ بندی : سبز</h4>
-                      <div class="flex my-4 flex-wrap items-center space-x-3">
-                        <div class="flex items-center">
-                          <input
-                            type="radio"
-                            name="color"
-                            checked
-                            id="greenColor"
-                            class="hidden peer"
-                          />
+                    <div id="product-variant-container" class="my-4 hidden">
+                      <div class="grid grid-cols-2 gap-3">
+                        <div id="product-color-select-wrap">
                           <label
-                            for="greenColor"
-                            class="select-none dark:!text-white cursor-pointer flex items-center justify-center rounded-full border-2 border-gray-200 py-1 px-2 text-gray-700 transition-colors duration-200 ease-in-out peer-checked:text-gray-900 peer-checked:border-primary-500"
+                            for="product-color-select"
+                            class="font-bold text-sm block mb-2"
+                            >رنگ</label
                           >
-                            <span
-                              class="size-4 bg-green-600 rounded-full"
-                            ></span>
-                            <span class="dir-ltr ms-2">سبز</span>
-                          </label>
+                          <select
+                            id="product-color-select"
+                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2"
+                          >
+                            <option value="">انتخاب رنگ</option>
+                          </select>
+                        </div>
+                        <div id="product-size-select-wrap">
+                          <label
+                            for="product-size-select"
+                            class="font-bold text-sm block mb-2"
+                            >سایز</label
+                          >
+                          <select
+                            id="product-size-select"
+                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2"
+                          >
+                            <option value="">انتخاب سایز</option>
+                          </select>
                         </div>
                       </div>
+                      <div
+                        id="product-stock-status"
+                        class="my-3 text-sm font-semibold hidden"
+                      ></div>
                     </div>
                     <!-- feature -->
                     <div class="space-y-5">
@@ -812,7 +822,7 @@
                           </div>
                           <span
                             class="text-xs font-bold -rotate-90 dark:text-zinc-300"
-                            >تومان</span
+                            >ریال</span
                           >
                         </div>
                       </div>
@@ -1126,7 +1136,7 @@
                 aria-controls="specs"
                 itemprop="additionalProperty"
               >
-                مشخصات کالا
+                جدول سایز
               </button>
             </li>
 
@@ -1810,7 +1820,7 @@
                   2,500,000
                   <span
                     class="text-sm font-normal text-gray-700 dark:text-white"
-                    >تومان</span
+                    >ریال</span
                   >
                 </ins>
               </div>
@@ -1854,7 +1864,7 @@
               itemprop="totalPrice"
               content="11000000"
             >
-              11,000,000 تومان
+              11,000,000 ریال
             </h3>
           </div>
           <div class="text-end">

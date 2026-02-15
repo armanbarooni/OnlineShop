@@ -12,25 +12,40 @@
         return 'production';
     };
 
-    const resolveApiBaseUrl = (runtimeConfig, environmentName) => {
-        if (runtimeConfig?.apiBaseUrl) {
-            return runtimeConfig.apiBaseUrl;
+
+    const normalizeApiBaseUrl = (value) => {
+        if (!value || typeof value !== 'string') {
+            return null;
         }
-        if (window.__API_BASE_URL__) {
-            return window.__API_BASE_URL__;
+
+        const trimmed = value.trim();
+        if (!trimmed) {
+            return null;
         }
-        const metaApiBase = document.querySelector('meta[name="api-base-url"]');
-        if (metaApiBase?.content) {
-            return metaApiBase.content;
+
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('//')) {
+            return trimmed;
         }
-        const normalizedOrigin = (window.location?.origin || '').replace(/\/$/, '');
-        if (normalizedOrigin) {
-            return `${normalizedOrigin}/api`;
+
+        return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    };
+
+        const resolveApiBaseUrl = (runtimeConfig, environmentName) => {
+        const configuredApiBaseUrl =
+            runtimeConfig?.apiBaseUrl ||
+            window.__API_BASE_URL__ ||
+            document.querySelector('meta[name="api-base-url"]')?.content;
+
+        const normalizedConfiguredUrl = normalizeApiBaseUrl(configuredApiBaseUrl);
+        if (normalizedConfiguredUrl) {
+            return normalizedConfiguredUrl;
         }
+
         if (environmentName === 'development') {
             return 'http://localhost:5000/api';
         }
-        return 'https://api.example.com/api';
+
+        return '/api';
     };
 
     const defaultAuth = {
@@ -38,7 +53,6 @@
         refreshTokenKey: 'refreshToken',
         userKey: 'userData'
     };
-
     const buildConfig = (runtimeConfig) => {
         const environmentName = runtimeConfig?.environment ?? detectEnvironment(hostname);
 
@@ -101,4 +115,5 @@
                 return window.config;
             });
     }
+
 })();
