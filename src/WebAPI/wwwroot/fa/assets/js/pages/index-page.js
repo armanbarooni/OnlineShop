@@ -191,14 +191,19 @@ function extractProducts(result) {
   if (result.success === false || result.isSuccess === false) return [];
   if (!payload) return [];
 
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload.products)) return payload.products;
-  if (payload.products && Array.isArray(payload.products.items))
-    return payload.products.items;
-  if (Array.isArray(payload.items)) return payload.items;
-  if (payload.data && Array.isArray(payload.data)) return payload.data;
+  let products = [];
+  if (Array.isArray(payload)) products = payload;
+  else if (Array.isArray(payload.products)) products = payload.products;
+  else if (payload.products && Array.isArray(payload.products.items))
+    products = payload.products.items;
+  else if (Array.isArray(payload.items)) products = payload.items;
+  else if (payload.data && Array.isArray(payload.data)) products = payload.data;
 
-  return [];
+  return products.filter(isVisibleProduct);
+}
+
+function isVisibleProduct(product) {
+  return !!product && product.deleted !== true;
 }
 
 function renderProductsState(containerId, message) {
@@ -219,9 +224,17 @@ function renderProducts(products, containerId) {
   const container = findProductContainer(containerId);
   if (!container) return;
 
-  if (!Array.isArray(products) || products.length === 0) return;
+  const visibleProducts = (Array.isArray(products) ? products : []).filter(
+    isVisibleProduct,
+  );
+  if (visibleProducts.length === 0) {
+    renderProductsState(containerId, "محصولی برای نمایش یافت نشد");
+    return;
+  }
 
-  const html = products.map((product) => createProductCard(product)).join("");
+  const html = visibleProducts
+    .map((product) => createProductCard(product))
+    .join("");
 
   // If it's a swiper wrapper, add slides
   if (container.classList.contains("swiper-wrapper")) {
@@ -406,14 +419,18 @@ function renderSearchResults(products) {
   const searchResults = document.getElementById("searchResults");
   if (!searchResults) return;
 
-  if (products.length === 0) {
+  const visibleProducts = (Array.isArray(products) ? products : []).filter(
+    isVisibleProduct,
+  );
+
+  if (visibleProducts.length === 0) {
     searchResults.innerHTML =
       '<div class="p-4 text-center text-gray-500">محصولی یافت نشد</div>';
     searchResults.classList.remove("hidden");
     return;
   }
 
-  const html = products
+  const html = visibleProducts
     .map((product) => {
       const primaryImage = Array.isArray(product.images)
         ? product.images.find((i) => i && i.isPrimary) || product.images[0]

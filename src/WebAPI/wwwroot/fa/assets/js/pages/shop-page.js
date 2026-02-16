@@ -157,14 +157,23 @@ async function loadProducts(categoryId, searchQuery) {
 
 // Render products in grid
 function renderProducts(products, container) {
-  if (!products || products.length === 0) {
+  const visibleProducts = (Array.isArray(products) ? products : []).filter(
+    isVisibleProduct,
+  );
+  if (visibleProducts.length === 0) {
     container.innerHTML =
       '<div class="col-span-full text-center py-10"><p class="text-gray-500">محصولی یافت نشد</p></div>';
     return;
   }
 
-  const html = products.map((product) => createProductCard(product)).join("");
+  const html = visibleProducts
+    .map((product) => createProductCard(product))
+    .join("");
   container.innerHTML = html;
+}
+
+function isVisibleProduct(product) {
+  return !!product && product.deleted !== true;
 }
 
 // Create product card HTML
@@ -569,3 +578,4 @@ function initPriceSlider() {
   // ✅ مقداردهی اولیه
   updateUI();
 }
+

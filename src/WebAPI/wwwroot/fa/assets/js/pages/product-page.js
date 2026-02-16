@@ -4,6 +4,10 @@
 
 let normalizedVariants = [];
 
+function isVisibleProduct(product) {
+  return !!product && product.deleted !== true;
+}
+
 // Initialize product page
 document.addEventListener("DOMContentLoaded", async () => {
   // Wait for all services to load
@@ -65,14 +69,15 @@ async function loadDefaultProduct() {
         : result.data && Array.isArray(result.data.products)
           ? result.data.products
           : [];
-    if (!result.success || products.length === 0) {
+    const visibleProducts = products.filter(isVisibleProduct);
+    if (!result.success || visibleProducts.length === 0) {
       showError(result.error || "No products available");
       return;
     }
-    const withImages = products.find(
+    const withImages = visibleProducts.find(
       (p) => Array.isArray(p.productImages) && p.productImages.length > 0,
     );
-    renderProduct(withImages || products[0]);
+    renderProduct(withImages || visibleProducts[0]);
   } catch (error) {
     if (window.logger) {
       window.logger.error("Error loading default product:", error);
@@ -91,7 +96,7 @@ async function loadProduct(productId) {
 
     const result = await window.productService.getProductById(productId);
 
-    if (result.success && result.data) {
+    if (result.success && result.data && isVisibleProduct(result.data)) {
       renderProduct(result.data);
       hideLoading(); // ✅ فقط بعد از render کامل
     } else {

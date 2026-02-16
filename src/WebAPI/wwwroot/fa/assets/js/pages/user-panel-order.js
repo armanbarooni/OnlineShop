@@ -301,8 +301,13 @@ const OrderManager = {
     renderDetails: function (order) {
         const contentEl = document.getElementById('order-details-content');
 
+        const visibleItems = (order.items || []).filter(item => {
+            if (!item) return false;
+            return !(item.deleted === true || item.product?.deleted === true);
+        });
+
         // Helper for items
-        const itemsHtml = (order.items || []).map(item => `
+        const itemsHtml = visibleItems.map(item => `
             <tr class="border-b dark:border-gray-700 last:border-0">
                 <td class="py-4">
                      <div class="flex items-center">
@@ -354,7 +359,7 @@ const OrderManager = {
                         </tr>
                     </thead>
                     <tbody>
-                        ${itemsHtml}
+                        ${itemsHtml || '<tr><td colspan="4" class="py-6 text-center text-sm text-gray-500">محصولی برای نمایش وجود ندارد.</td></tr>'}
                     </tbody>
                 </table>
             </div>
