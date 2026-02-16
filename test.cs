@@ -1,0 +1,21 @@
+﻿{
+    "ASPNETCORE_URLS": "http://+:8080",
+	"AllowInvalidCertificates": "False",
+	"AllowedHosts": "0.0.0.0",
+	"ApiKey": "3HpMSHYxmv2N33rLQnBzGqMxu42WAVzi3YH8Jg98DlyUNyfOEfeItuSDuQaqtluaJZtbqLjjKaNt1fKhL810BU8WKPK1msY1WRg5v4vsdBgKDjV0K5u3zB17vZkFeRhOXFNRUfWwjam9HYOWZn0Vj0gGYT1KfV0I1O1ZU9yS8mEx7IeOkBWQ1x9BEuDzxuu0KwKD0TriNwdptZ4uuMGPoRiSuLHdk9",
+	"ApiRefundInquiry__ConnectionString": "Server=crmlsn.hadb.asiatech.net;Database=OnlinePay;User ID=sqluser;Password=[)yv^/Y|^+a7cJBqMTV_;MultipleActiveResultSets=true; TrustServerCertificate=True;",
+	"ApiSqlServer__ConnectionString": "Server=crmlsn.hadb.asiatech.net;Database=Pay_Queue;User ID=sqluser;Password=[)yv^/Y|^+a7cJBqMTV_;MultipleActiveResultSets=true; TrustServerCertificate=True;",
+	"DashboardPath": "/hangfire",
+	"DefaultBaseTransactionId": "null",
+	"EnableDashboard": "True",
+	"Esb__Application": "PayQueue",
+	"Esb__BaseUrl": "https://esb.asiatech.ir/api/v1",
+	"Esb__Methods__0__Method": "BP.GetRefundStatus",
+	"Esb__Methods__0__Url": "/bp/refund/inquiry/all/{refundId}",
+	"Esb__Methods__1__Method": "IPG.GetRefundDetails",
+	"Esb__Methods__1__Url": "/ipg/gateway/saman/refund/details?merchantId=10418453&refundId={refundId}",
+	"Queues": "Default",
+	"RefundInquiry__Banks__Melat__EsbMethod": "BP.GetRefundStatus",
+	"RefundInquiry__Banks__Saman__EsbMethod": "IPG.Saman.GetRefundDetails",
+	"WorkerCount": "5"
+}
