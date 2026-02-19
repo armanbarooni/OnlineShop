@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Header Component
  * Manages common header functionality across all pages
  */
@@ -123,7 +123,7 @@ class HeaderComponent {
 
     if (products.length === 0) {
       searchResults.innerHTML =
-        '<div class="p-4 text-center text-gray-500">محصولی یافت نشد</div>';
+        '<div class="p-4 text-center text-gray-500">?????? ???? ???</div>';
       searchResults.classList.remove("hidden");
       return;
     }
@@ -137,10 +137,10 @@ class HeaderComponent {
         const price = product.price || 0;
         return `
                 <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
-                    <img src="${imageUrl}" alt="${product.name || "محصول"}" class="w-16 h-16 object-contain rounded me-3">
+                    <img src="${imageUrl}" alt="${product.name || "?????"}" class="w-16 h-16 object-contain rounded me-3">
                     <div class="flex-1">
-                        <h4 class="font-semibold text-sm dark:text-white">${product.name || "محصول"}</h4>
-                        <p class="text-primary font-bold text-sm">${this.formatPrice(price)} تومان</p>
+                        <h4 class="font-semibold text-sm dark:text-white">${product.name || "?????"}</h4>
+                        <p class="text-primary font-bold text-sm">${this.formatPrice(price)} ????</p>
                     </div>
                 </a>
             `;
@@ -203,7 +203,7 @@ class HeaderComponent {
         if (user && userMenu) {
           const userNameEl = userMenu.querySelector("[data-user-name]");
           if (userNameEl)
-            userNameEl.textContent = user.userName || user.email || "کاربر";
+            userNameEl.textContent = user.userName || user.email || "?????";
           userMenu.style.display = "block";
         }
         if (loginButton) loginButton.style.display = "none";
@@ -236,7 +236,7 @@ class HeaderComponent {
             userData.userName ||
             userData.email ||
             `${userData.firstName || ""} ${userData.lastName || ""}`.trim() ||
-            "کاربر";
+            "?????";
           userNameEl.textContent = userName;
         }
         userMenu.style.display = "block";
@@ -329,7 +329,7 @@ class HeaderComponent {
                                 <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l4-2 4 2V6z" clip-rule="evenodd"/>
                             </svg>
                             <div class="ms-1">
-                                <p class="text-xs">${cat.name || "دسته‌بندی"}</p>
+                                <p class="text-xs">${cat.name || "?????????"}</p>
                             </div>
                         </div>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -361,7 +361,7 @@ class HeaderComponent {
                 <li class="relative group">
                     <a href="shop.html?category=${category.id}" 
                        class="flex items-center space-x-3 hover:text-primary transition">
-                        <span>${category.name || "دسته‌بندی"}</span>
+                        <span>${category.name || "?????????"}</span>
                     </a>
                 </li>
             `,
@@ -387,7 +387,7 @@ class HeaderComponent {
                                 <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l4-2 4 2V6z" clip-rule="evenodd"/>
                             </svg>
                             <div class="ms-1">
-                                <p class="text-xs">${cat.name || "دسته‌بندی"}</p>
+                                <p class="text-xs">${cat.name || "?????????"}</p>
                             </div>
                         </div>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -416,7 +416,7 @@ class HeaderComponent {
                 <li class="relative group">
                     <a href="${categoryUrl}" 
                        class="flex items-center space-x-3 hover:text-primary transition">
-                        <span>${category.name || "دسته‌بندی"}</span>
+                        <span>${category.name || "?????????"}</span>
                         ${hasSubcategories ? '<svg class="w-4 h-4 transform group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' : ""}
                     </a>
                     ${
@@ -430,7 +430,7 @@ class HeaderComponent {
                                 <li class="mb-2">
                                     <a href="shop.html?category=${sub.id}" 
                                        class="block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                                        ${sub.name || "زیردسته"}
+                                        ${sub.name || "???????"}
                                     </a>
                                 </li>
                             `,
@@ -448,7 +448,7 @@ class HeaderComponent {
                 <li>
                     <a href="${categoryUrl}" 
                        class="flex items-center space-x-3 hover:text-primary transition">
-                        <span>${category.name || "دسته‌بندی"}</span>
+                        <span>${category.name || "?????????"}</span>
                     </a>
                 </li>
             `;
@@ -471,7 +471,7 @@ class HeaderComponent {
                             aria-expanded="false"
                             aria-controls="${menuId}"
                             onclick="toggleDropdown('${menuId}')">
-                        <a href="${categoryUrl}" class="flex-1">${category.name || "دسته‌بندی"}</a>
+                        <a href="${categoryUrl}" class="flex-1">${category.name || "?????????"}</a>
                         <svg xmlns="http://www.w3.org/2000/svg"
                              class="h-5 w-5 transition-transform transform"
                              id="icon-${menuId}"
@@ -488,7 +488,7 @@ class HeaderComponent {
                           .map(
                             (sub) => `
                             <li class="px-6 py-2 border-b border-gray-200">
-                                <a href="shop.html?category=${sub.id}" class="block">${sub.name || "زیردسته"}</a>
+                                <a href="shop.html?category=${sub.id}" class="block">${sub.name || "???????"}</a>
                             </li>
                         `,
                           )
@@ -499,7 +499,7 @@ class HeaderComponent {
     } else {
       return `
                 <li class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2">
-                    <a href="${categoryUrl}" class="block">${category.name || "دسته‌بندی"}</a>
+                    <a href="${categoryUrl}" class="block">${category.name || "?????????"}</a>
                 </li>
             `;
     }
@@ -532,3 +532,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+

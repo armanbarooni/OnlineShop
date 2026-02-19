@@ -320,32 +320,39 @@ namespace OnlineShop.Infrastructure.Services
                             mahakProduct.ProductId,
                             cancellationToken);
 
-                        if (deletedMapping == null)
+                        Product? localProduct = null;
+                        if (deletedMapping != null)
                         {
-                            _logger.LogDebug("Deleted product from Mahak has no local mapping: {ProductId}", mahakProduct.ProductId);
-                            continue;
+                            localProduct = await _productRepository.GetByIdIgnoreFiltersAsync(
+                                deletedMapping.LocalEntityId,
+                                cancellationToken);
                         }
 
-                        var localProduct = await _productRepository.GetByIdAsync(deletedMapping.LocalEntityId, cancellationToken);
+                        localProduct ??= await _productRepository.GetByMahakIdIgnoreFiltersAsync(
+                            mahakProduct.ProductId,
+                            cancellationToken);
+
                         if (localProduct != null)
                         {
-                            await _productRepository.DeleteAsync(deletedMapping.LocalEntityId, cancellationToken);
-                            deleted++;
+                            if (!localProduct.DeletedByMahak)
+                            {
+                                localProduct.SetDeletedByMahak(true);
+                                await _productRepository.UpdateAsync(localProduct, cancellationToken);
+                                deleted++;
+                            }
+
                             _logger.LogInformation(
-                                "Deleted local product for Mahak deleted product: MahakId={MahakId}, LocalId={LocalId}",
+                                "Marked local product as DeletedByMahak: MahakId={MahakId}, LocalId={LocalId}",
                                 mahakProduct.ProductId,
-                                deletedMapping.LocalEntityId);
+                                localProduct.Id);
                         }
                         else
                         {
                             _logger.LogDebug(
-                                "Local product already missing/deleted for Mahak deleted product: MahakId={MahakId}, LocalId={LocalId}",
-                                mahakProduct.ProductId,
-                                deletedMapping.LocalEntityId);
+                                "Deleted product from Mahak has no local mapping/local match: {ProductId}",
+                                mahakProduct.ProductId);
                         }
 
-                        // Remove mapping so future non-deleted records can be re-created cleanly.
-                        await _mahakMappingRepository.DeleteAsync(deletedMapping.Id, cancellationToken);
                         continue;
                     }
 
@@ -360,9 +367,28 @@ namespace OnlineShop.Infrastructure.Services
                     if (mapping != null)
                     {
                         // Get existing product by mapping
-                        existingProduct = await _productRepository.GetByIdAsync(
+                        existingProduct = await _productRepository.GetByIdIgnoreFiltersAsync(
                             mapping.LocalEntityId, 
                             cancellationToken);
+                    }
+                    else
+                    {
+                        // Fallback by MahakId to avoid creating duplicates when mapping is missing.
+                        existingProduct = await _productRepository.GetByMahakIdIgnoreFiltersAsync(
+                            mahakProduct.ProductId,
+                            cancellationToken);
+
+                        if (existingProduct != null)
+                        {
+                            var recoveredMapping = MahakMapping.Create(
+                                entityType: "Product",
+                                localEntityId: existingProduct.Id,
+                                mahakEntityId: mahakProduct.ProductId,
+                                mahakEntityCode: mahakProduct.ProductCode.ToString(),
+                                notes: $"Recovered mapping from MahakId on {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}");
+
+                            await _mahakMappingRepository.AddAsync(recoveredMapping, cancellationToken);
+                        }
                     }
 
                     if (existingProduct != null)
@@ -373,6 +399,10 @@ namespace OnlineShop.Infrastructure.Services
 
                         existingProduct.SetName(mahakProduct.Name);
                         existingProduct.SetDescription(mahakProduct.Description ?? "");
+                        if (existingProduct.DeletedByMahak)
+                        {
+                            existingProduct.SetDeletedByMahak(false);
+                        }
 
                         // Link product to category when the Mahak category mapping exists.
                         if (mahakProduct.ProductCategoryId > 0)
@@ -575,7 +605,6 @@ namespace OnlineShop.Infrastructure.Services
 
             // Group by ProductId to avoid EF tracking conflicts (multiple ProductDetails per Product)
             var detailsByProduct = productDetails
-                .Where(d => !d.Deleted)
                 .GroupBy(d => d.ProductId)
                 .ToList();
 
@@ -583,7 +612,8 @@ namespace OnlineShop.Infrastructure.Services
             {
                 try
                 {
-                    var firstDetail = group.First(); // Use first detail for price
+                    var firstDetail = group.First(); // Use first detail for resolving product mapping
+                    var firstActiveDetail = group.FirstOrDefault(d => !d.Deleted);
                     
                     var productMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
                         "Product", 
@@ -604,33 +634,56 @@ namespace OnlineShop.Infrastructure.Services
                         continue;
                     }
 
-                    decimal price = firstDetail.DefaultSellPriceLevel switch
+                    if (firstActiveDetail != null)
                     {
-                        1 => firstDetail.Price1,
-                        2 => firstDetail.Price2,
-                        3 => firstDetail.Price3,
-                        4 => firstDetail.Price4,
-                        5 => firstDetail.Price5,
-                        _ => firstDetail.Price1
-                    };
+                        if (product.DeletedByMahak)
+                        {
+                            product.SetDeletedByMahak(false);
+                        }
 
-                    if (price > 0)
-                    {
-                        product.SetPrice(price);
-                        _logger.LogDebug("Updated price for product {ProductId}: {Price} ({Count} variants)", 
-                            firstDetail.ProductId, price, group.Count());
+                        decimal price = firstActiveDetail.DefaultSellPriceLevel switch
+                        {
+                            1 => firstActiveDetail.Price1,
+                            2 => firstActiveDetail.Price2,
+                            3 => firstActiveDetail.Price3,
+                            4 => firstActiveDetail.Price4,
+                            5 => firstActiveDetail.Price5,
+                            _ => firstActiveDetail.Price1
+                        };
+
+                        if (price > 0)
+                        {
+                            product.SetPrice(price);
+                            _logger.LogDebug("Updated price for product {ProductId}: {Price} ({Count} variants)", 
+                                firstDetail.ProductId, price, group.Count());
+                        }
+
+                        if (!string.IsNullOrEmpty(firstActiveDetail.Barcode))
+                        {
+                            product.SetBarcode(firstActiveDetail.Barcode);
+                        }
+
+                        await _productRepository.UpdateAsync(product, cancellationToken);
                     }
-
-                    if (!string.IsNullOrEmpty(firstDetail.Barcode))
+                    else
                     {
-                        product.SetBarcode(firstDetail.Barcode);
+                        if (!product.DeletedByMahak)
+                        {
+                            product.SetDeletedByMahak(true);
+                            await _productRepository.UpdateAsync(product, cancellationToken);
+                            _logger.LogInformation("Marked product as DeletedByMahak because all ProductDetails are deleted. ProductId: {ProductId}", product.Id);
+                        }
                     }
-
-                    await _productRepository.UpdateAsync(product, cancellationToken);
                     
                     // Create/update mappings for ProductDetail and ProductVariant (color/size)
                     foreach (var detail in group)
                     {
+                        if (detail.Deleted)
+                        {
+                            await DeleteVariantFromDetail(detail, cancellationToken);
+                            continue;
+                        }
+
                         await EnsureProductDetailMapping(detail, product, cancellationToken);
                         await UpsertVariantFromDetail(detail, product, cancellationToken);
                     }
@@ -930,7 +983,9 @@ namespace OnlineShop.Infrastructure.Services
 
         private async Task UpsertVariantFromDetail(ProductDetailModel detail, Product product, CancellationToken cancellationToken)
         {
-            var (color, size) = ParseProperties(detail.Properties);
+            var parsed = ParseProperties(detail.Properties);
+            var color = parsed.color;
+            var size = parsed.size;
             if (string.IsNullOrWhiteSpace(color) && string.IsNullOrWhiteSpace(size))
             {
                 return; // nothing to map
@@ -960,6 +1015,7 @@ namespace OnlineShop.Infrastructure.Services
                 if (existing != null)
                 {
                     existing.Update(size ?? existing.Size, color ?? existing.Color, sku, existing.StockQuantity, existing.AdditionalPrice, null);
+                    existing.SetMeasurementValues(parsed.feature8Value, parsed.feature9Value);
                     if (!string.IsNullOrEmpty(detail.Barcode))
                         existing.SetBarcode(detail.Barcode);
                     await _productVariantRepository.UpdateAsync(existing, cancellationToken);
@@ -976,6 +1032,7 @@ namespace OnlineShop.Infrastructure.Services
 
             if (!string.IsNullOrEmpty(detail.Barcode))
                 variant.SetBarcode(detail.Barcode);
+            variant.SetMeasurementValues(parsed.feature8Value, parsed.feature9Value);
             // Additional price not provided from Mahak detail; skip.
 
             await _productVariantRepository.AddAsync(variant, cancellationToken);
@@ -989,19 +1046,51 @@ namespace OnlineShop.Infrastructure.Services
             _logger.LogDebug("Created ProductVariant from detail {DetailId}: Color={Color}, Size={Size}", detail.ProductDetailId, color, size);
         }
 
-        private (string? color, string? size) ParseProperties(string? propertiesJson)
+        private async Task DeleteVariantFromDetail(ProductDetailModel detail, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var variantMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
+                    "ProductVariant",
+                    detail.ProductDetailId,
+                    cancellationToken);
+
+                if (variantMapping != null)
+                {
+                    await _productVariantRepository.DeleteAsync(variantMapping.LocalEntityId, cancellationToken);
+                    _logger.LogDebug("Deleted ProductVariant by mapping for ProductDetailId {DetailId}", detail.ProductDetailId);
+                    return;
+                }
+
+                var fallbackSku = $"PD-{detail.ProductDetailId}";
+                var variantBySku = await _productVariantRepository.GetBySKUAsync(fallbackSku, cancellationToken);
+                if (variantBySku != null)
+                {
+                    await _productVariantRepository.DeleteAsync(variantBySku.Id, cancellationToken);
+                    _logger.LogDebug("Deleted ProductVariant by fallback SKU for ProductDetailId {DetailId}", detail.ProductDetailId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to delete ProductVariant for ProductDetailId {DetailId}", detail.ProductDetailId);
+            }
+        }
+
+        private (string? color, string? size, string? feature8Value, string? feature9Value) ParseProperties(string? propertiesJson)
         {
             if (string.IsNullOrWhiteSpace(propertiesJson))
-                return (null, null);
+                return (null, null, null, null);
 
             try
             {
                 using var doc = JsonDocument.Parse(propertiesJson);
                 if (doc.RootElement.ValueKind != JsonValueKind.Array)
-                    return (null, null);
+                    return (null, null, null, null);
 
                 string? color = null;
                 string? size = null;
+                string? feature8Value = null;
+                string? feature9Value = null;
 
                 foreach (var item in doc.RootElement.EnumerateArray())
                 {
@@ -1021,15 +1110,21 @@ namespace OnlineShop.Infrastructure.Services
                         case "4": // size
                             size ??= value.Trim();
                             break;
+                        case "8":
+                            feature8Value ??= value.Trim();
+                            break;
+                        case "9":
+                            feature9Value ??= value.Trim();
+                            break;
                     }
                 }
 
-                return (color, size);
+                return (color, size, feature8Value, feature9Value);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to parse ProductDetail Properties JSON: {Json}", propertiesJson);
-                return (null, null);
+                return (null, null, null, null);
             }
         }
         

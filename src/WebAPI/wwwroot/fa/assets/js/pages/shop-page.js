@@ -173,7 +173,13 @@ function renderProducts(products, container) {
 }
 
 function isVisibleProduct(product) {
-  return !!product && product.deleted !== true;
+  return (
+    !!product &&
+    product.deleted !== true &&
+    product.Deleted !== true &&
+    product.deletedByMahak !== true &&
+    product.DeletedByMahak !== true
+  );
 }
 
 // Create product card HTML
@@ -224,7 +230,7 @@ function createProductCard(product) {
                 <div class="flex items-center justify-between mt-auto">
                     <div class="flex flex-col">
                         ${discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(price)}</span>` : ""}
-                        <span class="text-lg font-bold text-primary">${formatPrice(finalPrice)} تومان</span>
+                        <span class="text-lg font-bold text-primary">${formatPrice(finalPrice)} ریال</span>
                     </div>
                     <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -470,7 +476,7 @@ function renderPriceFilter(priceRanges) {
               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-zinc-900 text-center"
               disabled
             />
-            <strong class="block text-center mt-3">تومان</strong>
+            <strong class="block text-center mt-3">ریال</strong>
           </div>
 
           <span class="text-gray-500 block">تا</span>
@@ -483,7 +489,7 @@ function renderPriceFilter(priceRanges) {
               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-zinc-900 text-center"
               disabled
             />
-            <strong class="block text-center mt-3">تومان</strong>
+            <strong class="block text-center mt-3">ریال</strong>
           </div>
         </div>
 

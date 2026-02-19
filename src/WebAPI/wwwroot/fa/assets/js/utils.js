@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Utility Functions for OnlineShop Frontend
  * Common helper functions for date formatting, price formatting, notifications, etc.
  */
@@ -7,7 +7,7 @@ class Utils {
     /**
      * Format price with Persian numbers and currency
      */
-    static formatPrice(price, currency = 'تومان') {
+    static formatPrice(price, currency = '????') {
         if (price === null || price === undefined) return '0 ' + currency;
 
         const formattedPrice = new Intl.NumberFormat('fa-IR').format(price);
@@ -97,7 +97,7 @@ class Utils {
     /**
      * Show loading state
      */
-    static showLoading(element, text = 'در حال بارگذاری...') {
+    static showLoading(element, text = '?? ??? ????????...') {
         if (!element || !(element instanceof Element)) return;
 
         element.disabled = true;
@@ -151,10 +151,10 @@ class Utils {
      * Format file size
      */
     static formatFileSize(bytes) {
-        if (bytes === 0) return '0 Ø¨Ø§ÛŒØª';
+        if (bytes === 0) return '0 بایت';
 
         const k = 1024;
-        const sizes = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت'];
+        const sizes = ['????', '????????', '???????', '????????'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
 
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
@@ -214,7 +214,7 @@ class Utils {
     static async copyToClipboard(text) {
         try {
             await navigator.clipboard.writeText(text);
-            this.showToast('کپی شد', 'success');
+            this.showToast('??? ??', 'success');
         } catch (err) {
             // Fallback for older browsers
             const textArea = document.createElement('textarea');
@@ -223,7 +223,7 @@ class Utils {
             textArea.select();
             document.execCommand('copy');
             document.body.removeChild(textArea);
-            this.showToast('کپی شد', 'success');
+            this.showToast('??? ??', 'success');
         }
     }
 
@@ -244,12 +244,12 @@ class Utils {
      */
     static formatOrderStatus(status) {
         const statusMap = {
-            'Pending': 'در انتظار',
-            'Processing': 'در حال پردازش',
-            'Shipped': 'ارسال شده',
-            'Delivered': 'تحویل داده شده',
-            'Cancelled': 'لغو شده',
-            'Returned': 'مرجوع شده'
+            'Pending': '?? ??????',
+            'Processing': '?? ??? ??????',
+            'Shipped': '????? ???',
+            'Delivered': '????? ???? ???',
+            'Cancelled': '??? ???',
+            'Returned': '????? ???'
         };
 
         return statusMap[status] || status;
@@ -276,11 +276,11 @@ class Utils {
      */
     static formatReturnStatus(status) {
         const statusMap = {
-            'Pending': 'در انتظار بررسی',
-            'Approved': 'تأیید شده',
-            'Rejected': 'رد شده',
-            'Processing': 'در حال پردازش',
-            'Completed': 'تکمیل شده'
+            'Pending': '?? ?????? ?????',
+            'Approved': '????? ???',
+            'Rejected': '?? ???',
+            'Processing': '?? ??? ??????',
+            'Completed': '????? ???'
         };
 
         return statusMap[status] || status;
@@ -504,6 +504,7 @@ window.utils = Utils;
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = Utils;
 }
+
 
 
 

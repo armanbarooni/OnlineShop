@@ -5,7 +5,13 @@
 let normalizedVariants = [];
 
 function isVisibleProduct(product) {
-  return !!product && product.deleted !== true;
+  return (
+    !!product &&
+    product.deleted !== true &&
+    product.Deleted !== true &&
+    product.deletedByMahak !== true &&
+    product.DeletedByMahak !== true
+  );
 }
 
 // Initialize product page
@@ -249,6 +255,27 @@ function toArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function toPropertyArray(value) {
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+
+  if (typeof value === "string") {
+    const text = value.trim();
+    if (!text) return [];
+    try {
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed && typeof parsed === "object") return [parsed];
+      return [];
+    } catch (_error) {
+      return [];
+    }
+  }
+
+  if (typeof value === "object") return [value];
+  return [];
+}
+
 function toNumber(value) {
   if (value === null || value === undefined || value === "") return null;
   const parsed = Number(value);
@@ -277,23 +304,28 @@ function extractVariantAttributes(row, product) {
   const rowProperties = [
     ...toArray(row.productProperties),
     ...toArray(row.ProductProperties),
-    ...toArray(row.properties),
-    ...toArray(row.Properties),
+    ...toPropertyArray(row.properties),
+    ...toPropertyArray(row.Properties),
   ];
   const productProperties = [
     ...toArray(product.productProperties),
     ...toArray(product.ProductProperties),
   ];
+  const productPropertyDescriptions = [
+    ...toArray(product.propertyDescriptions),
+    ...toArray(product.PropertyDescriptions),
+  ];
 
   let feature8Title = "";
-  let feature8Value = "";
+  let feature8Value = stringOrEmpty(row.feature8Value ?? row.Feature8Value);
   let feature9Title = "";
-  let feature9Value = "";
+  let feature9Value = stringOrEmpty(row.feature9Value ?? row.Feature9Value);
   [...rowProperties, ...productProperties].forEach((prop) => {
     const code = String(
       prop.propertyDescriptionCode ??
         prop.PropertyDescriptionCode ??
         prop.code ??
+        prop.C ??
         prop.Code ??
         "",
     ).replace(/^0+/, "");
@@ -310,6 +342,8 @@ function extractVariantAttributes(row, product) {
     const value = stringOrEmpty(
       prop.value ??
         prop.Value ??
+        prop.v ??
+        prop.V ??
         prop.text ??
         prop.Text ??
         prop.valueTitle ??
@@ -318,17 +352,47 @@ function extractVariantAttributes(row, product) {
         prop.PropertyDescriptionValueTitle,
     );
 
-    const normalizedTitle = title.toLowerCase();
+    const titleFromDescription = stringOrEmpty(
+      productPropertyDescriptions.find((item) => {
+        const itemCode = String(
+          item.propertyDescriptionCode ??
+            item.PropertyDescriptionCode ??
+            item.code ??
+            item.Code ??
+            "",
+        ).replace(/^0+/, "");
+        return itemCode === code;
+      })?.title ??
+        productPropertyDescriptions.find((item) => {
+          const itemCode = String(
+            item.propertyDescriptionCode ??
+              item.PropertyDescriptionCode ??
+              item.code ??
+              item.Code ??
+              "",
+          ).replace(/^0+/, "");
+          return itemCode === code;
+        })?.Title,
+    );
 
-    if (!color && (code === "3" || title.includes("رنگ") || normalizedTitle === "color")) {
-      color = value || title;
+    const effectiveTitle = title || titleFromDescription;
+    const normalizedTitle = effectiveTitle.toLowerCase();
+
+    if (
+      !color &&
+      (code === "3" || effectiveTitle.includes("رنگ") || normalizedTitle === "color")
+    ) {
+      color = value || effectiveTitle;
     }
-    if (!size && (code === "4" || title.includes("سایز") || normalizedTitle === "size")) {
-      size = value || title;
+    if (
+      !size &&
+      (code === "4" || effectiveTitle.includes("سایز") || normalizedTitle === "size")
+    ) {
+      size = value || effectiveTitle;
     }
 
-    if (code === "8" && !feature8Title) feature8Title = title || "ویژگی ۸";
-    if (code === "9" && !feature9Title) feature9Title = title || "ویژگی ۹";
+    if (code === "8" && !feature8Title) feature8Title = effectiveTitle || "ویژگی ۸";
+    if (code === "9" && !feature9Title) feature9Title = effectiveTitle || "ویژگی ۹";
     if (code === "8" && !feature8Value) feature8Value = value || "";
     if (code === "9" && !feature9Value) feature9Value = value || "";
   });
@@ -336,9 +400,9 @@ function extractVariantAttributes(row, product) {
   return {
     color,
     size,
-    feature8Title: feature8Title || "ویژگی ۸",
+    feature8Title: feature8Title || "عرض سینه/کمر",
     feature8Value,
-    feature9Title: feature9Title || "ویژگی ۹",
+    feature9Title: feature9Title || "قد",
     feature9Value,
   };
 }
@@ -370,7 +434,9 @@ function buildSizeVariants(product) {
   ];
   const sourceRows = rows.length > 0 ? rows : [product];
 
-  return sourceRows.map((row) => {
+  return sourceRows
+    .filter((row) => row?.deleted !== true && row?.Deleted !== true)
+    .map((row) => {
     const attrs = extractVariantAttributes(row, product);
     return {
       size: attrs.size || "",
@@ -537,8 +603,8 @@ function renderSpecifications(product) {
 
   const variants = buildSizeVariants(product);
   const rowsBySize = new Map();
-  let column8Title = "ویژگی ۸";
-  let column9Title = "ویژگی ۹";
+  let column8Title = "عرض سینه/کمر";
+  let column9Title = "قد";
 
   variants.forEach((variant) => {
     if (variant.feature8Title && variant.feature8Title !== "ویژگی ۸") {
@@ -553,22 +619,28 @@ function renderSpecifications(product) {
       rowsBySize.set(sizeLabel, {
         size: sizeLabel,
         stock: 0,
-        feature8Value: "",
-        feature9Value: "",
+        feature8Values: new Set(),
+        feature9Values: new Set(),
       });
     }
 
     const row = rowsBySize.get(sizeLabel);
     row.stock += toNumber(variant.stock) || 0;
-    if (!row.feature8Value && variant.feature8Value) {
-      row.feature8Value = variant.feature8Value;
-    }
-    if (!row.feature9Value && variant.feature9Value) {
-      row.feature9Value = variant.feature9Value;
-    }
+    if (variant.feature8Value) row.feature8Values.add(variant.feature8Value);
+    if (variant.feature9Value) row.feature9Values.add(variant.feature9Value);
   });
 
-  const sizeRows = Array.from(rowsBySize.values());
+  const sizeTableDto = {
+    column8Title,
+    column9Title,
+    rows: Array.from(rowsBySize.values()).map((row) => ({
+      size: row.size,
+      stock: row.stock,
+      feature8Values: Array.from(row.feature8Values),
+      feature9Values: Array.from(row.feature9Values),
+    })),
+  };
+  const sizeRows = sizeTableDto.rows;
   const hasData = sizeRows.length > 0;
 
   specsDiv.innerHTML = `
@@ -579,8 +651,8 @@ function renderSpecifications(product) {
           <thead class="bg-gray-100 dark:bg-zinc-700">
             <tr>
               <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">سایز</th>
-              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">${escapeHtml(column8Title)}</th>
-              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">${escapeHtml(column9Title)}</th>
+              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">${escapeHtml(sizeTableDto.column8Title)}</th>
+              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">${escapeHtml(sizeTableDto.column9Title)}</th>
               <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">موجودی</th>
             </tr>
           </thead>
@@ -592,8 +664,8 @@ function renderSpecifications(product) {
                       return `
                         <tr class="border-b border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800/60">
                           <td class="py-3 px-4 font-semibold text-primary-700 dark:text-primary-300">${escapeHtml(row.size)}</td>
-                          <td class="py-3 px-4 text-gray-700 dark:text-gray-300">${escapeHtml(row.feature8Value || "")}</td>
-                          <td class="py-3 px-4 text-gray-700 dark:text-gray-300">${escapeHtml(row.feature9Value || "")}</td>
+                          <td class="py-3 px-4 text-gray-700 dark:text-gray-300">${escapeHtml((row.feature8Values || []).join("، "))}</td>
+                          <td class="py-3 px-4 text-gray-700 dark:text-gray-300">${escapeHtml((row.feature9Values || []).join("، "))}</td>
                           <td class="py-3 px-4">
                             <span class="${row.stock > 0 ? "text-green-600" : "text-red-600"} font-semibold">
                               ${row.stock > 0 ? `${formatCount(row.stock)} عدد` : "ناموجود"}
@@ -634,8 +706,7 @@ function formatCount(value) {
 // Format price
 function formatPrice(price) {
   const normalizedPrice = toNumber(price) || 0;
-  const rialPrice = normalizedPrice * 10;
-  return new Intl.NumberFormat("fa-IR").format(Math.round(rialPrice));
+  return new Intl.NumberFormat("fa-IR").format(Math.round(normalizedPrice));
 }
 
 // Show loading state

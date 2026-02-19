@@ -257,7 +257,7 @@ const FavoriteManager = {
                     </h3>
                     
                     <div class="flex items-center justify-between">
-                         <span class="text-primary font-bold">${priceDisplay} تومان</span>
+                         <span class="text-primary font-bold">${priceDisplay} ریال</span>
                     </div>
                 </div>
              `;

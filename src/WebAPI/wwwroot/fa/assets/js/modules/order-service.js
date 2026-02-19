@@ -88,7 +88,7 @@ class OrderService {
      */
     formatPrice(price) {
         const formatted = new Intl.NumberFormat('fa-IR').format(price);
-        return `${formatted} تومان`;
+        return `${formatted} ریال`;
     }
 
     /**

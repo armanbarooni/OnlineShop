@@ -103,7 +103,7 @@ class CartPage {
                     </div>
                     <div class="lg:col-span-1 col-span-4 w-full">
                         <div class="space-y-5 flex flex-col xl:items-end xl:justify-end h-full">
-                            <span class="text-xl block font-bold dark:text-white">${(item.price * item.quantity).toLocaleString()} <span class="text-xs">تومان</span></span>
+                            <span class="text-xl block font-bold dark:text-white">${(item.price * item.quantity).toLocaleString()} <span class="text-xs">ریال</span></span>
                         </div>
                     </div>
                 </div>
@@ -116,9 +116,9 @@ class CartPage {
         const discountEl = document.getElementById('cart-discount');
         const totalEl = document.getElementById('cart-total');
 
-        if (subtotalEl) subtotalEl.textContent = `${(total + discount).toLocaleString()} تومان`;
-        if (discountEl) discountEl.textContent = `${discount.toLocaleString()} تومان`;
-        if (totalEl) totalEl.textContent = `${total.toLocaleString()} تومان`;
+        if (subtotalEl) subtotalEl.textContent = `${(total + discount).toLocaleString()} ریال`;
+        if (discountEl) discountEl.textContent = `${discount.toLocaleString()} ریال`;
+        if (totalEl) totalEl.textContent = `${total.toLocaleString()} ریال`;
     }
 }
 

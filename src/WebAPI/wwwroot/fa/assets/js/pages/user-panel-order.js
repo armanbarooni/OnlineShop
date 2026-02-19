@@ -168,7 +168,7 @@ const OrderManager = {
                     ${new Date(order.orderDate).toLocaleDateString('fa-IR')}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-bold">
-                    ${new Intl.NumberFormat('fa-IR').format(order.totalAmount)} تومان
+                    ${new Intl.NumberFormat('fa-IR').format(order.totalAmount)} ریال
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${this.getStatusClass(order.status)}">
@@ -318,9 +318,9 @@ const OrderManager = {
                     </div>
                 </td>
                 <td class="py-4 text-center text-gray-500">${item.quantity}</td>
-                <td class="py-4 text-center text-gray-500">${new Intl.NumberFormat('fa-IR').format(item.unitPrice)} تومان</td>
+                <td class="py-4 text-center text-gray-500">${new Intl.NumberFormat('fa-IR').format(item.unitPrice)} ریال</td>
                 <td class="py-4 text-left font-bold text-gray-900 dark:text-white">
-                    ${new Intl.NumberFormat('fa-IR').format(item.totalPrice || (item.price * item.quantity))} تومان
+                    ${new Intl.NumberFormat('fa-IR').format(item.totalPrice || (item.price * item.quantity))} ریال
                 </td>
             </tr>
          `).join('');
@@ -343,7 +343,7 @@ const OrderManager = {
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 mb-1">مبلغ کل</p>
-                    <p class="font-bold text-lg text-primary">${new Intl.NumberFormat('fa-IR').format(order.totalAmount)} تومان</p>
+                    <p class="font-bold text-lg text-primary">${new Intl.NumberFormat('fa-IR').format(order.totalAmount)} ریال</p>
                 </div>
             </div>
             

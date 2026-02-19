@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Home Page (index.html) API Integration
  */
 
@@ -82,12 +82,12 @@ function renderCategories(categories) {
         <a href="shop.html?category=${category.id}" class="lg:col-span-3 sm:col-span-6 col-span-12 w-full block">
             <article class="flex py-2 px-3 rounded-xl border border-gray-200 bg-white drop-shadow-md items-center justify-between dark:bg-gray-800">
                 <section class="space-y-2">
-                    <h3 class="text-lg font-bold dark:text-white">${category.name || "دسته‌بندی"}</h3>
+                    <h3 class="text-lg font-bold dark:text-white">${category.name || "?????????"}</h3>
                     <span class="text-xs font-light text-neutral-500">${category.description || ""}</span>
                 </section>
                 <figure>
                     <img src="${category.imageUrl || "assets/images/category/digitall.png"}" 
-                         class="size-20" loading="lazy" alt="${category.name || "دسته‌بندی"}">
+                         class="size-20" loading="lazy" alt="${category.name || "?????????"}">
                 </figure>
             </article>
         </a>
@@ -118,10 +118,10 @@ async function loadFeaturedProducts() {
       return;
     }
 
-    renderProductsState("featuredProducts", "محصولی برای نمایش یافت نشد");
+    renderProductsState("featuredProducts", "?????? ???? ????? ???? ???");
   } catch (error) {
     window.logger.error("Error loading featured products:", error);
-    renderProductsState("featuredProducts", "خطا در دریافت محصولات");
+    renderProductsState("featuredProducts", "??? ?? ?????? ???????");
   }
 }
 
@@ -203,7 +203,13 @@ function extractProducts(result) {
 }
 
 function isVisibleProduct(product) {
-  return !!product && product.deleted !== true;
+  return (
+    !!product &&
+    product.deleted !== true &&
+    product.Deleted !== true &&
+    product.deletedByMahak !== true &&
+    product.DeletedByMahak !== true
+  );
 }
 
 function renderProductsState(containerId, message) {
@@ -228,7 +234,7 @@ function renderProducts(products, containerId) {
     isVisibleProduct,
   );
   if (visibleProducts.length === 0) {
-    renderProductsState(containerId, "محصولی برای نمایش یافت نشد");
+    renderProductsState(containerId, "?????? ???? ????? ???? ???");
     return;
   }
 
@@ -271,7 +277,7 @@ function createProductCard(product) {
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
       : 0;
   const productUrl = `product.html?id=${product.id}`;
-  const name = product.name || "نام محصول";
+  const name = product.name || "??? ?????";
 
   return `
         <div class="swiper-slide px-1.5 py-2">
@@ -297,7 +303,7 @@ function createProductCard(product) {
                 <div class="flex items-center justify-between mt-3">
                     <div class="flex flex-col">
                         ${discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-                        <span class="text-lg font-bold text-primary">${formatPrice(price)} تومان</span>
+                        <span class="text-lg font-bold text-primary">${formatPrice(price)} ????</span>
                     </div>
                     <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -348,7 +354,7 @@ function renderBrands(brands) {
         <div class="swiper-slide">
             <div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-md dark:bg-gray-800">
                 <img src="${brand.logoUrl || "assets/images/brand/brand1-1.png"}" 
-                     alt="${brand.name || "ط¨ط±ظ†ط¯"}" class="max-h-16 object-contain">
+                     alt="${brand.name || "?�?�?�?�"}" class="max-h-16 object-contain">
             </div>
         </div>
     `,
@@ -425,7 +431,7 @@ function renderSearchResults(products) {
 
   if (visibleProducts.length === 0) {
     searchResults.innerHTML =
-      '<div class="p-4 text-center text-gray-500">محصولی یافت نشد</div>';
+      '<div class="p-4 text-center text-gray-500">?????? ???? ???</div>';
     searchResults.classList.remove("hidden");
     return;
   }
@@ -448,10 +454,10 @@ function renderSearchResults(products) {
         : "assets/images/product/nophoto.png";
       return `
             <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
-                <img src="${imageUrl}" alt="${product.name || "محصول"}" class="w-16 h-16 object-contain rounded me-3">
+                <img src="${imageUrl}" alt="${product.name || "?????"}" class="w-16 h-16 object-contain rounded me-3">
                 <div class="flex-1">
-                    <h4 class="font-semibold text-sm dark:text-white">${product.name || "محصول"}</h4>
-                    <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} تومان</p>
+                    <h4 class="font-semibold text-sm dark:text-white">${product.name || "?????"}</h4>
+                    <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} ????</p>
                 </div>
             </a>
         `;
@@ -473,13 +479,13 @@ window.addToCart = async function (productId) {
     const result = await window.cartService.addToCart(productId, 1);
     if (result.success) {
       if (window.utils) {
-        window.utils.showToast("محصول به سبد خرید اضافه شد", "success");
+        window.utils.showToast("????? ?? ??? ???? ????? ??", "success");
       }
       updateCartAndComparisonCounts();
     } else {
       if (window.utils) {
         window.utils.showToast(
-          result.error || "خطا در افزودن به سبد خرید",
+          result.error || "??? ?? ?????? ?? ??? ????",
           "error",
         );
       }
@@ -487,7 +493,7 @@ window.addToCart = async function (productId) {
   } catch (error) {
     window.logger.error("Error adding to cart:", error);
     if (window.utils) {
-      window.utils.showToast("خطا در اتصال به سرور", "error");
+      window.utils.showToast("??? ?? ????? ?? ????", "error");
     }
   }
 };
@@ -504,7 +510,7 @@ window.addToWishlist = async function (productId) {
       const result = await window.wishlistService.addToWishlist(productId);
       if (result.success) {
         if (window.utils) {
-          window.utils.showToast("به علاقه‌مندی‌ها اضافه شد", "success");
+          window.utils.showToast("?? ????????????? ????? ??", "success");
         }
       }
     }
@@ -556,3 +562,4 @@ document.addEventListener("click", (e) => {
     searchResults.classList.add("hidden");
   }
 });
+

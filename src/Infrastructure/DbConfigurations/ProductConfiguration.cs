@@ -87,10 +87,11 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             builder.Property(p => p.MahakClientId);
             builder.Property(p => p.RowVersion).IsConcurrencyToken();
             builder.Property(p => p.Deleted).HasDefaultValue(false);
+            builder.Property(p => p.DeletedByMahak).HasDefaultValue(false);
             builder.Property(p => p.CreatedAt).IsRequired();
             builder.Property(p => p.UpdatedAt);
 
-            builder.HasQueryFilter(p => !p.Deleted);
+            builder.HasQueryFilter(p => !p.Deleted && !p.DeletedByMahak);
 
             // Indexes
             builder.HasIndex(p => p.Name);

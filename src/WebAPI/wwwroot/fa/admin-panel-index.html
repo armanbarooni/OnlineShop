@@ -482,7 +482,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 dark:text-gray-400 text-sm">فروش امروز</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">42,850,000 <span class="text-sm">تومان</span></p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">42,850,000 <span class="text-sm">ریال</span></p>
                         </div>
                         <div class="p-3 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -690,7 +690,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">#ORD-12345</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1402/05/15</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">علی محمدی</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1,250,000 تومان</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1,250,000 ریال</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-3 py-1 inline-flex text-xs leading-5  rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                                             تحویل شده
@@ -709,7 +709,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">#ORD-12344</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1402/05/10</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">مریم احمدی</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">850,000 تومان</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">850,000 ریال</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-3 py-1 inline-flex text-xs leading-5  rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-400">
                                             در حال ارسال
@@ -728,7 +728,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">#ORD-12343</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1402/05/05</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">رضا حسینی</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">2,150,000 تومان</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">2,150,000 ریال</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-3 py-1 inline-flex text-xs leading-5  rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
                                             در انتظار پرداخت
@@ -1376,7 +1376,7 @@
                     yAxisID: 'y'
                 },
                 {
-                    label: 'درآمد (میلیون تومان)',
+                    label: 'درآمد (میلیون ریال)',
                     data: [18.5, 21.3, 19.8, 20.1, 25.7, 28.9, 31.2, 33.5, 29.8, 26.5, 24.0, 31.5],
                     backgroundColor: 'rgba(16, 185, 129, 0.7)',
                     borderColor: 'rgba(16, 185, 129, 1)',
@@ -1409,8 +1409,8 @@
                             return context[0].label;
                         },
                         label: function(context) {
-                            if(context.dataset.label === 'درآمد (میلیون تومان)') {
-                                return 'مبلغ: ' + context.raw.toLocaleString('fa-IR') + ' میلیون تومان';
+                            if(context.dataset.label === 'درآمد (میلیون ریال)') {
+                                return 'مبلغ: ' + context.raw.toLocaleString('fa-IR') + ' میلیون ریال';
                             }
                             return 'تعداد: ' + context.raw.toLocaleString('fa-IR');
                         }
@@ -1436,7 +1436,7 @@
                     position: 'right',
                     title: {
                         display: true,
-                        text: 'درآمد (میلیون تومان)'
+                        text: 'درآمد (میلیون ریال)'
                     },
                     grid: {
                         drawOnChartArea: false

@@ -1,4 +1,4 @@
-using OnlineShop.Domain.Common;
+﻿using OnlineShop.Domain.Common;
 
 namespace OnlineShop.Domain.Entities
 {
@@ -22,6 +22,7 @@ namespace OnlineShop.Domain.Entities
         public decimal? SalePrice { get; private set; }
         public DateTime? SaleStartDate { get; private set; }
         public DateTime? SaleEndDate { get; private set; }
+        public bool DeletedByMahak { get; private set; }
 
         // Navigation Properties
         public virtual ProductCategory? Category { get; private set; }
@@ -49,6 +50,7 @@ namespace OnlineShop.Domain.Entities
             MahakClientId = mahakClientId;
             MahakId = mahakId;
             Deleted = false;
+            DeletedByMahak = false;
         }
 
         public static Product Create(string name, string description, decimal price, int stockQuantity, long? mahakClientId=null, int? mahakId=null)
@@ -57,7 +59,7 @@ namespace OnlineShop.Domain.Entities
         public void SetName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("نام محصول نباید خالی باشد");
+                throw new ArgumentException("Ù†Ø§Ù… Ù…Ø­ØµÙˆÙ„ Ù†Ø¨Ø§ÛŒØ¯ Ø®Ø§Ù„ÛŒ Ø¨Ø§Ø´Ø¯");
             Name = name.Trim();
             UpdatedAt = DateTime.UtcNow;
         }
@@ -71,7 +73,7 @@ namespace OnlineShop.Domain.Entities
         public void SetPrice(decimal price)
         {
             if (price < 0)
-                throw new ArgumentException("قیمت محصول نمی‌تواند منفی باشد");
+                throw new ArgumentException("Ù‚ÛŒÙ…Øª Ù…Ø­ØµÙˆÙ„ Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ù…Ù†ÙÛŒ Ø¨Ø§Ø´Ø¯");
             Price = price;
             UpdatedAt = DateTime.UtcNow;
         }
@@ -79,7 +81,7 @@ namespace OnlineShop.Domain.Entities
         public void SetStockQuantity(int qty)
         {
             if (qty < 0)
-                throw new ArgumentException("تعداد موجودی نمی‌تواند منفی باشد");
+                throw new ArgumentException("ØªØ¹Ø¯Ø§Ø¯ Ù…ÙˆØ¬ÙˆØ¯ÛŒ Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ù…Ù†ÙÛŒ Ø¨Ø§Ø´Ø¯");
             StockQuantity = qty;
             UpdatedAt = DateTime.UtcNow;
         }
@@ -118,7 +120,7 @@ namespace OnlineShop.Domain.Entities
             {
                 var validGenders = new[] { "Male", "Female", "Kids", "Unisex" };
                 if (!validGenders.Contains(gender, StringComparer.OrdinalIgnoreCase))
-                    throw new ArgumentException("جنسیت باید یکی از مقادیر Male, Female, Kids, Unisex باشد");
+                    throw new ArgumentException("Ø¬Ù†Ø³ÛŒØª Ø¨Ø§ÛŒØ¯ ÛŒÚ©ÛŒ Ø§Ø² Ù…Ù‚Ø§Ø¯ÛŒØ± Male, Female, Kids, Unisex Ø¨Ø§Ø´Ø¯");
             }
             Gender = gender?.Trim();
             UpdatedAt = DateTime.UtcNow;
@@ -139,7 +141,7 @@ namespace OnlineShop.Domain.Entities
         public void SetWeight(decimal? weight)
         {
             if (weight.HasValue && weight.Value < 0)
-                throw new ArgumentException("وزن نمی‌تواند منفی باشد");
+                throw new ArgumentException("ÙˆØ²Ù† Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ù…Ù†ÙÛŒ Ø¨Ø§Ø´Ø¯");
             Weight = weight;
             UpdatedAt = DateTime.UtcNow;
         }
@@ -191,7 +193,7 @@ namespace OnlineShop.Domain.Entities
         public void SetSalePrice(decimal? salePrice)
         {
             if (salePrice.HasValue && salePrice.Value < 0)
-                throw new ArgumentException("قیمت فروش نمی‌تواند منفی باشد");
+                throw new ArgumentException("Ù‚ÛŒÙ…Øª ÙØ±ÙˆØ´ Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ù…Ù†ÙÛŒ Ø¨Ø§Ø´Ø¯");
             SalePrice = salePrice;
             UpdatedAt = DateTime.UtcNow;
         }
@@ -199,7 +201,7 @@ namespace OnlineShop.Domain.Entities
         public void SetSalePeriod(DateTime? saleStartDate, DateTime? saleEndDate)
         {
             if (saleStartDate.HasValue && saleEndDate.HasValue && saleStartDate.Value >= saleEndDate.Value)
-                throw new ArgumentException("تاریخ شروع فروش باید قبل از تاریخ پایان باشد");
+                throw new ArgumentException("ØªØ§Ø±ÛŒØ® Ø´Ø±ÙˆØ¹ ÙØ±ÙˆØ´ Ø¨Ø§ÛŒØ¯ Ù‚Ø¨Ù„ Ø§Ø² ØªØ§Ø±ÛŒØ® Ù¾Ø§ÛŒØ§Ù† Ø¨Ø§Ø´Ø¯");
             SaleStartDate = saleStartDate;
             SaleEndDate = saleEndDate;
             UpdatedAt = DateTime.UtcNow;
@@ -221,12 +223,16 @@ namespace OnlineShop.Domain.Entities
         public void Delete(string? updatedBy)
         {
             if (Deleted)
-                throw new InvalidOperationException("این محصول قبلاً حذف شده است.");
+                throw new InvalidOperationException("Ø§ÛŒÙ† Ù…Ø­ØµÙˆÙ„ Ù‚Ø¨Ù„Ø§Ù‹ Ø­Ø°Ù Ø´Ø¯Ù‡ Ø§Ø³Øª.");
             Deleted = true;
             UpdatedBy = updatedBy;
             UpdatedAt = DateTime.UtcNow;
         }
+        public void SetDeletedByMahak(bool deletedByMahak)
+        {
+            DeletedByMahak = deletedByMahak;
+            UpdatedAt = DateTime.UtcNow;
+        }
     }
 }
-
 

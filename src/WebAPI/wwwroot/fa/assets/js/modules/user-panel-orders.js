@@ -140,7 +140,7 @@ class UserPanelOrders {
                     <div class="text-sm text-gray-500 dark:text-gray-400">${orderDate}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900 dark:text-white">${totalAmount.toLocaleString()} تومان</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">${totalAmount.toLocaleString()} ریال</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     ${statusBadge}
@@ -285,7 +285,7 @@ class UserPanelOrders {
                     </div>
                     <div>
                         <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">مبلغ کل</h4>
-                        <p class="mt-1 text-lg font-semibold text-primary">${(order.totalAmount || order.total || 0).toLocaleString()} تومان</p>
+                        <p class="mt-1 text-lg font-semibold text-primary">${(order.totalAmount || order.total || 0).toLocaleString()} ریال</p>
                     </div>
                 </div>
                 
@@ -301,7 +301,7 @@ class UserPanelOrders {
                                     <p class="text-sm text-gray-500 dark:text-gray-400">تعداد: ${item.quantity}</p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-semibold text-gray-900 dark:text-white">${(item.price * item.quantity).toLocaleString()} تومان</p>
+                                    <p class="font-semibold text-gray-900 dark:text-white">${(item.price * item.quantity).toLocaleString()} ریال</p>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">${item.price.toLocaleString()} × ${item.quantity}</p>
                                 </div>
                             </div>

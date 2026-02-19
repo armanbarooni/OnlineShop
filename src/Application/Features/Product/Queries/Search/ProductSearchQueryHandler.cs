@@ -27,7 +27,10 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
 
                 // Get products with all includes for filtering
                 var allProducts = await _repository.GetAllWithIncludesAsync(cancellationToken);
-                var query = allProducts.AsQueryable();
+                var visibleProducts = allProducts
+                    .Where(p => !p.Deleted && !p.DeletedByMahak)
+                    .ToList();
+                var query = visibleProducts.AsQueryable();
 
                 // Apply filters
                 query = ApplyFilters(query, criteria);
@@ -54,7 +57,7 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
                 );
 
                 // Generate facets
-                var facets = await GenerateFacets(allProducts, criteria, cancellationToken);
+                var facets = await GenerateFacets(visibleProducts, criteria, cancellationToken);
 
                 var searchResult = new ProductSearchResultDto
                 {

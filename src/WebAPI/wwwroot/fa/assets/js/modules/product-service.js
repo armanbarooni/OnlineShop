@@ -138,11 +138,11 @@ class ProductService {
      * @returns {string} Formatted price
      */
     formatPrice(price) {
-        if (!price) return '0 تومان';
+        if (!price) return '0 ریال';
 
         // Assuming price is in Tomans
         const formatted = new Intl.NumberFormat('fa-IR').format(price);
-        return `${formatted} تومان`;
+        return `${formatted} ریال`;
     }
 
     /**

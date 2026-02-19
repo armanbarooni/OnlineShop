@@ -8,6 +8,8 @@ namespace OnlineShop.Application.DTOs.ProductVariant
         public string Color { get; set; } = string.Empty;
         public string SKU { get; set; } = string.Empty;
         public string? Barcode { get; set; }
+        public string? Feature8Value { get; set; }
+        public string? Feature9Value { get; set; }
         public int StockQuantity { get; set; }
         public decimal? AdditionalPrice { get; set; }
         public bool IsAvailable { get; set; }
