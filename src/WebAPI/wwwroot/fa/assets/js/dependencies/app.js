@@ -300,20 +300,24 @@ function toggleDropdown(id) {
 function toggleOffcanvas(id) {
     // Get the offcanvas element by its ID
     let offcanvas = document.getElementById(id);
-    // Get the overlay element
-    let overlay = document.querySelector(".overlay");
+    if (!offcanvas) return;
 
     // Remove any previous translation or opacity classes
     offcanvas.classList.remove("translate-x-full", "-translate-x-full", "-translate-y-full", "translate-y-full", "opacity-0");
 
     // Add the class to make the offcanvas visible (full opacity)
-    offcanvas.classList.add("opacity-100");
-    offcanvas.classList.add("visible");
+    offcanvas.classList.add("opacity-100", "visible");
     offcanvas.classList.remove("invisible");
 
-    // Show the overlay by removing the 'hidden' class
-    overlay.classList.remove("hidden");
+    // Show all overlays (some pages render more than one .overlay)
+    document.querySelectorAll(".overlay").forEach(overlay => {
+        overlay.classList.remove("hidden");
+    });
+
+    // Prevent body scroll while offcanvas is open
+    document.body.classList.add("overflow-hidden");
 }
+window.toggleDropdown = toggleDropdown;
 
 // Function to close all offcanvas elements
 function closeOffcanvas() {
@@ -321,6 +325,8 @@ function closeOffcanvas() {
     document.querySelectorAll(".offcanvas").forEach(el => {
         // Add opacity-0 to hide the offcanvas
         el.classList.add("opacity-0");
+        el.classList.remove("opacity-100", "visible");
+        el.classList.add("invisible");
 
         // Check if the offcanvas is on the right and add corresponding translation class
         if (el.id.includes("right")) el.classList.add("translate-x-full");
@@ -333,15 +339,20 @@ function closeOffcanvas() {
 
         // Check if the offcanvas is at the bottom and add corresponding translation class
         if (el.id.includes("bottom")) el.classList.add("translate-y-full");
-
     });
 
-    // Set a timeout to hide the overlay after 300ms to allow the animation to complete
+    // Set a timeout to hide overlays after animation is complete
     setTimeout(() => {
-        // Add the 'hidden' class to the overlay to hide it
-        document.querySelector(".overlay").classList.add("hidden");
+        document.querySelectorAll(".overlay").forEach(overlay => {
+            overlay.classList.add("hidden");
+        });
+        document.body.classList.remove("overflow-hidden");
     }, 300);
 }
+
+// Ensure inline HTML handlers can always access these functions
+window.toggleOffcanvas = toggleOffcanvas;
+window.closeOffcanvas = closeOffcanvas;
 
 /**
  * STICKY MEGA MENU MODULE

@@ -1,6 +1,7 @@
 /**
  * Shop Page (shop.html) API Integration
  */
+let cachedCategories = [];
 
 // Initialize shop page
 document.addEventListener("DOMContentLoaded", async () => {
@@ -28,9 +29,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const categoryId = urlParams.get("category");
     const searchQuery = urlParams.get("search") || urlParams.get("q");
+    const resolvedCategoryId =
+      categoryId || (await resolveCategoryIdFromSearch(searchQuery));
+
+    await updateShopCategoryContext(resolvedCategoryId, searchQuery);
 
     // Load products
-    await loadProducts(categoryId, searchQuery);
+    await loadProducts(resolvedCategoryId, searchQuery);
   } catch (error) {
     if (window.logger) {
       window.logger.error("Error initializing shop page:", error);
@@ -39,6 +44,76 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
+
+async function updateShopCategoryContext(categoryId, searchQuery) {
+  const categoryNameElement = document.getElementById("shop-current-category-name");
+  if (!categoryNameElement) return;
+
+  if (categoryId && window.categoryService) {
+    try {
+      const categoryResult = await window.categoryService.getCategoryById(categoryId);
+      if (categoryResult && categoryResult.success && categoryResult.data) {
+        const categoryName =
+          categoryResult.data.name || categoryResult.data.title || "فروشگاه";
+        categoryNameElement.textContent = categoryName;
+        return;
+      }
+    } catch (error) {
+      if (window.logger) {
+        window.logger.warn("Failed to resolve category name for breadcrumb", error);
+      }
+    }
+  }
+
+  if (searchQuery) {
+    categoryNameElement.textContent = `نتایج جستجو: ${searchQuery}`;
+    return;
+  }
+
+  categoryNameElement.textContent = "همه محصولات";
+}
+
+function normalizeCategoryName(value) {
+  if (!value) return "";
+  return String(value)
+    .replace(/\u200c/g, " ")
+    .replace(/ي/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+async function resolveCategoryIdFromSearch(searchQuery) {
+  if (!searchQuery || !window.categoryService) return null;
+
+  const normalizedSearch = normalizeCategoryName(searchQuery);
+  if (!normalizedSearch) return null;
+
+  let categories = cachedCategories;
+
+  if (!Array.isArray(categories) || categories.length === 0) {
+    try {
+      const result = await window.categoryService.getAllCategories();
+      if (result && result.success && Array.isArray(result.data)) {
+        categories = result.data;
+        cachedCategories = result.data;
+      }
+    } catch (error) {
+      if (window.logger) {
+        window.logger.warn("Failed to resolve category from search query", error);
+      }
+      return null;
+    }
+  }
+
+  const exactMatch = categories.find((category) => {
+    const categoryName = normalizeCategoryName(category.name || category.title);
+    return categoryName === normalizedSearch;
+  });
+
+  return exactMatch ? exactMatch.id : null;
+}
 
 // Load products based on category or search
 async function loadProducts(categoryId, searchQuery) {
@@ -317,6 +392,7 @@ async function loadCategories() {
     if (!window.categoryService) return;
     const result = await window.categoryService.getAllCategories();
     if (result.success && result.data) {
+      cachedCategories = Array.isArray(result.data) ? result.data : [];
       renderCategories(result.data);
     }
   } catch (error) {
@@ -362,7 +438,11 @@ function renderCategories(categories) {
 
 function renderColors(sizes) {
   const container = document.getElementById("product-colors-container");
+  const mobileColorSelect = document.getElementById("mobile-color-select");
   if (!container) return;
+  if ((!Array.isArray(sizes) || sizes.length === 0) && mobileColorSelect) {
+    mobileColorSelect.innerHTML = '<option value="">همه رنگ ها</option>';
+  }
 
   if (!Array.isArray(sizes) || sizes.length === 0) {
     container.innerHTML = `<p class="text-sm text-gray-400">سایزی برای این محصول موجود نیست</p>`;
@@ -396,11 +476,27 @@ function renderColors(sizes) {
     .join("");
 
   container.innerHTML = html;
+
+  if (mobileColorSelect) {
+    const options = sizes
+      .map((size, index) => {
+        const name = size.name || size.title || size;
+        const value = size.id || index;
+        return `<option value="${value}">${name}</option>`;
+      })
+      .join("");
+
+    mobileColorSelect.innerHTML = `<option value="">همه رنگ ها</option>${options}`;
+  }
 }
 
 function renderSizes(sizes) {
   const container = document.getElementById("product-sizes-container");
+  const mobileSizeSelect = document.getElementById("mobile-size-select");
   if (!container) return;
+  if ((!Array.isArray(sizes) || sizes.length === 0) && mobileSizeSelect) {
+    mobileSizeSelect.innerHTML = '<option value="">همه سایز ها</option>';
+  }
 
   if (!Array.isArray(sizes) || sizes.length === 0) {
     container.innerHTML = `<p class="text-sm text-gray-400">سایزی برای این محصول موجود نیست</p>`;
@@ -449,6 +545,18 @@ function renderSizes(sizes) {
     .join("");
 
   container.innerHTML = html;
+
+  if (mobileSizeSelect) {
+    const options = sizes
+      .map((size, index) => {
+        const title = size.name || size.title || size;
+        const value = size.id || index;
+        return `<option value="${value}">${title}</option>`;
+      })
+      .join("");
+
+    mobileSizeSelect.innerHTML = `<option value="">همه سایز ها</option>${options}`;
+  }
 }
 
 function renderPriceFilter(priceRanges) {

@@ -566,6 +566,7 @@
                   />
                 </svg>
                 <span
+                  id="shop-current-category-name"
                   class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400"
                   itemprop="name"
                 >
@@ -576,16 +577,6 @@
             </li>
           </ol>
         </nav>
-
-        <!-- title -->
-        <div
-          class="ps-15 my-10 section-heading sm:col-span-4 w-full col-span-6 relative space-y-3"
-        >
-          <h2 class="font-black text-3xl">
-            <span itemprop="name" class="dark:text-white">صفحه</span>
-            <span class="text-primary font-bold">فروشگاه</span>
-          </h2>
-        </div>
 
         <!-- quick select category -->
         <div class="mb-6">
@@ -865,8 +856,45 @@
               </section>
               <!-- filter applied -->
               <section></section>
+              <!-- mobile compact filters -->
+              <section class="lg:hidden">
+                <div
+                  class="dark:bg-zinc-900 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4"
+                >
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label
+                        for="mobile-color-select"
+                        class="text-xs text-gray-500 dark:text-gray-300 mb-1 block"
+                      >
+                        رنگ
+                      </label>
+                      <select
+                        id="mobile-color-select"
+                        class="w-full rounded-xl border border-gray-300 bg-white dark:bg-zinc-800 py-2 px-3 text-sm"
+                      >
+                        <option value="">همه رنگ ها</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        for="mobile-size-select"
+                        class="text-xs text-gray-500 dark:text-gray-300 mb-1 block"
+                      >
+                        سایز
+                      </label>
+                      <select
+                        id="mobile-size-select"
+                        class="w-full rounded-xl border border-gray-300 bg-white dark:bg-zinc-800 py-2 px-3 text-sm"
+                      >
+                        <option value="">همه سایز ها</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </section>
               <!-- color -->
-              <section>
+              <section class="hidden lg:block">
                 <div
                   class="dark:bg-zinc-900 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4"
                 >
@@ -917,7 +945,7 @@
                 </div>
               </section>
               <!-- size -->
-              <section>
+              <section class="hidden lg:block">
                 <div
                 
                   class="dark:bg-zinc-900 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4"

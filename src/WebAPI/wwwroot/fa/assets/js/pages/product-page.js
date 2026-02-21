@@ -566,10 +566,28 @@ function renderDescription(product) {
       ? product.description
       : "توضیحات این محصول به‌زودی تکمیل می‌شود.";
   if (introTab) {
-    const descriptionPara = introTab.querySelector("p");
-    if (descriptionPara) {
-      descriptionPara.textContent = descText;
-    }
+    const introContainer = introTab.querySelector("div.space-y-5") || introTab;
+    const lines = descText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const introHtml =
+      lines.length > 0
+        ? lines
+            .map(
+              (line) => `
+                <p class="text-sm sm:text-base leading-8 text-gray-700 dark:text-gray-300">
+                  ${escapeHtml(line)}
+                </p>
+              `,
+            )
+            .join("")
+        : `
+            <p class="text-sm sm:text-base leading-8 text-gray-700 dark:text-gray-300">
+              ${escapeHtml(descText)}
+            </p>
+          `;
+    introContainer.innerHTML = introHtml;
   }
 
   // Update features list
@@ -581,8 +599,8 @@ function renderDescription(product) {
       featuresList.innerHTML = features
         .map(
           (feature) => `
-                <li class="flex items-center space-x-3">
-                    <span class="inline-block text-base">${feature.trim()}</span>
+                <li class="flex items-start gap-2">
+                    <span class="inline-block text-base leading-7 break-words">${escapeHtml(feature.trim())}</span>
                 </li>
             `,
         )
@@ -644,16 +662,16 @@ function renderSpecifications(product) {
   const hasData = sizeRows.length > 0;
 
   specsDiv.innerHTML = `
-    <h2 class="text-2xl pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:start-0 before:h-1 before:w-22 before:bg-primary-500 before:rounded dark:text-white">جدول سایز</h2>
+    <h2 class="text-xl sm:text-2xl pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:start-0 before:h-1 before:w-22 before:bg-primary-500 before:rounded dark:text-white">جدول سایز</h2>
     <div class="rounded-xl border border-gray-200 dark:border-zinc-700 shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="min-w-full text-sm">
+        <table class="min-w-full text-xs sm:text-sm">
           <thead class="bg-gray-100 dark:bg-zinc-700">
             <tr>
-              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">سایز</th>
-              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">${escapeHtml(sizeTableDto.column8Title)}</th>
-              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">${escapeHtml(sizeTableDto.column9Title)}</th>
-              <th class="py-3 px-4 text-start font-bold text-gray-800 dark:text-white">موجودی</th>
+              <th class="py-3 px-3 sm:px-4 text-start font-bold text-gray-800 dark:text-white whitespace-nowrap">سایز</th>
+              <th class="py-3 px-3 sm:px-4 text-start font-bold text-gray-800 dark:text-white whitespace-nowrap">${escapeHtml(sizeTableDto.column8Title)}</th>
+              <th class="py-3 px-3 sm:px-4 text-start font-bold text-gray-800 dark:text-white whitespace-nowrap">${escapeHtml(sizeTableDto.column9Title)}</th>
+              <th class="py-3 px-3 sm:px-4 text-start font-bold text-gray-800 dark:text-white whitespace-nowrap">موجودی</th>
             </tr>
           </thead>
           <tbody>
@@ -663,10 +681,10 @@ function renderSpecifications(product) {
                     .map((row) => {
                       return `
                         <tr class="border-b border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800/60">
-                          <td class="py-3 px-4 font-semibold text-primary-700 dark:text-primary-300">${escapeHtml(row.size)}</td>
-                          <td class="py-3 px-4 text-gray-700 dark:text-gray-300">${escapeHtml((row.feature8Values || []).join("، "))}</td>
-                          <td class="py-3 px-4 text-gray-700 dark:text-gray-300">${escapeHtml((row.feature9Values || []).join("، "))}</td>
-                          <td class="py-3 px-4">
+                          <td class="py-3 px-3 sm:px-4 font-semibold text-primary-700 dark:text-primary-300 whitespace-nowrap">${escapeHtml(row.size)}</td>
+                          <td class="py-3 px-3 sm:px-4 text-gray-700 dark:text-gray-300 whitespace-nowrap">${escapeHtml((row.feature8Values || []).join("، "))}</td>
+                          <td class="py-3 px-3 sm:px-4 text-gray-700 dark:text-gray-300 whitespace-nowrap">${escapeHtml((row.feature9Values || []).join("، "))}</td>
+                          <td class="py-3 px-3 sm:px-4 whitespace-nowrap">
                             <span class="${row.stock > 0 ? "text-green-600" : "text-red-600"} font-semibold">
                               ${row.stock > 0 ? `${formatCount(row.stock)} عدد` : "ناموجود"}
                             </span>
