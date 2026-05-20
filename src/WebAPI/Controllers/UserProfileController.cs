@@ -128,18 +128,18 @@ namespace OnlineShop.WebAPI.Controllers
                 return Unauthorized(new { message = "User not authenticated" });
 
             // Validate file
-            if (file == null || file.File.Length == 0)
+            if (file == null || file.Length == 0)
                 return BadRequest(new { message = "فایل انتخاب نشده است" });
 
             // Validate file type
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
-            var fileExtension = Path.GetExtension(file.File.FileName).ToLowerInvariant();
-            if (!allowedExtensions.Contains(fileExtension))
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!Array.Exists(allowedExtensions, extension => extension == fileExtension))
                 return BadRequest(new { message = "فرمت فایل مجاز نیست. فقط تصاویر JPG، PNG، GIF و WEBP مجاز است" });
 
             // Validate file size (max 5MB)
             const long maxFileSize = 5 * 1024 * 1024; // 5MB
-            if (file.File.Length > maxFileSize)
+            if (file.Length > maxFileSize)
                 return BadRequest(new { message = "حجم فایل نباید بیشتر از 5 مگابایت باشد" });
 
             try
@@ -163,7 +163,7 @@ namespace OnlineShop.WebAPI.Controllers
                 // Save file
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await file.File.CopyToAsync(stream);
+                    await file.CopyToAsync(stream);
                 }
 
                 // Generate URL (relative to wwwroot)
