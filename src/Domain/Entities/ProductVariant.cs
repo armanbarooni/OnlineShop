@@ -13,6 +13,8 @@ namespace OnlineShop.Domain.Entities
         public string Color { get; private set; } = string.Empty; // Red, Blue, Black, etc.
         public string SKU { get; private set; } = string.Empty; // Unique identifier for this variant
         public string? Barcode { get; private set; }
+        public string? Feature8Value { get; private set; }
+        public string? Feature9Value { get; private set; }
         public int StockQuantity { get; private set; }
         public decimal? AdditionalPrice { get; private set; } // Extra cost for this variant (e.g., +$5 for XL)
         public bool IsAvailable { get; private set; } = true;
@@ -65,6 +67,13 @@ namespace OnlineShop.Domain.Entities
         public void SetBarcode(string? barcode)
         {
             Barcode = barcode?.Trim();
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetMeasurementValues(string? feature8Value, string? feature9Value)
+        {
+            Feature8Value = string.IsNullOrWhiteSpace(feature8Value) ? null : feature8Value.Trim();
+            Feature9Value = string.IsNullOrWhiteSpace(feature9Value) ? null : feature9Value.Trim();
             UpdatedAt = DateTime.UtcNow;
         }
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CITY SELECTOR MODULE v1
  * Designed by Amir Rezae
  * Features:
@@ -300,20 +300,24 @@ function toggleDropdown(id) {
 function toggleOffcanvas(id) {
     // Get the offcanvas element by its ID
     let offcanvas = document.getElementById(id);
-    // Get the overlay element
-    let overlay = document.querySelector(".overlay");
+    if (!offcanvas) return;
 
     // Remove any previous translation or opacity classes
     offcanvas.classList.remove("translate-x-full", "-translate-x-full", "-translate-y-full", "translate-y-full", "opacity-0");
 
     // Add the class to make the offcanvas visible (full opacity)
-    offcanvas.classList.add("opacity-100");
-    offcanvas.classList.add("visible");
+    offcanvas.classList.add("opacity-100", "visible");
     offcanvas.classList.remove("invisible");
 
-    // Show the overlay by removing the 'hidden' class
-    overlay.classList.remove("hidden");
+    // Show all overlays (some pages render more than one .overlay)
+    document.querySelectorAll(".overlay").forEach(overlay => {
+        overlay.classList.remove("hidden");
+    });
+
+    // Prevent body scroll while offcanvas is open
+    document.body.classList.add("overflow-hidden");
 }
+window.toggleDropdown = toggleDropdown;
 
 // Function to close all offcanvas elements
 function closeOffcanvas() {
@@ -321,6 +325,8 @@ function closeOffcanvas() {
     document.querySelectorAll(".offcanvas").forEach(el => {
         // Add opacity-0 to hide the offcanvas
         el.classList.add("opacity-0");
+        el.classList.remove("opacity-100", "visible");
+        el.classList.add("invisible");
 
         // Check if the offcanvas is on the right and add corresponding translation class
         if (el.id.includes("right")) el.classList.add("translate-x-full");
@@ -333,15 +339,20 @@ function closeOffcanvas() {
 
         // Check if the offcanvas is at the bottom and add corresponding translation class
         if (el.id.includes("bottom")) el.classList.add("translate-y-full");
-
     });
 
-    // Set a timeout to hide the overlay after 300ms to allow the animation to complete
+    // Set a timeout to hide overlays after animation is complete
     setTimeout(() => {
-        // Add the 'hidden' class to the overlay to hide it
-        document.querySelector(".overlay").classList.add("hidden");
+        document.querySelectorAll(".overlay").forEach(overlay => {
+            overlay.classList.add("hidden");
+        });
+        document.body.classList.remove("overflow-hidden");
     }, 300);
 }
+
+// Ensure inline HTML handlers can always access these functions
+window.toggleOffcanvas = toggleOffcanvas;
+window.closeOffcanvas = closeOffcanvas;
 
 /**
  * STICKY MEGA MENU MODULE
@@ -546,10 +557,10 @@ function toggleText() {
     // Check the current display state of the extra text
     if (extraText.style.display === "none") {
         extraText.style.display = "inline"; // Show the extra text
-        btn.textContent = "بستن"; // Update button text to "Close Read More"
+        btn.textContent = "????"; // Update button text to "Close Read More"
     } else {
         extraText.style.display = "none"; // Hide the extra text
-        btn.textContent = "بیشتر بدانید"; // Update button text to "Read More"
+        btn.textContent = "????? ??????"; // Update button text to "Read More"
     }
 }
 
@@ -816,7 +827,7 @@ if (inputField && copyButton) {
 
         document.execCommand('copy'); // Copy the text to clipboard
 
-        alert('کد کپی شد!'); // User feedback (optional)
+        alert('?? ??? ??!'); // User feedback (optional)
     });
 }
 /**
@@ -959,7 +970,7 @@ function markAsRead(button) {
     if (notification) {
         notification.classList.remove('bg-blue-50', 'dark:bg-blue-900/20'); // Remove unread styles
     }
-    button.textContent = 'خوانده شده'; // Update button text
+    button.textContent = '?????? ???'; // Update button text
     button.classList.remove('text-gray-500', 'dark:text-gray-400');
     button.classList.add('text-success', 'dark:text-success-dark'); // Change button color to indicate it's read
 }
@@ -973,7 +984,7 @@ function markAllAsRead() {
 
     // Update all buttons to indicate they have been read
     document.querySelectorAll('[onclick="markAsRead(this)"]').forEach(button => {
-        button.textContent = 'خوانده شده';
+        button.textContent = '?????? ???';
         button.classList.remove('text-gray-500', 'dark:text-gray-400');
         button.classList.add('text-success', 'dark:text-success-dark');
     });
@@ -992,7 +1003,7 @@ function deleteAllNotifications() {
     const notificationsContainer = document.querySelector('.border.rounded-xl.overflow-hidden');
     if (notificationsContainer) {
         // Clear all notifications and display a message indicating no notifications
-        notificationsContainer.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400">هیچ اطلاعیه‌ای وجود ندارد</div>';
+        notificationsContainer.innerHTML = '<div class="p-8 text-center text-gray-500 dark:text-gray-400">??? ?????????? ???? ?????</div>';
     }
 }
 
@@ -1090,8 +1101,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Display the amounts
-        feeAmountElement.textContent = feeAmount.toLocaleString() + " تومان";
-        totalAmountElement.textContent = totalAmount.toLocaleString() + " تومان";
+        feeAmountElement.textContent = feeAmount.toLocaleString() + " ????";
+        totalAmountElement.textContent = totalAmount.toLocaleString() + " ????";
     }
 
     // Search for receiver
@@ -1203,13 +1214,13 @@ function copyComponentCode(btn) {
     const codeBlock = block ? block.querySelector('code') : null;
 
     if (!codeBlock) {
-        alert('کدی برای کپی پیدا نشد!');
+        alert('??? ???? ??? ???? ???!');
         return;
     }
 
     navigator.clipboard.writeText(codeBlock.textContent.trim())
-        .then(() => alert('کد با موفقیت کپی شد!'))
-        .catch(() => alert('خطا در کپی کد'));
+        .then(() => alert('?? ?? ?????? ??? ??!'))
+        .catch(() => alert('??? ?? ??? ??'));
 }
 
 
@@ -1240,16 +1251,16 @@ function initializeLiveSearch() {
 
     // Sample product data
     const products = [
-        { id: 1, name: "لپ تاپ ایسوس مدل ROG", category: "لپ تاپ و کامپیوتر" },
-        { id: 2, name: "گوشی سامسونگ گلکسی S23", category: "موبایل و تبلت" },
-        { id: 3, name: "هدفون بی سیم سونی", category: "لوازم جانبی" },
-        { id: 4, name: "ماوس گیمینگ رزر", category: "لوازم جانبی" },
-        { id: 5, name: "تلویزیون ال جی 55 اینچ", category: "صوتی و تصویری" },
-        { id: 6, name: "کتاب صوتی موفقیت در کسب و کار", category: "کتاب و رسانه" },
-        { id: 7, name: "کفش ورزشی نایک", category: "پوشاک و ورزش" },
-        { id: 8, name: "دستگاه غذاساز فیلیپس", category: "لوازم خانگی" },
-        { id: 9, name: "دوربین کانن EOS R5", category: "عکاسی" },
-        { id: 10, name: "کنسول بازی پلی استیشن 5", category: "بازی و سرگرمی" }
+        { id: 1, name: "?? ??? ????? ??? ROG", category: "?? ??? ? ????????" },
+        { id: 2, name: "???? ??????? ????? S23", category: "?????? ? ????" },
+        { id: 3, name: "????? ?? ??? ????", category: "????? ?????" },
+        { id: 4, name: "???? ?????? ???", category: "????? ?????" },
+        { id: 5, name: "???????? ?? ?? 55 ????", category: "???? ? ??????" },
+        { id: 6, name: "???? ???? ?????? ?? ??? ? ???", category: "???? ? ?????" },
+        { id: 7, name: "??? ????? ????", category: "????? ? ????" },
+        { id: 8, name: "?????? ?????? ??????", category: "????? ?????" },
+        { id: 9, name: "?????? ???? EOS R5", category: "?????" },
+        { id: 10, name: "????? ???? ??? ?????? 5", category: "???? ? ??????" }
     ];
 
     // Search function
@@ -1262,7 +1273,7 @@ function initializeLiveSearch() {
         // Show loading status
         searchResults.innerHTML = `
                     <div class="p-4 text-center text-gray-600 dark:text-gray-300">
-                        <div class="loading">در حال جستجو</div>
+                        <div class="loading">?? ??? ?????</div>
                     </div>
                 `;
         searchResults.classList.remove('hidden');
@@ -1283,7 +1294,7 @@ function initializeLiveSearch() {
         if (results.length === 0) {
             searchResults.innerHTML = `
                         <div class="p-4 text-center text-gray-600 dark:text-gray-300">
-                            نتیجه‌ای یافت نشد
+                            ???????? ???? ???
                         </div>
                     `;
             return;
@@ -1340,7 +1351,7 @@ function initializeLiveSearch() {
         if (e.key === 'Enter') {
             const searchTerm = this.value.trim();
             if (searchTerm) {
-                alert(`جستجو برای: ${searchTerm} (این قسمت به صفحه نتایج جستجو هدایت می‌کند)`);
+                alert(`????? ????: ${searchTerm} (??? ???? ?? ???? ????? ????? ????? ??????)`);
             }
         }
     });
@@ -1404,19 +1415,19 @@ function sendOTP() {
 
     if (!mobile.value) {
         mobile.classList.add('input-error');
-        mobileError.textContent = 'لطفا شماره موبایل را وارد کنید';
+        mobileError.textContent = '???? ????? ?????? ?? ???? ????';
         mobileError.classList.remove('hidden');
         return;
     } else if (!/^09\d{9}$/.test(mobile.value)) {
         mobile.classList.add('input-error');
-        mobileError.textContent = 'شماره موبایل معتبر نیست';
+        mobileError.textContent = '????? ?????? ????? ????';
         mobileError.classList.remove('hidden');
         return;
     }
 
     // Simulate sending OTP
     // In real case, this should send a request to the server
-    window.logger.log('کد تایید برای شماره ' + mobile.value + ' ارسال شد');
+    window.logger.log('?? ????? ???? ????? ' + mobile.value + ' ????? ??');
 
     // Show OTP section
     otpSection.classList.remove('hidden');
@@ -1468,14 +1479,14 @@ if (smsForm) {
         if (!otpCode?.value) {
             otpCode?.classList.add('input-error');
             if (otpError) {
-                otpError.textContent = 'لطفا کد تایید را وارد کنید';
+                otpError.textContent = '???? ?? ????? ?? ???? ????';
                 otpError.classList.remove('hidden');
             }
             return;
         } else if (!/^\d{6}$/.test(otpCode.value)) {
             otpCode?.classList.add('input-error');
             if (otpError) {
-                otpError.textContent = 'کد تایید باید ۶ رقم باشد';
+                otpError.textContent = '?? ????? ???? ? ??? ????';
                 otpError.classList.remove('hidden');
             }
             return;
@@ -1487,11 +1498,11 @@ if (smsForm) {
 // --- Function to show login error message ---
 function showLoginError(message) {
     const loginForm = document.getElementById('login-form');
-    if (!loginForm) return; // اگر فرم وجود نداشت خطا نده
+    if (!loginForm) return; // ??? ??? ???? ????? ??? ???
 
     const errorDiv = document.createElement('div');
     errorDiv.className = 'mb-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-xl';
-    errorDiv.textContent = message || 'نام کاربری یا رمز عبور اشتباه است';
+    errorDiv.textContent = message || '??? ?????? ?? ??? ???? ?????? ???';
 
     loginForm.insertBefore(errorDiv, loginForm.firstChild);
 
@@ -1499,5 +1510,6 @@ function showLoginError(message) {
         errorDiv.remove();
     }, 5000);
 }
+
 
 

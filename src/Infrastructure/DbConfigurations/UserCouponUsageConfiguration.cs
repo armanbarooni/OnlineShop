@@ -43,7 +43,7 @@ namespace OnlineShop.Infrastructure.DbConfigurations
                 .IsRequired();
 
             builder.HasOne(ucu => ucu.Coupon)
-                .WithMany()
+                .WithMany(c => c.UserCouponUsages)
                 .HasForeignKey(ucu => ucu.CouponId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();

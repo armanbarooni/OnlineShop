@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -714,8 +714,8 @@
                                     </div>
                                 </div>
                                 <div class="col-span-2 flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">1</div>
-                                <div class="col-span-2 flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">12,990,000 تومان</div>
-                                <div class="col-span-2 flex items-center justify-center text-sm font-medium text-dark dark:text-light">12,990,000 تومان</div>
+                                <div class="col-span-2 flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">12,990,000 ریال</div>
+                                <div class="col-span-2 flex items-center justify-center text-sm font-medium text-dark dark:text-light">12,990,000 ریال</div>
                             </div>
 
                             <!-- آیتم محصول -->
@@ -728,14 +728,14 @@
                                     </div>
                                 </div>
                                 <div class="col-span-2 flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">2</div>
-                                <div class="col-span-2 flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">1,890,000 تومان</div>
-                                <div class="col-span-2 flex items-center justify-center text-sm font-medium text-dark dark:text-light">3,780,000 تومان</div>
+                                <div class="col-span-2 flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">1,890,000 ریال</div>
+                                <div class="col-span-2 flex items-center justify-center text-sm font-medium text-dark dark:text-light">3,780,000 ریال</div>
                             </div>
 
                             <!-- جمع کل -->
                             <div class="grid grid-cols-12 bg-gray-50 dark:bg-gray-800 p-4">
                                 <div class="col-span-8 text-sm font-medium text-gray-500 dark:text-gray-400">جمع کل سفارش</div>
-                                <div class="col-span-4 flex items-center justify-end text-lg font-bold text-dark dark:text-light">16,770,000 تومان</div>
+                                <div class="col-span-4 flex items-center justify-end text-lg font-bold text-dark dark:text-light">16,770,000 ریال</div>
                             </div>
                         </div>
                     </div>
@@ -748,19 +748,19 @@
                     <div class="space-y-4">
                         <div class="flex justify-between">
                             <span class="text-sm text-gray-600 dark:text-gray-400">جمع محصولات</span>
-                            <span class="text-sm font-medium text-dark dark:text-light">16,770,000 تومان</span>
+                            <span class="text-sm font-medium text-dark dark:text-light">16,770,000 ریال</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-sm text-gray-600 dark:text-gray-400">تخفیف</span>
-                            <span class="text-sm font-medium text-success dark:text-success-dark">-1,520,000 تومان</span>
+                            <span class="text-sm font-medium text-success dark:text-success-dark">-1,520,000 ریال</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-sm text-gray-600 dark:text-gray-400">هزینه ارسال</span>
-                            <span class="text-sm font-medium text-dark dark:text-light">50,000 تومان</span>
+                            <span class="text-sm font-medium text-dark dark:text-light">50,000 ریال</span>
                         </div>
                         <div class="pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between">
                             <span class="text-base font-medium text-dark dark:text-light">مبلغ قابل پرداخت</span>
-                            <span class="text-lg font-bold text-primary dark:text-primary-dark">15,300,000 تومان</span>
+                            <span class="text-lg font-bold text-primary dark:text-primary-dark">15,300,000 ریال</span>
                         </div>
                     </div>
 
@@ -1206,12 +1206,12 @@
                         ØªØ¹Ø¯Ø§Ø¯: ${item.quantity} Ø¹Ø¯Ø¯
                     </p>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        قیمت واحد: ${window.utils.formatPrice(item.unitPrice)} تومان
+                        قیمت واحد: ${window.utils.formatPrice(item.unitPrice)} ریال
                     </p>
                 </div>
                 <div class="text-left">
                     <p class="text-sm font-medium text-gray-900 dark:text-white">
-                        ${window.utils.formatPrice(item.totalPrice)} تومان
+                        ${window.utils.formatPrice(item.totalPrice)} ریال
                     </p>
                 </div>
             </div>
@@ -1446,7 +1446,7 @@
                     <div class="order-info">
                         <h3>جزئیات سفارش</h3>
                         <p>وضعیت: ${getStatusText(currentOrder.status)}</p>
-                        <p>مبلغ کل: ${window.utils.formatPrice(currentOrder.totalAmount)} تومان</p>
+                        <p>مبلغ کل: ${window.utils.formatPrice(currentOrder.totalAmount)} ریال</p>
                     </div>
                     <table class="items-table">
                         <thead>

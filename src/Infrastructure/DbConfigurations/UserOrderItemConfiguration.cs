@@ -21,6 +21,8 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             builder.Property(uoi => uoi.ProductSku)
                 .HasMaxLength(100);
 
+            builder.Property(uoi => uoi.VariantId);
+
             builder.Property(uoi => uoi.Quantity)
                 .IsRequired();
 
@@ -49,6 +51,11 @@ namespace OnlineShop.Infrastructure.DbConfigurations
                 .HasForeignKey(uoi => uoi.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(uoi => uoi.ProductVariant)
+                .WithMany()
+                .HasForeignKey(uoi => uoi.VariantId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // Base Entity Properties
             builder.Property(uoi => uoi.MahakId);
             builder.Property(uoi => uoi.MahakClientId);
@@ -62,6 +69,7 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             // Indexes
             builder.HasIndex(uoi => uoi.OrderId);
             builder.HasIndex(uoi => uoi.ProductId);
+            builder.HasIndex(uoi => uoi.VariantId);
         }
     }
 }

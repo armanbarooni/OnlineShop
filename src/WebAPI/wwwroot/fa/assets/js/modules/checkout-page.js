@@ -83,15 +83,15 @@ class CheckoutPage {
         const deliveryCostEl = document.getElementById('checkout-delivery-cost');
         const totalEl = document.getElementById('checkout-total');
 
-        if (subtotalEl) subtotalEl.textContent = `${subtotal.toLocaleString()} تومان`;
-        if (discountEl) discountEl.textContent = `${discount.toLocaleString()} تومان`;
-        if (deliveryCostEl) deliveryCostEl.textContent = `${this.deliveryCost.toLocaleString()} تومان`;
-        if (totalEl) totalEl.textContent = `${total.toLocaleString()} تومان`;
+        if (subtotalEl) subtotalEl.textContent = `${subtotal.toLocaleString()} ریال`;
+        if (discountEl) discountEl.textContent = `${discount.toLocaleString()} ریال`;
+        if (deliveryCostEl) deliveryCostEl.textContent = `${this.deliveryCost.toLocaleString()} ریال`;
+        if (totalEl) totalEl.textContent = `${total.toLocaleString()} ریال`;
 
         // Update delivery cost summary
         const deliveryCostSummary = document.querySelector('.delivery-cost-summary');
         if (deliveryCostSummary) {
-            deliveryCostSummary.textContent = `${this.deliveryCost.toLocaleString()} تومان`;
+            deliveryCostSummary.textContent = `${this.deliveryCost.toLocaleString()} ریال`;
         }
     }
 

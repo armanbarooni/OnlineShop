@@ -3,13 +3,18 @@ using OnlineShop.Infrastructure.Persistence;
 using OnlineShop.Infrastructure;
 using OnlineShop.API.Middleware;
 using OnlineShop.Application.Common;
+using OnlineShop.WebAPI.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.IO.Compression;
+using System.Linq;
 using System.Security.Claims;
 using Serilog;
 using Serilog.Events;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Hosting;
 
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
@@ -75,14 +80,81 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.WriteIndented = false;
     });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Online Shop API",
+        Version = "v1"
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: Bearer {token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.Configure<PerformanceOptions>(builder.Configuration.GetSection("Performance"));
+builder.Services.Configure<BackgroundSyncOptions>(builder.Configuration.GetSection("BackgroundSync"));
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient("ImageProxy");
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+    {
+        "application/json",
+        "application/javascript",
+        "text/css",
+        "text/html",
+        "font/woff2"
+    });
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
 
 // Add Background Workers
-builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.MahakSyncWorker>();
-builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.MahakOutgoingSyncWorker>();
+var backgroundSyncEnabled = builder.Configuration.GetValue<bool?>("BackgroundSync:Enabled") ?? true;
+if (backgroundSyncEnabled)
+{
+    builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.MahakSyncWorker>();
+    builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.MahakOutgoingSyncWorker>();
+}
+
+builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.KeepAliveWorker>();
 
 // Localization (set default culture to fa-IR, support fa and en)
 var supportedCultures = new[] { new System.Globalization.CultureInfo("fa-IR"), new System.Globalization.CultureInfo("en-US") };
@@ -225,13 +297,21 @@ var shouldSeedDefaults = !string.Equals(
     "false",
     StringComparison.OrdinalIgnoreCase);
 
+var applyMigrationsOnStartup = app.Configuration.GetValue<bool?>("Performance:ApplyMigrationsOnStartup")
+                               ?? app.Environment.IsDevelopment();
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-    if (db.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+    if (applyMigrationsOnStartup &&
+        db.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
     {
         db.Database.Migrate();
+    }
+    else
+    {
+        Log.Information("Database migration on startup is disabled.");
     }
 }
 
@@ -263,6 +343,7 @@ if (app.Environment.IsDevelopment())
 // CORS middleware must be called BEFORE UseAuthentication/UseAuthorization
 // UseCors automatically handles preflight (OPTIONS) requests
 app.UseCors(app.Environment.IsDevelopment() ? "DevelopmentCors" : "AllowFrontend");
+app.UseResponseCompression();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();
@@ -274,7 +355,34 @@ app.UseRequestLocalization();
 app.UseDefaultFiles();
 
 // Serve static files from wwwroot - MUST be after UseDefaultFiles
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = context =>
+    {
+        var path = context.Context.Request.Path.Value ?? string.Empty;
+        if (path.EndsWith(".html", StringComparison.OrdinalIgnoreCase) ||
+            path.EndsWith(".htm", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+            context.Context.Response.Headers["Pragma"] = "no-cache";
+            context.Context.Response.Headers["Expires"] = "0";
+            return;
+        }
+
+        if (path.EndsWith("config.runtime.json", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Context.Response.Headers["Cache-Control"] = "no-cache, must-revalidate";
+            context.Context.Response.Headers["Pragma"] = "no-cache";
+            context.Context.Response.Headers["Expires"] = "0";
+            return;
+        }
+
+        if (path.StartsWith("/fa/assets/", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Context.Response.Headers["Cache-Control"] = "public, max-age=31536000, immutable";
+        }
+    }
+});
 
 // HTTPS Redirection - only enable if HTTPS is properly configured
 // On IIS with HTTPS binding, this will work automatically
@@ -315,6 +423,15 @@ app.Use(async (context, next) =>
 
 // Inject global RTL CSS/meta for Farsi pages
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RtlLocalizationMiddleware>();
+
+app.MapGet("/api/health", () =>
+{
+    return Results.Ok(new
+    {
+        status = "ok",
+        utc = DateTimeOffset.UtcNow
+    });
+});
 
 app.MapControllers();
 

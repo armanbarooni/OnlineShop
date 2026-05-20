@@ -120,8 +120,7 @@ namespace OnlineShop.WebAPI.Controllers
 
         [HttpPost("upload-picture")]
         [Consumes("multipart/form-data")]
-
-        public async Task<ActionResult> UploadProfilePicture([FromForm] UploadProfilePictureRequest file)
+        public async Task<ActionResult> UploadProfilePicture(IFormFile file)
         {
             // Get current user ID from claims
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;

@@ -1,6 +1,7 @@
 using Xunit;
 using Moq;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using OnlineShop.Application.Features.Auth.Commands.VerifyOtp;
 using OnlineShop.Application.DTOs.Auth;
 using OnlineShop.Application.Common.Models;
@@ -12,12 +13,14 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
     public class VerifyOtpCommandHandlerTests
     {
         private readonly Mock<IOtpRepository> _mockOtpRepository;
+        private readonly Mock<ILogger<VerifyOtpCommandHandler>> _loggerMock;
         private readonly VerifyOtpCommandHandler _handler;
 
         public VerifyOtpCommandHandlerTests()
         {
             _mockOtpRepository = new Mock<IOtpRepository>();
-            _handler = new VerifyOtpCommandHandler(_mockOtpRepository.Object);
+            _loggerMock = new Mock<ILogger<VerifyOtpCommandHandler>>();
+            _handler = new VerifyOtpCommandHandler(_mockOtpRepository.Object, _loggerMock.Object);
         }
 
         [Fact]

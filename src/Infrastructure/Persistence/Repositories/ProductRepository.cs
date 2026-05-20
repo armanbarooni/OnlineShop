@@ -29,6 +29,20 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
+        public async Task<Product?> GetByIdIgnoreFiltersAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _context.Products
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        }
+
+        public async Task<Product?> GetByMahakIdIgnoreFiltersAsync(int mahakId, CancellationToken cancellationToken)
+        {
+            return await _context.Products
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(p => p.MahakId == mahakId, cancellationToken);
+        }
+
         public async Task<Product?> GetByIdWithIncludesAsync(Guid id, CancellationToken cancellationToken)
         {
             return await _context.Products
@@ -37,6 +51,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .Include(p => p.Brand)
                 .Include(p => p.Unit)
                 .Include(p => p.ProductImages.OrderBy(i => i.DisplayOrder))
+                .Include(p => p.ProductDetails.OrderBy(d => d.DisplayOrder))
                 .Include(p => p.ProductVariants.OrderBy(v => v.DisplayOrder))
                 .Include(p => p.ProductMaterials).ThenInclude(pm => pm.Material)
                 .Include(p => p.ProductSeasons).ThenInclude(ps => ps.Season)
@@ -58,6 +73,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .Include(p => p.Brand)
                 .Include(p => p.Unit)
                 .Include(p => p.ProductImages.OrderBy(i => i.DisplayOrder))
+                .Include(p => p.ProductDetails.OrderBy(d => d.DisplayOrder))
                 .Include(p => p.ProductVariants.OrderBy(v => v.DisplayOrder))
                 .Include(p => p.ProductMaterials).ThenInclude(pm => pm.Material)
                 .Include(p => p.ProductSeasons).ThenInclude(ps => ps.Season)
@@ -73,6 +89,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .Include(p => p.Brand)
                 .Include(p => p.Unit)
                 .Include(p => p.ProductImages.OrderBy(i => i.DisplayOrder))
+                .Include(p => p.ProductDetails.OrderBy(d => d.DisplayOrder))
                 .Include(p => p.ProductVariants.OrderBy(v => v.DisplayOrder))
                 .Include(p => p.ProductMaterials).ThenInclude(pm => pm.Material)
                 .Include(p => p.ProductSeasons).ThenInclude(ps => ps.Season)
@@ -94,6 +111,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .Include(p => p.Brand)
                 .Include(p => p.Unit)
                 .Include(p => p.ProductImages.OrderBy(i => i.DisplayOrder))
+                .Include(p => p.ProductDetails.OrderBy(d => d.DisplayOrder))
                 .Include(p => p.ProductVariants.OrderBy(v => v.DisplayOrder))
                 .Include(p => p.ProductMaterials).ThenInclude(pm => pm.Material)
                 .Include(p => p.ProductSeasons).ThenInclude(ps => ps.Season)

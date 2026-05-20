@@ -24,9 +24,13 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         public async Task<Cart?> GetActiveCartByUserIdAsync(Guid userId, CancellationToken cancellationToken)
         {
             return await _context.Carts
+                .Where(c => c.UserId == userId && c.IsActive && (!c.ExpiresAt.HasValue || c.ExpiresAt.Value > DateTime.UtcNow))
+                // If multiple active carts exist, prefer the one that already has items, then the most recent one.
+                .OrderByDescending(c => c.CartItems.Any())
+                .ThenByDescending(c => c.UpdatedAt ?? c.CreatedAt)
                 .Include(c => c.CartItems).ThenInclude(ci => ci.Product).ThenInclude(p => p.ProductImages)
                 .Include(c => c.CartItems).ThenInclude(ci => ci.ProductVariant)
-                .FirstOrDefaultAsync(c => c.UserId == userId && c.IsActive && (!c.ExpiresAt.HasValue || c.ExpiresAt.Value > DateTime.UtcNow), cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<Cart?> GetCartBySessionIdAsync(string sessionId, CancellationToken cancellationToken)
@@ -78,7 +82,13 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
 
         public async Task UpdateAsync(Cart cart, CancellationToken cancellationToken)
         {
-            _context.Carts.Update(cart);
+            var dbCart = await _context.Carts
+                .FirstOrDefaultAsync(x => x.Id == cart.Id, cancellationToken);
+
+            if (dbCart == null)
+                throw new Exception("Cart not found");
+
+
             await _context.SaveChangesAsync(cancellationToken);
         }
 

@@ -203,7 +203,12 @@ const FavoriteManager = {
         const container = document.getElementById('wishlistContainer');
         if (!container) return;
 
-        if (!items || items.length === 0) {
+        const visibleItems = (items || []).filter(item => {
+            const product = item?.product || item;
+            return !!product && product.deleted !== true;
+        });
+
+        if (!visibleItems || visibleItems.length === 0) {
             container.innerHTML = `
                 <div class="text-center py-16 bg-white dark:bg-card-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -222,7 +227,7 @@ const FavoriteManager = {
         const grid = document.createElement('div');
         grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
 
-        items.forEach(item => {
+        visibleItems.forEach(item => {
             // Handle different API response structures (item wrapper vs direct product)
             const product = item.product || item;
             const card = document.createElement('div');
@@ -252,7 +257,7 @@ const FavoriteManager = {
                     </h3>
                     
                     <div class="flex items-center justify-between">
-                         <span class="text-primary font-bold">${priceDisplay} تومان</span>
+                         <span class="text-primary font-bold">${priceDisplay} ریال</span>
                     </div>
                 </div>
              `;

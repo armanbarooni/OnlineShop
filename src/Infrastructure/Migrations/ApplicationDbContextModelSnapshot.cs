@@ -17,7 +17,7 @@ namespace OnlineShop.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.22")
+                .HasAnnotation("ProductVersion", "8.0.23")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -435,6 +435,9 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ProductVariantId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
@@ -454,13 +457,18 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("VariantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CartId");
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("CartId", "ProductId")
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("CartId", "ProductId", "VariantId")
                         .IsUnique();
 
                     b.ToTable("CartItems");
@@ -1127,6 +1135,11 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<bool>("Deleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("DeletedByMahak")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
@@ -1929,6 +1942,14 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(0);
 
+                    b.Property<string>("Feature8Value")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Feature9Value")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<bool>("IsAvailable")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -2555,9 +2576,6 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<Guid>("CouponId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CouponId1")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -2614,8 +2632,6 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CouponId");
-
-                    b.HasIndex("CouponId1");
 
                     b.HasIndex("OrderId");
 
@@ -2844,11 +2860,16 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("VariantId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("VariantId");
 
                     b.ToTable("UserOrderItems");
                 });
@@ -3426,9 +3447,15 @@ namespace OnlineShop.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OnlineShop.Domain.Entities.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId");
+
                     b.Navigation("Cart");
 
                     b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
                 });
 
             modelBuilder.Entity("OnlineShop.Domain.Entities.OrderStatusHistory", b =>
@@ -3666,14 +3693,10 @@ namespace OnlineShop.Infrastructure.Migrations
             modelBuilder.Entity("OnlineShop.Domain.Entities.UserCouponUsage", b =>
                 {
                     b.HasOne("OnlineShop.Domain.Entities.Coupon", "Coupon")
-                        .WithMany()
+                        .WithMany("UserCouponUsages")
                         .HasForeignKey("CouponId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("OnlineShop.Domain.Entities.Coupon", null)
-                        .WithMany("UserCouponUsages")
-                        .HasForeignKey("CouponId1");
 
                     b.HasOne("OnlineShop.Domain.Entities.UserOrder", "Order")
                         .WithMany()
@@ -3732,9 +3755,16 @@ namespace OnlineShop.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("OnlineShop.Domain.Entities.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
                 });
 
             modelBuilder.Entity("OnlineShop.Domain.Entities.UserPayment", b =>

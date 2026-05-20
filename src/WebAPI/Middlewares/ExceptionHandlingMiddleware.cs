@@ -37,6 +37,19 @@ namespace OnlineShop.API.Middleware
 
         private static async Task HandleExceptionAsync(HttpContext context, Exception ex, ILogger logger, IWebHostEnvironment environment)
         {
+            if (ex is OperationCanceledException && context.RequestAborted.IsCancellationRequested)
+            {
+                logger.LogWarning(
+                    "Request was cancelled by client. Path: {Path}",
+                    context.Request.Path);
+
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.StatusCode = 499;
+                }
+
+                return;
+            }
 
             logger.LogError(ex, "Unhandled exception occurred.");
 

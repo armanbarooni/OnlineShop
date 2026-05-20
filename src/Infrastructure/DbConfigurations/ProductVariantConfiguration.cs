@@ -27,6 +27,12 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             builder.Property(pv => pv.Barcode)
                 .HasMaxLength(100);
 
+            builder.Property(pv => pv.Feature8Value)
+                .HasMaxLength(100);
+
+            builder.Property(pv => pv.Feature9Value)
+                .HasMaxLength(100);
+
             builder.Property(pv => pv.StockQuantity)
                 .IsRequired()
                 .HasDefaultValue(0);

@@ -6734,17 +6734,26 @@
   @font-face {
     font-family: "payda";
     src: url("../fonts/payda/PeydaWebFaNum-Medium.woff2") format("woff2");
-    font-weight: normal;
+    font-weight: 500;
+    font-display: swap;
   }
   @font-face {
     font-family: "payda";
     src: url("../fonts/payda/PeydaWebFaNum-Bold.woff2") format('woff2');
     font-weight: 700;
+    font-display: swap;
   }
   @font-face {
     font-family: "payda";
     src: url("../fonts/payda/PeydaWebFaNum-Black.woff2") format('woff2');
     font-weight: 900;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "payda";
+    src: url("../fonts/payda/PeydaWebFaNum-Regular.woff2") format('woff2');
+    font-weight: 400;
+    font-display: swap;
   }
   html {
     scroll-behavior: smooth;
