@@ -271,7 +271,7 @@ function createProductCard(product) {
   const imageUrl = rawImageUrl
     ? rawImageUrl.startsWith("http")
       ? rawImageUrl
-      : `https://mahakacc.mahaksoft.com${rawImageUrl}`
+      : `/api/ImageProxy?url=${encodeURIComponent(rawImageUrl)}`
     : "assets/images/product/nophoto.png";
   const price = product.price || product.unitPrice || 0;
   const salePrice = product.salePrice || null;

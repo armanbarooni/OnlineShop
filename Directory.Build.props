@@ -1,0 +1,10 @@
+<Project>
+  <!-- 
+    NU1903: AutoMapper 12.x/13.x has a known high severity vulnerability (GHSA-rvv3-g6hj-g44x).
+    Suppressed here until AutoMapper can be upgraded to v14+ which requires breaking API changes.
+    Track upgrade in: https://github.com/AutoMapper/AutoMapper/releases
+  -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NU1903</NoWarn>
+  </PropertyGroup>
+</Project>

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Product Page (product.html) API Integration
  */
 
@@ -122,6 +122,9 @@ async function loadProduct(productId) {
 
 // Render product data
 function renderProduct(product) {
+  // Store product data globally for add-to-cart
+  window.__currentProduct = product;
+
   // Product title
   const titleFa = document.getElementById("product-title-fa");
   if (titleFa) titleFa.textContent = product.name || "محصول بدون نام";
@@ -147,6 +150,176 @@ function renderProduct(product) {
 
   // Specifications
   renderSpecifications(product);
+
+  // Setup add-to-cart button
+  setupAddToCartButton(product);
+}
+
+// Setup add-to-cart button handler
+function setupAddToCartButton(product) {
+  const addToCartBtn = document.getElementById("product-add-to-cart-btn");
+  if (!addToCartBtn) return;
+
+  addToCartBtn.onclick = async function() {
+    // Check authentication
+    if (!window.apiClient || !window.apiClient.isAuthenticated()) {
+      showToast("لطفاً ابتدا وارد حساب کاربری خود شوید", "warning");
+      setTimeout(() => {
+        window.location.href = "/login.html?redirect=" + encodeURIComponent(window.location.href);
+      }, 1500);
+      return;
+    }
+
+    // Get selected variant
+    const colorSelect = document.getElementById("product-color-select");
+    const sizeSelect = document.getElementById("product-size-select");
+    const colors = extractUniqueValues(normalizedVariants, "color");
+    const sizes = extractUniqueValues(normalizedVariants, "size");
+    const needColor = colors.length > 0;
+    const needSize = sizes.length > 0;
+
+    const selectedColor = colorSelect ? stringOrEmpty(colorSelect.value) : "";
+    const selectedSize = sizeSelect ? stringOrEmpty(sizeSelect.value) : "";
+
+    // Validate variant selection
+    if (needColor && !selectedColor) {
+      showToast("لطفاً رنگ مورد نظر را انتخاب کنید", "warning");
+      if (colorSelect) colorSelect.focus();
+      return;
+    }
+    if (needSize && !selectedSize) {
+      showToast("لطفاً سایز مورد نظر را انتخاب کنید", "warning");
+      if (sizeSelect) sizeSelect.focus();
+      return;
+    }
+
+    // Find the matching variant ID from product data
+    let variantId = resolveVariantId(product, selectedColor, selectedSize);
+
+    // Build request body
+    const requestBody = {
+      productId: product.id,
+      quantity: 1,
+      variantId: variantId || "00000000-0000-0000-0000-000000000000"
+    };
+
+    // Disable button and show loading
+    addToCartBtn.disabled = true;
+    const originalText = addToCartBtn.textContent;
+    addToCartBtn.textContent = "در حال افزودن...";
+
+    try {
+      const response = await window.apiClient.post("/cart/add", requestBody);
+
+      if (response && response.success) {
+        showToast("محصول با موفقیت به سبد خرید اضافه شد", "success");
+
+        // Update cart count in header if available
+        updateCartBadge(response.data);
+      } else {
+        const errorMsg = response?.data?.errorMessage || response?.error || "خطا در افزودن به سبد خرید";
+        showToast(errorMsg, "error");
+      }
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      showToast(error.message || "خطا در افزودن به سبد خرید", "error");
+    } finally {
+      addToCartBtn.disabled = false;
+      addToCartBtn.textContent = originalText;
+    }
+  };
+}
+
+// Resolve variant ID from product data based on selected color/size
+function resolveVariantId(product, selectedColor, selectedSize) {
+  // Check productDetails first
+  const detailRows = [
+    ...toArray(product.productDetails),
+    ...toArray(product.ProductDetails),
+    ...toArray(product.details),
+  ];
+
+  // Check variants
+  const variantRows = [
+    ...toArray(product.variants),
+    ...toArray(product.Variants),
+    ...toArray(product.productVariants),
+    ...toArray(product.ProductVariants),
+  ];
+
+  // Search in variants (they usually have IDs)
+  for (const v of variantRows) {
+    const attrs = extractVariantAttributes(v, product);
+    const colorMatch = !selectedColor || attrs.color === selectedColor;
+    const sizeMatch = !selectedSize || attrs.size === selectedSize;
+    if (colorMatch && sizeMatch && v.id) {
+      return v.id;
+    }
+  }
+
+  // Search in details
+  for (const d of detailRows) {
+    const attrs = extractVariantAttributes(d, product);
+    const colorMatch = !selectedColor || attrs.color === selectedColor;
+    const sizeMatch = !selectedSize || attrs.size === selectedSize;
+    if (colorMatch && sizeMatch && d.id) {
+      return d.id;
+    }
+  }
+
+  // If only one variant exists, use it
+  if (variantRows.length === 1 && variantRows[0].id) {
+    return variantRows[0].id;
+  }
+
+  return null;
+}
+
+// Update cart badge count in header
+function updateCartBadge(cartData) {
+  const badgeEls = document.querySelectorAll("[data-cart-count], .cart-count-badge");
+  const totalItems = cartData?.data?.totalItems || cartData?.totalItems || 0;
+  badgeEls.forEach(el => {
+    el.textContent = totalItems;
+    el.classList.toggle("hidden", totalItems === 0);
+  });
+}
+
+// Show toast notification
+function showToast(message, type = "info") {
+  // Try using existing utils toast
+  if (window.utils && typeof window.utils.showToast === "function") {
+    window.utils.showToast(message, type);
+    return;
+  }
+
+  // Fallback: create toast
+  const existing = document.getElementById("custom-toast");
+  if (existing) existing.remove();
+
+  const colorMap = {
+    success: "bg-green-600",
+    error: "bg-red-600",
+    warning: "bg-yellow-500",
+    info: "bg-blue-600"
+  };
+
+  const toast = document.createElement("div");
+  toast.id = "custom-toast";
+  toast.className = `fixed top-5 left-1/2 -translate-x-1/2 z-[9999] ${colorMap[type] || colorMap.info} text-white px-6 py-3 rounded-xl shadow-2xl text-sm font-semibold transition-all duration-300 opacity-0 translate-y-[-20px]`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.remove("opacity-0", "translate-y-[-20px]");
+    toast.classList.add("opacity-100", "translate-y-0");
+  });
+
+  setTimeout(() => {
+    toast.classList.remove("opacity-100", "translate-y-0");
+    toast.classList.add("opacity-0", "translate-y-[-20px]");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
 
 // Render product price
@@ -231,7 +404,7 @@ function pickImages(product) {
 function normalizeImageUrl(url) {
   if (!url) return "";
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (url.startsWith("/")) return `https://mahakacc.mahaksoft.com${url}`;
+  if (url.startsWith("/")) return `/api/ImageProxy?url=${encodeURIComponent(url)}`;
   return url;
 }
 

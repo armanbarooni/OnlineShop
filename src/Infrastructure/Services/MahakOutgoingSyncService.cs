@@ -59,10 +59,27 @@ namespace OnlineShop.Infrastructure.Services
             }
         }
 
+        /// <summary>
+        /// Check if Mahak credentials are configured. If not, sync should be silently skipped.
+        /// </summary>
+        public bool IsConfigured()
+        {
+            var username = _configuration["Mahak:Username"];
+            var password = _configuration["Mahak:Password"];
+            return !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password);
+        }
+
         public async Task SyncOrdersToMahakAsync(CancellationToken cancellationToken)
         {
             try
             {
+                // Skip silently if Mahak is not configured
+                if (!IsConfigured())
+                {
+                    _logger.LogDebug("Mahak outgoing sync skipped: Username/Password not configured in appsettings.json");
+                    return;
+                }
+
                 _logger.LogInformation("Starting outgoing sync to Mahak...");
 
                 // 1. Login

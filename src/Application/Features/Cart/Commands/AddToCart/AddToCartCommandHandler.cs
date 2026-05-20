@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OnlineShop.Application.Common.Models;
@@ -37,19 +37,44 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
 
             if (request.Item.VariantId == Guid.Empty)
             {
-                return Result<CartDto>.Failure("Variant is required");
+                // Auto-select variant if product has exactly one
+                if (product.ProductVariants.Count == 1)
+                {
+                    request.Item.VariantId = product.ProductVariants.First().Id;
+                }
+                else if (product.ProductVariants.Count == 0)
+                {
+                    // Product has no variants - use product-level stock
+                    var productStock = product.StockQuantity;
+                    if (productStock < request.Item.Quantity)
+                    {
+                        return Result<CartDto>.Failure($"موجودی کافی نیست. موجودی فعلی: {productStock}");
+                    }
+                }
+                else
+                {
+                    return Result<CartDto>.Failure("لطفاً سایز و رنگ مورد نظر را انتخاب کنید");
+                }
             }
 
-            var variant = product.ProductVariants.FirstOrDefault(v => v.Id == request.Item.VariantId);
-            if (variant == null)
+            int availableStock;
+            if (request.Item.VariantId != Guid.Empty)
             {
-                return Result<CartDto>.Failure("Product variant not found");
+                var variant = product.ProductVariants.FirstOrDefault(v => v.Id == request.Item.VariantId);
+                if (variant == null)
+                {
+                    return Result<CartDto>.Failure("تنوع محصول یافت نشد");
+                }
+                availableStock = variant.StockQuantity;
+            }
+            else
+            {
+                availableStock = product.StockQuantity;
             }
 
-            var availableStock = variant.StockQuantity;
             if (availableStock < request.Item.Quantity)
             {
-                return Result<CartDto>.Failure($"Insufficient stock. Available: {availableStock}");
+                return Result<CartDto>.Failure($"موجودی کافی نیست. موجودی فعلی: {availableStock}");
             }
 
             const int maxRetries = 3;

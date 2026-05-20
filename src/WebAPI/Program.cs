@@ -109,6 +109,8 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.Configure<PerformanceOptions>(builder.Configuration.GetSection("Performance"));
 builder.Services.Configure<BackgroundSyncOptions>(builder.Configuration.GetSection("BackgroundSync"));
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient("ImageProxy");
 
 builder.Services.AddResponseCompression(options =>
 {

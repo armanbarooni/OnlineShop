@@ -268,7 +268,7 @@ function createProductCard(product) {
   const imageUrl = rawImageUrl
     ? rawImageUrl.startsWith("http")
       ? rawImageUrl
-      : `https://mahakacc.mahaksoft.com${rawImageUrl}`
+      : `/api/ImageProxy?url=${encodeURIComponent(rawImageUrl)}`
     : "assets/images/product/nophoto.png";
   const price = product.price || 0;
   const originalPrice = product.originalPrice || price;
@@ -354,7 +354,7 @@ function renderBrands(brands) {
         <div class="swiper-slide">
             <div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-md dark:bg-gray-800">
                 <img src="${brand.logoUrl || "assets/images/brand/brand1-1.png"}" 
-                     alt="${brand.name || "?¨?±?†?¯"}" class="max-h-16 object-contain">
+                     alt="${brand.name || "?ï¿½?ï¿½?ï¿½?ï¿½"}" class="max-h-16 object-contain">
             </div>
         </div>
     `,
@@ -450,7 +450,7 @@ function renderSearchResults(products) {
       const imageUrl = rawImageUrl
         ? rawImageUrl.startsWith("http")
           ? rawImageUrl
-          : `https://mahakacc.mahaksoft.com${rawImageUrl}`
+          : `/api/ImageProxy?url=${encodeURIComponent(rawImageUrl)}`
         : "assets/images/product/nophoto.png";
       return `
             <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">

@@ -63,10 +63,30 @@ namespace OnlineShop.Infrastructure.Services
             }
         }
 
+        /// <summary>
+        /// Check if Mahak credentials are configured.
+        /// </summary>
+        public bool IsConfigured()
+        {
+            var username = _configuration["Mahak:Username"];
+            var password = _configuration["Mahak:Password"];
+            var packageNo = _configuration["Mahak:PackageNo"];
+            var databaseId = _configuration["Mahak:DatabaseId"];
+            return !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password) &&
+                   !string.IsNullOrEmpty(packageNo) && !string.IsNullOrEmpty(databaseId);
+        }
+
         public async Task SyncAsync(CancellationToken cancellationToken)
         {
             try
             {
+                // Skip silently if Mahak is not configured
+                if (!IsConfigured())
+                {
+                    _logger.LogDebug("Mahak incoming sync skipped: credentials not configured in appsettings.json");
+                    return;
+                }
+
                 _logger.LogInformation("Starting Mahak Sync...");
 
                 // 1. Login
