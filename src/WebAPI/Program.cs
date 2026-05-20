@@ -13,9 +13,9 @@ using System.Linq;
 using System.Security.Claims;
 using Serilog;
 using Serilog.Events;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Hosting;
 
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
 var isDevelopmentEnvironment = environmentName.Equals(Environments.Development, StringComparison.OrdinalIgnoreCase);
@@ -54,6 +54,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Use Serilog
 builder.Host.UseSerilog();
+
+// Swagger options
+var swaggerEnabled = builder.Configuration.GetValue<bool?>("Swagger:Enabled") 
+                     ?? builder.Environment.IsDevelopment();
+var swaggerRoutePrefixRaw = builder.Configuration.GetValue<string>("Swagger:RoutePrefix");
+var swaggerRoutePrefix = swaggerRoutePrefixRaw is null 
+    ? "swagger" 
+    : swaggerRoutePrefixRaw.Trim('/');
+var swaggerAtRoot = swaggerRoutePrefixRaw is not null && swaggerRoutePrefix.Length == 0;
 
 // Add PostgreSQL logging after getting connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -306,13 +315,13 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-if (app.Environment.IsDevelopment())
+if (swaggerEnabled)
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Online Shop API V1");
-        c.RoutePrefix = string.Empty;
+        c.RoutePrefix = swaggerAtRoot ? string.Empty : swaggerRoutePrefix;
     });
 }
 

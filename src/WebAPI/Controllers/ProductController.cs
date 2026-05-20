@@ -24,10 +24,47 @@ namespace OnlineShop.WebAPI.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetAll(
+            [FromQuery] string? searchTerm = null,
+            [FromQuery] Guid? categoryId = null,
+            [FromQuery] Guid? brandId = null,
+            [FromQuery] string? color = null,
+            [FromQuery] string? size = null,
+            [FromQuery] string? material = null,
+            [FromQuery] string? season = null,
+            [FromQuery] decimal? minPrice = null,
+            [FromQuery] decimal? maxPrice = null,
+            [FromQuery] bool? inStockOnly = null,
+            [FromQuery] string? sortBy = null,
+            [FromQuery] bool sortDescending = false,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 20,
+            CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation("Getting all products");
-            var result = await _mediator.Send(new GetAllProductsQuery(), cancellationToken);
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 1) pageSize = 20;
+
+            _logger.LogInformation("Getting products (page {PageNumber}, size {PageSize})", pageNumber, pageSize);
+
+            var query = new GetAllProductsQuery
+            {
+                SearchTerm = searchTerm,
+                CategoryId = categoryId,
+                BrandId = brandId,
+                Color = color,
+                Size = size,
+                Material = material,
+                Season = season,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                InStockOnly = inStockOnly,
+                SortBy = sortBy,
+                SortDescending = sortDescending,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            var result = await _mediator.Send(query, cancellationToken);
             
             if (result.IsSuccess)
             {
