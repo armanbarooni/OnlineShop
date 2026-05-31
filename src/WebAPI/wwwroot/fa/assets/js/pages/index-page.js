@@ -470,11 +470,6 @@ function renderSearchResults(products) {
 
 // Add to cart function (global)
 window.addToCart = async function (productId) {
-  if (!window.authService || !window.authService.isAuthenticated()) {
-    window.location.href = "login.html";
-    return;
-  }
-
   try {
     const result = await window.cartService.addToCart(productId, 1);
     if (result.success) {
@@ -522,7 +517,7 @@ window.addToWishlist = async function (productId) {
 // Update cart and comparison counts
 async function updateCartAndComparisonCounts() {
   // Update cart count
-  if (window.authService && window.authService.isAuthenticated()) {
+  if (window.cartService) {
     try {
       const cartResult = await window.cartService.getUserCart();
       if (cartResult.success && cartResult.data) {

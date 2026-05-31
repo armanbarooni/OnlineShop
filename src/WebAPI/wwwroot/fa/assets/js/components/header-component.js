@@ -79,11 +79,7 @@ class HeaderComponent {
     const cartIcon = document.getElementById("cartIcon");
     if (cartIcon) {
       cartIcon.addEventListener("click", () => {
-        if (window.authService && window.authService.isAuthenticated()) {
-          window.location.href = "cart.html";
-        } else {
-          window.location.href = "login.html";
-        }
+        window.location.href = "cart.html";
       });
     }
 
@@ -153,11 +149,7 @@ class HeaderComponent {
 
   async updateCartCount() {
     try {
-      if (
-        !window.cartService ||
-        !window.authService ||
-        !window.authService.isAuthenticated()
-      ) {
+      if (!window.cartService) {
         return;
       }
 

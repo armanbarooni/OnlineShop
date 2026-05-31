@@ -325,11 +325,6 @@ function formatPrice(price) {
 
 // Add to cart function (global)
 window.addToCart = async function (productId) {
-  if (!window.authService || !window.authService.isAuthenticated()) {
-    window.location.href = "login.html";
-    return;
-  }
-
   try {
     const result = await window.cartService.addToCart(productId, 1);
     if (result.success) {

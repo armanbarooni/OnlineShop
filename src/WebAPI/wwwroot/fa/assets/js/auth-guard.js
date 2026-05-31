@@ -33,7 +33,6 @@ class AuthGuard {
             'user-panel-blank.html',
             'user-panel-discous.html',
             'user-panel-get-discount.html',
-            'cart.html',
             'checkout.html',
             'payment.html'
         ];
