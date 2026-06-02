@@ -275,25 +275,27 @@ function createProductCard(product) {
       : 0;
   const productUrl = `product.html?id=${product.id}`;
   const name = product.name || "??? ?????";
+  const wishlistClick =
+    "event.preventDefault(); event.stopPropagation(); addToWishlist('" +
+    product.id +
+    "')";
 
   return `
         <div class="swiper-slide px-1.5 py-2">
             <article class="bg-white product-box-item drop-shadow-md rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1">
                 <header class="flex items-center relative justify-between">
                     ${discount > 0 ? `<span class="absolute top-1 end-1 bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ""}
-                    <div class="flex flex-col absolute top-1 start-0 p-1 rounded space-y-3">
-                        <button onclick="addToWishlist('${product.id}')" class="p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
-                            </svg>
-                        </button>
-                    </div>
                 </header>
-                <a href="${productUrl}">
-                    <figure class="relative overflow-hidden rounded-lg mb-3">
+                <figure class="relative overflow-hidden rounded-lg mb-3">
+                    <a href="${productUrl}" class="block">
                         <img src="${imageUrl}" alt="${name}" class="w-full h-48 object-contain">
-                    </figure>
-                </a>
+                    </a>
+                    <button type="button" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 pointer-events-none">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+                        </svg>
+                    </button>
+                </figure>
                 <a href="${productUrl}">
                     <h3 class="text-sm font-bold mb-2 line-clamp-2 dark:text-white">${name}</h3>
                 </a>
