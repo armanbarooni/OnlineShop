@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" dir="rtl">
   <head>
     <meta charset="UTF-8" />
@@ -200,9 +200,15 @@
                 <!-- basket -->
                 <div
                   onclick="toggleOffcanvas('offcanvas-left')"
-                  class="relative md:ms-5 ms-2 flex"
+                  class="relative md:ms-5 ms-2 flex cursor-pointer"
                 >
-                  <svg
+                  <span
+                    data-cart-count
+                    class="cart-count hidden absolute -top-2 -end-3 z-10 rounded-full bg-orange-500 text-white text-xs font-bold text-center shadow-sm"
+                    style="min-width: 28px; height: 24px; line-height: 24px; padding: 0 8px; background-color: #f97316; color: #ffffff; transform: translate(-10px, -6px);"
+                    aria-label="تعداد محصولات سبد خرید"
+                  >0</span>
+                                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -914,7 +920,7 @@
             <div class="w-full sm:col-span-2 col-span-6">
               <div class="sm:text-end text-start">
                 <a
-                  href="/shop/categories"
+                  href="/fa/shop.html"
                   class="btn bg-transparent border-secondary border-2 hover:bg-secondary hover:text-white dark:text-white dark:border-white"
                   title="مشاهده تمامی دسته‌بندی‌ها"
                   itemprop="url"
@@ -1882,9 +1888,17 @@
         <!-- cart -->
         <a
           href="#"
-          class="flex flex-col items-center text-gray-500 hover:text-gray-700 space-y-2"
+         onclick="toggleOffcanvas('offcanvas-left')"
+           onclick="toggleOffcanvas('offcanvas-left')"
+          class="relative flex flex-col items-center text-gray-500 hover:text-gray-700 space-y-2"
         >
-          <svg
+          <span
+            data-cart-count
+            class="cart-count hidden absolute -top-2 end-2 z-10 rounded-full bg-orange-500 text-white text-xs font-bold text-center shadow-sm"
+            style="min-width: 28px; height: 24px; line-height: 24px; padding: 0 8px; background-color: #f97316; color: #ffffff; transform: translate(-10px, -6px);"
+            aria-label="تعداد محصولات سبد خرید"
+          >0</span>
+                   <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -1946,7 +1960,20 @@
     </nav>
     <!-- ================= end nav mobile menu ================= -->
 
-    <script defer src="assets/js/bundles/index.bundle.min.js"></script>
+    <script src="config.js"></script>
+    <script src="assets/js/utils/logger.js"></script>
+    <script src="assets/js/dependencies/app.js"></script>
+    <script src="assets/js/api-client.js"></script>
+    <script src="assets/js/auth-service.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/services/category-service.js"></script>
+    <script src="assets/js/services/product-service.js"></script>
+    <script src="assets/js/services/cart-service.js"></script>
+    <script src="assets/js/services/wishlist-service.js"></script>
+    <script src="assets/js/plugin/story-player/story-player.js"></script>
+    <script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
+    <script src="assets/js/dependencies/swiper-script.js"></script>
+    <script src="assets/js/pages/index-page.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         var offcanvasList = document.querySelector(
@@ -1993,5 +2020,6 @@
     </script>
 
     <!-- initial story api -->
-  </body>
+    <script src="assets/js/components/cart-badge.js"></script>
+</body>
 </html>

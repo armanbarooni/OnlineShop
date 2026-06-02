@@ -200,9 +200,15 @@
                 <!-- basket -->
                 <div
                   onclick="toggleOffcanvas('offcanvas-left')"
-                  class="relative md:ms-5 ms-2 flex"
+                  class="relative md:ms-5 ms-2 flex cursor-pointer"
                 >
-                  <svg
+                  <span
+                    data-cart-count
+                    class="cart-count hidden absolute -top-2 -end-3 z-10 rounded-full bg-orange-500 text-white text-xs font-bold text-center shadow-sm"
+                    style="min-width: 28px; height: 24px; line-height: 24px; padding: 0 8px; background-color: #f97316; color: #ffffff; transform: translate(-10px, -6px);"
+                    aria-label="تعداد محصولات سبد خرید"
+                  >0</span>
+                                    <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -2687,9 +2693,16 @@
         <!-- cart -->
         <a
           href="#"
+          onclick="toggleOffcanvas('offcanvas-left')"
           class="flex flex-col items-center text-gray-500 hover:text-gray-700 ms-2 space-y-2"
         >
-          <svg
+          <span
+            data-cart-count
+            class="cart-count hidden absolute -top-2 end-2 z-10 rounded-full bg-orange-500 text-white text-xs font-bold text-center shadow-sm"
+            style="min-width: 28px; height: 24px; line-height: 24px; padding: 0 8px; background-color: #f97316; color: #ffffff; transform: translate(-10px, -6px);"
+            aria-label="تعداد محصولات سبد خرید"
+          >0</span>
+                    <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -2765,5 +2778,6 @@
     <script src="assets/js/dependencies/swiper-script.js"></script>
     <script src="assets/js/dependencies/app.js"></script>
     <script src="assets/js/pages/product-page.js?v=guest-cart-20260531c"></script>
-  </body>
+    <script src="assets/js/components/cart-badge.js"></script>
+</body>
 </html>
