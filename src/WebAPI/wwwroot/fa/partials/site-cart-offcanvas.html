@@ -1,0 +1,144 @@
+﻿<!-- ================= start cart offcanvas ================= -->
+    <!-- Offcanvas Cart -->
+    <div
+      id="offcanvas-left"
+      class="offcanvas invisible dark:bg-zinc-900 dark:text-white fixed top-0 end-0 sm:w-100 w-[80%] h-full bg-white shadow-lg transform -translate-x-full transition-transform opacity-0 z-50"
+      role="dialog"
+      aria-labelledby="cart-title"
+      aria-modal="true"
+    >
+      <!-- Header -->
+      <header
+        class="border-b p-3 flex items-center justify-between border-gray-400"
+      >
+        <h2 id="cart-title" class="font-bold text-base">سبد خرید شما</h2>
+        <button
+          onclick="closeOffcanvas()"
+          class="cursor-pointer"
+          aria-label="بستن سبد خرید"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-8"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18 18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </header>
+      <!-- Cart Items -->
+      <main
+        class="relative space-y-4 divide-y divide-gray-200 p-3 overflow-y-scroll h-full"
+      >
+        <!-- Product 1 -->
+        <div
+          class="py-3 last:mb-35"
+          itemscope
+          itemtype="http://schema.org/Product"
+        >
+          <div class="flex flex-wrap items-center">
+            <div class="text-start w-1/3">
+              <img
+                class="max-w-full"
+                src="assets/images/product/product-11.webp"
+                alt="ساعت مچی عقربه‌ای مردانه اینویکتا مدل Automatico Ghost Reserve"
+                itemprop="image"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="w-2/3 space-y-4">
+              <h3 class="font-bold leading-7" itemprop="name">
+                ساعت مچی عقربه‌ای مردانه اینویکتا مدل Automatico Ghost Reserve
+              </h3>
+              <div class="flex items-center justify-between">
+                <del
+                  class="text-rose-600 dark:text-white line-through"
+                  itemprop="priceCurrency"
+                  content="IRR"
+                >
+                  <span itemprop="highPrice">5,000,000</span>
+                </del>
+                <ins
+                  class="no-underline text-xl text-green-600 font-bold"
+                  itemprop="price"
+                  content="2500000"
+                >
+                  2,500,000
+                  <span
+                    class="text-sm font-normal text-gray-700 dark:text-white"
+                    >ریال</span
+                  >
+                </ins>
+              </div>
+              <div class="flex items-end justify-between">
+                <span itemprop="quantity">تعداد: 3</span>
+                <a
+                  href="#"
+                  class="bg-red-100 dark:border dark:bg-transparent dark:text-white text-red-950 p-2 rounded-lg"
+                  role="button"
+                  aria-label="حذف محصول از سبد خرید"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-4"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18 18 6M6 6l12 12"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- Footer -->
+      <footer
+        class="p-2 absolute bottom-0 start-0 end-0 bg-white dark:border-0 dark:bg-zinc-900 border border-gray-400"
+      >
+        <div class="flex items-center justify-between">
+          <div class="space-y-2">
+            <span class="inline-block text-lg">جمع کل</span>
+            <h3
+              class="font-bold text-xl"
+              itemprop="totalPrice"
+              content="11000000"
+            >
+              11,000,000 ریال
+            </h3>
+          </div>
+          <div class="text-end">
+            <a
+              href="/checkout"
+              class="bg-primary-grad hover:bg-primary-600 text-white py-2 px-4 rounded-lg"
+              role="button"
+              aria-label="تکمیل فرایند خرید"
+            >
+              تکمیل خرید
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- Overlay -->
+    <div
+      class="overlay transition fixed inset-0 z-40 bg-black/70 hidden"
+      onclick="closeOffcanvas()"
+      role="presentation"
+      aria-hidden="true"
+    ></div>
+    <!-- ================= end cart offcanvas ================= -->

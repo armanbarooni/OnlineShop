@@ -1,0 +1,101 @@
+﻿<!-- ================= start product section ================= -->
+    <section class="py-5">
+      <div class="container">
+        <div class="mb-5">
+          <header
+            class="grid place-items-center grid-cols-6 gap-y-10"
+            itemscope
+            itemtype="https://schema.org/CollectionPage"
+          >
+            <div
+              class="ps-15 section-heading sm:col-span-4 w-full col-span-6 relative space-y-3 before:start-0"
+            >
+              <h2 class="font-black text-2xl">
+                <span itemprop="name" class="dark:text-white">جدیدترین</span>
+                <span class="text-primary font-bold">محصولات</span>
+              </h2>
+              <p
+                class="text-neutral-600 dark:text-white"
+                itemprop="description"
+              >
+                پربازدیدترین محصولات
+              </p>
+            </div>
+            <div class="w-full sm:col-span-2 col-span-6">
+              <div class="sm:text-end text-start">
+                <a
+                  href="/fa/shop.html"
+                  class="btn bg-transparent border-secondary border-2 hover:bg-secondary hover:text-white dark:text-white dark:border-white"
+                  title="مشاهده تمامی دسته‌بندی‌ها"
+                  itemprop="url"
+                >
+                  مشاهده همه
+                </a>
+              </div>
+            </div>
+            <!-- Breadcrumbs (hidden from users but still available for search engines) -->
+            <div
+              itemprop="breadcrumb"
+              itemscope
+              itemtype="https://schema.org/BreadcrumbList"
+              style="display: none"
+            >
+              <meta itemprop="position" content="1" />
+              <span itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="/">
+                  <span itemprop="name">خانه</span>
+                </a>
+                <meta itemprop="position" content="1" />
+              </span>
+              &gt;
+              <span itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="/shop">
+                  <span itemprop="name">فروشگاه</span>
+                </a>
+                <meta itemprop="position" content="2" />
+              </span>
+              &gt;
+              <span itemscope itemtype="https://schema.org/ListItem">
+                <a itemprop="item" href="/shop/categories">
+                  <span itemprop="name">دسته بندی ها</span>
+                </a>
+                <meta itemprop="position" content="3" />
+              </span>
+            </div>
+          </header>
+        </div>
+      </div>
+      <div
+        class="relative dark:before:static before:absolute before:w-full before:top-20 before:h-[320px] before:bg-gradient-to-b before:from-orange-300 before:to-transparent before:start-0 before:end-0"
+      >
+        <div class="container">
+          <div class="swiper !px-2.3 product-carousel">
+            <div
+              class="swiper-wrapper items-center"
+              id="featuredProducts"
+              data-products="featuredProducts"
+              style="padding-bottom: 0 !important"
+            >
+              <div class="swiper-slide px-1.5 py-2">
+                <article
+                  class="bg-white product-box-item drop-shadow-md rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1"
+                >
+                  <p class="text-center text-gray-500 dark:text-gray-300 py-16">
+                    در حال بارگذاری محصولات...
+                  </p>
+                </article>
+              </div>
+            </div>
+            <div
+              class="swiper-button-next bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+              aria-label="اسلاید بعدی"
+            ></div>
+            <div
+              class="swiper-button-prev bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+              aria-label="اسلاید قبلی"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ================= end product section ================= -->
