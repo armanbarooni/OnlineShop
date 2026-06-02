@@ -29,9 +29,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       await window.categoryService.renderMegaMenu("mega-menu-list-container");
     }
 
-    // Load featured products (main home carousel)
-    await loadFeaturedProducts();
-
     // Load optional sections if corresponding containers exist
     await loadNewProducts();
     await loadBestSellingProducts();

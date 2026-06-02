@@ -41,6 +41,8 @@
         }
       });
     }
+
+    offcanvasList.setAttribute("data-component-ready", "site-mobile-menu");
   }
 
   if (document.readyState === "loading") {

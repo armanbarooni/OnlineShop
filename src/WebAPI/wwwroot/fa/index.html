@@ -52,13 +52,19 @@
     class="bg-light dark:bg-zinc-900 text-text-primary-light dark:text-text-primary-dark transition-colors duration-200"
   >
     <div data-layout-partial="site-header"></div>
-    <div data-layout-partial="index-slider"></div>
+    <div
+      data-layout-partial="index-slider"
+      data-layout-script="assets/js/components/index-slider.js"
+    ></div>
 
     <div data-layout-partial="index-features"></div>
 
     <div data-layout-partial="index-promo-banners"></div>
 
-    <div data-layout-partial="index-featured-products"></div>
+    <div
+      data-layout-partial="index-featured-products"
+      data-layout-script="assets/js/components/index-featured-products.js"
+    ></div>
 
     <div data-layout-partial="index-bottom-promo-banner"></div>
     <div data-layout-partial="site-footer"></div>
@@ -67,7 +73,10 @@
 
     <div data-layout-partial="site-filter-modal"></div>
 
-    <div data-layout-partial="site-responsive-menu-offcanvas"></div>
+    <div
+      data-layout-partial="site-responsive-menu-offcanvas"
+      data-layout-script="assets/js/components/site-mobile-menu.js"
+    ></div>
 
     <div data-layout-partial="site-mobile-nav"></div>
 
@@ -84,9 +93,8 @@
     <script src="assets/js/services/wishlist-service.js"></script>
     <script src="assets/js/plugin/story-player/story-player.js"></script>
     <script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
-    <script src="assets/js/dependencies/swiper-script.js"></script>
+    <script src="assets/js/components/component-scripts.js"></script>
     <script src="assets/js/pages/index-page.js"></script>
-    <script src="assets/js/components/site-mobile-menu.js"></script>
 
     <!-- initial story api -->
     <script src="assets/js/components/cart-badge.js"></script>

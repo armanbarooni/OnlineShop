@@ -2,9 +2,27 @@
   "use strict";
 
   const PARTIAL_BASE_PATH = "partials/";
+  const componentScripts = [];
 
   function getPartialName(element) {
     return element.getAttribute("data-layout-partial");
+  }
+
+  function collectComponentScripts(element) {
+    const scripts = element.getAttribute("data-layout-script");
+    if (!scripts) return;
+
+    scripts
+      .split(",")
+      .map(function (script) {
+        return script.trim();
+      })
+      .filter(Boolean)
+      .forEach(function (script) {
+        if (!componentScripts.includes(script)) {
+          componentScripts.push(script);
+        }
+      });
   }
 
   function loadPartial(name) {
@@ -30,6 +48,7 @@
       if (!partialName) return;
 
       try {
+        collectComponentScripts(placeholder);
         placeholder.outerHTML = loadPartial(partialName);
       } catch (error) {
         if (window.logger && typeof window.logger.error === "function") {
@@ -40,6 +59,7 @@
       }
     });
 
+    window.layoutComponentScripts = componentScripts.slice();
     window.dispatchEvent(new CustomEvent("layout:ready"));
   }
 
