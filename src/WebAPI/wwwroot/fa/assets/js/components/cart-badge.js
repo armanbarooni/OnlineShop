@@ -29,7 +29,9 @@
     document.querySelectorAll("#cartCount, .cart-count, [data-cart-count]").forEach((badge) => {
       badge.style.backgroundColor = "#f97316";
       badge.style.color = "#ffffff";
-      badge.style.transform = "translate(-10px, -6px)";
+      badge.style.top = "-18px";
+      badge.style.insetInlineEnd = "-24px";
+      badge.style.transform = "none";
       badge.textContent = count;
       badge.classList.toggle("hidden", count === 0);
     });
