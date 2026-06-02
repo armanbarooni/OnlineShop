@@ -1,215 +1,333 @@
 const FavoriteManager = {
-    state: {
-        currentPage: 1,
-        pageSize: 12,
-        searchTerm: ''
-    },
+  mahakContentBaseUrl: "https://mahakacc.mahaksoft.com",
 
-    init: async function () {
-        this.initUI();
-        await this.checkAuthAndLoad();
-        this.setupEventListeners();
-    },
+  state: {
+    currentPage: 1,
+    pageSize: 12,
+    searchTerm: "",
+  },
 
-    initUI: function () {
-        // Header component will be initialized automatically via DOMContentLoaded event
-        // No need to call init() here to avoid duplicate API calls
+  init: async function () {
+    this.initUI();
+    await this.checkAuthAndLoad();
+    this.setupEventListeners();
+  },
 
-        // Dark Mode Toggle
-        if (window.utils) {
-            window.utils.initDarkMode('dark-mode-toggle');
-        }
+  initUI: function () {
+    // Header component will be initialized automatically via DOMContentLoaded event
+    // No need to call init() here to avoid duplicate API calls
 
-        // Standard offcanvas and dropdown toggles
-        window.toggleUserDropdown = () => {
-            const menu = document.getElementById('user-dropdown-menu');
-            const icon = document.getElementById('user-dropdown-icon');
-            if (menu) menu.classList.toggle('hidden');
-            if (icon) icon.classList.toggle('rotate-180');
+    // Dark Mode Toggle
+    if (window.utils) {
+      window.utils.initDarkMode("dark-mode-toggle");
+    }
+
+    // Standard offcanvas and dropdown toggles
+    window.toggleUserDropdown = () => {
+      const menu = document.getElementById("user-dropdown-menu");
+      const icon = document.getElementById("user-dropdown-icon");
+      if (menu) menu.classList.toggle("hidden");
+      if (icon) icon.classList.toggle("rotate-180");
+    };
+
+    window.toggleOffcanvas = (id) => {
+      const el = document.getElementById(id);
+      const overlay = document.querySelector(".overlay");
+      if (el)
+        el.classList.remove("invisible", "opacity-0", "-translate-x-full");
+      if (overlay) overlay.classList.remove("hidden");
+    };
+
+    window.closeOffcanvas = () => {
+      document.querySelectorAll(".offcanvas").forEach((el) => {
+        el.classList.add("invisible", "opacity-0", "-translate-x-full");
+      });
+      const overlay = document.querySelector(".overlay");
+      if (overlay) overlay.classList.add("hidden");
+    };
+
+    // Close dropdown on outside click
+    document.addEventListener("click", (event) => {
+      const menu = document.getElementById("user-dropdown-menu");
+      const btn = document.getElementById("user-dropdown-button");
+      if (
+        menu &&
+        !menu.classList.contains("hidden") &&
+        !btn.contains(event.target) &&
+        !menu.contains(event.target)
+      ) {
+        menu.classList.add("hidden");
+        const icon = document.getElementById("user-dropdown-icon");
+        if (icon) icon.classList.remove("rotate-180");
+      }
+    });
+
+    // Logout
+    const handleLogout = (e) => {
+      e.preventDefault();
+      if (confirm("آیا مطمئن هستید که می‌خواهید خارج شوید؟")) {
+        if (window.authService) window.authService.logout();
+        else window.location.href = "login.html";
+      }
+    };
+    document
+      .querySelectorAll("#logoutButton")
+      .forEach((btn) => btn.addEventListener("click", handleLogout));
+  },
+
+  setupEventListeners: function () {
+    // Search
+    const searchForm = document.getElementById("searchForm");
+    if (searchForm) {
+      searchForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const term = document.getElementById("searchInput")?.value || "";
+        this.state.searchTerm = term;
+        this.state.currentPage = 1;
+        this.loadFavorites();
+      });
+    }
+  },
+
+  isDevelopmentHost: function () {
+    const hostname = window.location?.hostname?.toLowerCase() || "";
+    return hostname === "localhost" || hostname === "127.0.0.1";
+  },
+
+  proxiedImageUrl: function (url) {
+    const apiBaseUrl = (window.config?.api?.baseURL || "/api").replace(
+      /\/$/,
+      "",
+    );
+    return `${apiBaseUrl}/ImageProxy?url=${encodeURIComponent(url)}`;
+  },
+
+  getAbsoluteMahakImageUrl: function (path) {
+    return path.startsWith("http")
+      ? path
+      : this.mahakContentBaseUrl + (path.startsWith("/") ? path : `/${path}`);
+  },
+
+  resolveMahakImageUrl: function (path) {
+    const absoluteUrl = this.getAbsoluteMahakImageUrl(path);
+    return this.isDevelopmentHost()
+      ? this.proxiedImageUrl(absoluteUrl)
+      : absoluteUrl;
+  },
+
+  getWishlistItemImageData: function (item, product) {
+    const primaryImage = Array.isArray(product.images)
+      ? product.images.find((image) => image && image.isPrimary) ||
+        product.images[0]
+      : null;
+    const galleryImage =
+      product.productImages && product.productImages.length > 0
+        ? product.productImages[0]
+        : null;
+    const rawImageUrl =
+      primaryImage?.imageUrl ||
+      galleryImage?.imageUrl ||
+      product.imageUrl ||
+      product.productImageUrl ||
+      item.productImageUrl ||
+      "";
+
+    if (!rawImageUrl) {
+      return { src: "assets/images/product/nophoto.png", fallback: "" };
+    }
+
+    const normalizedImageUrl = String(rawImageUrl).trim();
+    if (!normalizedImageUrl) {
+      return { src: "assets/images/product/nophoto.png", fallback: "" };
+    }
+
+    if (
+      normalizedImageUrl.startsWith("http://") ||
+      normalizedImageUrl.startsWith("https://")
+    ) {
+      if (normalizedImageUrl.includes("mahaksoft.com")) {
+        return {
+          src: this.resolveMahakImageUrl(normalizedImageUrl),
+          fallback: this.isDevelopmentHost()
+            ? this.getAbsoluteMahakImageUrl(normalizedImageUrl)
+            : "",
         };
+      }
+      return { src: normalizedImageUrl, fallback: "" };
+    }
 
-        window.toggleOffcanvas = (id) => {
-            const el = document.getElementById(id);
-            const overlay = document.querySelector('.overlay');
-            if (el) el.classList.remove('invisible', 'opacity-0', '-translate-x-full');
-            if (overlay) overlay.classList.remove('hidden');
-        };
+    if (
+      normalizedImageUrl.startsWith("/api/v3/Content/Images/") ||
+      normalizedImageUrl.startsWith("api/v3/Content/Images/")
+    ) {
+      return {
+        src: this.resolveMahakImageUrl(normalizedImageUrl),
+        fallback: this.isDevelopmentHost()
+          ? this.getAbsoluteMahakImageUrl(normalizedImageUrl)
+          : "",
+      };
+    }
 
-        window.closeOffcanvas = () => {
-            document.querySelectorAll('.offcanvas').forEach(el => {
-                el.classList.add('invisible', 'opacity-0', '-translate-x-full');
-            });
-            const overlay = document.querySelector('.overlay');
-            if (overlay) overlay.classList.add('hidden');
-        };
+    return normalizedImageUrl.startsWith("/")
+      ? { src: this.proxiedImageUrl(normalizedImageUrl), fallback: "" }
+      : { src: normalizedImageUrl, fallback: "" };
+  },
 
-        // Close dropdown on outside click
-        document.addEventListener('click', (event) => {
-            const menu = document.getElementById('user-dropdown-menu');
-            const btn = document.getElementById('user-dropdown-button');
-            if (menu && !menu.classList.contains('hidden') && !btn.contains(event.target) && !menu.contains(event.target)) {
-                menu.classList.add('hidden');
-                const icon = document.getElementById('user-dropdown-icon');
-                if (icon) icon.classList.remove('rotate-180');
-            }
-        });
+  getImageErrorHandler: function (imageData) {
+    const noPhoto = "assets/images/product/nophoto.png";
+    return imageData.fallback
+      ? `this.onerror=function(){this.onerror=null; this.src='${noPhoto}'}; this.src='${imageData.fallback}'`
+      : `this.onerror=null; this.src='${noPhoto}'`;
+  },
 
-        // Logout
-        const handleLogout = (e) => {
-            e.preventDefault();
-            if (confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟')) {
-                if (window.authService) window.authService.logout();
-                else window.location.href = 'login.html';
-            }
-        };
-        document.querySelectorAll('#logoutButton').forEach(btn => btn.addEventListener('click', handleLogout));
-    },
+  formatPriceNumber: function (price) {
+    return new Intl.NumberFormat("fa-IR").format(Math.round(Number(price) || 0));
+  },
 
-    setupEventListeners: function () {
-        // Search
-        const searchForm = document.getElementById('searchForm');
-        if (searchForm) {
-            searchForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const term = document.getElementById('searchInput')?.value || '';
-                this.state.searchTerm = term;
-                this.state.currentPage = 1;
-                this.loadFavorites();
-            });
+  checkAuthAndLoad: async function () {
+    if (window.authService && !window.authService.isAuthenticated()) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // Load User Profile Data and get userId
+    let userId = null;
+    if (window.userProfileService) {
+      try {
+        const profile = await window.userProfileService.getUserProfile();
+        if (profile.success && profile.data) {
+          // Get userId from profile response
+          userId = profile.data.id || profile.data.userId;
+          document.querySelectorAll('[data-user-name="true"]').forEach((el) => {
+            el.textContent =
+              `${profile.data.firstName || ""} ${profile.data.lastName || ""}`.trim() ||
+              "کاربر گرامی";
+          });
+          if (profile.data.profilePictureUrl) {
+            document
+              .querySelectorAll('img[alt="پروفایل کاربر"]')
+              .forEach((img) => (img.src = profile.data.profilePictureUrl));
+          }
+
+          // Update header component with user data (avoid duplicate API call)
+          if (
+            window.headerComponent &&
+            window.headerComponent.updateUserMenuWithData
+          ) {
+            window.headerComponent.updateUserMenuWithData(profile.data);
+          }
         }
-    },
+      } catch (e) {
+        console.error("Profile load error", e);
+      }
+    }
 
-    checkAuthAndLoad: async function () {
-        if (window.authService && !window.authService.isAuthenticated()) {
-            window.location.href = 'login.html';
-            return;
-        }
+    // Store userId in state for use in loadFavorites
+    this.state.userId = userId;
+    await this.loadFavorites();
+  },
 
-        // Load User Profile Data and get userId
-        let userId = null;
-        if (window.userProfileService) {
-            try {
-                const profile = await window.userProfileService.getUserProfile();
-                if (profile.success && profile.data) {
-                    // Get userId from profile response
-                    userId = profile.data.id || profile.data.userId;
-                    document.querySelectorAll('[data-user-name="true"]').forEach(el => {
-                        el.textContent = `${profile.data.firstName || ''} ${profile.data.lastName || ''}`.trim() || 'کاربر گرامی';
-                    });
-                    if (profile.data.profilePictureUrl) {
-                        document.querySelectorAll('img[alt="پروفایل کاربر"]').forEach(img => img.src = profile.data.profilePictureUrl);
-                    }
-                    
-                    // Update header component with user data (avoid duplicate API call)
-                    if (window.headerComponent && window.headerComponent.updateUserMenuWithData) {
-                        window.headerComponent.updateUserMenuWithData(profile.data);
-                    }
-                }
-            } catch (e) { console.error('Profile load error', e); }
-        }
+  loadFavorites: async function () {
+    const container = document.getElementById("wishlistContainer");
+    const stats = document.getElementById("wishlistStats");
+    const clearAllBtn = document.getElementById("clearAllWishlistBtn");
 
-        // Store userId in state for use in loadFavorites
-        this.state.userId = userId;
-        await this.loadFavorites();
-    },
+    // Hide clear all button initially
+    if (clearAllBtn) {
+      clearAllBtn.classList.add("hidden");
+    }
 
-    loadFavorites: async function () {
-        const container = document.getElementById('wishlistContainer');
-        const stats = document.getElementById('wishlistStats');
-        const clearAllBtn = document.getElementById('clearAllWishlistBtn');
-
-        // Hide clear all button initially
-        if (clearAllBtn) {
-            clearAllBtn.classList.add('hidden');
-        }
-
-        if (container) {
-            container.innerHTML = `
+    if (container) {
+      container.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-12">
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
                     <p class="text-gray-500">در حال بارگذاری...</p>
                 </div>
              `;
+    }
+
+    try {
+      const result = await window.wishlistService.getWishlistItems({
+        pageNumber: this.state.currentPage,
+        pageSize: this.state.pageSize,
+        searchTerm: this.state.searchTerm,
+        userId: this.state.userId,
+      });
+
+      if (result.success && result.data) {
+        // Handle both array and object structures
+        let items, totalCount;
+
+        if (Array.isArray(result.data)) {
+          // If data is directly an array
+          items = result.data;
+          totalCount = items.length;
+        } else if (result.data.items && Array.isArray(result.data.items)) {
+          // If data has items property
+          items = result.data.items;
+          totalCount = result.data.totalCount || items.length;
+        } else {
+          // Fallback
+          items = [];
+          totalCount = 0;
         }
 
-        try {
-            const result = await window.wishlistService.getWishlistItems({
-                pageNumber: this.state.currentPage,
-                pageSize: this.state.pageSize,
-                searchTerm: this.state.searchTerm,
-                userId: this.state.userId
-            });
-
-            if (result.success && result.data) {
-                // Handle both array and object structures
-                let items, totalCount;
-                
-                if (Array.isArray(result.data)) {
-                    // If data is directly an array
-                    items = result.data;
-                    totalCount = items.length;
-                } else if (result.data.items && Array.isArray(result.data.items)) {
-                    // If data has items property
-                    items = result.data.items;
-                    totalCount = result.data.totalCount || items.length;
-                } else {
-                    // Fallback
-                    items = [];
-                    totalCount = 0;
-                }
-
-                // Update header stats
-                if (stats && stats.querySelector('p')) {
-                    const statsP = stats.querySelector('p');
-                    statsP.textContent = `${totalCount} محصول در لیست علاقه‌مندی‌ها`;
-                    statsP.classList.remove('hidden');
-                }
-
-                // Show clear all button only if there are items
-                if (clearAllBtn && items && items.length > 0) {
-                    clearAllBtn.classList.remove('hidden');
-                } else if (clearAllBtn) {
-                    clearAllBtn.classList.add('hidden');
-                }
-
-                this.renderFavorites(items);
-                this.renderPagination(totalCount);
-            } else {
-                // Hide button on error
-                if (clearAllBtn) {
-                    clearAllBtn.classList.add('hidden');
-                }
-                // Hide loading text on error
-                if (stats && stats.querySelector('p')) {
-                    stats.querySelector('p').classList.add('hidden');
-                }
-                if (container) container.innerHTML = '<div class="text-center py-12 text-red-500">خطا در بارگذاری اطلاعات</div>';
-            }
-        } catch (error) {
-            console.error('Favorites load error', error);
-            // Hide button on error
-            if (clearAllBtn) {
-                clearAllBtn.classList.add('hidden');
-            }
-            // Hide loading text on error
-            if (stats && stats.querySelector('p')) {
-                stats.querySelector('p').classList.add('hidden');
-            }
-            if (container) container.innerHTML = '<div class="text-center py-12 text-red-500">خطا در ارتباط با سرور</div>';
+        // Update header stats
+        if (stats && stats.querySelector("p")) {
+          const statsP = stats.querySelector("p");
+          statsP.textContent = `${totalCount} محصول در لیست علاقه‌مندی‌ها`;
+          statsP.classList.remove("hidden");
         }
-    },
 
-    renderFavorites: function (items) {
-        const container = document.getElementById('wishlistContainer');
-        if (!container) return;
+        // Show clear all button only if there are items
+        if (clearAllBtn && items && items.length > 0) {
+          clearAllBtn.classList.remove("hidden");
+        } else if (clearAllBtn) {
+          clearAllBtn.classList.add("hidden");
+        }
 
-        const visibleItems = (items || []).filter(item => {
-            const product = item?.product || item;
-            return !!product && product.deleted !== true;
-        });
+        this.renderFavorites(items);
+        this.renderPagination(totalCount);
+      } else {
+        // Hide button on error
+        if (clearAllBtn) {
+          clearAllBtn.classList.add("hidden");
+        }
+        // Hide loading text on error
+        if (stats && stats.querySelector("p")) {
+          stats.querySelector("p").classList.add("hidden");
+        }
+        if (container)
+          container.innerHTML =
+            '<div class="text-center py-12 text-red-500">خطا در بارگذاری اطلاعات</div>';
+      }
+    } catch (error) {
+      console.error("Favorites load error", error);
+      // Hide button on error
+      if (clearAllBtn) {
+        clearAllBtn.classList.add("hidden");
+      }
+      // Hide loading text on error
+      if (stats && stats.querySelector("p")) {
+        stats.querySelector("p").classList.add("hidden");
+      }
+      if (container)
+        container.innerHTML =
+          '<div class="text-center py-12 text-red-500">خطا در ارتباط با سرور</div>';
+    }
+  },
 
-        if (!visibleItems || visibleItems.length === 0) {
-            container.innerHTML = `
+  renderFavorites: function (items) {
+    const container = document.getElementById("wishlistContainer");
+    if (!container) return;
+
+    const visibleItems = (items || []).filter((item) => {
+      const product = item?.product || item;
+      return !!product && product.deleted !== true;
+    });
+
+    if (!visibleItems || visibleItems.length === 0) {
+      container.innerHTML = `
                 <div class="text-center py-16 bg-white dark:bg-card-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.318a4.5 4.5 0 010-6.364z" />
@@ -220,39 +338,38 @@ const FavoriteManager = {
                     </a>
                 </div>
             `;
-            return;
-        }
+      return;
+    }
 
-        // Render Grid
-        const grid = document.createElement('div');
-        grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
+    // Render Grid
+    const grid = document.createElement("div");
+    grid.className =
+      "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6";
 
-        visibleItems.forEach(item => {
-            // Handle different API response structures (item wrapper vs direct product)
-            const product = item.product || item;
-            const productId = product.id || item.productId;
-            const productName = product.name || item.productName || 'محصول';
-            const productImageUrl =
-                product.imageUrl ||
-                product.productImageUrl ||
-                item.productImageUrl ||
-                'assets/images/product/nophoto.png';
-            const productPrice =
-                product.price ??
-                product.productPrice ??
-                item.productPrice ??
-                0;
-            const card = document.createElement('div');
-            card.className = 'bg-white dark:bg-card-dark rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300 group';
+    visibleItems.forEach((item) => {
+      // Handle different API response structures (item wrapper vs direct product)
+      const product = item.product || item;
+      const productId = product.id || item.productId;
+      const productName = product.name || item.productName || "محصول";
+      const image = this.getWishlistItemImageData(item, product);
+      const imageErrorHandler = this.getImageErrorHandler(image);
+      const productPrice =
+        product.price ?? product.productPrice ?? item.productPrice ?? 0;
+      const card = document.createElement("div");
+      card.className =
+        "bg-white dark:bg-card-dark rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300 group";
 
-            const priceDisplay = window.utils.formatPrice(productPrice);
-            // Assume discount logic if available, otherwise just price
+      const priceDisplay = this.formatPriceNumber(productPrice);
+      // Assume discount logic if available, otherwise just price
 
-            card.innerHTML = `
+      card.innerHTML = `
                 <div class="relative aspect-auto p-4 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-                    <img src="${productImageUrl}" 
+                    <img src="${image.src}" 
                          alt="${productName}" 
-                         class="object-contain h-48 w-full group-hover:scale-105 transition-transform duration-300">
+                         class="object-contain h-48 w-full group-hover:scale-105 transition-transform duration-300"
+                         loading="lazy"
+                         decoding="async"
+                         onerror="${imageErrorHandler}">
                     
                     <button onclick="FavoriteManager.removeFromFavorites('${item.id || product.id}')" 
                             class="absolute top-2 right-2 p-2 bg-white/80 dark:bg-gray-900/80 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors tooltip" 
@@ -273,97 +390,96 @@ const FavoriteManager = {
                     </div>
                 </div>
              `;
-            grid.appendChild(card);
-        });
+      grid.appendChild(card);
+    });
 
-        container.innerHTML = '';
-        container.appendChild(grid);
-    },
+    container.innerHTML = "";
+    container.appendChild(grid);
+  },
 
-    renderPagination: function (totalItems) {
-        const totalPages = Math.ceil(totalItems / this.state.pageSize);
-        const container = document.getElementById('pagination');
+  renderPagination: function (totalItems) {
+    const totalPages = Math.ceil(totalItems / this.state.pageSize);
+    const container = document.getElementById("pagination");
 
-        if (!container || totalPages <= 1) {
-            if (container) container.innerHTML = '';
-            return;
-        }
-
-        let html = '';
-        html += `<button onclick="FavoriteManager.changePage(${this.state.currentPage - 1})" ${this.state.currentPage === 1 ? 'disabled class="px-3 py-1 mx-1 border rounded opacity-50 cursor-not-allowed"' : 'class="px-3 py-1 mx-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"'}>Prev</button>`;
-
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === this.state.currentPage) {
-                html += `<button class="px-3 py-1 mx-1 border rounded bg-primary text-white">${i}</button>`;
-            } else {
-                html += `<button onclick="FavoriteManager.changePage(${i})" class="px-3 py-1 mx-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">${i}</button>`;
-            }
-        }
-
-        html += `<button onclick="FavoriteManager.changePage(${this.state.currentPage + 1})" ${this.state.currentPage === totalPages ? 'disabled class="px-3 py-1 mx-1 border rounded opacity-50 cursor-not-allowed"' : 'class="px-3 py-1 mx-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"'}>Next</button>`;
-
-        container.innerHTML = html;
-    },
-
-    changePage: function (page) {
-        if (page < 1) return;
-        this.state.currentPage = page;
-        this.loadFavorites();
-    },
-
-    removeFromFavorites: async function (id) {
-        if (!confirm('آیا از حذف این محصول مطمئن هستید؟')) return;
-
-        // Try deleting by Item ID first, then by Product ID if needed (based on Service capabilities)
-        // The service has `removeFromWishlist` (byId) and `removeProductFromWishlist` (byProductId)
-        // Since we might have either depending on the data, let's try generic approach or assume ID passes correctly
-
-        try {
-            window.utils.showToast('در حال حذف...', 'info');
-            let result = await window.wishlistService.removeFromWishlist(id);
-
-            if (!result.success) {
-                // Fallback: maybe it passed a product ID?
-                result = await window.wishlistService.removeProductFromWishlist(id);
-            }
-
-            if (result.success) {
-                window.utils.showToast('محصول با موفقیت حذف شد', 'success');
-                this.loadFavorites();
-            } else {
-                window.utils.showToast('خطا در حذف محصول', 'error');
-            }
-        } catch (e) {
-            window.utils.showToast('خطا در عملیات', 'error');
-        }
-    },
-
-
-    clearAllWishlist: async function () {
-        if (!confirm('آیا مطمئن هستید که می‌خواهید تمام لیست را پاک کنید؟')) return;
-
-        try {
-            const result = await window.wishlistService.clearWishlist();
-            if (result.success) {
-                window.utils.showToast('لیست علاقه‌مندی‌ها پاک شد', 'success');
-                // Hide button after clearing
-                const clearAllBtn = document.getElementById('clearAllWishlistBtn');
-                if (clearAllBtn) {
-                    clearAllBtn.classList.add('hidden');
-                }
-                this.loadFavorites();
-            } else {
-                window.utils.showToast('خطا در پاکسازی لیست', 'error');
-            }
-        } catch (e) {
-            console.error(e);
-        }
+    if (!container || totalPages <= 1) {
+      if (container) container.innerHTML = "";
+      return;
     }
+
+    let html = "";
+    html += `<button onclick="FavoriteManager.changePage(${this.state.currentPage - 1})" ${this.state.currentPage === 1 ? 'disabled class="px-3 py-1 mx-1 border rounded opacity-50 cursor-not-allowed"' : 'class="px-3 py-1 mx-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"'}>Prev</button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === this.state.currentPage) {
+        html += `<button class="px-3 py-1 mx-1 border rounded bg-primary text-white">${i}</button>`;
+      } else {
+        html += `<button onclick="FavoriteManager.changePage(${i})" class="px-3 py-1 mx-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">${i}</button>`;
+      }
+    }
+
+    html += `<button onclick="FavoriteManager.changePage(${this.state.currentPage + 1})" ${this.state.currentPage === totalPages ? 'disabled class="px-3 py-1 mx-1 border rounded opacity-50 cursor-not-allowed"' : 'class="px-3 py-1 mx-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"'}>Next</button>`;
+
+    container.innerHTML = html;
+  },
+
+  changePage: function (page) {
+    if (page < 1) return;
+    this.state.currentPage = page;
+    this.loadFavorites();
+  },
+
+  removeFromFavorites: async function (id) {
+    if (!confirm("آیا از حذف این محصول مطمئن هستید؟")) return;
+
+    // Try deleting by Item ID first, then by Product ID if needed (based on Service capabilities)
+    // The service has `removeFromWishlist` (byId) and `removeProductFromWishlist` (byProductId)
+    // Since we might have either depending on the data, let's try generic approach or assume ID passes correctly
+
+    try {
+      window.utils.showToast("در حال حذف...", "info");
+      let result = await window.wishlistService.removeFromWishlist(id);
+
+      if (!result.success) {
+        // Fallback: maybe it passed a product ID?
+        result = await window.wishlistService.removeProductFromWishlist(id);
+      }
+
+      if (result.success) {
+        window.utils.showToast("محصول با موفقیت حذف شد", "success");
+        this.loadFavorites();
+      } else {
+        window.utils.showToast("خطا در حذف محصول", "error");
+      }
+    } catch (e) {
+      window.utils.showToast("خطا در عملیات", "error");
+    }
+  },
+
+  clearAllWishlist: async function () {
+    if (!confirm("آیا مطمئن هستید که می‌خواهید تمام لیست را پاک کنید؟")) return;
+
+    try {
+      const result = await window.wishlistService.clearWishlist();
+      if (result.success) {
+        window.utils.showToast("لیست علاقه‌مندی‌ها پاک شد", "success");
+        // Hide button after clearing
+        const clearAllBtn = document.getElementById("clearAllWishlistBtn");
+        if (clearAllBtn) {
+          clearAllBtn.classList.add("hidden");
+        }
+        this.loadFavorites();
+      } else {
+        window.utils.showToast("خطا در پاکسازی لیست", "error");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  },
 };
 
 window.FavoriteManager = FavoriteManager;
 window.clearAllWishlist = () => FavoriteManager.clearAllWishlist();
 
-document.addEventListener('DOMContentLoaded', () => {
-    FavoriteManager.init();
+document.addEventListener("DOMContentLoaded", () => {
+  FavoriteManager.init();
 });
