@@ -10,7 +10,10 @@
   }
 
   function proxiedImageUrl(url) {
-    const apiBaseUrl = (window.config?.api?.baseURL || "/api").replace(/\/$/, "");
+    const apiBaseUrl = (window.config?.api?.baseURL || "/api").replace(
+      /\/$/,
+      "",
+    );
     return apiBaseUrl + "/ImageProxy?url=" + encodeURIComponent(url);
   }
 
@@ -56,7 +59,8 @@
     else if (payload.products && Array.isArray(payload.products.items))
       products = payload.products.items;
     else if (Array.isArray(payload.items)) products = payload.items;
-    else if (payload.data && Array.isArray(payload.data)) products = payload.data;
+    else if (payload.data && Array.isArray(payload.data))
+      products = payload.data;
 
     return products.filter(isVisibleProduct);
   }
@@ -86,7 +90,10 @@
         ? product.productImages[0]
         : null;
     const rawImageUrl =
-      primaryImage?.imageUrl || galleryImage?.imageUrl || product.imageUrl || "";
+      primaryImage?.imageUrl ||
+      galleryImage?.imageUrl ||
+      product.imageUrl ||
+      "";
 
     if (!rawImageUrl) {
       return { src: "assets/images/product/nophoto.png", fallback: "" };
@@ -138,7 +145,8 @@
   function createProductCard(product) {
     const image = getProductImageData(product);
     const imageUrl = image.src;
-    const fallbackImageUrl = image.fallback || "assets/images/product/nophoto.png";
+    const fallbackImageUrl =
+      image.fallback || "assets/images/product/nophoto.png";
     const imageErrorHandler = image.fallback
       ? `this.onerror=function(){this.onerror=null; this.src='assets/images/product/nophoto.png'}; this.src='${fallbackImageUrl}'`
       : "this.onerror=null; this.src='assets/images/product/nophoto.png'";
@@ -177,7 +185,7 @@
           <div class="flex items-center justify-between mt-3">
             <div class="flex flex-col">
               ${discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-              <span class="text-lg font-bold text-primary">${formatPrice(price)} تومان</span>
+              <span class="text-lg font-bold text-primary">${formatPrice(price)} ریال </span>
             </div>
             <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition" aria-label="افزودن به سبد خرید">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -236,19 +244,25 @@
   }
 
   async function syncWishlistButtons() {
-    if (!window.authService?.isAuthenticated() || !window.wishlistService) return;
+    if (!window.authService?.isAuthenticated() || !window.wishlistService)
+      return;
 
     try {
       const result = await window.wishlistService.getWishlistProductIds();
       if (!result.success || !Array.isArray(result.data)) return;
 
       const wishlistProductIds = new Set(result.data);
-      document.querySelectorAll("[data-wishlist-product-id]").forEach((button) => {
-        const productId = String(
-          button.getAttribute("data-wishlist-product-id") || "",
-        ).toLowerCase();
-        setWishlistButtonElementActive(button, wishlistProductIds.has(productId));
-      });
+      document
+        .querySelectorAll("[data-wishlist-product-id]")
+        .forEach((button) => {
+          const productId = String(
+            button.getAttribute("data-wishlist-product-id") || "",
+          ).toLowerCase();
+          setWishlistButtonElementActive(
+            button,
+            wishlistProductIds.has(productId),
+          );
+        });
     } catch (error) {
       window.logger?.error("Error syncing wishlist buttons:", error);
     }
