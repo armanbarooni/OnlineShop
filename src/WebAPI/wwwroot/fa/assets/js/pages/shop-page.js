@@ -245,6 +245,7 @@ function renderProducts(products, container) {
     .map((product) => createProductCard(product))
     .join("");
   container.innerHTML = html;
+  syncWishlistButtons();
 }
 
 function isVisibleProduct(product) {
@@ -297,7 +298,7 @@ function createProductCard(product) {
                     <a href="${productUrl}" class="block">
                         <img src="${imageUrl}" alt="${name}" class="w-full h-48 object-contain" onerror="this.src='assets/images/product/nophoto.png'">
                     </a>
-                    <button type="button" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
+                    <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 pointer-events-none">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
                         </svg>
@@ -356,19 +357,106 @@ window.addToCart = async function (productId) {
 };
 
 // Add to wishlist function (global)
+function markWishlistButtonActive(productId) {
+  setWishlistButtonActive(productId, true);
+}
+
+function markWishlistButtonInactive(productId) {
+  setWishlistButtonActive(productId, false);
+}
+
+function setWishlistButtonActive(productId, isActive) {
+  document
+    .querySelectorAll(`[data-wishlist-product-id="${productId}"]`)
+    .forEach((button) => setWishlistButtonElementActive(button, isActive));
+}
+
+function setWishlistButtonElementActive(button, isActive) {
+  button.classList.toggle("text-red-500", isActive);
+  button.classList.toggle("dark:text-white", !isActive);
+  button.setAttribute(
+    "aria-label",
+    isActive ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها",
+  );
+
+  const icon = button.querySelector("svg");
+  if (icon) {
+    icon.setAttribute("fill", isActive ? "currentColor" : "none");
+  }
+}
+
+function isWishlistButtonActive(productId) {
+  return !!document.querySelector(
+    `[data-wishlist-product-id="${productId}"].text-red-500`,
+  );
+}
+
+async function syncWishlistButtons() {
+  if (!window.authService?.isAuthenticated() || !window.wishlistService) return;
+
+  try {
+    const result = await window.wishlistService.getWishlistProductIds();
+    if (!result.success || !Array.isArray(result.data)) return;
+
+    const wishlistProductIds = new Set(result.data);
+    document.querySelectorAll("[data-wishlist-product-id]").forEach((button) => {
+      const productId = String(
+        button.getAttribute("data-wishlist-product-id") || "",
+      ).toLowerCase();
+      setWishlistButtonElementActive(button, wishlistProductIds.has(productId));
+    });
+  } catch (error) {
+    window.logger?.error("Error syncing wishlist buttons:", error);
+  }
+}
+
 window.addToWishlist = async function (productId) {
   if (!window.authService || !window.authService.isAuthenticated()) {
-    window.location.href = "login.html";
+    const returnUrl =
+      window.location.pathname.split("/").pop() +
+      window.location.search +
+      window.location.hash;
+    localStorage.setItem("intendedUrl", returnUrl || "index.html");
+    window.location.href =
+      "login.html?returnUrl=" + encodeURIComponent(returnUrl || "index.html");
     return;
   }
 
   try {
     if (window.wishlistService) {
-      const result = await window.wishlistService.addToWishlist(productId);
+      const isActive = isWishlistButtonActive(productId);
+      const result = isActive
+        ? await window.wishlistService.removeProductFromWishlist(productId)
+        : await window.wishlistService.addToWishlist(productId);
+
       if (result.success) {
-        if (window.utils) {
-          window.utils.showToast("به علاقه‌مندی‌ها اضافه شد", "success");
+        if (isActive) {
+          markWishlistButtonInactive(productId);
+        } else {
+          markWishlistButtonActive(productId);
         }
+        if (window.utils) {
+          window.utils.showToast(
+            result.message ||
+              (isActive
+                ? "محصول از علاقه‌مندی‌ها حذف شد"
+                : "محصول به علاقه‌مندی‌ها اضافه شد"),
+            "success",
+          );
+        }
+      } else if (
+        !isActive &&
+        String(result.error || "").toLowerCase().includes("already in wishlist")
+      ) {
+        markWishlistButtonActive(productId);
+      } else if (window.utils) {
+        window.utils.showToast(
+          result.error ||
+            (isActive
+              ? "خطا در حذف از علاقه‌مندی‌ها"
+              : "خطا در افزودن به علاقه‌مندی‌ها"),
+          "error",
+        );
       }
     }
   } catch (error) {

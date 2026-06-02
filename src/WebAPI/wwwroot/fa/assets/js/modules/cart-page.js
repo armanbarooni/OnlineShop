@@ -213,7 +213,8 @@ class CartPage {
     if (checkoutBtn) {
       checkoutBtn.onclick = () => {
         if (!window.apiClient || !window.apiClient.isAuthenticated()) {
-          window.location.href = `/login.html?redirect=${encodeURIComponent("/checkout.html")}`;
+          localStorage.setItem("intendedUrl", "checkout.html");
+          window.location.href = `login.html?returnUrl=${encodeURIComponent("checkout.html")}`;
           return;
         }
         window.location.href = "/checkout.html";

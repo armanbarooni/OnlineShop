@@ -3,6 +3,7 @@
 
   const PARTIAL_BASE_PATH = "partials/";
   const componentScripts = [];
+  const loadedScripts = new Set();
 
   function getPartialName(element) {
     return element.getAttribute("data-layout-partial");
@@ -40,6 +41,16 @@
     throw new Error("Could not load layout partial: " + name);
   }
 
+  function loadScriptOnce(src) {
+    if (!src || loadedScripts.has(src)) return;
+    loadedScripts.add(src);
+
+    const script = document.createElement("script");
+    script.src = src;
+    script.defer = true;
+    document.body.appendChild(script);
+  }
+
   function applyPartials() {
     const placeholders = document.querySelectorAll("[data-layout-partial]");
 
@@ -50,6 +61,9 @@
       try {
         collectComponentScripts(placeholder);
         placeholder.outerHTML = loadPartial(partialName);
+        if (partialName === "site-header") {
+          loadScriptOnce("assets/js/components/site-header-auth.js");
+        }
       } catch (error) {
         if (window.logger && typeof window.logger.error === "function") {
           window.logger.error(error.message, error);

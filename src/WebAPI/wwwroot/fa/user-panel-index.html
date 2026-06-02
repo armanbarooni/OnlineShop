@@ -548,6 +548,12 @@
 
             loadData: async function () {
                 try {
+                    // Load Wishlist first so profile/order errors cannot block it
+                    const initialWishlistData = await window.wishlistService.getWishlistCount();
+                    if (initialWishlistData.success) {
+                        this.setCountWithUnit('wishlistCount', initialWishlistData.count, 'محصول');
+                    }
+
                     // Load Profile
                     const profile = await window.userProfileService.getProfile();
                     if (profile.success) {
@@ -580,14 +586,22 @@
                     }
 
                     // Load Wishlist
-                    const wishlistData = await window.wishlistService.getItems();
+                    const wishlistData = await window.wishlistService.getWishlistCount();
                     if (wishlistData.success) {
-                        document.getElementById('wishlistCount').textContent = wishlistData.data.length;
+                        this.setCountWithUnit('wishlistCount', wishlistData.count, 'محصول');
                     }
 
                 } catch (e) {
                     console.error('Failed to load dashboard data', e);
                 }
+            },
+
+            setCountWithUnit: function (elementId, count, unit) {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+
+                const safeCount = Number.isFinite(Number(count)) ? Number(count) : 0;
+                el.innerHTML = `${safeCount} <span class="text-sm">${unit}</span>`;
             },
 
             renderRecentOrders: function (orders) {

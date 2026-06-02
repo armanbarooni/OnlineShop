@@ -165,7 +165,7 @@
             <a href="${productUrl}" class="block">
               <img src="${imageUrl}" alt="${name}" class="w-full h-48 object-contain" loading="lazy" decoding="async" onerror="${imageErrorHandler}">
             </a>
-            <button type="button" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
+            <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 pointer-events-none">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
               </svg>
@@ -221,6 +221,39 @@
     carousel.setAttribute("data-component-ready", "index-featured-products");
   }
 
+  function setWishlistButtonElementActive(button, isActive) {
+    button.classList.toggle("text-red-500", isActive);
+    button.classList.toggle("dark:text-white", !isActive);
+    button.setAttribute(
+      "aria-label",
+      isActive ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها",
+    );
+
+    const icon = button.querySelector("svg");
+    if (icon) {
+      icon.setAttribute("fill", isActive ? "currentColor" : "none");
+    }
+  }
+
+  async function syncWishlistButtons() {
+    if (!window.authService?.isAuthenticated() || !window.wishlistService) return;
+
+    try {
+      const result = await window.wishlistService.getWishlistProductIds();
+      if (!result.success || !Array.isArray(result.data)) return;
+
+      const wishlistProductIds = new Set(result.data);
+      document.querySelectorAll("[data-wishlist-product-id]").forEach((button) => {
+        const productId = String(
+          button.getAttribute("data-wishlist-product-id") || "",
+        ).toLowerCase();
+        setWishlistButtonElementActive(button, wishlistProductIds.has(productId));
+      });
+    } catch (error) {
+      window.logger?.error("Error syncing wishlist buttons:", error);
+    }
+  }
+
   function renderProducts(products) {
     const container = findContainer();
     if (!container) return;
@@ -235,6 +268,7 @@
 
     container.innerHTML = visibleProducts.map(createProductCard).join("");
     initializeCarousel();
+    syncWishlistButtons();
   }
 
   function renderState(message) {

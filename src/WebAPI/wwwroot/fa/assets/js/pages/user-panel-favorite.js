@@ -230,16 +230,28 @@ const FavoriteManager = {
         visibleItems.forEach(item => {
             // Handle different API response structures (item wrapper vs direct product)
             const product = item.product || item;
+            const productId = product.id || item.productId;
+            const productName = product.name || item.productName || 'محصول';
+            const productImageUrl =
+                product.imageUrl ||
+                product.productImageUrl ||
+                item.productImageUrl ||
+                'assets/images/product/nophoto.png';
+            const productPrice =
+                product.price ??
+                product.productPrice ??
+                item.productPrice ??
+                0;
             const card = document.createElement('div');
             card.className = 'bg-white dark:bg-card-dark rounded-xl shadow-soft dark:shadow-soft-dark overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300 group';
 
-            const priceDisplay = window.utils.formatPrice(product.price);
+            const priceDisplay = window.utils.formatPrice(productPrice);
             // Assume discount logic if available, otherwise just price
 
             card.innerHTML = `
                 <div class="relative aspect-auto p-4 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-                    <img src="${product.imageUrl || 'assets/images/placeholder.png'}" 
-                         alt="${product.name}" 
+                    <img src="${productImageUrl}" 
+                         alt="${productName}" 
                          class="object-contain h-48 w-full group-hover:scale-105 transition-transform duration-300">
                     
                     <button onclick="FavoriteManager.removeFromFavorites('${item.id || product.id}')" 
@@ -253,7 +265,7 @@ const FavoriteManager = {
                 
                 <div class="p-4">
                     <h3 class="font-bold text-gray-900 dark:text-light mb-2 line-clamp-2 h-12 text-sm">
-                        <a href="product-details.html?id=${product.id}">${product.name}</a>
+                        <a href="product.html?id=${productId}">${productName}</a>
                     </h3>
                     
                     <div class="flex items-center justify-between">

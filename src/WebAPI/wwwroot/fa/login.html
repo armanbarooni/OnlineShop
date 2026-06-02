@@ -355,6 +355,31 @@
             }
         }
 
+        function getSafeLoginRedirectUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const candidate = params.get('returnUrl') || params.get('redirect') || localStorage.getItem('intendedUrl') || 'index.html';
+
+            try {
+                const target = new URL(candidate, window.location.href);
+                const pageName = target.pathname.split('/').pop() || 'index.html';
+                const isAuthPage = pageName === 'login.html' || pageName === 'register.html';
+
+                if (target.origin !== window.location.origin || isAuthPage) {
+                    return 'index.html';
+                }
+
+                return target.pathname.split('/').pop() + target.search + target.hash;
+            } catch (error) {
+                return 'index.html';
+            }
+        }
+
+        function redirectAfterLogin() {
+            const redirectUrl = getSafeLoginRedirectUrl();
+            localStorage.removeItem('intendedUrl');
+            window.location.href = redirectUrl;
+        }
+
         // Function to send OTP code
         async function sendOTP() {
             const mobile = document.getElementById('mobile');
@@ -525,7 +550,7 @@
 
                         // Redirect to dashboard after short delay
                         setTimeout(() => {
-                            window.location.href = 'user-panel-index.html';
+                            redirectAfterLogin();
                         }, 1500);
                     } else {
                         showLoginError(result.error?.errorMessage || 'نام کاربری یا رمز عبور اشتباه است. لطفاً دوباره تلاش کنید.');
@@ -595,7 +620,7 @@
 
                     // Redirect to dashboard after short delay
                     setTimeout(() => {
-                        window.location.href = 'user-panel-index.html';
+                        redirectAfterLogin();
                     }, 1500);
                 } else {
                     showLoginError(result.error?.errorMessage || 'کد تایید نامعتبر است');

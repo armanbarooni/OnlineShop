@@ -8,6 +8,74 @@ class WishlistService {
         this.apiClient = window.apiClient;
     }
 
+    getCurrentUserId() {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const tokenUserId =
+                    payload.nameid ||
+                    payload.nameidentifier ||
+                    payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+                if (tokenUserId) return tokenUserId;
+            }
+
+            const cachedUser = this.apiClient?.getCurrentUser?.();
+            return cachedUser?.id || null;
+        } catch (error) {
+            window.logger?.error('Error extracting user id from token:', error);
+            return null;
+        }
+    }
+
+    normalizeWishlistItems(data) {
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data?.items)) return data.items;
+        if (Array.isArray(data?.data)) return data.data;
+        if (Array.isArray(data?.data?.items)) return data.data.items;
+        return [];
+    }
+
+    getWishlistItemsCount(data) {
+        const directCount =
+            data?.count ??
+            data?.totalCount ??
+            data?.data?.count ??
+            data?.data?.totalCount;
+
+        if (Number.isFinite(Number(directCount))) {
+            return Number(directCount);
+        }
+
+        return this.normalizeWishlistItems(data).length;
+    }
+
+    getProductIdFromItem(item) {
+        return (
+            item?.productId ||
+            item?.ProductId ||
+            item?.product?.id ||
+            item?.product?.productId ||
+            null
+        );
+    }
+
+    async getWishlistProductIds() {
+        const response = await this.getWishlist();
+        if (!response.success) return response;
+
+        const items = this.normalizeWishlistItems(response.data);
+        const productIds = items
+            .map((item) => this.getProductIdFromItem(item))
+            .filter(Boolean)
+            .map((id) => String(id).toLowerCase());
+
+        return {
+            success: true,
+            data: productIds
+        };
+    }
+
     /**
      * Get user wishlist
      * @param {string} userId - Optional user ID. If not provided, will be extracted from token
@@ -18,22 +86,11 @@ class WishlistService {
 
             // If userId not provided, try to get from token (fallback for backward compatibility)
             if (!finalUserId) {
-                const token = localStorage.getItem('accessToken');
-                if (!token) {
+                finalUserId = this.getCurrentUserId();
+                if (!finalUserId) {
                     return {
                         success: false,
                         error: 'User not authenticated'
-                    };
-                }
-
-                // Decode token to get user ID
-                try {
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-                    finalUserId = payload.nameidentifier;
-                } catch (e) {
-                    return {
-                        success: false,
-                        error: 'Invalid token format'
                     };
                 }
             }
@@ -124,15 +181,10 @@ class WishlistService {
      */
     async removeProductFromWishlist(productId) {
         try {
-            // Get current user ID from token
-            const token = localStorage.getItem('accessToken');
-            if (!token) {
+            const userId = this.getCurrentUserId();
+            if (!userId) {
                 return { success: false, error: 'ابتدا وارد حساب کاربری شوید' };
             }
-
-            // Decode token to get user ID
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const userId = payload.sub || payload.nameid;
 
             const response = await this.apiClient.delete(`/wishlist/user/${userId}/product/${productId}`);
             
@@ -183,10 +235,9 @@ class WishlistService {
         try {
             const response = await this.getWishlist();
             if (response.success) {
-                const wishlist = response.data;
                 return {
                     success: true,
-                    count: Array.isArray(wishlist) ? wishlist.length : 0
+                    count: this.getWishlistItemsCount(response.data)
                 };
             }
             return response;
