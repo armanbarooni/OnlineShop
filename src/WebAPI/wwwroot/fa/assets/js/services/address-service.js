@@ -203,11 +203,11 @@ class AddressService {
         if (!addressData.postalCode || addressData.postalCode.trim().length === 0) {
             errors.postalCode = 'کد پستی الزامی است';
         } else if (!/^\d{10}$/.test(addressData.postalCode)) {
-            errors.postalCode = 'ع©ط¯ ظ¾ط³طھغŒ ط¨ط§غŒط¯ غ±غ° ط±ظ‚ظ… ط¨ط§ط´ط¯';
+            errors.postalCode = 'کد پستی باید ۱۰ رقم باشد';
         }
 
         if (addressData.phoneNumber && !window.utils.isValidPhone(addressData.phoneNumber)) {
-            errors.phoneNumber = 'شماره تلفن معتبر است';
+            errors.phoneNumber = 'شماره تلفن معتبر نیست';
         }
 
         return {
@@ -229,11 +229,11 @@ class AddressService {
             addressLine,
             address.city,
             address.state,
-            `ع©ط¯ ظ¾ط³طھغŒ: ${address.postalCode}`
+            `کد پستی: ${address.postalCode}`
         ];
         
         if (address.phoneNumber) {
-            parts.push(`طھظ„ظپظ†: ${address.phoneNumber}`);
+            parts.push(`تلفن: ${address.phoneNumber}`);
         }
         
         return parts.filter(part => part && part.trim().length > 0).join(' - ');
@@ -244,9 +244,9 @@ class AddressService {
      */
     getAddressTypeLabel(type) {
         const typeMap = {
-            'Home': 'ظ…ظ†ط²ظ„',
-            'Work': 'ظ…ط­ظ„ ع©ط§ط±',
-            'Other': 'ط³ط§غŒط±'
+            'Home': 'منزل',
+            'Work': 'محل کار',
+            'Other': 'سایر'
         };
         
         return typeMap[type] || type;
@@ -323,7 +323,7 @@ class AddressService {
             const address = addressResponse.data;
             const duplicatedAddress = {
                 ...address,
-                title: `${address.title} (ع©ظ¾غŒ)`,
+                title: `${address.title} (کپی)`,
                 isDefault: false
             };
 

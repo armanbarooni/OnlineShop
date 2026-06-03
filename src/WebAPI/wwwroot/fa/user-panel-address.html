@@ -53,6 +53,84 @@
                     </div>
                 </div>
 
+                <section id="addressModal"
+                    class="hidden mb-6 bg-white dark:bg-card-dark rounded-xl shadow-soft dark:shadow-soft-dark border border-gray-100 dark:border-gray-700">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-bold text-dark dark:text-light" id="modalTitle">افزودن آدرس جدید</h3>
+                    </div>
+                    <form class="p-6 space-y-4">
+                        <div>
+                            <label for="addressTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">عنوان آدرس</label>
+                            <input type="text" id="addressTitle"
+                                class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                placeholder="مثال: منزل، محل کار">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="province" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">استان</label>
+                                <input type="text" id="province" inputmode="text" autocomplete="address-level1"
+                                    class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    placeholder="نام استان">
+                            </div>
+                            <div>
+                                <label for="city" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">شهر</label>
+                                <input type="text" id="city" inputmode="text" autocomplete="address-level2"
+                                    class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    placeholder="نام شهر">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">آدرس دقیق</label>
+                            <textarea id="address" rows="3"
+                                class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                placeholder="خیابان، کوچه، پلاک، واحد"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="postalCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">کد پستی</label>
+                                <input type="text" id="postalCode" inputmode="numeric" maxlength="10" pattern="[0-9]*" autocomplete="postal-code" required
+                                    class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    placeholder="10 رقمی">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تلفن همراه</label>
+                                <input type="tel" id="phone" inputmode="numeric" maxlength="11" pattern="[0-9]*" autocomplete="tel"
+                                    class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    placeholder="09xxxxxxxxx">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="receiverName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام تحویل گیرنده</label>
+                            <input type="text" id="receiverName"
+                                class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                placeholder="نام و نام خانوادگی">
+                        </div>
+
+                        <div class="flex items-center">
+                            <input id="defaultAddress" type="checkbox"
+                                class="form-checkbox h-5 w-5 text-primary dark:text-primary-dark rounded border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-primary-dark">
+                            <label for="defaultAddress" class="ms-2 block text-sm text-gray-700 dark:text-gray-300">
+                                تنظیم به عنوان آدرس پیش‌فرض
+                            </label>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+                            <button type="button" onclick="AddressManager.saveAddress()"
+                                class="inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-primary text-white text-sm font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:bg-primary-dark dark:hover:bg-primary/80">
+                                ذخیره آدرس
+                            </button>
+                            <button onclick="AddressManager.closeModal()" type="button"
+                                class="inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
+                                انصراف
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
                 <!-- List of addresses -->
                 <div id="addressesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Addresses will be loaded here dynamically -->
@@ -61,282 +139,8 @@
         </div>
     </div>
     <!-- /end page divider -->
-
-    <!-- start canvas message -->
-
-    <div id="offcanvas-user-message-left"
-        class="offcanvas invisible dark:bg-background-dark dark:text-white fixed top-0 end-0 sm:w-100 w-[80%] h-full bg-white shadow-lg transform -translate-x-full transition-transform opacity-0 z-50"
-        role="dialog" aria-labelledby="cart-title" aria-modal="true">
-        <!-- Header -->
-        <header class="border-b p-3 flex items-center justify-between border-gray-400">
-            <h2 id="cart-title" class="font-bold text-base">پیغام های شما</h2>
-            <button onclick="closeOffcanvas()" class="cursor-pointer" aria-label="بستن ">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </header>
-        <!-- message Items -->
-        <main class="relative space-y-4 divide-y divide-gray-200 p-3 overflow-y-scroll h-full">
-            <!-- message one -->
-            <div
-                class="bg-white last:mb-20 border border-gray-400 rounded-2xl shadow-md dark:bg-card-dark dark:text-white overflow-hidden p-5 space-y-3">
-                <div class="flex items-start space-x-3 rtl:space-x-reverse">
-                    <div class="flex flex-col space-y-2">
-                        <div class="flex items-center space-x-2">
-                            <img class="h-12 w-12 rounded-full" src="assets/images/user/user.jpg" alt="آواتار کاربر">
-                            <p class="text-sm  text-gray-900 dark:text-white">کاربر مهمان</p>
-                            <span
-                                class="px-2 py-0.5 rounded-full text-xs font-medium bg-primary-grad text-white text-blue-800 ">جدید</span>
-                        </div>
-                        <p class="mt-1 dark:text-white ms-3 text-sm text-gray-600">
-                            سلام! این یک پیغام شبیه به توئیت است که می‌توانید برای چت یا نظرات استفاده کنید.
-                        </p>
-                        <div class="mt-2 flex items-center space-x-4 text-gray-500 text-sm">
-                            <div class="flex items-center">
-                                <svg class="me-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                                ۲ دقیقه پیش
-                            </div>
-                            <button
-                                class="text-primary hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 font-medium">پاسخ</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- message two -->
-            <div
-                class="bg-white last:mb-20 border border-gray-400 rounded-2xl shadow-md dark:bg-card-dark dark:text-white overflow-hidden p-5 space-y-3">
-                <div class="flex items-start space-x-3 rtl:space-x-reverse">
-                    <div class="flex flex-col space-y-2">
-                        <div class="flex items-center space-x-2">
-                            <img class="h-12 w-12 rounded-full" src="assets/images/user/user.jpg" alt="آواتار کاربر">
-                            <p class="text-sm  text-gray-900 dark:text-white">کاربر مهمان</p>
-                            <span
-                                class="px-2 py-0.5 rounded-full text-xs font-medium bg-primary-grad text-white text-blue-800 ">جدید</span>
-                        </div>
-                        <p class="mt-1 dark:text-white ms-3 text-sm text-gray-600">
-                            سلام! این یک پیغام شبیه به توئیت است که می‌توانید برای چت یا نظرات استفاده کنید.
-                        </p>
-                        <div class="mt-2 flex items-center space-x-4 text-gray-500 text-sm">
-                            <div class="flex items-center">
-                                <svg class="me-1 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                                ۲ دقیقه پیش
-                            </div>
-                            <button
-                                class="text-primary hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 font-medium">پاسخ</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-    <!-- Overlay -->
-    <div class="overlay transition fixed inset-0 z-40 bg-black/70 hidden" onclick="closeOffcanvas()" role="presentation"
-        aria-hidden="true"></div>
-
-    <!-- /canvas message -->
-
-    <!-- start canvas notification -->
-
-    <div id="offcanvas-notification-left"
-        class="offcanvas invisible dark:bg-background-dark dark:text-white fixed top-0 end-0 sm:w-100 w-[80%] h-full bg-white shadow-lg transform -translate-x-full transition-transform opacity-0 z-50"
-        role="dialog" aria-labelledby="cart-title" aria-modal="true">
-        <!-- Header -->
-        <header class="border-b p-3 flex items-center justify-between border-gray-400">
-            <h2 class="font-bold text-base">اعلان های شما</h2>
-            <button onclick="closeOffcanvas()" class="cursor-pointer" aria-label="بستن ">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </header>
-        <!-- notification Items -->
-        <main class="relative space-y-4 divide-y divide-gray-200 p-3 overflow-y-scroll h-full">
-            <!-- گروه اعلان‌ها -->
-            <div class="space-y-3">
-                <!-- notification 1 -->
-                <div class="bg-white dark:bg-card-dark rounded-lg shadow-md overflow-hidden border border-gray-300">
-                    <div class="p-3 flex items-start">
-                        <div class="flex-shrink-0 bg-blue-100 p-1 rounded-full">
-                            <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                            </svg>
-                        </div>
-                        <div class="ms-3 flex-1">
-                            <p class="text-sm font-bold text-gray-900 dark:text-white">یادآوری قرارملاقات</p>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-300">جلسه امروز ساعت 14:30 در اتاق
-                                کنفرانس</p>
-                        </div>
-                        <button class="me-2 text-gray-400 hover:text-gray-500">
-                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- notification 2 -->
-                <div class="bg-white dark:bg-card-dark rounded-lg shadow-md overflow-hidden border border-gray-300">
-                    <div class="p-3 flex items-start">
-                        <div class="flex-shrink-0 bg-green-100 p-1 rounded-full">
-                            <svg class="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <div class="ms-3 flex-1">
-                            <p class="text-sm font-bold text-gray-900 dark:text-white">پرداخت موفق</p>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-300">تراکنش شما با موفقیت انجام شد. کد
-                                رهگیری: 458712</p>
-                        </div>
-                        <button class="me-2 text-gray-400 hover:text-gray-500">
-                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-    <!-- Overlay -->
-    <div class="overlay transition fixed inset-0 z-40 bg-black/70 hidden" onclick="closeOffcanvas()" role="presentation"
-        aria-hidden="true"></div>
-
-    <!-- /canvas notification -->
     <div data-layout-partial="user-panel-mobile-menu"></div>
-<!-- modal add or edit address -->
-    <div id="addressModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                <div class="absolute inset-0 bg-gray-500 dark:bg-gray-900 opacity-75"></div>
-            </div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div
-                class="inline-block align-bottom bg-white dark:bg-card-dark rounded-lg text-start overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:ms-4 sm:text-start w-full">
-                            <h3 class="text-lg leading-6 font-medium text-dark dark:text-light mb-4" id="modalTitle">
-                                افزودن آدرس جدید
-                            </h3>
-                            <div class="mt-2">
-                                <form class="space-y-4">
-                                    <div>
-                                        <label for="addressTitle"
-                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">عنوان
-                                            آدرس</label>
-                                        <input type="text" id="addressTitle"
-                                            class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                            placeholder="مثال: منزل، محل کار">
-                                    </div>
-
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label for="province"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">استان</label>
-                                            <select id="province"
-                                                class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                                <option value="">انتخاب استان</option>
-                                                <option value="tehran">تهران</option>
-                                                <option value="alborz">البرز</option>
-                                                <option value="isfahan">اصفهان</option>
-                                                <option value="fars">فارس</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label for="city"
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">شهر</label>
-                                            <select id="city"
-                                                class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                                <option value="">انتخاب شهر</option>
-                                                <option value="tehran">تهران</option>
-                                                <option value="karaj">کرج</option>
-                                                <option value="isfahan">اصفهان</option>
-                                                <option value="shiraz">شیراز</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label for="address"
-                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">آدرس
-                                            دقیق</label>
-                                        <textarea id="address" rows="3"
-                                            class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                            placeholder="خیابان، کوچه، پلاک، واحد"></textarea>
-                                    </div>
-
-                                    <div>
-                                        <label for="postalCode"
-                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">کد
-                                            پستی</label>
-                                        <input type="text" id="postalCode"
-                                            class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                            placeholder="10 رقمی">
-                                    </div>
-
-                                    <div>
-                                        <label for="receiverName"
-                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نام
-                                            تحویل گیرنده</label>
-                                        <input type="text" id="receiverName"
-                                            class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                            placeholder="نام و نام خانوادگی">
-                                    </div>
-
-                                    <div>
-                                        <label for="phone"
-                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تلفن
-                                            همراه</label>
-                                        <input type="tel" id="phone"
-                                            class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                            placeholder="09xxxxxxxxx">
-                                    </div>
-
-                                    <div class="flex items-center">
-                                        <input id="defaultAddress" type="checkbox"
-                                            class="form-checkbox h-5 w-5 text-primary dark:text-primary-dark rounded border-gray-300 dark:border-gray-600 focus:ring-primary dark:focus:ring-primary-dark">
-                                        <label for="defaultAddress"
-                                            class="ms-2 block text-sm text-gray-700 dark:text-gray-300">
-                                            تنظیم به عنوان آدرس پیش‌فرض
-                                        </label>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="button" onclick="AddressManager.saveAddress()"
-                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-primary text-white text-sm font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ms-3 sm:w-auto sm:text-sm dark:bg-primary-dark dark:hover:bg-primary/80">
-                        ذخیره آدرس
-                    </button>
-                    <button onclick="closeAddressModal()" type="button"
-                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ms-3 sm:w-auto dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
-                        انصراف
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Dependencies -->
+<!-- Dependencies -->
     <script src="assets/js/components/layout-loader.js?v=20260604-1"></script>
 
     <script src="assets/js/dependencies/app.js?v=20260604-2"></script>
@@ -344,10 +148,10 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/auth-service.js"></script>
     <script src="assets/js/auth-guard.js"></script>
-    <script src="assets/js/services/address-service.js"></script>
+    <script src="assets/js/services/address-service.js?v=20260604-1"></script>
 
     <!-- Page Script -->
-    <script src="assets/js/pages/user-panel-address.js"></script>
+    <script src="assets/js/pages/user-panel-address.js?v=20260604-5"></script>
 </body>
 
 </html>

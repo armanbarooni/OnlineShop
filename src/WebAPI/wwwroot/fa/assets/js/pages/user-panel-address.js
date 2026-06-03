@@ -15,36 +15,8 @@ const AddressManager = {
         // Dropdowns
         window.utils.setupDropdown('user-dropdown-button', 'user-dropdown-menu');
 
-        // Mobile menu
-        const mobileMenuBtn = document.querySelector('button[onclick="toggleOffcanvas(\'offcanvas-responsive-menu-right\')"]');
-        if (mobileMenuBtn) {
-            mobileMenuBtn.removeAttribute('onclick');
-            mobileMenuBtn.addEventListener('click', () => {
-                const menu = document.getElementById('offcanvas-responsive-menu-right');
-                const overlay = document.querySelector('.overlay');
-                if (menu) {
-                    menu.classList.remove('translate-x-full', 'rtl:-translate-x-full', 'invisible', 'opacity-0');
-                    // Add both translation classes to handle both LTR and RTL correctly or just remove the hiding one
-                    menu.style.transform = 'translateX(0)';
-                    menu.classList.remove('invisible', 'opacity-0');
-                }
-                if (overlay) overlay.classList.remove('hidden');
-            });
-        }
-
         // Modal events
-        const addressModal = document.getElementById('addressModal');
-        const overlay = document.querySelector('#addressModal .fixed.inset-0.bg-gray-500'); // Modal overlay
         const cancelButton = document.querySelector('#addressModal button.bg-white'); // Cancel button
-
-        // Close on overlay click
-        if (addressModal) {
-            addressModal.addEventListener('click', (e) => {
-                if (e.target === addressModal || e.target.classList.contains('bg-gray-500')) {
-                    this.closeModal();
-                }
-            });
-        }
 
         if (cancelButton) {
             cancelButton.addEventListener('click', () => this.closeModal());
@@ -56,8 +28,67 @@ const AddressManager = {
             saveButton.addEventListener('click', () => this.saveAddress());
         }
 
+        this.initTextOnlyFields();
+        this.initNumericOnlyFields();
+
         // Logout
         this.initLogout();
+    },
+
+    initTextOnlyFields() {
+        ['province', 'city'].forEach(id => {
+            const input = document.getElementById(id);
+            if (!input) return;
+
+            input.addEventListener('input', () => {
+                input.value = this.sanitizeTextOnly(input.value);
+            });
+
+            input.addEventListener('paste', () => {
+                setTimeout(() => {
+                    input.value = this.sanitizeTextOnly(input.value);
+                }, 0);
+            });
+        });
+    },
+
+    sanitizeTextOnly(value) {
+        return String(value || '')
+            .replace(/[^\p{L}\s‌]/gu, '')
+            .replace(/\s{2,}/g, ' ')
+            .trimStart();
+    },
+
+    isTextOnly(value) {
+        return /^[\p{L}\s‌]+$/u.test(String(value || '').trim());
+    },
+
+    initNumericOnlyFields() {
+        [
+            { id: 'postalCode', maxLength: 10 },
+            { id: 'phone', maxLength: 11 }
+        ].forEach(({ id, maxLength }) => {
+            const input = document.getElementById(id);
+            if (!input) return;
+
+            input.addEventListener('input', () => {
+                input.value = this.sanitizeDigitsOnly(input.value, maxLength);
+            });
+
+            input.addEventListener('paste', () => {
+                setTimeout(() => {
+                    input.value = this.sanitizeDigitsOnly(input.value, maxLength);
+                }, 0);
+            });
+        });
+    },
+
+    sanitizeDigitsOnly(value, maxLength) {
+        return String(value || '')
+            .replace(/[۰-۹]/g, digit => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)))
+            .replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)))
+            .replace(/\D/g, '')
+            .slice(0, maxLength);
     },
 
     initLogout() {
@@ -281,6 +312,7 @@ const AddressManager = {
         const modal = document.getElementById('addressModal');
         if (show) {
             modal.classList.remove('hidden');
+            modal.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
             modal.classList.add('hidden');
         }
@@ -290,7 +322,7 @@ const AddressManager = {
         document.querySelector('#addressModal form').reset();
         // Clear errors
         document.querySelectorAll('.error-message').forEach(el => el.remove());
-        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error', 'border-red-500'));
     },
 
     async saveAddress() {
@@ -308,15 +340,47 @@ const AddressManager = {
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '-';
 
+        const sanitizedProvince = this.sanitizeTextOnly(province).trim();
+        const sanitizedCity = this.sanitizeTextOnly(city).trim();
+        const sanitizedPostalCode = this.sanitizeDigitsOnly(postalCode, 10);
+        const sanitizedPhone = this.sanitizeDigitsOnly(phone, 11);
+
+        document.getElementById('province').value = sanitizedProvince;
+        document.getElementById('city').value = sanitizedCity;
+        document.getElementById('postalCode').value = sanitizedPostalCode;
+        document.getElementById('phone').value = sanitizedPhone;
+
+        const textOnlyErrors = {};
+        if (!sanitizedProvince || !this.isTextOnly(sanitizedProvince)) {
+            textOnlyErrors.state = 'استان فقط باید شامل حروف باشد';
+        }
+        if (!sanitizedCity || !this.isTextOnly(sanitizedCity)) {
+            textOnlyErrors.city = 'شهر فقط باید شامل حروف باشد';
+        }
+
+        if (!sanitizedPostalCode) {
+            textOnlyErrors.postalCode = 'کد پستی الزامی است';
+        } else if (!/^\d{10}$/.test(sanitizedPostalCode)) {
+            textOnlyErrors.postalCode = 'کد پستی باید ۱۰ رقم باشد';
+        }
+        if (phone && !sanitizedPhone) {
+            textOnlyErrors.phoneNumber = 'شماره موبایل فقط باید شامل عدد باشد';
+        }
+
+        if (Object.keys(textOnlyErrors).length > 0) {
+            this.displayValidationErrors(textOnlyErrors);
+            return;
+        }
+
         const addressData = {
             title: title,
             firstName: firstName,
             lastName: lastName,
             addressLine1: address,
-            city: city,
-            state: province,
-            postalCode: postalCode,
-            phoneNumber: phone,
+            city: sanitizedCity,
+            state: sanitizedProvince,
+            postalCode: sanitizedPostalCode,
+            phoneNumber: sanitizedPhone,
             country: 'Iran',
             isDefault: isDefault,
             isShippingAddress: true,
@@ -366,7 +430,7 @@ const AddressManager = {
     displayValidationErrors(errors) {
         // Clear previous errors
         document.querySelectorAll('.error-message').forEach(el => el.remove());
-        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error', 'border-red-500'));
 
         // Element ID mapping (addressData key -> HTML ID)
         const fieldMap = {
