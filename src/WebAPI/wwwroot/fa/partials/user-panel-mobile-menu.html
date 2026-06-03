@@ -1,0 +1,82 @@
+<!-- start canvas responsive menu -->
+<div id="offcanvas-responsive-menu-right"
+  class="offcanvas invisible dark:bg-background-dark dark:text-white fixed top-0 start-0 sm:w-100 w-[80%] h-full bg-white shadow-lg transform -translate-x-full transition-transform opacity-0 z-50"
+  role="dialog" aria-labelledby="user-panel-menu-title" aria-modal="true">
+  <header class="border-b p-3 flex items-center justify-between border-gray-400">
+    <h2 id="user-panel-menu-title" class="font-bold text-base">پنل کاربری</h2>
+    <button onclick="closeOffcanvas()" class="cursor-pointer" aria-label="بستن">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+        stroke="currentColor" class="size-8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </header>
+
+  <main class="p-3 overflow-y-scroll h-full">
+    <div class="flex pb-10 rounded flex-col w-full h-full bg-card-light dark:bg-card-dark">
+      <div class="flex items-center justify-center h-20 px-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-md bg-primary-grad flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+          </div>
+          <h1 class="ms-3 text-xl font-bold text-dark dark:text-light">قالب <span class="text-primary">آرینو </span></h1>
+        </div>
+      </div>
+
+      <div class="flex flex-col flex-grow p-4 overflow-y-auto">
+        <nav class="space-y-1" data-user-panel-nav="mobile">
+          <a href="user-panel-index.html" data-user-panel-nav-item="index" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+            </svg>
+            پیشخوان
+          </a>
+
+          <a href="user-panel-profile.html" data-user-panel-nav-item="profile" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+            </svg>
+            پروفایل کاربری
+          </a>
+
+          <a href="user-panel-order.html" data-user-panel-nav-item="order" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" />
+            </svg>
+            سفارشات
+          </a>
+
+          <a href="user-panel-favorite.html" data-user-panel-nav-item="favorite" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+            </svg>
+            علاقه‌مندی‌ها
+          </a>
+
+          <a href="user-panel-address.html" data-user-panel-nav-item="address" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+            </svg>
+            آدرس‌ها
+          </a>
+
+          <a href="user-panel-wallet.html" data-user-panel-nav-item="wallet" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">کیف پول</a>
+          <a href="user-panel-ticket.html" data-user-panel-nav-item="ticket" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">تیکت‌ها</a>
+          <a href="user-panel-comment.html" data-user-panel-nav-item="comment" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">دیدگاه‌ها</a>
+          <a href="user-panel-discount.html" data-user-panel-nav-item="discount" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">تخفیف‌ها</a>
+          <a href="user-panel-last-viewd.html" data-user-panel-nav-item="last-viewed" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">بازدیدهای اخیر</a>
+          <a href="user-panel-site-notification.html" data-user-panel-nav-item="notification" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">اعلان‌ها</a>
+          <a href="user-panel-change-password.html" data-user-panel-nav-item="security" class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">تغییر رمز عبور</a>
+        </nav>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="overlay transition fixed inset-0 z-40 bg-black/70 hidden" onclick="closeOffcanvas()" role="presentation"
+  aria-hidden="true"></div>
+<!-- /canvas responsive menu -->

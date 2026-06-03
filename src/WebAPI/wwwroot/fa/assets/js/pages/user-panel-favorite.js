@@ -181,7 +181,9 @@ const FavoriteManager = {
   },
 
   formatPriceNumber: function (price) {
-    return new Intl.NumberFormat("fa-IR").format(Math.round(Number(price) || 0));
+    return new Intl.NumberFormat("fa-IR").format(
+      Math.round(Number(price) || 0),
+    );
   },
 
   checkAuthAndLoad: async function () {
@@ -452,27 +454,6 @@ const FavoriteManager = {
       }
     } catch (e) {
       window.utils.showToast("خطا در عملیات", "error");
-    }
-  },
-
-  clearAllWishlist: async function () {
-    if (!confirm("آیا مطمئن هستید که می‌خواهید تمام لیست را پاک کنید؟")) return;
-
-    try {
-      const result = await window.wishlistService.clearWishlist();
-      if (result.success) {
-        window.utils.showToast("لیست علاقه‌مندی‌ها پاک شد", "success");
-        // Hide button after clearing
-        const clearAllBtn = document.getElementById("clearAllWishlistBtn");
-        if (clearAllBtn) {
-          clearAllBtn.classList.add("hidden");
-        }
-        this.loadFavorites();
-      } else {
-        window.utils.showToast("خطا در پاکسازی لیست", "error");
-      }
-    } catch (e) {
-      console.error(e);
     }
   },
 };

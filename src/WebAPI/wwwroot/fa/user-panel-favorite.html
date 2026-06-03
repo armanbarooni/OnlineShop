@@ -26,90 +26,7 @@
     class="bg-light dark:bg-background-dark text-text-primary-light dark:text-text-primary-dark transition-colors duration-200">
   
     <div class="flex h-screen overflow-hidden max-w-[1920px] mx-auto">
-        <!-- sidebar -->
-        <div class="hidden lg:flex lg:flex-shrink-0">
-            <div
-                class="flex flex-col w-72 bg-card-light dark:bg-card-dark border-e border-gray-200 dark:border-gray-700 shadow-sm">
-                <!-- logo -->
-                <div class="flex items-center justify-center h-20 px-4 border-b border-gray-200 dark:border-gray-700">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 rounded-md bg-primary-grad flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                            </svg>
-                        </div>
-                        <h1 class="ms-3 text-xl font-bold text-dark dark:text-light">قالب <span
-                                class="text-primary">آرینو </span></h1>
-                    </div>
-                </div>
-
-                <!-- menu -->
-                <div class="flex flex-col flex-grow p-4 overflow-y-auto">
-                    <!-- menu -->
-                    <nav class="space-y-1">
-                        <!-- Dashboard -->
-                        <a href="user-panel-index.html"
-                            class="block px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 12l9-7 9 7v7a2 2 0 01-2 2h-4a2 2 0 01-2-2v-3H9v3a2 2 0 01-2 2H3a2 2 0 01-2-2v-7z" />
-                            </svg>
-                            پیشخوان
-                        </a>
-
-                        <!-- Profile -->
-                        <a href="user-panel-profile.html"
-                            class="block px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 21a8 8 0 1116 0H4z" />
-                            </svg>
-                            پروفایل
-                        </a>
-
-                        <!-- Interests -->
-                        <a href="user-panel-favorite.html"
-                            class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.318a4.5 4.5 0 010-6.364z" />
-                            </svg>
-                            علاقه‌مندی‌ها
-                            <span class="ms-auto w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-400"></span>
-                        </a>
-
-                        <!-- Orders -->
-                        <a href="user-panel-order.html"
-                            class="block px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 3h18v4H3zM5 7v12a2 2 0 002 2h10a2 2 0 002-2V7" />
-                            </svg>
-                            سفارش‌ها
-                        </a>
-
-                        <!-- Addresses -->
-                        <a href="user-panel-address.html"
-                            class="block px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline me-2" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 11c1.657 0 3-1.567 3-3.5S13.657 4 12 4 9 5.567 9 7.5 10.343 11 12 11z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 21a7 7 0 10-14 0h14z" />
-                            </svg>
-                            آدرس‌ها
-                        </a>
-                    </nav>
-                </div>
-            </div>
-        </div>
+        <div data-layout-partial="user-panel-sidebar" data-layout-script="assets/js/components/user-panel-nav.js"></div>
 
         <!-- main content -->
         <div class="flex flex-col flex-1 overflow-hidden">
@@ -160,9 +77,7 @@
                         </svg>
                     </button>
 
-               
-
-                    <!-- user drop down -->
+<!-- user drop down -->
                     <div class="relative ms-3" id="user-dropdown">
                         <!-- Dropdown Button -->
                         <button onclick="toggleUserDropdown()" id="user-dropdown-button"
@@ -259,106 +174,10 @@
         </div>
     </div>
     <!-- /end page divider -->
+    <div data-layout-partial="user-panel-mobile-menu"></div>
+<!-- Scripts -->
+    <script src="assets/js/components/layout-loader.js"></script>
 
-    <!-- start canvas responsive menu -->
-
-    <div id="offcanvas-responsive-menu-right"
-        class="offcanvas invisible dark:bg-background-dark dark:text-white fixed top-0 start-0 sm:w-100 w-[80%] h-full bg-white shadow-lg transform -translate-x-full transition-transform opacity-0 z-50"
-        role="dialog" aria-labelledby="cart-title" aria-modal="true">
-        <!-- Header -->
-        <header class="border-b p-3 flex items-center justify-between border-gray-400">
-            <h2 class="font-bold text-base">پنل کاربری</h2>
-            <button onclick="closeOffcanvas()" class="cursor-pointer" aria-label="بستن ">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </header>
-        <!-- menu Items -->
-        <main class="p-3 overflow-y-scroll h-full">
-            <div class="flex pb-10 rounded flex-col w-full h-full bg-card-light dark:bg-card-dark">
-                <!-- logo -->
-                <div class="flex items-center justify-center h-20 px-4 border-b border-gray-200 dark:border-gray-700">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 rounded-md bg-primary-grad flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                            </svg>
-                        </div>
-                        <h1 class="ms-3 text-xl font-bold text-dark dark:text-light">قالب <span
-                                class="text-primary">آرینو </span></h1>
-                    </div>
-                </div>
-
-                <!-- menu -->
-                <div class="flex flex-col flex-grow p-4 overflow-y-auto">
-                    <nav class="space-y-1">
-                        <a href="user-panel-index.html"
-                            class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path
-                                    d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z">
-                                </path>
-                            </svg>
-                            پیشخوان
-                        </a>
-                        <a href="user-panel-profile.html"
-                            class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            پروفایل کاربری
-                        </a>
-                        <a href="user-panel-order.html"
-                            class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            سفارشات
-                        </a>
-                        <a href="user-panel-favorite.html"
-                            class="flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-dark">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            علاقه‌مندی‌ها
-                            <span class="ms-auto w-2 h-2 rounded-full bg-primary dark:bg-primary-dark"></span>
-                        </a>
-                        <a href="user-panel-address.html"
-                            class="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            آدرس‌ها
-                        </a>
-                    </nav>
-                </div>
-            </div>
-        </main>
-    </div>
-    <!-- Overlay -->
-    <div class="overlay transition fixed inset-0 z-40 bg-black/70 hidden" onclick="closeOffcanvas()" role="presentation"
-        aria-hidden="true"></div>
-
-    <!-- /canvas responsive menu -->
-
-
-    <!-- Scripts -->
     <script src="assets/js/api-client.js"></script>
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/utils/logger.js"></script>
