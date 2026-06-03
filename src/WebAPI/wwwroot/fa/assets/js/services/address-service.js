@@ -8,23 +8,41 @@ class AddressService {
         this.apiClient = window.apiClient;
     }
 
+    getCurrentUserId() {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const tokenUserId =
+                    payload.nameid ||
+                    payload.nameidentifier ||
+                    payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
+                if (tokenUserId) {
+                    return tokenUserId;
+                }
+            }
+
+            const cachedUser = this.apiClient?.getCurrentUser?.();
+            return cachedUser?.id || null;
+        } catch (error) {
+            window.logger?.error('Error extracting user id from token:', error);
+            return null;
+        }
+    }
+
     /**
      * Get user addresses
      */
     async getAddresses() {
         try {
-            // Get current user ID from token
-            const token = localStorage.getItem('accessToken');
-            if (!token) {
+            const userId = this.getCurrentUserId();
+            if (!userId) {
                 return {
                     success: false,
                     error: 'User not authenticated'
                 };
             }
-
-            // Decode token to get user ID
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const userId = payload.sub || payload.nameid;
 
             const response = await this.apiClient.get(`/useraddress/user/${userId}`);
             return {
