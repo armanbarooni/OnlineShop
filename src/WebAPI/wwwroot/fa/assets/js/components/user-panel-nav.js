@@ -2,13 +2,13 @@
   "use strict";
 
   const inactiveDesktop =
-    "block px-4 py-3 text-sm font-medium text-gray-900 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700";
+    "flex items-center px-4 py-3 text-sm font-medium text-gray-900 rounded-lg transition-colors hover:bg-primary/10 hover:text-primary dark:text-white dark:hover:bg-primary/20 dark:hover:text-primary-300";
   const activeDesktop =
-    "flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400";
+    "flex items-center px-4 py-3 text-sm font-bold rounded-lg bg-primary text-white shadow-md shadow-primary/20 dark:bg-primary-600 dark:text-white dark:shadow-primary-900";
   const inactiveMobile =
-    "flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white";
+    "flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 text-gray-600 dark:text-gray-300 dark:hover:text-primary-300";
   const activeMobile =
-    "flex items-center px-4 py-3 text-sm font-medium rounded-lg bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-dark";
+    "flex items-center px-4 py-3 text-sm font-bold rounded-lg bg-primary text-white shadow-md shadow-primary/20 dark:bg-primary-600 dark:text-white";
 
   const pageToNavKey = [
     [/^user-panel-index\.html$/, "index"],
@@ -50,7 +50,7 @@
 
     const indicator = document.createElement("span");
     indicator.setAttribute("data-user-panel-active-indicator", "true");
-    indicator.className = "ms-auto w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-400";
+    indicator.className = "ms-auto w-2 h-2 rounded-full bg-white/90";
     link.appendChild(indicator);
   }
 

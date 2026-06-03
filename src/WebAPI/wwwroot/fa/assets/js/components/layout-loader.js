@@ -3,7 +3,8 @@
 
   const PARTIAL_BASE_PATH = "partials/";
   const componentScripts = [];
-  const loadedScripts = new Set();
+  const loadedScripts = window.loadedLayoutComponentScripts || new Set();
+  window.loadedLayoutComponentScripts = loadedScripts;
 
   function getPartialName(element) {
     return element.getAttribute("data-layout-partial");
@@ -51,6 +52,30 @@
     document.body.appendChild(script);
   }
 
+  function fetchScript(src) {
+    const request = new XMLHttpRequest();
+    request.open("GET", src, false);
+    request.send(null);
+
+    if (
+      (request.status >= 200 && request.status < 300) ||
+      (request.status === 0 && request.responseText)
+    ) {
+      return request.responseText;
+    }
+
+    throw new Error("Could not load component script: " + src);
+  }
+
+  function runScriptOnce(src) {
+    if (!src || loadedScripts.has(src)) return;
+    loadedScripts.add(src);
+
+    const script = document.createElement("script");
+    script.text = fetchScript(src) + "\n//# sourceURL=" + src;
+    document.body.appendChild(script);
+  }
+
   function applyPartials() {
     const placeholders = document.querySelectorAll("[data-layout-partial]");
 
@@ -74,6 +99,17 @@
     });
 
     window.layoutComponentScripts = componentScripts.slice();
+    componentScripts.forEach(function (script) {
+      try {
+        runScriptOnce(script);
+      } catch (error) {
+        if (window.logger && typeof window.logger.error === "function") {
+          window.logger.error(error.message, error);
+        } else {
+          console.error(error);
+        }
+      }
+    });
     window.dispatchEvent(new CustomEvent("layout:ready"));
   }
 

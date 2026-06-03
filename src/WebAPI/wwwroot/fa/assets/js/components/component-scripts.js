@@ -1,7 +1,8 @@
 (function () {
   "use strict";
 
-  const loadedScripts = new Set();
+  const loadedScripts = window.loadedLayoutComponentScripts || new Set();
+  window.loadedLayoutComponentScripts = loadedScripts;
 
   function fetchScript(src) {
     const request = new XMLHttpRequest();
