@@ -56,22 +56,6 @@ const OrderManager = {
             });
         }
 
-        window.toggleOffcanvas = (id) => {
-            const el = document.getElementById(id);
-            const overlay = document.querySelector('.overlay');
-            if (el) el.classList.remove('invisible', 'opacity-0', '-translate-x-full');
-            if (overlay) overlay.classList.remove('hidden');
-        };
-
-        window.closeOffcanvas = () => {
-            document.querySelectorAll('.offcanvas').forEach(el => {
-                el.classList.add('invisible', 'opacity-0', '-translate-x-full');
-            });
-            const overlay = document.querySelector('.overlay');
-            if (overlay) overlay.classList.add('hidden');
-        };
-
-
         // Logout Handler
         const handleLogout = (e) => {
             e.preventDefault();

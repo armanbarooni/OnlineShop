@@ -30,22 +30,6 @@ const FavoriteManager = {
       if (icon) icon.classList.toggle("rotate-180");
     };
 
-    window.toggleOffcanvas = (id) => {
-      const el = document.getElementById(id);
-      const overlay = document.querySelector(".overlay");
-      if (el)
-        el.classList.remove("invisible", "opacity-0", "-translate-x-full");
-      if (overlay) overlay.classList.remove("hidden");
-    };
-
-    window.closeOffcanvas = () => {
-      document.querySelectorAll(".offcanvas").forEach((el) => {
-        el.classList.add("invisible", "opacity-0", "-translate-x-full");
-      });
-      const overlay = document.querySelector(".overlay");
-      if (overlay) overlay.classList.add("hidden");
-    };
-
     // Close dropdown on outside click
     document.addEventListener("click", (event) => {
       const menu = document.getElementById("user-dropdown-menu");

@@ -304,6 +304,10 @@ function toggleOffcanvas(id) {
 
     // Remove any previous translation or opacity classes
     offcanvas.classList.remove("translate-x-full", "-translate-x-full", "-translate-y-full", "translate-y-full", "opacity-0");
+    offcanvas.style.transform = "translate3d(0, 0, 0)";
+    offcanvas.style.visibility = "visible";
+    offcanvas.style.opacity = "1";
+    offcanvas.style.zIndex = "60";
 
     // Add the class to make the offcanvas visible (full opacity)
     offcanvas.classList.add("opacity-100", "visible");
@@ -328,17 +332,33 @@ function closeOffcanvas() {
         el.classList.remove("opacity-100", "visible");
         el.classList.add("invisible");
 
-        // Check if the offcanvas is on the right and add corresponding translation class
-        if (el.id.includes("right")) el.classList.add("translate-x-full");
-
-        // Check if the offcanvas is on the left and add corresponding translation class
-        if (el.id.includes("left")) el.classList.add("-translate-x-full");
+        if (el.classList.contains("start-0")) {
+            el.classList.add("-translate-x-full");
+            el.classList.remove("translate-x-full");
+            el.style.transform = "translate3d(-100%, 0, 0)";
+        } else if (el.classList.contains("end-0")) {
+            el.classList.add("translate-x-full");
+            el.classList.remove("-translate-x-full");
+            el.style.transform = "translate3d(100%, 0, 0)";
+        } else if (el.id.includes("right")) {
+            el.classList.add("translate-x-full");
+            el.style.transform = "translate3d(100%, 0, 0)";
+        } else if (el.id.includes("left")) {
+            el.classList.add("-translate-x-full");
+            el.style.transform = "translate3d(-100%, 0, 0)";
+        }
 
         // Check if the offcanvas is at the top and add corresponding translation class
-        if (el.id.includes("top")) el.classList.add("-translate-y-full");
+        if (el.id.includes("top")) {
+            el.classList.add("-translate-y-full");
+            el.style.transform = "translate3d(0, -100%, 0)";
+        }
 
         // Check if the offcanvas is at the bottom and add corresponding translation class
-        if (el.id.includes("bottom")) el.classList.add("translate-y-full");
+        if (el.id.includes("bottom")) {
+            el.classList.add("translate-y-full");
+            el.style.transform = "translate3d(0, 100%, 0)";
+        }
     });
 
     // Set a timeout to hide overlays after animation is complete
