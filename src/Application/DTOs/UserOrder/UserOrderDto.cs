@@ -24,5 +24,6 @@ namespace OnlineShop.Application.DTOs.UserOrder
         public DateTime? DeliveredDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public bool SyncedToMahak { get; set; }
     }
 }

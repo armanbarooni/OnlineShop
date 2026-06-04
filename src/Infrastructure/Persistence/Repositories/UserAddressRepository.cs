@@ -18,14 +18,14 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.UserAddresses
                 .AsNoTracking()
-                .FirstOrDefaultAsync(ua => ua.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(ua => ua.Id == id && !ua.Deleted, cancellationToken);
         }
 
         public async Task<IEnumerable<UserAddress>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken)
         {
             return await _context.UserAddresses
                 .AsNoTracking()
-                .Where(ua => ua.UserId == userId)
+                .Where(ua => ua.UserId == userId && !ua.Deleted)
                 .OrderByDescending(ua => ua.IsDefault)
                 .ThenByDescending(ua => ua.CreatedAt)
                 .ToListAsync(cancellationToken);
@@ -35,27 +35,28 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.UserAddresses
                 .AsNoTracking()
-                .FirstOrDefaultAsync(ua => ua.UserId == userId && ua.IsDefault, cancellationToken);
+                .FirstOrDefaultAsync(ua => ua.UserId == userId && ua.IsDefault && !ua.Deleted, cancellationToken);
         }
 
         public async Task<UserAddress?> GetBillingAddressAsync(Guid userId, CancellationToken cancellationToken)
         {
             return await _context.UserAddresses
                 .AsNoTracking()
-                .FirstOrDefaultAsync(ua => ua.UserId == userId && ua.IsBillingAddress, cancellationToken);
+                .FirstOrDefaultAsync(ua => ua.UserId == userId && ua.IsBillingAddress && !ua.Deleted, cancellationToken);
         }
 
         public async Task<UserAddress?> GetShippingAddressAsync(Guid userId, CancellationToken cancellationToken)
         {
             return await _context.UserAddresses
                 .AsNoTracking()
-                .FirstOrDefaultAsync(ua => ua.UserId == userId && ua.IsShippingAddress, cancellationToken);
+                .FirstOrDefaultAsync(ua => ua.UserId == userId && ua.IsShippingAddress && !ua.Deleted, cancellationToken);
         }
 
         public async Task<IEnumerable<UserAddress>> GetAllAsync(CancellationToken cancellationToken)
         {
             return await _context.UserAddresses
                 .AsNoTracking()
+                .Where(ua => !ua.Deleted)
                 .OrderByDescending(ua => ua.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
@@ -87,7 +88,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             // Remove default flag from all addresses
             var allAddresses = await _context.UserAddresses
-                .Where(ua => ua.UserId == userId)
+                .Where(ua => ua.UserId == userId && !ua.Deleted)
                 .ToListAsync(cancellationToken);
 
             foreach (var address in allAddresses)

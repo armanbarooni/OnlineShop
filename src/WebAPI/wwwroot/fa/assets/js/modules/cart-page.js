@@ -35,21 +35,6 @@ class CartPage {
     const container = document.getElementById("cart-items-container");
     if (!container) return;
 
-    // Check auth
-    if (!window.apiClient || !window.apiClient.isAuthenticated()) {
-      container.innerHTML = `
-        <div class="text-center p-10 space-y-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-          </svg>
-          <h2 class="text-xl font-bold text-gray-600 dark:text-gray-300">لطفاً وارد حساب کاربری شوید</h2>
-          <a href="/login.html?redirect=${encodeURIComponent(window.location.href)}" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">ورود / ثبت‌نام</a>
-        </div>
-      `;
-      this.updateSummary(0, 0, 0);
-      return;
-    }
-
     // Show loading
     container.innerHTML = `
       <div class="flex justify-center items-center py-10">
@@ -58,7 +43,7 @@ class CartPage {
     `;
 
     try {
-      const response = await window.apiClient.get("/cart");
+      const response = await window.cartService.getUserCart();
 
       if (!response || !response.success) {
         container.innerHTML = `
@@ -161,7 +146,6 @@ class CartPage {
                 <a href="/product.html?id=${item.productId}" class="font-bold text-base hover:text-green-600 transition">${this.escapeHtml(item.productName)}</a>
                 ${variantInfo ? `<p class="text-sm text-gray-500 dark:text-gray-400">${this.escapeHtml(variantInfo)}</p>` : ""}
                 <p class="text-sm text-gray-500">قیمت واحد: ${unitPrice} ریال</p>
-                ${!item.isAvailable ? '<span class="text-xs text-red-500 font-semibold">ناموجود</span>' : ""}
                 <div class="flex items-center mt-2">
                   <div class="inline-flex items-center space-x-2 border rounded-full px-4 py-2 dark:bg-zinc-800 bg-white shadow">
                     <button id="inc-${item.id}" 
@@ -190,10 +174,7 @@ class CartPage {
 
   async updateItemQuantity(cartItemId, newQuantity) {
     try {
-      await window.apiClient.put("/cart/update", {
-        cartItemId: cartItemId,
-        quantity: newQuantity
-      });
+      await window.cartService.updateCartItem(null, cartItemId, newQuantity);
       await this.renderCart();
     } catch (error) {
       console.error("Update quantity error:", error);
@@ -203,7 +184,7 @@ class CartPage {
 
   async removeItem(cartItemId) {
     try {
-      await window.apiClient.delete(`/cart/remove/${cartItemId}`);
+      await window.cartService.removeFromCart(null, cartItemId);
       this.showToast("محصول از سبد خرید حذف شد", "success");
       await this.renderCart();
     } catch (error) {
@@ -231,7 +212,8 @@ class CartPage {
     if (checkoutBtn) {
       checkoutBtn.onclick = () => {
         if (!window.apiClient || !window.apiClient.isAuthenticated()) {
-          this.showToast("لطفاً ابتدا وارد حساب کاربری شوید", "warning");
+          localStorage.setItem("intendedUrl", "checkout.html");
+          window.location.href = `login.html?returnUrl=${encodeURIComponent("checkout.html")}`;
           return;
         }
         window.location.href = "/checkout.html";

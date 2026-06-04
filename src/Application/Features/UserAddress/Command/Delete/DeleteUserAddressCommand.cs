@@ -6,6 +6,7 @@ namespace OnlineShop.Application.Features.UserAddress.Command.Delete
     public class DeleteUserAddressCommand : IRequest<Result<bool>>
     {
         public Guid Id { get; set; }
+        public Guid? UserId { get; set; }
     }
 }
 

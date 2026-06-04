@@ -47,26 +47,6 @@ const ProfileManager = {
             }
         });
 
-        // Mobile Menu / Offcanvas
-        window.toggleOffcanvas = function (id) {
-            const el = document.getElementById(id);
-            const overlay = document.querySelector('.overlay');
-            if (el) {
-                el.classList.remove('invisible', 'opacity-0', '-translate-x-full');
-                el.classList.add('active'); // Helper class if needed
-                if (overlay) overlay.classList.remove('hidden');
-            }
-        };
-
-        window.closeOffcanvas = function () {
-            document.querySelectorAll('.offcanvas').forEach(el => {
-                el.classList.add('invisible', 'opacity-0', '-translate-x-full');
-                el.classList.remove('active');
-            });
-            const overlay = document.querySelector('.overlay');
-            if (overlay) overlay.classList.add('hidden');
-        };
-
         // Search Logic
         const searchInput = document.querySelector('input[placeholder*="جستجو"]');
         if (searchInput) {

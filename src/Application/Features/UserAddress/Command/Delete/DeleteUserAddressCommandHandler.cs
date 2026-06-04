@@ -17,6 +17,9 @@ namespace OnlineShop.Application.Features.UserAddress.Command.Delete
                 if (userAddress == null)
                     return Result<bool>.Failure("آدرس کاربر یافت نشد");
 
+                if (request.UserId.HasValue && userAddress.UserId != request.UserId.Value)
+                    return Result<bool>.Failure("Ø´Ù…Ø§ Ø§Ø¬Ø§Ø²Ù‡ Ø­Ø°Ù Ø§ÛŒÙ† Ø¢Ø¯Ø±Ø³ Ø±Ø§ Ù†Ø¯Ø§Ø±ÛŒØ¯");
+
                 userAddress.Delete(null);
                 await repository.UpdateAsync(userAddress, cancellationToken);
                 

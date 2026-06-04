@@ -1,0 +1,61 @@
+<!-- header -->
+<header class="flex items-center justify-between px-6 py-4 bg-white dark:bg-card-dark border-b border-gray-200 dark:border-gray-700">
+  <div class="flex items-center">
+    <button onclick="toggleOffcanvas('offcanvas-responsive-menu-right')"
+      class="lg:hidden text-gray-500 dark:text-gray-400 focus:outline-none"
+      aria-label="باز کردن منوی پنل کاربری">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="flex items-center space-x-4 space-x-reverse">
+    <button id="dark-mode-toggle"
+      class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
+      aria-label="تغییر حالت روشن و تاریک">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden dark:block" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 dark:hidden" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+      </svg>
+    </button>
+
+    <div class="relative ms-3" id="user-dropdown">
+      <button id="user-dropdown-button" onclick="toggleUserDropdown && toggleUserDropdown()"
+        class="flex items-center focus:outline-none" type="button">
+        <div class="relative">
+          <img class="h-8 w-8 max-sm:hidden rounded-full border-2 border-white dark:border-gray-800 shadow"
+            src="assets/images/user/user.png" alt="پروفایل کاربر">
+          <span
+            class="absolute bottom-0 start-0 w-2 h-2 rounded-full bg-green-500 dark:bg-green-400 border-2 border-white dark:border-gray-800"></span>
+        </div>
+        <span class="ms-2 text-sm font-medium text-gray-900 dark:text-white" data-user-name="true">کاربر مهمان</span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+          stroke="currentColor" id="user-dropdown-icon" class="size-4 ms-2 transition-transform">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"></path>
+        </svg>
+      </button>
+
+      <div id="user-dropdown-menu"
+        class="absolute end-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg z-10 shadow-lg hidden">
+        <a href="#" id="logoutButton"
+          class="flex items-center px-4 py-2 text-sm text-gray-700 space-x-1 rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
+            stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+          </svg>
+          <span>خروج</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>

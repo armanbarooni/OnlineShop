@@ -5,6 +5,7 @@
 const AddressManager = {
     // Current editing address ID (null for create mode)
     editingAddressId: null,
+    isSaving: false,
 
     init() {
         this.initUI();
@@ -15,36 +16,8 @@ const AddressManager = {
         // Dropdowns
         window.utils.setupDropdown('user-dropdown-button', 'user-dropdown-menu');
 
-        // Mobile menu
-        const mobileMenuBtn = document.querySelector('button[onclick="toggleOffcanvas(\'offcanvas-responsive-menu-right\')"]');
-        if (mobileMenuBtn) {
-            mobileMenuBtn.removeAttribute('onclick');
-            mobileMenuBtn.addEventListener('click', () => {
-                const menu = document.getElementById('offcanvas-responsive-menu-right');
-                const overlay = document.querySelector('.overlay');
-                if (menu) {
-                    menu.classList.remove('translate-x-full', 'rtl:-translate-x-full', 'invisible', 'opacity-0');
-                    // Add both translation classes to handle both LTR and RTL correctly or just remove the hiding one
-                    menu.style.transform = 'translateX(0)';
-                    menu.classList.remove('invisible', 'opacity-0');
-                }
-                if (overlay) overlay.classList.remove('hidden');
-            });
-        }
-
         // Modal events
-        const addressModal = document.getElementById('addressModal');
-        const overlay = document.querySelector('#addressModal .fixed.inset-0.bg-gray-500'); // Modal overlay
         const cancelButton = document.querySelector('#addressModal button.bg-white'); // Cancel button
-
-        // Close on overlay click
-        if (addressModal) {
-            addressModal.addEventListener('click', (e) => {
-                if (e.target === addressModal || e.target.classList.contains('bg-gray-500')) {
-                    this.closeModal();
-                }
-            });
-        }
 
         if (cancelButton) {
             cancelButton.addEventListener('click', () => this.closeModal());
@@ -56,8 +29,83 @@ const AddressManager = {
             saveButton.addEventListener('click', () => this.saveAddress());
         }
 
+        const showListButton = document.getElementById('showAddressListButton');
+        if (showListButton) {
+            showListButton.addEventListener('click', () => this.closeModal(true));
+        }
+
+        const addressesContainer = document.getElementById('addressesContainer');
+        if (addressesContainer) {
+            addressesContainer.addEventListener('click', (event) => {
+                const deleteButton = event.target.closest('[data-delete-address-id]');
+                if (deleteButton) {
+                    event.preventDefault();
+                    this.deleteAddress(deleteButton.dataset.deleteAddressId);
+                }
+            });
+        }
+
+        this.initTextOnlyFields();
+        this.initNumericOnlyFields();
+
         // Logout
         this.initLogout();
+    },
+
+    initTextOnlyFields() {
+        ['province', 'city'].forEach(id => {
+            const input = document.getElementById(id);
+            if (!input) return;
+
+            input.addEventListener('input', () => {
+                input.value = this.sanitizeTextOnly(input.value);
+            });
+
+            input.addEventListener('paste', () => {
+                setTimeout(() => {
+                    input.value = this.sanitizeTextOnly(input.value);
+                }, 0);
+            });
+        });
+    },
+
+    sanitizeTextOnly(value) {
+        return String(value || '')
+            .replace(/[^\p{L}\s‌]/gu, '')
+            .replace(/\s{2,}/g, ' ')
+            .trimStart();
+    },
+
+    isTextOnly(value) {
+        return /^[\p{L}\s‌]+$/u.test(String(value || '').trim());
+    },
+
+    initNumericOnlyFields() {
+        [
+            { id: 'postalCode', maxLength: 10 },
+            { id: 'phone', maxLength: 11 }
+        ].forEach(({ id, maxLength }) => {
+            const input = document.getElementById(id);
+            if (!input) return;
+
+            input.addEventListener('input', () => {
+                input.value = this.sanitizeDigitsOnly(input.value, maxLength);
+            });
+
+            input.addEventListener('paste', () => {
+                setTimeout(() => {
+                    input.value = this.sanitizeDigitsOnly(input.value, maxLength);
+                }, 0);
+            });
+        });
+    },
+
+    sanitizeDigitsOnly(value, maxLength) {
+        return String(value || '')
+            .replace(/[۰-۹]/g, digit => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)))
+            .replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)))
+            .replace(/\D/g, '')
+            .slice(0, maxLength);
     },
 
     initLogout() {
@@ -103,6 +151,7 @@ const AddressManager = {
             window.utils.showLoading(container, 'در حال بارگذاری...');
 
             const response = await window.addressService.getAddresses();
+            window.utils.hideLoading(container);
 
             if (response.success && response.data) {
                 this.renderAddresses(response.data);
@@ -119,6 +168,8 @@ const AddressManager = {
             }
         } catch (error) {
             console.error('Error loading addresses:', error);
+            const container = document.getElementById('addressesContainer');
+            if (container) window.utils.hideLoading(container);
             window.utils.showToast('خطا در اتصال به سرور', 'error');
         } finally {
             const container = document.getElementById('addressesContainer');
@@ -224,7 +275,7 @@ const AddressManager = {
                                 </svg>
                                 ویرایش
                             </button>
-                            <button onclick="AddressManager.deleteAddress('${address.id}')" class="flex items-center text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors">
+                            <button type="button" data-delete-address-id="${address.id}" class="flex items-center text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 me-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
@@ -271,18 +322,26 @@ const AddressManager = {
         this.toggleModal(true);
     },
 
-    closeModal() {
+    closeModal(scrollToList = false) {
         this.toggleModal(false);
         this.editingAddressId = null;
         this.resetForm();
+
+        if (scrollToList) {
+            document.getElementById('addressesContainer')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     },
 
     toggleModal(show) {
         const modal = document.getElementById('addressModal');
+        const showListButton = document.getElementById('showAddressListButton');
         if (show) {
             modal.classList.remove('hidden');
+            showListButton?.classList.remove('hidden');
+            modal.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
             modal.classList.add('hidden');
+            showListButton?.classList.add('hidden');
         }
     },
 
@@ -290,10 +349,12 @@ const AddressManager = {
         document.querySelector('#addressModal form').reset();
         // Clear errors
         document.querySelectorAll('.error-message').forEach(el => el.remove());
-        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error', 'border-red-500'));
     },
 
     async saveAddress() {
+        if (this.isSaving) return;
+
         const title = document.getElementById('addressTitle')?.value || '';
         const province = document.getElementById('province')?.value || '';
         const city = document.getElementById('city')?.value || '';
@@ -308,15 +369,47 @@ const AddressManager = {
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '-';
 
+        const sanitizedProvince = this.sanitizeTextOnly(province).trim();
+        const sanitizedCity = this.sanitizeTextOnly(city).trim();
+        const sanitizedPostalCode = this.sanitizeDigitsOnly(postalCode, 10);
+        const sanitizedPhone = this.sanitizeDigitsOnly(phone, 11);
+
+        document.getElementById('province').value = sanitizedProvince;
+        document.getElementById('city').value = sanitizedCity;
+        document.getElementById('postalCode').value = sanitizedPostalCode;
+        document.getElementById('phone').value = sanitizedPhone;
+
+        const textOnlyErrors = {};
+        if (!sanitizedProvince || !this.isTextOnly(sanitizedProvince)) {
+            textOnlyErrors.state = 'استان فقط باید شامل حروف باشد';
+        }
+        if (!sanitizedCity || !this.isTextOnly(sanitizedCity)) {
+            textOnlyErrors.city = 'شهر فقط باید شامل حروف باشد';
+        }
+
+        if (!sanitizedPostalCode) {
+            textOnlyErrors.postalCode = 'کد پستی الزامی است';
+        } else if (!/^\d{10}$/.test(sanitizedPostalCode)) {
+            textOnlyErrors.postalCode = 'کد پستی باید ۱۰ رقم باشد';
+        }
+        if (phone && !sanitizedPhone) {
+            textOnlyErrors.phoneNumber = 'شماره موبایل فقط باید شامل عدد باشد';
+        }
+
+        if (Object.keys(textOnlyErrors).length > 0) {
+            this.displayValidationErrors(textOnlyErrors);
+            return;
+        }
+
         const addressData = {
             title: title,
             firstName: firstName,
             lastName: lastName,
             addressLine1: address,
-            city: city,
-            state: province,
-            postalCode: postalCode,
-            phoneNumber: phone,
+            city: sanitizedCity,
+            state: sanitizedProvince,
+            postalCode: sanitizedPostalCode,
+            phoneNumber: sanitizedPhone,
             country: 'Iran',
             isDefault: isDefault,
             isShippingAddress: true,
@@ -333,6 +426,7 @@ const AddressManager = {
         try {
             const btn = document.querySelector('#addressModal button.bg-primary');
             const originalText = btn.textContent;
+            this.isSaving = true;
             btn.textContent = 'در حال ذخیره...';
             btn.disabled = true;
 
@@ -345,7 +439,7 @@ const AddressManager = {
 
             if (response.success) {
                 window.utils.showToast(this.editingAddressId ? 'آدرس با موفقیت ویرایش شد' : 'آدرس جدید با موفقیت اضافه شد', 'success');
-                this.closeModal();
+                this.closeModal(true);
                 this.loadAddresses();
             } else {
                 window.utils.showToast(response.error || 'خطا در ذخیره آدرس', 'error');
@@ -353,6 +447,7 @@ const AddressManager = {
 
             btn.textContent = originalText;
             btn.disabled = false;
+            this.isSaving = false;
         } catch (error) {
             console.error('Error saving address:', error);
             window.utils.showToast('خطا در اتصال به سرور', 'error');
@@ -360,13 +455,14 @@ const AddressManager = {
             const btn = document.querySelector('#addressModal button.bg-primary');
             btn.textContent = 'ذخیره آدرس';
             btn.disabled = false;
+            this.isSaving = false;
         }
     },
 
     displayValidationErrors(errors) {
         // Clear previous errors
         document.querySelectorAll('.error-message').forEach(el => el.remove());
-        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error', 'border-red-500'));
 
         // Element ID mapping (addressData key -> HTML ID)
         const fieldMap = {
@@ -403,6 +499,34 @@ const AddressManager = {
     },
 
     async deleteAddress(id) {
+        if (!id) return;
+
+        const confirmed = typeof window.utils.confirmAction === 'function'
+            ? await window.utils.confirmAction('آیا از حذف این آدرس مطمئن هستید؟')
+            : window.confirm('آیا از حذف این آدرس مطمئن هستید؟');
+
+        if (!confirmed) return;
+
+        const container = document.getElementById('addressesContainer');
+
+        try {
+            window.utils.showLoading(container, 'در حال حذف...');
+            const response = await window.addressService.deleteAddress(id);
+
+            if (response.success) {
+                window.utils.showToast('آدرس با موفقیت حذف شد', 'success');
+                await this.loadAddresses();
+            } else {
+                window.utils.hideLoading(container);
+                window.utils.showToast(response.error || 'خطا در حذف آدرس', 'error');
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            window.utils.hideLoading(container);
+            window.utils.showToast('خطا در اتصال به سرور', 'error');
+        }
+
+        return;
         if (!await window.utils.confirmAction('آیا از حذف این آدرس مطمئن هستید؟')) {
             return;
         }

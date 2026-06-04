@@ -18,6 +18,8 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.Wishlists
                 .AsNoTracking()
+                .Include(w => w.Product)
+                    .ThenInclude(p => p.ProductImages)
                 .FirstOrDefaultAsync(w => w.Id == id, cancellationToken);
         }
 
@@ -25,6 +27,8 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.Wishlists
                 .AsNoTracking()
+                .Include(w => w.Product)
+                    .ThenInclude(p => p.ProductImages)
                 .Where(w => w.UserId == userId)
                 .OrderByDescending(w => w.AddedAt)
                 .ToListAsync(cancellationToken);
@@ -34,6 +38,8 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.Wishlists
                 .AsNoTracking()
+                .Include(w => w.Product)
+                    .ThenInclude(p => p.ProductImages)
                 .FirstOrDefaultAsync(w => w.UserId == userId && w.ProductId == productId, cancellationToken);
         }
 
@@ -41,6 +47,8 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.Wishlists
                 .AsNoTracking()
+                .Include(w => w.Product)
+                    .ThenInclude(p => p.ProductImages)
                 .OrderByDescending(w => w.AddedAt)
                 .ToListAsync(cancellationToken);
         }

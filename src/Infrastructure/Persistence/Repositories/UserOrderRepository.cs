@@ -111,6 +111,15 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<List<UserOrder>> GetExpiredPendingOrdersAsync(int timeoutMinutes, CancellationToken cancellationToken)
+        {
+            var expiryTime = DateTime.UtcNow.AddMinutes(-timeoutMinutes);
+            return await _context.UserOrders
+                .Include(o => o.OrderItems)
+                .Where(o => o.OrderStatus == "Pending" && o.CreatedAt < expiryTime && !o.Deleted)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<UserOrder?> GetByPaymentAuthorityAsync(string authority, CancellationToken cancellationToken)
         {
             // We need to find an order that has a payment with this authority (TransactionId)

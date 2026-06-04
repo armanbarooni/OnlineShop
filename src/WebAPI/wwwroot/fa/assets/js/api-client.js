@@ -2,10 +2,32 @@
 class ApiClient {
     constructor() {
         this.baseURL = window.config?.api?.baseURL || 'http://localhost:5000/api';
-        this.token = localStorage.getItem('accessToken');
-        this.refreshToken = localStorage.getItem('refreshToken');
+        this.token = this.normalizeToken(localStorage.getItem('accessToken'));
+        this.refreshToken = this.normalizeToken(localStorage.getItem('refreshToken'));
+        if (!this.token) localStorage.removeItem('accessToken');
+        if (!this.refreshToken) localStorage.removeItem('refreshToken');
         this.tokenRefreshInterval = null;
         this.setupTokenRefresh();
+    }
+
+    normalizeToken(token) {
+        if (typeof token !== 'string') return null;
+
+        const normalized = token.trim();
+        if (
+            !normalized ||
+            normalized === 'undefined' ||
+            normalized === 'null' ||
+            normalized === '[object Object]'
+        ) {
+            return null;
+        }
+
+        return normalized;
+    }
+
+    isValidToken(token) {
+        return !!this.normalizeToken(token);
     }
 
     // Set base URL
@@ -20,8 +42,9 @@ class ApiClient {
             'Accept': 'application/json'
         };
 
-        if (this.token) {
-            headers['Authorization'] = `Bearer ${this.token}`;
+        const token = this.normalizeToken(this.token);
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
         }
 
         return headers;
@@ -279,12 +302,21 @@ class ApiClient {
             });
 
             if (response.ok) {
-                const data = await response.json();
-                this.token = data.accessToken;
-                this.refreshToken = data.refreshToken || this.refreshToken; // Keep refresh token if not provided
-                localStorage.setItem('accessToken', data.accessToken);
-                if (data.refreshToken) {
-                    localStorage.setItem('refreshToken', data.refreshToken);
+                const responseData = await response.json();
+                const data = responseData?.data?.data || responseData?.data || responseData;
+                const accessToken = this.normalizeToken(data?.accessToken || data?.AccessToken);
+                const refreshToken = this.normalizeToken(data?.refreshToken || data?.RefreshToken);
+
+                if (!accessToken) {
+                    this.clearTokens();
+                    return false;
+                }
+
+                this.token = accessToken;
+                this.refreshToken = refreshToken || this.refreshToken; // Keep refresh token if not provided
+                localStorage.setItem('accessToken', accessToken);
+                if (refreshToken) {
+                    localStorage.setItem('refreshToken', refreshToken);
                 }
                 // Restart token refresh check with new token
                 this.setupTokenRefresh();
@@ -344,7 +376,8 @@ class ApiClient {
         const headers = {};
 
         if (this.token) {
-            headers['Authorization'] = `Bearer ${this.token}`;
+            const token = this.normalizeToken(this.token);
+            if (token) headers['Authorization'] = `Bearer ${token}`;
         }
 
         try {
@@ -490,20 +523,28 @@ class ApiClient {
 
     // Set token
     setToken(token, refreshToken = null) {
-        this.token = token;
-        localStorage.setItem('accessToken', token);
+        const normalizedToken = this.normalizeToken(token);
+        const normalizedRefreshToken = this.normalizeToken(refreshToken);
 
-        if (refreshToken) {
-            this.refreshToken = refreshToken;
-            localStorage.setItem('refreshToken', refreshToken);
+        if (!normalizedToken) {
+            this.clearTokens();
+            return;
+        }
+
+        this.token = normalizedToken;
+        localStorage.setItem('accessToken', normalizedToken);
+
+        if (normalizedRefreshToken) {
+            this.refreshToken = normalizedRefreshToken;
+            localStorage.setItem('refreshToken', normalizedRefreshToken);
         }
 
         // Try to cache minimal user info from JWT
         try {
-            const user = this.parseJwt(token);
+            const user = this.parseJwt(normalizedToken);
             if (user) {
                 const userData = {
-                    id: user.userId || user.sub || user.nameid || user.id || null,
+                    id: user.userId || user.nameid || user.nameidentifier || user['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || user.id || user.sub || null,
                     email: user.email || user.unique_name || null,
                     firstName: user.given_name || user.firstName || null,
                     lastName: user.family_name || user.lastName || null,
@@ -547,7 +588,7 @@ class ApiClient {
 
     // Check if user is authenticated
     isAuthenticated() {
-        return !!this.token;
+        return this.isValidToken(this.token);
     }
 
     // Get cached current user (decoded from token or from storage)
@@ -562,7 +603,7 @@ class ApiClient {
                 const user = this.parseJwt(this.token);
                 if (user) {
                     const userData = {
-                        id: user.userId || user.sub || user.nameid || user.id || null,
+                        id: user.userId || user.nameid || user.nameidentifier || user['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || user.id || user.sub || null,
                         email: user.email || user.unique_name || null,
                         firstName: user.given_name || user.firstName || null,
                         lastName: user.family_name || user.lastName || null,
