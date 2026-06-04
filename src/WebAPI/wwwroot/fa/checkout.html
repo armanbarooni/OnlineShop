@@ -66,7 +66,7 @@
             </ol>
 
             <!-- alert -->
-            <div class="flex drop-shadow-sm border border-gray-200 space-x-3 items-center p-6 mb-4 text-sm text-yellow-800 rounded-lg bg-orange-50 dark:bg-gray-800 dark:text-white"
+            <div class="hidden drop-shadow-sm border border-gray-200 space-x-3 items-center p-6 mb-4 text-sm text-yellow-800 rounded-lg bg-orange-50 dark:bg-gray-800 dark:text-white"
                 role="alert">
                 <svg class="shrink-0 block size-8 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor" viewBox="0 0 20 20">
@@ -99,7 +99,7 @@
                             <div class="border-b border-gray-200 pb-4 mb-4">
                                 <div class="flex justify-between items-center mb-2">
                                     <h2 class=" text-gray-700 dark:text-white">آدرس تحویل سفارش</h2>
-                                    <button
+                                    <button type="button" id="change-address-btn"
                                         class="text-primary-600 dark:text-white hover:text-primary-800 dark:hover:text-white text-sm flex items-center">
                                         تغییر آدرس
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -109,16 +109,15 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <p class="text-gray-600 dark:text-white flex flex-col space-y-3 mt-3 text-sm">
-                                    <span>تهران، خیابان انقلاب پلاک ۱۲، واحد ۳</span>
-                                    <span>کد پستی: ۱۲۳۴۵۶۷۸۹۰</span>
+                                <p id="checkout-address-details" class="text-gray-600 dark:text-white flex flex-col space-y-3 mt-3 text-sm">
+                                    <span>در حال دریافت آدرس پیش‌فرض...</span>
                                 </p>
                             </div>
 
                             <div>
                                 <h2 class=" text-gray-700 mb-2 dark:text-white">اطلاعات کاربر</h2>
-                                <p class="text-gray-600 text-sm dark:text-white">
-                                    محمد رضایی - ۰۹۱۲۳۴۵۶۷۸۹
+                                <p id="checkout-recipient-info" class="text-gray-600 text-sm dark:text-white">
+                                    در حال دریافت اطلاعات گیرنده...
                                 </p>
                             </div>
                         </div>
@@ -128,52 +127,22 @@
                             class="dark:bg-gray-800 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4">
                             <h2
                                 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg">
-                                روش ارسال را انتخاب کنید</h2>
+                                روش ارسال</h2>
 
                             <div class="space-y-4">
                                 <div
                                     class="border border-gray-200 rounded-lg p-4 hover:border-primary-500 transition-all">
                                     <div class="flex justify-between items-center">
                                         <div>
-                                            <h3 class="font-medium text-gray-700 dark:text-white">ارسال عادی</h3>
-                                            <p class="text-sm text-gray-500 mt-1 dark:text-white">تحویل درب منزل یا محل
-                                                کار</p>
+                                            <h3 class="font-medium text-gray-700 dark:text-white">ارسال با تیپاکس</h3>
+                                            <p class="text-sm text-gray-500 mt-1 dark:text-white">همه سفارش‌ها با تیپاکس ارسال می‌شود.</p>
                                         </div>
                                         <div class="flex items-center">
-                                            <span class="text-green-500 text-sm me-2 dark:text-white">موجود</span>
+                                            <span class="text-green-500 text-sm me-2 dark:text-white">فعال</span>
                                             <input type="radio" name="delivery" checked=""
                                                 class="h-5 dark:text-white w-5 text-primary-600 delivery-method"
-                                                data-type="normal">
+                                                data-type="tipax">
                                         </div>
-                                    </div>
-                                    <div class="mt-3 pt-3 border-t border-gray-100">
-                                        <p class="text-sm text-gray-600 dark:text-white">هزینه ارسال: <span
-                                                class="delivery-cost">۳۵,۰۰۰</span> ریال</p>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="border border-gray-200 rounded-lg p-4 hover:border-primary-500 transition-all">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <h3 class="font-medium text-gray-700 dark:text-white">دریافت حضوری</h3>
-                                            <p class="text-sm text-gray-500 mt-1 dark:text-white">مراجعه به مراکز منتخب
-                                            </p>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <span class="text-green-500 text-sm me-2 dark:text-white">موجود</span>
-                                            <input type="radio" name="delivery"
-                                                class="h-5 w-5 text-primary-600 delivery-method" data-type="pickup">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-3 border-t border-gray-100 pickup-location"
-                                        style="display: none;">
-                                        <select
-                                            class="w-full focus:border-primary outline-0 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-primary-500">
-                                            <option>مرکز خرید ملت - شعبه مرکزی</option>
-                                            <option>مرکز خرید ایران مال - طبقه دوم</option>
-                                            <option>مرکز خرید کوروش - واحد ۱۲۳</option>
-                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -187,26 +156,7 @@
                                 محصولات قابل ارسال</h2>
 
                             <div id="checkout-cart-items" class="space-y-4">
-                                <div class="flex items-center border-b border-gray-100 pb-4">
-                                    <img src="assets/images/product/product-11.jpeg" alt="محصول"
-                                        class="w-16 h-16 object-cover rounded-md">
-                                    <div class="ms-3 flex-1">
-                                        <h3 class="font-medium text-gray-700 dark:text-white">کفش ورزشی نایک مدل Air Max
-                                        </h3>
-                                        <p class="text-sm text-gray-500 dark:text-white">رنگ: مشکی - سایز: ۴۱</p>
-                                    </div>
-                                    <span class="text-green-500 text-sm ">موجود</span>
-                                </div>
-
-                                <div class="flex items-center">
-                                    <img src="assets/images/product/wach-4.png" alt="محصول"
-                                        class="w-16 h-16 object-cover rounded-md">
-                                    <div class="ms-3 flex-1">
-                                        <h3 class="font-medium text-gray-700 dark:text-white">تیشرت مردانه آدیداس</h3>
-                                        <p class="text-sm text-gray-500 dark:text-white">رنگ: سفید - سایز: L</p>
-                                    </div>
-                                    <span class="text-green-500 text-sm">موجود</span>
-                                </div>
+                                <p class="text-sm text-gray-500 dark:text-white">در حال دریافت سبد خرید...</p>
                             </div>
                         </div>
 
@@ -215,33 +165,11 @@
                             class="dark:bg-gray-800 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4">
                             <h2
                                 class="font-bold text-lg mb-4 relative pb-4 before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg">
-                                زمان تحویل را انتخاب کنید</h2>
+                                ارسال سفارش</h2>
 
-                            <div class="mb-6">
-                                <div class="flex overflow-x-auto pb-2 space-x-2" id="day-selector">
-                                    <!-- Days are filled with JavaScript -->
-                                </div>
-                            </div>
-
-                            <h3 class="font-medium text-gray-700 mb-3 dark:text-white">بازه زمانی تحویل</h3>
-                            <div class="grid grid-cols-2 gap-3" id="time-slots">
-                                <!-- Time intervals are filled with JavaScript -->
-                            </div>
-                        </div>
-
-                        <!-- Cost summary and continue button -->
-                        <div
-                            class="dark:bg-gray-800 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4">
-                            <div class="flex justify-between items-center mb-4">
-                                <span class="text-gray-600 dark:text-white">هزینه ارسال:</span>
-                                <span id="checkout-delivery-cost"
-                                    class="font-medium delivery-cost-summary dark:text-white">35,000 ریال</span>
-                            </div>
-                            <div class="flex justify-between items-center mb-4">
-                                <span class="text-gray-600 dark:text-white">زمان تحویل:</span>
-                                <span class="font-medium delivery-time-summary dark:text-white">فردا - جمعه ۹ صبح تا ۱۲
-                                    ظهر</span>
-                            </div>
+                            <p class="text-gray-600 dark:text-white text-sm leading-7">
+                                همه سفارش‌ها با تیپاکس ارسال می‌شود.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -718,6 +646,33 @@
     </div>
     <!-- ================= end discount modal ================= -->
 
+    <!-- ================= start address modal ================= -->
+    <div id="addressSelectionModal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog"
+        aria-modal="true" aria-labelledby="addressSelectionModalTitle">
+        <div class="min-h-screen px-4 py-8 flex items-center justify-center">
+            <button type="button" id="address-modal-backdrop"
+                class="fixed inset-0 bg-black/60 cursor-default" aria-label="بستن انتخاب آدرس"></button>
+            <div
+                class="relative w-full max-w-2xl bg-white dark:bg-gray-800 dark:text-white rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 id="addressSelectionModalTitle" class="text-lg font-bold">انتخاب آدرس تحویل</h3>
+                    <button type="button" id="address-modal-close"
+                        class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
+                        aria-label="بستن">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="checkout-address-list" class="p-4 space-y-3">
+                    <p class="text-sm text-gray-500 dark:text-gray-300">در حال دریافت آدرس‌ها...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ================= end address modal ================= -->
+
 
     <!-- ================= start responsive menu offcanvas ================= -->
     <div id="offcanvas-right"
@@ -857,123 +812,18 @@
 
     
     <script src="assets/js/components/layout-loader.js"></script>
-<script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
+    <script src="config.js"></script>
+    <script src="assets/js/utils/logger.js"></script>
+    <script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
     <script src="assets/js/dependencies/swiper-script.js"></script>
     <script src="assets/js/dependencies/app.js"></script>
+    <script src="assets/js/api-client.js"></script>
+    <script src="assets/js/auth-service.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/services/cart-service.js"></script>
+    <script src="assets/js/services/address-service.js"></script>
 
-    <!-- shipping -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Sample data for days and time periods
-            const days = [
-                { id: 1, name: 'امروز', dayName: 'پنجشنبه', date: '۱۴۰۲/۰۵/۲۰', available: true },
-                { id: 2, name: 'فردا', dayName: 'جمعه', date: '۱۴۰۲/۰۵/۲۱', available: true },
-                { id: 3, name: 'شنبه', date: '۱۴۰۲/۰۵/۲۲', available: true },
-                { id: 4, name: 'یکشنبه', date: '۱۴۰۲/۰۵/۲۳', available: true },
-                { id: 5, name: 'دوشنبه', date: '۱۴۰۲/۰۵/۲۴', available: true },
-                { id: 6, name: 'سه‌شنبه', date: '۱۴۰۲/۰۵/۲۵', available: false }
-            ];
-
-            const timeSlots = [
-                { id: 1, name: '۹ صبح تا ۱۲ ظهر', cost: 'معمولی', available: true },
-                { id: 2, name: '۱۲ ظهر تا ۴ بعدازظهر', cost: 'معمولی', available: true },
-                { id: 3, name: '۴ بعدازظهر تا ۸ شب', cost: 'معمولی', available: true },
-                { id: 4, name: '۸ شب تا ۱۲ شب', cost: '+۱۰٪', available: true }
-            ];
-
-            // پر کردن لیست روزها
-            const daySelector = document.getElementById('day-selector');
-            days.forEach(day => {
-                const dayElement = document.createElement('button');
-                dayElement.className = `flex-shrink-0 px-4 py-2 rounded-lg font-medium day-option ${day.available ? 'border border-gray-300 hover:bg-gray-50' : 'border border-gray-200 text-gray-400 cursor-not-allowed'}`;
-                if (day.id === 1) {
-                    dayElement.classList.add('bg-primary-100', 'text-primary-700');
-                }
-                dayElement.textContent = `${day.name}${day.dayName ? ' - ' + day.dayName : ''}`;
-                dayElement.dataset.dayId = day.id;
-                dayElement.dataset.dayName = `${day.name}${day.dayName ? ' - ' + day.dayName : ''}`;
-                dayElement.disabled = !day.available;
-
-                dayElement.addEventListener('click', function () {
-                    document.querySelectorAll('.day-option').forEach(opt => {
-                        opt.classList.remove('bg-primary-100', 'text-primary-700');
-                        opt.classList.add('border-gray-300', 'hover:bg-gray-50');
-                    });
-                    this.classList.add('bg-primary-100', 'text-primary-700');
-                    this.classList.remove('border-gray-300', 'hover:bg-gray-50');
-                    updateDeliverySummary();
-                });
-
-                daySelector.appendChild(dayElement);
-            });
-
-            // پر کردن بازه‌های زمانی
-            const timeSlotsContainer = document.getElementById('time-slots');
-            timeSlots.forEach(slot => {
-                const slotElement = document.createElement('button');
-                slotElement.className = `py-3 px-4 border rounded-lg time-slot ${slot.available ? 'border-gray-300 hover:border-primary-500 hover:bg-primary-50' : 'border-gray-200 text-gray-400 cursor-not-allowed'}`;
-                if (slot.id === 3) {
-                    slotElement.classList.add('border-primary-500', 'bg-primary-50');
-                }
-
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'block font-medium';
-                nameSpan.textContent = slot.name;
-
-                const costSpan = document.createElement('span');
-                costSpan.className = 'block text-sm mt-1';
-                costSpan.textContent = `هزینه ${slot.cost}`;
-
-                slotElement.appendChild(nameSpan);
-                slotElement.appendChild(costSpan);
-                slotElement.dataset.slotId = slot.id;
-                slotElement.dataset.slotName = slot.name;
-                slotElement.disabled = !slot.available;
-
-                slotElement.addEventListener('click', function () {
-                    document.querySelectorAll('.time-slot').forEach(slt => {
-                        slt.classList.remove('border-primary-500', 'bg-primary-50', 'text-primary-700');
-                        slt.classList.add('border-gray-300', 'hover:border-primary-500', 'hover:bg-primary-50');
-                    });
-                    this.classList.add('border-primary-500', 'bg-primary-50');
-                    this.classList.remove('border-gray-300', 'hover:border-primary-500', 'hover:bg-primary-50');
-                    updateDeliverySummary();
-                });
-
-                timeSlotsContainer.appendChild(slotElement);
-            });
-
-            // تغییر روش ارسال
-            document.querySelectorAll('.delivery-method').forEach(method => {
-                method.addEventListener('change', function () {
-                    if (this.dataset.type === 'pickup') {
-                        document.querySelector('.pickup-location').style.display = 'block';
-                        document.querySelector('.delivery-cost').textContent = 'رایگان';
-                        document.querySelector('.delivery-cost-summary').textContent = 'رایگان';
-                    } else {
-                        document.querySelector('.pickup-location').style.display = 'none';
-                        document.querySelector('.delivery-cost').textContent = '۳۵,۰۰۰';
-                        document.querySelector('.delivery-cost-summary').textContent = '۳۵,۰۰۰ ریال';
-                    }
-                    updateDeliverySummary();
-                });
-            });
-
-            // به‌روزرسانی خلاصه سفارش
-            function updateDeliverySummary() {
-                const selectedDay = document.querySelector('.day-option.bg-primary-100');
-                const selectedTime = document.querySelector('.time-slot.border-primary-500');
-
-                if (selectedDay && selectedTime) {
-                    const dayName = selectedDay.dataset.dayName;
-                    const timeName = selectedTime.dataset.slotName;
-                    document.querySelector('.delivery-time-summary').textContent = `${dayName} ${timeName}`;
-                }
-            }
-        });
-    </script>
-
-    <script type="module" src="assets/js/modules/checkout-page.js"></script>
+    <script src="assets/js/modules/checkout-page.js?v=20260604-1"></script>
     <script src="assets/js/components/cart-badge.js"></script>
 </body>
 
