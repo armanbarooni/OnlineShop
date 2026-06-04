@@ -81,9 +81,7 @@ namespace OnlineShop.WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Result<UserAddressDto>>> UpdateAddress(Guid id, [FromBody] UpdateUserAddressDto address)
         {
-            if (id != address.Id)
-                return BadRequest("ID mismatch");
-
+            address.Id = id;   
             var result = await _mediator.Send(new UpdateUserAddressCommand { UserAddress = address });
             if (!result.IsSuccess)
                 return BadRequest(result);
