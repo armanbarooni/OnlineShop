@@ -177,11 +177,16 @@
                   <div class="relative flex items-center w-full">
                     <input
                       type="search"
+                      id="shop-filter-search-input"
                       class="w-full appearance-none dark:text-white rounded-3xl border border-gray-300 py-3 ps-12 px-3"
                       placeholder="اسم محصول را وارد کنید ...."
+                      autocomplete="off"
                     />
                     <button
+                      type="button"
+                      id="shop-filter-search-button"
                       class="bg-primary-grad p-2 text-white rounded-3xl absolute start-1"
+                      aria-label="جستجوی محصول"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -302,36 +307,7 @@
                   >
                     سایز ها
                   </h2>
-                  <div class="space-y-3" id="product-sizes-container">
-                    <div
-                      class="relative space-x-2 flex-wrap flex items-center w-full"
-                    >
-                      <label
-                        class="inline-flex items-center space-x-3 cursor-pointer"
-                      >
-                        <input type="checkbox" class="hidden peer" checked />
-                        <div
-                          class="w-5 h-5 border rounded bg-white border-gray-400 peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center transition-all shadow-sm"
-                        >
-                          <svg
-                            class="w-4 h-4 text-white peer-checked:block"
-                            fill="currentColor"
-                            viewBox="0 0 16 16"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              fill-rule="evenodd"
-                              d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-4 4.5a.75.75 0 0 1-1.08.02l-2-2a.75.75 0 0 1 1.08-1.04l1.47 1.47 3.46-3.98z"
-                            ></path>
-                          </svg>
-                        </div>
-                        <span class="me-2 text-gray-700 dark:text-white"
-                          >سامسونگ</span
-                        >
-                      </label>
-                    </div>
-                 
-                  </div>
+                  <div class="space-y-3" id="product-sizes-container"></div>
                 </div>
               </section>
             </section>
