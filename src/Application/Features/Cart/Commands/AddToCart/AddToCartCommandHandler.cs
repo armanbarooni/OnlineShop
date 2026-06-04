@@ -11,15 +11,18 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
     public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result<CartDto>>
     {
         private readonly ICartRepository _cartRepository;
+        private readonly ICartItemRepository _cartItemRepository;
         private readonly IProductRepository _productRepository;
         private readonly ILogger<AddToCartCommandHandler> _logger;
 
         public AddToCartCommandHandler(
             ICartRepository cartRepository,
+            ICartItemRepository cartItemRepository,
             IProductRepository productRepository,
             ILogger<AddToCartCommandHandler> logger)
         {
             _cartRepository = cartRepository;
+            _cartItemRepository = cartItemRepository;
             _productRepository = productRepository;
             _logger = logger;
         }
@@ -79,67 +82,59 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
 
             const int maxRetries = 3;
 
-            for (var attempt = 1; attempt <= maxRetries; attempt++)
+
+            try
             {
-                try
+                var cart = await _cartRepository.GetActiveCartByUserIdAsync(request.UserId, cancellationToken);
+                if (cart == null)
                 {
-                    var cart = await _cartRepository.GetActiveCartByUserIdAsync(request.UserId, cancellationToken);
-                    if (cart == null)
+                    cart = OnlineShop.Domain.Entities.Cart.Create(request.UserId, Guid.NewGuid().ToString());
+                    await _cartRepository.AddAsync(cart, cancellationToken);
+                }
+
+                var existingItem = cart.CartItems.FirstOrDefault(i =>
+                    i.ProductId == request.Item.ProductId &&
+                    i.VariantId == request.Item.VariantId);
+
+                if (existingItem != null)
+                {
+                    var newQuantity = existingItem.Quantity + request.Item.Quantity;
+                    if (newQuantity > availableStock)
                     {
-                        cart = OnlineShop.Domain.Entities.Cart.Create(request.UserId, Guid.NewGuid().ToString());
-                        await _cartRepository.AddAsync(cart, cancellationToken);
+                        // Item already in cart at max available quantity - return current cart state
+                        var currentCartDto = MapToDto(cart, product);
+                        currentCartDto.Message = $"این محصول قبلاً به سبد خرید اضافه شده است. حداکثر موجودی: {availableStock}";
+                        return Result<CartDto>.Success(currentCartDto);
                     }
 
-                    var existingItem = cart.CartItems.FirstOrDefault(i =>
-                        i.ProductId == request.Item.ProductId &&
-                        i.VariantId == request.Item.VariantId);
-
-                    if (existingItem != null)
-                    {
-                        var newQuantity = existingItem.Quantity + request.Item.Quantity;
-                        if (newQuantity > availableStock)
-                        {
-                            return Result<CartDto>.Failure($"Insufficient stock. Max allowed: {availableStock}");
-                        }
-
-                        existingItem.UpdateQuantity(newQuantity);
-                    }
-                    else
-                    {
-                        var cartItem = CartItem.Create(
-                            cart.Id,
-                            request.Item.ProductId,
-                            request.Item.VariantId,
-                            request.Item.Quantity,
-                            product.Price,
-                            product.Price * request.Item.Quantity);
-
-                        cart.AddItem(cartItem);
-                    }
-
-                    await _cartRepository.UpdateAsync(cart, cancellationToken);
-
-                    var cartDto = MapToDto(cart, product);
-
-                    _logger.LogInformation("Successfully added product to cart. Cart now has {ItemCount} items",
-                        cart.CartItems.Count);
-
-                    return Result<CartDto>.Success(cartDto);
+                    existingItem.UpdateQuantity(newQuantity);
+                    await _cartItemRepository.UpdateAsync(existingItem, cancellationToken);
                 }
-                catch (DbUpdateConcurrencyException ex) when (attempt < maxRetries)
+                else
                 {
-                    _logger.LogWarning(ex,
-                        "Concurrency conflict while adding product {ProductId} (attempt {Attempt}/{MaxAttempts})",
-                        request.Item.ProductId, attempt, maxRetries);
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    _logger.LogWarning(ex,
-                        "Failed to add product {ProductId} to cart after {MaxAttempts} attempts due to concurrency",
-                        request.Item.ProductId, maxRetries);
+                    var cartItem = CartItem.Create(
+                        cart.Id,
+                        request.Item.ProductId,
+                        request.Item.VariantId,
+                        request.Item.Quantity,
+                        product.Price,
+                        product.Price * request.Item.Quantity);
 
-                    return Result<CartDto>.Failure("Cart was changed concurrently. Please retry.");
+                    await _cartItemRepository.AddAsync(cartItem, cancellationToken);
+                    cart.AddItem(cartItem); // Just for mapping the DTO properly in memory
                 }
+
+                // No _cartRepository.UpdateAsync(cart) anymore! 
+
+                var cartDto = MapToDto(cart, product);
+
+                _logger.LogInformation("Successfully added product to cart. Cart now has {ItemCount} items",
+                    cart.CartItems.Count);
+
+                return Result<CartDto>.Success(cartDto);
+            }
+            catch (Exception ex)  {
+                _logger.LogError(ex, "Error while adding product {ProductId} to cart", request.Item.ProductId);
             }
 
             return Result<CartDto>.Failure("Failed to add item to cart");

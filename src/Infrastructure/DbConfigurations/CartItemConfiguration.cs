@@ -39,7 +39,7 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             // Base Entity Properties
             builder.Property(ci => ci.MahakId);
             builder.Property(ci => ci.MahakClientId);
-            builder.Property(ci => ci.RowVersion).IsConcurrencyToken();
+            builder.Property(ci => ci.RowVersion); // No concurrency token - using last-write-wins strategy
             builder.Property(ci => ci.Deleted).HasDefaultValue(false);
             builder.Property(ci => ci.CreatedAt).IsRequired();
             builder.Property(ci => ci.UpdatedAt);
