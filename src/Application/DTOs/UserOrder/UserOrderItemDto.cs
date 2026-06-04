@@ -13,6 +13,8 @@ namespace OnlineShop.Application.DTOs.UserOrder
         public decimal TotalPrice { get; set; }
         public decimal? DiscountAmount { get; set; }
         public string? Notes { get; set; }
+        public string? Color { get; set; }
+        public string? Size { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

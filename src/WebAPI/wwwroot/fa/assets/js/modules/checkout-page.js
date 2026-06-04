@@ -338,11 +338,11 @@
                     shippingAddressId: state.selectedAddress.id
                 });
 
-                if (!checkoutResult.isSuccess || !checkoutResult.data?.order?.id) {
-                    throw new Error(checkoutResult.errorMessage || "خطا در ثبت سفارش");
+                if (!checkoutResult.success || !checkoutResult.data?.isSuccess || !checkoutResult.data?.data?.order?.id) {
+                    throw new Error(checkoutResult.data?.errorMessage || "خطا در ثبت سفارش");
                 }
 
-                const orderId = checkoutResult.data.order.id;
+                const orderId = checkoutResult.data.data.order.id;
 
                 // Step 2: Initiate Payment via API using OrderId
                 const paymentResult = await window.apiClient.post('/Payment/initiate', {
@@ -350,14 +350,14 @@
                     gateway: "ZarinPal"
                 });
 
-                if (paymentResult.isSuccess && paymentResult.data?.paymentUrl) {
+                if (paymentResult.success && paymentResult.data?.isSuccess && paymentResult.data?.data?.paymentUrl) {
                     // Update cart count UI proactively before redirect
                     if (window.cartService && typeof window.cartService.updateCartCount === "function") {
                         await window.cartService.updateCartCount();
                     }
-                    window.location.href = paymentResult.data.paymentUrl;
+                    window.location.href = paymentResult.data.data.paymentUrl;
                 } else {
-                    throw new Error(paymentResult.errorMessage || "خطا در اتصال به درگاه پرداخت");
+                    throw new Error(paymentResult.data?.errorMessage || "خطا در اتصال به درگاه پرداخت");
                 }
             } catch (error) {
                 window.logger?.error("Checkout/Payment error:", error);
