@@ -238,18 +238,35 @@ const megaMenuFireTarget = document.getElementById('mega-menu-fire-target');
 
 // Check if elements exist to avoid errors
 if (megaMenuFire && megaMenuFireTarget) {
+    const megaMenuFireButton = megaMenuFire.querySelector('[aria-controls="mega-menu-fire-target"]');
+    const showMegaMenu = () => {
+        megaMenuFireTarget.classList.add('block');
+        megaMenuFireTarget.classList.remove('hidden');
+        megaMenuFireButton?.setAttribute('aria-expanded', 'true');
+    };
+
+    const hideMegaMenu = () => {
+        megaMenuFireTarget.classList.add('hidden');
+        megaMenuFireTarget.classList.remove('block');
+        megaMenuFireButton?.setAttribute('aria-expanded', 'false');
+    };
+
     // Show the menu when the mouse enters the trigger element
     megaMenuFire.addEventListener('mouseover', () => {
-        megaMenuFireTarget.classList.add('block');  // Make the menu visible
-        megaMenuFireTarget.classList.remove('hidden'); // Remove the hidden class
+        showMegaMenu();
+    });
+
+    megaMenuFire.addEventListener('click', (event) => {
+        if (megaMenuFireTarget.contains(event.target)) return;
+        event.preventDefault();
+        showMegaMenu();
     });
 
     // Hide the menu when the mouse leaves both the trigger and the menu
     document.addEventListener('mousemove', (event) => {
         // Check if the mouse is outside both elements
         if (!megaMenuFire.contains(event.target) && !megaMenuFireTarget.contains(event.target)) {
-            megaMenuFireTarget.classList.add('hidden'); // Hide the menu
-            megaMenuFireTarget.classList.remove('block'); // Ensure it is fully hidden
+            hideMegaMenu();
         }
     });
 }
