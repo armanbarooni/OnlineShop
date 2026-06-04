@@ -71,7 +71,9 @@ namespace OnlineShop.Application.Mapping
                 .ForMember(d => d.LastModifiedAt, opt => opt.Ignore())
                 .ForMember(d => d.LastModifiedBy, opt => opt.Ignore());
             
-            CreateMap<UserOrderItem, UserOrderItemDto>();
+            CreateMap<UserOrderItem, UserOrderItemDto>()
+                .ForMember(d => d.Color, opt => opt.MapFrom(s => s.ProductVariant != null ? s.ProductVariant.Color : string.Empty))
+                .ForMember(d => d.Size, opt => opt.MapFrom(s => s.ProductVariant != null ? s.ProductVariant.Size : string.Empty));
         }
     }
 }

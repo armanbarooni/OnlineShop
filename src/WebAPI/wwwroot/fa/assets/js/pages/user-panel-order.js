@@ -172,7 +172,8 @@ const OrderManager = {
               </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-              ${this.canTrack(status) ? `<button onclick="OrderManager.trackOrder('${order.id}')" class="text-blue-600 hover:text-blue-800 ml-2">رهگیری</button>` : "-"}
+              <button onclick="OrderManager.showDetails('${order.id}')" class="text-primary hover:text-primary-dark ml-3 font-medium">جزئیات</button>
+              ${this.canTrack(status) ? `<button onclick="OrderManager.trackOrder('${order.id}')" class="text-blue-600 hover:text-blue-800 ml-2 font-medium">رهگیری</button>` : ""}
             </td>
           </tr>
         `;
@@ -291,21 +292,91 @@ const OrderManager = {
     if (contentEl) contentEl.innerHTML = '<div class="text-center py-8">در حال بارگذاری جزئیات...</div>';
 
     try {
-      const result = await window.orderService.getOrderById(orderId);
-      if (result.success && result.data) {
-        this.renderDetails(result.data);
+      const [orderResult, itemsResult] = await Promise.all([
+        window.orderService.getOrderById(orderId),
+        window.orderService.getOrderItems(orderId)
+      ]);
+
+      let orderData = null;
+      if (orderResult.success && orderResult.data) {
+        orderData = orderResult.data.data || orderResult.data;
+      }
+
+      let itemsData = [];
+      if (itemsResult.success && itemsResult.data) {
+        itemsData = itemsResult.data.data || itemsResult.data;
+        if (!Array.isArray(itemsData)) {
+          itemsData = [];
+        }
+      }
+
+      if (orderData) {
+        this.renderDetails(orderData, itemsData);
       } else if (contentEl) {
         contentEl.innerHTML = '<div class="text-red-500 text-center py-8">خطا در دریافت جزئیات سفارش</div>';
       }
     } catch (error) {
-      console.error(error);
-      if (contentEl) contentEl.innerHTML = '<div class="text-red-500 text-center py-8">خطا در ارتباط</div>';
+      console.error("Error loading order details:", error);
+      if (contentEl) contentEl.innerHTML = '<div class="text-red-500 text-center py-8">خطا در ارتباط با سرور</div>';
     }
   },
 
-  renderDetails: function (order) {
+  renderDetails: function (order, items) {
     const contentEl = document.getElementById("order-details-content");
     if (!contentEl) return;
+
+    let itemsHtml = '';
+    if (items && items.length > 0) {
+      itemsHtml = `
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h4 class="font-bold text-base mb-4 dark:text-white">اقلام سفارش</h4>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">نام محصول</th>
+                  <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">رنگ</th>
+                  <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">سایز</th>
+                  <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">تعداد</th>
+                  <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">قیمت واحد</th>
+                  <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">قیمت کل</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-card-dark divide-y divide-gray-200 dark:divide-gray-700">
+                ${items.map(item => `
+                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                      ${item.productName || item.productSku || "-"}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      ${item.color || "نامشخص"}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      ${item.size || "نامشخص"}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      ${item.quantity || 1}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      ${this.formatMoney(item.unitPrice || item.price || 0)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-bold">
+                      ${this.formatMoney(item.totalPrice || ((item.unitPrice || item.price || 0) * (item.quantity || 1)))}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    } else {
+      itemsHtml = `
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">هیچ کالا یا قلمی برای این سفارش ثبت نشده است.</p>
+        </div>
+      `;
+    }
 
     contentEl.innerHTML = `
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -328,6 +399,8 @@ const OrderManager = {
           <p class="font-bold text-lg text-primary">${this.formatMoney(order.finalAmount ?? order.totalAmount ?? 0)}</p>
         </div>
       </div>
+      
+      ${itemsHtml}
     `;
   },
 
