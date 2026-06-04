@@ -25,6 +25,7 @@ namespace OnlineShop.Application.DTOs.Cart
         public decimal ShippingCost { get; set; }
         public decimal TotalAmount { get; set; }
         public int TotalItems { get; set; }
+        public string? Message { get; set; }  // Optional user-facing message (e.g. "already at max stock")
     }
     
     public class CartItemDto

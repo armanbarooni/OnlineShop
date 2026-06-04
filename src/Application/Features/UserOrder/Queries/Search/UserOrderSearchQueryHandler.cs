@@ -29,10 +29,10 @@ namespace OnlineShop.Application.Features.UserOrder.Queries.Search
             // Apply filters
             var query = allOrders.AsQueryable();
 
-            // Filter by user ID
+            // Filter by user ID and exclude Pending orders for users
             if (criteria.UserId.HasValue)
             {
-                query = query.Where(o => o.UserId == criteria.UserId.Value);
+                query = query.Where(o => o.UserId == criteria.UserId.Value && o.OrderStatus != "Pending");
             }
 
             // Filter by order status

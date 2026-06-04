@@ -268,6 +268,25 @@ namespace OnlineShop.WebAPI.Controllers
             _logger.LogWarning("Failed to remove coupon for user: {UserId}. Error: {Error}", userGuid, result.ErrorMessage);
             return BadRequest(result);
         }
+        [AllowAnonymous]
+        [HttpGet("reset-locks")]
+        public async Task<IActionResult> ResetLocks([FromServices] OnlineShop.Infrastructure.Persistence.ApplicationDbContext dbContext)
+        {
+            try
+            {
+                var items = dbContext.ProductInventories.ToList();
+                foreach (var item in items)
+                {
+                    item.ReleaseReservedQuantity(item.ReservedQuantity);
+                }
+                await dbContext.SaveChangesAsync();
+                return Ok("All inventory locks have been cleared successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error clearing locks: " + ex.Message);
+            }
+        }
     }
 }
 

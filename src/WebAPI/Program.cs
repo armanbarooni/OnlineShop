@@ -152,6 +152,9 @@ if (backgroundSyncEnabled)
 {
     builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.MahakSyncWorker>();
     builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.MahakOutgoingSyncWorker>();
+    
+    // Register Order lock timeout worker
+    builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.OrderLockTimeoutWorker>();
 }
 
 builder.Services.AddHostedService<OnlineShop.WebAPI.Workers.KeepAliveWorker>();

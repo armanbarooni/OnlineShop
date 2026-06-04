@@ -25,6 +25,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.UserOrderItems
                 .AsNoTracking()
+                .Include(uoi => uoi.ProductVariant)
                 .Where(uoi => uoi.OrderId == orderId)
                 .ToListAsync(cancellationToken);
         }

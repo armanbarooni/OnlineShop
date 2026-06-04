@@ -1,0 +1,223 @@
+﻿<!-- ================= start responsive menu offcanvas ================= -->
+    <div
+      id="offcanvas-right"
+      class="offcanvas invisible overflow-y-scroll fixed top-0 start-0 sm:w-100 w-[80%] h-full bg-white dark:bg-zinc-900 shadow-lg transform -translate-x-full transition-transform opacity-0 z-50"
+      role="navigation"
+      aria-labelledby="store-menu-title"
+    >
+      <div
+        class="border-b p-3 flex items-center justify-between border-gray-400"
+      >
+        <h2 id="store-menu-title" class="font-bold text-base dark:text-white">
+          فروشگاه بالیگا
+        </h2>
+        <button
+          onclick="closeOffcanvas()"
+          class="cursor-pointer"
+          aria-label="بستن منوی فروشگاه"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-8 dark:text-white"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18 18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <nav
+        class="relative space-y-4 divide-y divide-gray-200 p-3 overflow-y-scroll h-full"
+        style="padding-left: 0 !important"
+        aria-label="منوی اصلی"
+      >
+        <ul class="space-y-2 text-sm">
+          <li
+            class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2"
+            itemscope
+            itemtype="http://schema.org/SiteNavigationElement"
+          >
+            <a href="/" class="block" itemprop="url">صفحه اصلی</a>
+          </li>
+          <li
+            class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2"
+            itemscope
+            itemtype="http://schema.org/SiteNavigationElement"
+          >
+            <button
+              class="flex justify-between w-full text-start"
+              aria-expanded="false"
+              aria-controls="menu1"
+              id="menu1-button"
+              onclick="toggleDropdown('menu1')"
+            >
+              <span itemprop="name">گوشی موبایل</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 transition-transform transform"
+                id="icon-menu1"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+            <ul
+              id="menu1"
+              class="hidden bg-gray-200 dark:bg-zinc-900 dark:text-white"
+              aria-labelledby="menu1-button"
+            >
+              <li
+                class="border-b border-gray-300"
+                itemscope
+                itemtype="http://schema.org/SiteNavigationElement"
+              >
+                <button
+                  class="flex justify-between w-full px-6 py-2 text-start"
+                  aria-expanded="false"
+                  aria-controls="submenu1"
+                  id="submenu1-button"
+                  onclick="toggleDropdown('submenu1')"
+                >
+                  <span itemprop="name">برند</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 transition-transform transform"
+                    id="icon-submenu1"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </button>
+                <ul
+                  id="submenu1"
+                  class="hidden bg-gray-100 dark:bg-zinc-500 dark:text-gray-200"
+                  aria-labelledby="submenu1-button"
+                  itemscope
+                  itemtype="http://schema.org/Brand"
+                >
+                  <li
+                    class="px-8 py-2 border-b border-gray-200"
+                    itemprop="name"
+                  >
+                    سامسونگ
+                  </li>
+                  <li
+                    class="px-8 py-2 border-b border-gray-200"
+                    itemprop="name"
+                  >
+                    اپل
+                  </li>
+                  <li
+                    class="px-8 py-2 border-b border-gray-200"
+                    itemprop="name"
+                  >
+                    شیائومی
+                  </li>
+                  <li
+                    class="px-8 py-2 border-b border-gray-200"
+                    itemprop="name"
+                  >
+                    هواوی
+                  </li>
+                  <li
+                    class="px-8 py-2 border-b border-gray-200"
+                    itemprop="name"
+                  >
+                    نوکیا
+                  </li>
+                  <li
+                    class="px-8 py-2 border-b border-gray-200"
+                    itemprop="name"
+                  >
+                    ال جی
+                  </li>
+                  <li
+                    class="px-8 py-2 border-b border-gray-200"
+                    itemprop="name"
+                  >
+                    سونی
+                  </li>
+                  <li
+                    class="px-8 py-2 border-b border-gray-200"
+                    itemprop="name"
+                  >
+                    گوگل
+                  </li>
+                  <li
+                    class="px-8 py-2 border-b border-gray-200"
+                    itemprop="name"
+                  >
+                    وان پلاس
+                  </li>
+                  <li
+                    class="px-8 py-2 border-b border-gray-200"
+                    itemprop="name"
+                  >
+                    موتورولا
+                  </li>
+                </ul>
+              </li>
+              <li
+                class="px-6 py-2 border-b border-gray-200"
+                itemscope
+                itemtype="http://schema.org/ProductCategory"
+              >
+                <a href="/category/flagship" class="block" itemprop="name"
+                  >پرچمدار</a
+                >
+              </li>
+              <li
+                class="px-6 py-2 border-b border-gray-200"
+                itemscope
+                itemtype="http://schema.org/ProductCategory"
+              >
+                <a href="/category/mid-range" class="block" itemprop="name"
+                  >میان رده</a
+                >
+              </li>
+              <li
+                class="px-6 py-2 border-b border-gray-200"
+                itemscope
+                itemtype="http://schema.org/ProductCategory"
+              >
+                <a href="/category/budget" class="block" itemprop="name"
+                  >اقتصادی</a
+                >
+              </li>
+            </ul>
+          </li>
+          <li
+            class="bg-ul-f7 border border-gray-100 dark:bg-zinc-800 dark:text-white p-2"
+            itemscope
+            itemtype="http://schema.org/SiteNavigationElement"
+          >
+            <a href="/pages" class="block" itemprop="url">صفحات</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div
+      class="overlay z-40 transition fixed inset-0 bg-black/70 hidden"
+      onclick="closeOffcanvas()"
+      role="presentation"
+      aria-hidden="true"
+    ></div>
+    <!-- ================= end responsive menu offcanvas ================= -->

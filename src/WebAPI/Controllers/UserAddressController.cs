@@ -81,9 +81,7 @@ namespace OnlineShop.WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Result<UserAddressDto>>> UpdateAddress(Guid id, [FromBody] UpdateUserAddressDto address)
         {
-            if (id != address.Id)
-                return BadRequest("ID mismatch");
-
+            address.Id = id;   
             var result = await _mediator.Send(new UpdateUserAddressCommand { UserAddress = address });
             if (!result.IsSuccess)
                 return BadRequest(result);
@@ -114,7 +112,16 @@ namespace OnlineShop.WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteAddress(Guid id)
         {
-            var result = await _mediator.Send(new DeleteUserAddressCommand { Id = id });
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null || !Guid.TryParse(userId, out var userGuid))
+                return Unauthorized("User not authenticated");
+
+            var result = await _mediator.Send(new DeleteUserAddressCommand
+            {
+                Id = id,
+                UserId = User.IsInRole("Admin") ? (Guid?)null : userGuid
+            });
+
             if (!result.IsSuccess)
                 return NotFound(result);
 

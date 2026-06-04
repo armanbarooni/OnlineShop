@@ -9,12 +9,12 @@ namespace OnlineShop.Application.Mapping
         public UserOrderProfile()
         {
             CreateMap<UserOrder, UserOrderDto>()
-                .ForMember(d => d.ShippingCost, opt => opt.Ignore())
-                .ForMember(d => d.FinalAmount, opt => opt.Ignore())
-                .ForMember(d => d.PaymentStatus, opt => opt.Ignore())
-                .ForMember(d => d.OrderDate, opt => opt.Ignore())
-                .ForMember(d => d.ShippedDate, opt => opt.Ignore())
-                .ForMember(d => d.DeliveredDate, opt => opt.Ignore());
+                .ForMember(d => d.ShippingCost, opt => opt.MapFrom(s => s.ShippingAmount))
+                .ForMember(d => d.FinalAmount, opt => opt.MapFrom(s => s.TotalAmount))
+                .ForMember(d => d.PaymentStatus, opt => opt.MapFrom(s => s.OrderStatus))
+                .ForMember(d => d.OrderDate, opt => opt.MapFrom(s => s.CreatedAt))
+                .ForMember(d => d.ShippedDate, opt => opt.MapFrom(s => s.ShippedAt))
+                .ForMember(d => d.DeliveredDate, opt => opt.MapFrom(s => s.DeliveredAt));
             
             CreateMap<CreateUserOrderDto, UserOrder>()
                 .ForMember(d => d.Id, opt => opt.Ignore())
@@ -71,7 +71,9 @@ namespace OnlineShop.Application.Mapping
                 .ForMember(d => d.LastModifiedAt, opt => opt.Ignore())
                 .ForMember(d => d.LastModifiedBy, opt => opt.Ignore());
             
-            CreateMap<UserOrderItem, UserOrderItemDto>();
+            CreateMap<UserOrderItem, UserOrderItemDto>()
+                .ForMember(d => d.Color, opt => opt.MapFrom(s => s.ProductVariant != null ? s.ProductVariant.Color : string.Empty))
+                .ForMember(d => d.Size, opt => opt.MapFrom(s => s.ProductVariant != null ? s.ProductVariant.Size : string.Empty));
         }
     }
 }

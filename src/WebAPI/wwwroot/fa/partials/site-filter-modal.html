@@ -1,0 +1,144 @@
+﻿<!-- ================= start filter modal ================= -->
+    <div
+      id="filterModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="filterModalTitle"
+      data-modal-id="filterModal"
+      class="modal hidden fixed inset-0 z-50 overflow-auto backdrop-blur bg-opacity-50"
+    >
+      <div
+        class="relative p-4 w-full max-w-md m-auto flex items-center min-h-screen"
+      >
+        <div
+          class="relative dark:bg-gray-800 border-gray-300 border bg-white rounded-lg shadow-lg w-full"
+          itemscope
+          itemtype="http://schema.org/Place"
+        >
+          <!-- Header -->
+          <div
+            class="flex justify-between items-center p-4 dark:border-b-white border-b"
+          >
+            <h3
+              id="filterModalTitle"
+              class="text-xl dark:text-white"
+              itemprop="name"
+            >
+              فیلتر بر اساس شهر
+            </h3>
+            <button
+              data-modal-close
+              class="text-gray-500 hover:text-gray-700 cursor-pointer text-3xl"
+              aria-label="بستن پنجره فیلتر"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6 dark:text-white"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18 18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <!-- Content -->
+          <div class="p-4">
+            <!-- Cities Data -->
+            <meta
+              itemprop="address"
+              content="تهران,مشهد,اصفهان,تبریز,شیراز,اهواز,قم,کرج,کرمانشاه,ارومیه,زاهدان,رشت,همدان,یزد,اردبیل,بندرعباس,کیش,ساری,گرگان,بجنورد"
+            />
+            <div
+              id="citySelector"
+              data-cities="تهران,مشهد,اصفهان,تبریز,شیراز,اهواز,قم,کرج,کرمانشاه,ارومیه,زاهدان,رشت,همدان,یزد,اردبیل,بندرعباس,کیش,ساری,گرگان,بجنورد"
+            ></div>
+            <!-- Search Form -->
+            <form id="searchForm" class="mb-2" role="search">
+              <label
+                for="search"
+                class="mb-2 block text-sm font-medium dark:text-white text-gray-900"
+              >
+                جستجوی شهر
+              </label>
+              <div class="relative">
+                <div
+                  class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
+                >
+                  <svg
+                    class="w-4 h-4 text-gray-500"
+                    aria-hidden="true"
+                    focusable="false"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="search"
+                  id="search"
+                  class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary focus:border-primary dark:bg-zinc-900 dark:text-white"
+                  placeholder="نام شهر را وارد کنید"
+                  aria-describedby="searchDescription"
+                  required
+                />
+              </div>
+              <p id="searchDescription" class="sr-only">
+                برای جستجو در بین شهرهای موجود تایپ کنید
+              </p>
+            </form>
+            <!-- Selected Cities -->
+            <div
+              id="selectedCities"
+              class="flex my-3 flex-wrap gap-2"
+              role="status"
+              aria-live="polite"
+            ></div>
+            <!-- Cities List -->
+            <ul
+              id="cityList"
+              class="w-full h-80 overflow-y-auto text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              role="listbox"
+              aria-labelledby="filterModalTitle"
+            >
+              <template id="cityTemplate">
+                <li
+                  role="option"
+                  class="p-3 border-b cursor-pointer hover:bg-gray-100"
+                  tabindex="0"
+                  itemprop="containsPlace"
+                  itemscope
+                  itemtype="http://schema.org/City"
+                >
+                  <span itemprop="name"></span>
+                </li>
+              </template>
+            </ul>
+            <!-- Filter Button -->
+            <div class="mt-4">
+              <button
+                id="filterButton"
+                class="w-full px-4 py-3 cursor-pointer bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors"
+                aria-label="اعمال فیلتر بر اساس شهرهای انتخاب شده"
+              >
+                فیلتر کن
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ================= end filter modal ================= -->

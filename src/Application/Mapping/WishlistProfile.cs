@@ -9,9 +9,16 @@ namespace OnlineShop.Application.Mapping
         public WishlistProfile()
         {
             CreateMap<Wishlist, WishlistDto>()
-                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
-                .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => src.Product.ProductImages.FirstOrDefault(pi => pi.IsPrimary) != null ? src.Product.ProductImages.FirstOrDefault(pi => pi.IsPrimary)!.ImageUrl : ""))
-                .ForMember(dest => dest.ProductPrice, opt => opt.MapFrom(src => src.Product.GetCurrentPrice()))
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
+                .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src =>
+                    src.Product != null
+                        ? (src.Product.ProductImages
+                            .OrderByDescending(pi => pi.IsPrimary)
+                            .Select(pi => pi.ImageUrl)
+                            .FirstOrDefault() ?? string.Empty)
+                        : string.Empty))
+                .ForMember(dest => dest.ProductPrice, opt => opt.MapFrom(src => src.Product != null ? src.Product.GetCurrentPrice() : 0))
+                .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes ?? string.Empty))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt));
 

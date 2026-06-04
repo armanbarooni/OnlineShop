@@ -161,15 +161,6 @@ function setupAddToCartButton(product) {
   if (!addToCartBtn) return;
 
   addToCartBtn.onclick = async function() {
-    // Check authentication
-    if (!window.apiClient || !window.apiClient.isAuthenticated()) {
-      showToast("لطفاً ابتدا وارد حساب کاربری خود شوید", "warning");
-      setTimeout(() => {
-        window.location.href = "/login.html?redirect=" + encodeURIComponent(window.location.href);
-      }, 1500);
-      return;
-    }
-
     // Get selected variant
     const colorSelect = document.getElementById("product-color-select");
     const sizeSelect = document.getElementById("product-size-select");
@@ -195,6 +186,10 @@ function setupAddToCartButton(product) {
 
     // Find the matching variant ID from product data
     let variantId = resolveVariantId(product, selectedColor, selectedSize);
+    if ((needColor || needSize) && !variantId) {
+      showToast("ترکیب رنگ و سایز انتخاب‌شده معتبر نیست", "warning");
+      return;
+    }
 
     // Build request body
     const requestBody = {
@@ -209,10 +204,20 @@ function setupAddToCartButton(product) {
     addToCartBtn.textContent = "در حال افزودن...";
 
     try {
-      const response = await window.apiClient.post("/cart/add", requestBody);
+      const response = await window.cartService.addToCart(
+        requestBody.productId,
+        requestBody.quantity,
+        requestBody.variantId === "00000000-0000-0000-0000-000000000000" ? null : requestBody.variantId,
+        null,
+        product
+      );
 
       if (response && response.success) {
-        showToast("محصول با موفقیت به سبد خرید اضافه شد", "success");
+        if (response.alreadyAtMaxStock) {
+          showToast(response.message || "این رنگ و سایز قبلا در سبد خرید شماست و موجودی بیشتری ندارد", "warning");
+        } else {
+          showToast("محصول با موفقیت به سبد خرید اضافه شد", "success");
+        }
 
         // Update cart count in header if available
         updateCartBadge(response.data);
@@ -250,26 +255,28 @@ function resolveVariantId(product, selectedColor, selectedSize) {
   // Search in variants (they usually have IDs)
   for (const v of variantRows) {
     const attrs = extractVariantAttributes(v, product);
-    const colorMatch = !selectedColor || attrs.color === selectedColor;
-    const sizeMatch = !selectedSize || attrs.size === selectedSize;
-    if (colorMatch && sizeMatch && v.id) {
-      return v.id;
+    const colorMatch = !selectedColor || valuesMatch(attrs.color, selectedColor);
+    const sizeMatch = !selectedSize || valuesMatch(attrs.size, selectedSize);
+    const variantId = getEntityId(v);
+    if (colorMatch && sizeMatch && variantId) {
+      return variantId;
     }
   }
 
   // Search in details
   for (const d of detailRows) {
     const attrs = extractVariantAttributes(d, product);
-    const colorMatch = !selectedColor || attrs.color === selectedColor;
-    const sizeMatch = !selectedSize || attrs.size === selectedSize;
-    if (colorMatch && sizeMatch && d.id) {
-      return d.id;
+    const colorMatch = !selectedColor || valuesMatch(attrs.color, selectedColor);
+    const sizeMatch = !selectedSize || valuesMatch(attrs.size, selectedSize);
+    const variantId = getEntityId(d);
+    if (colorMatch && sizeMatch && variantId) {
+      return variantId;
     }
   }
 
   // If only one variant exists, use it
-  if (variantRows.length === 1 && variantRows[0].id) {
-    return variantRows[0].id;
+  if (variantRows.length === 1) {
+    return getEntityId(variantRows[0]);
   }
 
   return null;
@@ -459,6 +466,18 @@ function stringOrEmpty(value) {
   return value === null || value === undefined ? "" : String(value).trim();
 }
 
+function getEntityId(value) {
+  if (!value || typeof value !== "object") return null;
+
+  const rawId = value.id ?? value.Id ?? value.variantId ?? value.VariantId;
+  const normalizedId = stringOrEmpty(rawId);
+  return normalizedId || null;
+}
+
+function valuesMatch(left, right) {
+  return stringOrEmpty(left).toLowerCase() === stringOrEmpty(right).toLowerCase();
+}
+
 function extractVariantAttributes(row, product) {
   let color =
     stringOrEmpty(row.color) ||
@@ -604,6 +623,8 @@ function buildSizeVariants(product) {
     ...toArray(product.details),
     ...toArray(product.variants),
     ...toArray(product.Variants),
+    ...toArray(product.productVariants),
+    ...toArray(product.ProductVariants),
   ];
   const sourceRows = rows.length > 0 ? rows : [product];
 
@@ -663,7 +684,7 @@ function updateStockBySelectedVariant() {
 
   if ((needColor && !selectedColor) || (needSize && !selectedSize)) {
     if (statusEl) statusEl.classList.add("hidden");
-    toggleAddToCartByStock(false);
+    toggleAddToCartByStock(true);
     return;
   }
 

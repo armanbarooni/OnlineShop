@@ -8,6 +8,19 @@ class AuthService {
         this.apiClient = window.apiClient;
     }
 
+    extractAuthData(response) {
+        const payload = response?.data?.data || response?.data || response;
+        if (!payload || typeof payload !== 'object') return payload;
+
+        return {
+            ...payload,
+            accessToken: payload.accessToken || payload.AccessToken,
+            refreshToken: payload.refreshToken || payload.RefreshToken,
+            email: payload.email || payload.Email,
+            roles: payload.roles || payload.Roles || []
+        };
+    }
+
     /**
      * Extract friendly error message from error object, filtering out generic HTTP error messages
      */
@@ -78,7 +91,7 @@ class AuthService {
             });
 
             // Handle response structure - now API client returns data directly for auth endpoints
-            let authData = response;
+            let authData = this.extractAuthData(response);
 
             // Validate that we received tokens
             if (!authData || !authData.accessToken) {
@@ -196,7 +209,14 @@ class AuthService {
             });
 
             // Handle response structure - now API client returns data directly for auth endpoints
-            let authData = response;
+            let authData = this.extractAuthData(response);
+
+            if (!authData || !authData.accessToken) {
+                return {
+                    success: false,
+                    error: 'خطا در دریافت اطلاعات احراز هویت'
+                };
+            }
 
             // Store tokens
             this.apiClient.setTokens(authData.accessToken, authData.refreshToken);
@@ -258,7 +278,7 @@ class AuthService {
             });
 
             // Handle response structure - now API client returns data directly for auth endpoints
-            let authData = response;
+            let authData = this.extractAuthData(response);
 
             // Validate that we received tokens - if not, response might be an error
             if (!authData || !authData.accessToken) {
@@ -359,7 +379,7 @@ class AuthService {
             });
 
             // Handle response structure
-            let authData = response;
+            let authData = this.extractAuthData(response);
 
             // Validate that we received tokens
             if (!authData || !authData.accessToken) {

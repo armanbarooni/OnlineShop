@@ -107,7 +107,6 @@ namespace OnlineShop.Domain.Entities
         public void AddItem(CartItem item)
         {
             CartItems.Add(item);
-            UpdatedAt = DateTime.UtcNow;
         }
     }
 }

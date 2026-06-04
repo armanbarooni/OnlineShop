@@ -33,7 +33,6 @@ class AuthGuard {
             'user-panel-blank.html',
             'user-panel-discous.html',
             'user-panel-get-discount.html',
-            'cart.html',
             'checkout.html',
             'payment.html'
         ];
@@ -123,22 +122,37 @@ class AuthGuard {
      */
     redirectToLogin() {
         // Store intended destination
-        const currentUrl = window.location.href;
+        const currentUrl = window.location.pathname.split('/').pop() + window.location.search + window.location.hash;
         localStorage.setItem('intendedUrl', currentUrl);
 
-        window.location.href = 'login.html';
+        window.location.href = `login.html?returnUrl=${encodeURIComponent(currentUrl)}`;
     }
 
     /**
      * Redirect to dashboard
      */
     redirectToDashboard() {
-        const intendedUrl = localStorage.getItem('intendedUrl');
-        if (intendedUrl && intendedUrl !== window.location.href) {
+        const params = new URLSearchParams(window.location.search);
+        const intendedUrl = params.get('returnUrl') || params.get('redirect') || localStorage.getItem('intendedUrl');
+        if (intendedUrl && this.isSafeRedirectUrl(intendedUrl)) {
             localStorage.removeItem('intendedUrl');
             window.location.href = intendedUrl;
         } else {
-            window.location.href = 'user-panel-index.html';
+            window.location.href = 'index.html';
+        }
+    }
+
+    isSafeRedirectUrl(url) {
+        if (!url || typeof url !== 'string') return false;
+
+        try {
+            const target = new URL(url, window.location.href);
+            if (target.origin !== window.location.origin) return false;
+
+            const pageName = target.pathname.split('/').pop() || 'index.html';
+            return !this.isLoginPage(pageName);
+        } catch (error) {
+            return false;
         }
     }
 

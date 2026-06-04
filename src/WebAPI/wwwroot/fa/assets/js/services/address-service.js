@@ -8,28 +8,51 @@ class AddressService {
         this.apiClient = window.apiClient;
     }
 
+    unwrapResponseData(response) {
+        const payload = response?.data ?? response;
+        return payload?.data ?? payload;
+    }
+
+    getCurrentUserId() {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const tokenUserId =
+                    payload.nameid ||
+                    payload.nameidentifier ||
+                    payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
+                if (tokenUserId) {
+                    return tokenUserId;
+                }
+            }
+
+            const cachedUser = this.apiClient?.getCurrentUser?.();
+            return cachedUser?.id || null;
+        } catch (error) {
+            window.logger?.error('Error extracting user id from token:', error);
+            return null;
+        }
+    }
+
     /**
      * Get user addresses
      */
     async getAddresses() {
         try {
-            // Get current user ID from token
-            const token = localStorage.getItem('accessToken');
-            if (!token) {
+            const userId = this.getCurrentUserId();
+            if (!userId) {
                 return {
                     success: false,
                     error: 'User not authenticated'
                 };
             }
 
-            // Decode token to get user ID
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const userId = payload.sub || payload.nameid;
-
             const response = await this.apiClient.get(`/useraddress/user/${userId}`);
             return {
                 success: true,
-                data: response.data || response
+                data: this.unwrapResponseData(response)
             };
         } catch (error) {
             window.logger.error('Error fetching addresses:', error);
@@ -48,7 +71,7 @@ class AddressService {
             const response = await this.apiClient.get(`/useraddress/${addressId}`);
             return {
                 success: true,
-                data: response.data || response
+                data: this.unwrapResponseData(response)
             };
         } catch (error) {
             window.logger.error('Error fetching address:', error);
@@ -67,7 +90,7 @@ class AddressService {
             const response = await this.apiClient.post('/useraddress', addressData);
             return {
                 success: true,
-                data: response.data || response,
+                data: this.unwrapResponseData(response),
                 message: 'آدرس با موفقیت اضافه شد'
             };
         } catch (error) {
@@ -87,7 +110,7 @@ class AddressService {
             const response = await this.apiClient.put(`/useraddress/${addressId}`, addressData);
             return {
                 success: true,
-                data: response.data || response,
+                data: this.unwrapResponseData(response),
                 message: 'آدرس با موفقیت به‌روزرسانی شد'
             };
         } catch (error) {
@@ -145,7 +168,7 @@ class AddressService {
             const response = await this.apiClient.get('/useraddress/default');
             return {
                 success: true,
-                data: response.data || response
+                data: this.unwrapResponseData(response)
             };
         } catch (error) {
             window.logger.error('Error fetching default address:', error);
@@ -185,11 +208,11 @@ class AddressService {
         if (!addressData.postalCode || addressData.postalCode.trim().length === 0) {
             errors.postalCode = 'کد پستی الزامی است';
         } else if (!/^\d{10}$/.test(addressData.postalCode)) {
-            errors.postalCode = 'ع©ط¯ ظ¾ط³طھغŒ ط¨ط§غŒط¯ غ±غ° ط±ظ‚ظ… ط¨ط§ط´ط¯';
+            errors.postalCode = 'کد پستی باید ۱۰ رقم باشد';
         }
 
         if (addressData.phoneNumber && !window.utils.isValidPhone(addressData.phoneNumber)) {
-            errors.phoneNumber = 'شماره تلفن معتبر است';
+            errors.phoneNumber = 'شماره تلفن معتبر نیست';
         }
 
         return {
@@ -211,11 +234,11 @@ class AddressService {
             addressLine,
             address.city,
             address.state,
-            `ع©ط¯ ظ¾ط³طھغŒ: ${address.postalCode}`
+            `کد پستی: ${address.postalCode}`
         ];
         
         if (address.phoneNumber) {
-            parts.push(`طھظ„ظپظ†: ${address.phoneNumber}`);
+            parts.push(`تلفن: ${address.phoneNumber}`);
         }
         
         return parts.filter(part => part && part.trim().length > 0).join(' - ');
@@ -226,9 +249,9 @@ class AddressService {
      */
     getAddressTypeLabel(type) {
         const typeMap = {
-            'Home': 'ظ…ظ†ط²ظ„',
-            'Work': 'ظ…ط­ظ„ ع©ط§ط±',
-            'Other': 'ط³ط§غŒط±'
+            'Home': 'منزل',
+            'Work': 'محل کار',
+            'Other': 'سایر'
         };
         
         return typeMap[type] || type;
@@ -262,7 +285,7 @@ class AddressService {
             const response = await this.apiClient.get(`/useraddress/search?q=${encodeURIComponent(query)}`);
             return {
                 success: true,
-                data: response.data || response
+                data: this.unwrapResponseData(response)
             };
         } catch (error) {
             window.logger.error('Error searching addresses:', error);
@@ -281,7 +304,7 @@ class AddressService {
             const response = await this.apiClient.get('/useraddress/statistics');
             return {
                 success: true,
-                data: response.data || response
+                data: this.unwrapResponseData(response)
             };
         } catch (error) {
             window.logger.error('Error fetching address statistics:', error);
@@ -305,7 +328,7 @@ class AddressService {
             const address = addressResponse.data;
             const duplicatedAddress = {
                 ...address,
-                title: `${address.title} (ع©ظ¾غŒ)`,
+                title: `${address.title} (کپی)`,
                 isDefault: false
             };
 

@@ -53,17 +53,28 @@ class OrderService {
      * @param {string} status - Order status
      * @returns {string} HTML badge
      */
-    getStatusBadge(status) {
+    getStatusBadge(order) {
+        const status = typeof order === 'string' ? order : (order.status || order.orderStatus || 'Pending');
         const statusMap = {
             'Pending': { text: 'در انتظار', class: 'bg-yellow-100 text-yellow-800' },
             'Processing': { text: 'در حال پردازش', class: 'bg-blue-100 text-blue-800' },
             'Shipped': { text: 'ارسال شده', class: 'bg-purple-100 text-purple-800' },
             'Delivered': { text: 'تحویل داده شده', class: 'bg-green-100 text-green-800' },
             'Cancelled': { text: 'لغو شده', class: 'bg-red-100 text-red-800' },
-            'Returned': { text: 'مرجوع شده', class: 'bg-gray-100 text-gray-800' }
+            'Returned': { text: 'مرجوع شده', class: 'bg-gray-100 text-gray-800' },
+            'Confirmed': { text: 'در انتظار تایید', class: 'bg-blue-100 text-blue-800' }
         };
 
-        const statusInfo = statusMap[status] || { text: status, class: 'bg-gray-100 text-gray-800' };
+        let statusInfo = statusMap[status] || { text: status, class: 'bg-gray-100 text-gray-800' };
+
+        if (status === 'Confirmed' && typeof order !== 'string') {
+            if (order.syncedToMahak) {
+                statusInfo = { text: 'تایید', class: 'bg-green-100 text-green-800' };
+            } else {
+                statusInfo = { text: 'در انتظار تایید', class: 'bg-blue-100 text-blue-800' };
+            }
+        }
+
         return `<span class="px-3 py-1 rounded-full text-sm ${statusInfo.class}">${statusInfo.text}</span>`;
     }
 
@@ -135,7 +146,7 @@ class OrderService {
                             <h3 class="font-bold text-lg">سفارش ${orderNumber}</h3>
                             <p class="text-sm text-gray-600 dark:text-gray-400">${orderDate}</p>
                         </div>
-                        ${this.getStatusBadge(status)}
+                        ${this.getStatusBadge(order)}
                     </div>
                     <div class="flex items-center justify-between">
                         <div>
@@ -185,7 +196,7 @@ class OrderService {
                         <h2 class="text-2xl font-bold mb-2">سفارش ${orderNumber}</h2>
                         <p class="text-gray-600 dark:text-gray-400">${orderDate}</p>
                     </div>
-                    ${this.getStatusBadge(status)}
+                    ${this.getStatusBadge(order)}
                 </div>
                 
                 <div class="grid md:grid-cols-2 gap-6 mb-6">
