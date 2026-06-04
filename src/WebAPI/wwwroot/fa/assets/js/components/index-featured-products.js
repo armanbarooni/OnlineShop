@@ -3,6 +3,9 @@
 
   const CONTAINER_ID = "featuredProducts";
   const MAHAK_CONTENT_BASE_URL = "https://mahakacc.mahaksoft.com";
+  const DEPENDENCY_RETRY_DELAY_MS = 100;
+  const DEPENDENCY_MAX_ATTEMPTS = 50;
+  let hasLoadedProducts = false;
 
   function isDevelopmentHost() {
     const hostname = window.location?.hostname?.toLowerCase() || "";
@@ -299,9 +302,42 @@
     initializeCarousel();
   }
 
+  function delay(ms) {
+    return new Promise(function (resolve) {
+      window.setTimeout(resolve, ms);
+    });
+  }
+
+  function hasProductDependencies() {
+    return !!(
+      window.apiClient &&
+      window.productService &&
+      typeof window.productService.getNewProducts === "function"
+    );
+  }
+
+  async function waitForProductDependencies() {
+    for (let attempt = 0; attempt < DEPENDENCY_MAX_ATTEMPTS; attempt += 1) {
+      if (hasProductDependencies()) return true;
+      await delay(DEPENDENCY_RETRY_DELAY_MS);
+    }
+
+    return false;
+  }
+
   async function loadFeaturedProducts() {
     const container = findContainer();
     if (!container) return;
+
+    if (hasLoadedProducts) return;
+
+    const dependenciesReady = await waitForProductDependencies();
+    if (!dependenciesReady) {
+      renderState("Ø³Ø±ÙˆÛŒØ³ Ù…Ø­ØµÙˆÙ„Ø§Øª Ø¯Ø± Ø¯Ø³ØªØ±Ø³ Ù†ÛŒØ³Øª");
+      return;
+    }
+
+    hasLoadedProducts = true;
 
     if (!window.productService || !window.apiClient) {
       renderState("سرویس محصولات در دسترس نیست");
@@ -309,7 +345,7 @@
     }
 
     try {
-      const result = await window.productService.getFeaturedProducts(8);
+      const result = await window.productService.getNewProducts(8);
       const products = extractProducts(result);
       if (products.length > 0) {
         renderProducts(products);
@@ -317,7 +353,7 @@
       }
 
       const fallback = await window.apiClient.get(
-        "/Product/search?sortBy=Sales&sortDescending=true&pageNumber=1&pageSize=8",
+        "/Product/search?sortBy=CreatedAt&sortDescending=true&pageNumber=1&pageSize=8",
       );
       const fallbackProducts = extractProducts(fallback);
       if (fallbackProducts.length > 0) {
