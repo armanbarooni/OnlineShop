@@ -75,7 +75,7 @@ namespace OnlineShop.WebAPI.Controllers
             {
                 _logger.LogWarning("Payment cancelled or failed by user. Authority: {Authority}", Authority);
 
-                return Redirect($"{frontendResultUrl}?status=failed&authority={Authority}&message=پرداخت+لغو+شد");
+                return Redirect($"{frontendResultUrl}?status=failed&authority={Authority}&message={Uri.EscapeDataString("پرداخت لغو شد")}");
             }
 
             // Verify payment with ZarinPal
@@ -97,7 +97,7 @@ namespace OnlineShop.WebAPI.Controllers
                     Authority, result.Data.RefId);
 
                 return Redirect(
-                    $"{frontendResultUrl}?status=success&refId={result.Data.RefId}&orderId={result.Data.OrderId}&message=پرداخت+موفق");
+                    $"{frontendResultUrl}?status=success&refId={result.Data.RefId}&orderId={result.Data.OrderId}&message={Uri.EscapeDataString("پرداخت موفق")}");
             }
             else
             {

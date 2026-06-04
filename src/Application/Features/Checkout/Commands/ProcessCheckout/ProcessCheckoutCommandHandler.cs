@@ -107,45 +107,11 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
             {
                 return Result<CheckoutResultDto>.Failure(ex.Message);
             }
-
-            // 5. Validate and apply coupon if provided
-            decimal discountAmount = request.Request.DiscountAmount;
-            Guid? appliedCouponId = null;
-            
-            if (!string.IsNullOrEmpty(request.Request.CouponCode))
-            {
-                var coupon = await _couponRepository.GetByCodeAsync(request.Request.CouponCode, cancellationToken);
-                if (coupon == null)
-                    return Result<CheckoutResultDto>.Failure("کد کوپن نامعتبر است");
-
-                // Validate coupon
-                if (!coupon.IsActive)
-                    return Result<CheckoutResultDto>.Failure("کوپن غیرفعال است");
-
-                if (coupon.EndDate < DateTime.UtcNow)
-                    return Result<CheckoutResultDto>.Failure("کوپن منقضی شده است");
-
-                if (coupon.UsageLimit > 0)
-                {
-                    var usageCount = await _userCouponUsageRepository.GetUsageCountByUserAsync(request.UserId, coupon.Id, cancellationToken);
-                    if (usageCount >= coupon.UsageLimit)
-                        return Result<CheckoutResultDto>.Failure("حد مجاز استفاده از این کوپن تمام شده است");
-                }
-
-                if (coupon.MinimumPurchase > 0 && subtotal < coupon.MinimumPurchase)
-                    return Result<CheckoutResultDto>.Failure($"حداقل مبلغ سفارش برای این کوپن {coupon.MinimumPurchase} تومان است");
-
-                // Calculate discount using the entity method
-                discountAmount = coupon.CalculateDiscount(subtotal);
-
-                // Ensure discount doesn't exceed subtotal
-                discountAmount = Math.Min(discountAmount, subtotal);
-                appliedCouponId = coupon.Id;
-            }
-
-            // 6. Calculate totals
-            var taxAmount = subtotal * request.Request.TaxRate;
-            var totalAmount = subtotal + taxAmount + request.Request.ShippingCost - discountAmount;
+            // 5. Simplified logic: No coupons, fixed costs
+            decimal discountAmount = 0m;
+            decimal shippingCost = 0m;
+            decimal taxAmount = 0m; // Set to 0 or desired default
+            decimal totalAmount = subtotal + taxAmount + shippingCost - discountAmount;
 
             // 7. Generate order number
             var orderNumber = await _orderRepository.GenerateOrderNumberAsync(cancellationToken);
@@ -156,7 +122,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 orderNumber,
                 subtotal,
                 taxAmount,
-                request.Request.ShippingCost,
+                shippingCost,
                 discountAmount,
                 totalAmount,
                 "IRR"
@@ -167,19 +133,6 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
             order.SetNotes(request.Request.Notes);
 
             await _orderRepository.AddAsync(order, cancellationToken);
-
-            // 9. Record coupon usage if applied
-            if (appliedCouponId.HasValue)
-            {
-                var couponUsage = Domain.Entities.UserCouponUsage.Create(
-                    request.UserId,
-                    appliedCouponId.Value,
-                    order.Id,
-                    discountAmount,
-                    totalAmount
-                );
-                await _userCouponUsageRepository.AddAsync(couponUsage, cancellationToken);
-            }
 
             // 10. Create order items
             var orderItemSummaries = new List<OrderItemSummaryDto>();
@@ -225,7 +178,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 TotalItems = cartItems.Count(),
                 SubTotal = subtotal,
                 TaxAmount = taxAmount,
-                ShippingAmount = request.Request.ShippingCost,
+                ShippingAmount = (decimal)request.Request.ShippingCost!,
                 DiscountAmount = discountAmount,
                 TotalAmount = totalAmount,
                 Currency = "IRR",

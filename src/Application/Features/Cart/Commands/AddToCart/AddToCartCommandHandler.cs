@@ -94,7 +94,8 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
 
                 var existingItem = cart.CartItems.FirstOrDefault(i =>
                     i.ProductId == request.Item.ProductId &&
-                    i.VariantId == request.Item.VariantId);
+                    i.VariantId == request.Item.VariantId &&
+                    !i.Deleted);
 
                 if (existingItem != null)
                 {

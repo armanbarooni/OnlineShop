@@ -28,8 +28,8 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 // If multiple active carts exist, prefer the one that already has items, then the most recent one.
                 .OrderByDescending(c => c.CartItems.Any())
                 .ThenByDescending(c => c.UpdatedAt ?? c.CreatedAt)
-                .Include(c => c.CartItems).ThenInclude(ci => ci.Product).ThenInclude(p => p.ProductImages)
-                .Include(c => c.CartItems).ThenInclude(ci => ci.ProductVariant)
+                .Include(c => c.CartItems.Where(ci => !ci.Deleted)).ThenInclude(ci => ci.Product).ThenInclude(p => p.ProductImages)
+                .Include(c => c.CartItems.Where(ci => !ci.Deleted)).ThenInclude(ci => ci.ProductVariant)
                 .FirstOrDefaultAsync(cancellationToken);
         }
 

@@ -29,14 +29,18 @@
         return hostname === "localhost" || hostname === "127.0.0.1";
     }
 
-    function proxiedImageUrl(url) {
-        const apiBaseUrl = (window.config?.api?.baseURL || "/api").replace(/\/$/, "");
-        return apiBaseUrl + "/ImageProxy?url=" + encodeURIComponent(url);
-    }
+        // 3. Check if cart is empty
+        const cartResult = await this.cartService.getCartSummary();
+        if (!cartResult.success || !cartResult.data || !cartResult.data.items || cartResult.data.items.length === 0) {
+            window.location.href = 'cart.html';
+            return;
+        }
 
-    function normalizeImageUrl(url) {
-        const raw = String(url || "").trim();
-        if (!raw) return NO_PHOTO;
+        const cartItems = cartResult.data.items;
+        this.subtotal = cartResult.data.subtotal || 0;
+
+        // 4. Render cart items in checkout
+        this.renderCartItems(cartItems);
 
         if (raw.startsWith("http://") || raw.startsWith("https://")) {
             return raw.includes("mahaksoft.com") && isDevelopmentHost()
@@ -83,21 +87,22 @@
         ) || getItemUnitPrice(item);
     }
 
-    function getItemTotal(item) {
-        return Number(item.totalPrice ?? item.TotalPrice) || getItemUnitPrice(item) * getItemQuantity(item);
+        container.innerHTML = items.map(item => `
+            <div class="flex items-center border-b border-gray-100 pb-4 mb-4 last:mb-0 last:pb-0 last:border-0">
+                <img src="${this.cartService.normalizeImageUrl(item.productImage)}" alt="${this.cartService.escapeHtml(item.productName)}" class="w-16 h-16 object-cover rounded-md" onerror="this.src='assets/images/product/nophoto.png'">
+                <div class="ms-3 flex-1">
+                    <h3 class="font-medium text-gray-700 dark:text-white">${this.cartService.escapeHtml(item.productName)}</h3>
+                    <p class="text-sm text-gray-500 dark:text-white">تعداد: ${item.quantity}</p>
+                </div>
+                <span class="text-green-500 text-sm">موجود</span>
+            </div>
+        `).join('');
     }
 
-    function getItemName(item) {
-        return (
-            item.productName ||
-            item.ProductName ||
-            item.name ||
-            item.Name ||
-            item.product?.name ||
-            item.product?.Name ||
-            "محصول"
-        );
-    }
+    renderOrderSummary() {
+        const subtotal = this.subtotal || 0;
+        const discount = 0; // Can be calculated based on discount codes
+        const total = subtotal + this.deliveryCost - discount;
 
     function getItemImage(item) {
         return normalizeImageUrl(
@@ -321,22 +326,28 @@
                 return;
             }
 
-            if (!state.selectedAddress) {
-                window.utils?.showToast?.("انتخاب آدرس تحویل الزامی است", "error");
-                openAddressModal();
-                return;
-            }
+            // Prepare order data
+            const cartResult = await this.cartService.getCartSummary();
+            const orderData = {
+                items: cartResult.success ? cartResult.data.items : [],
+                deliveryMethod: this.selectedDeliveryMethod,
+                deliveryDate: this.selectedDay,
+                deliveryTimeSlot: this.selectedTimeSlot,
+                deliveryCost: this.deliveryCost,
+                subtotal: this.subtotal,
+                total: this.subtotal + this.deliveryCost
+            };
+
+            try {
+                // Here you would normally send the order to the backend
+                // const response = await this.apiClient.post('/order', orderData);
 
             window.utils?.showToast?.("اطلاعات سفارش آماده پرداخت است", "success");
         });
     }
 
-    async function init() {
-        if (!window.authService?.isAuthenticated()) {
-            const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-            window.location.href = `login.html?returnUrl=${returnUrl}`;
-            return;
-        }
+                // Clear cart
+                await this.cartService.clearCart();
 
         bindEvents();
 
