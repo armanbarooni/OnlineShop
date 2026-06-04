@@ -70,15 +70,7 @@ namespace OnlineShop.WebAPI.Controllers
             var frontendResultUrl = _configuration["ZarinPal:FrontendResultUrl"]
                 ?? "https://yoursite.com/payment/result";
 
-            // اگر Status برابر NOK باشد، یعنی تراکنش ناموفق بوده یا کاربر لغو کرده
-            if (!string.Equals(Status, "OK", StringComparison.OrdinalIgnoreCase))
-            {
-                _logger.LogWarning("Payment cancelled or failed by user. Authority: {Authority}", Authority);
-
-                return Redirect($"{frontendResultUrl}?status=failed&authority={Authority}&message={Uri.EscapeDataString("پرداخت لغو شد")}");
-            }
-
-            // Verify payment with ZarinPal
+            // Verify payment with ZarinPal or cancel order if Status != OK
             var command = new VerifyPaymentCommand
             {
                 Request = new VerifyPaymentDto
@@ -90,6 +82,11 @@ namespace OnlineShop.WebAPI.Controllers
 
             var result = await _mediator.Send(command, cancellationToken);
 
+            if (!string.Equals(Status, "OK", StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogWarning("Payment cancelled or failed by user. Authority: {Authority}", Authority);
+                return Redirect($"{frontendResultUrl}?status=failed&authority={Authority}&message={Uri.EscapeDataString("پرداخت لغو شد")}");
+            }
             if (result.IsSuccess && result.Data?.IsSuccess == true)
             {
                 _logger.LogInformation(

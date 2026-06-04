@@ -29,19 +29,15 @@
         return hostname === "localhost" || hostname === "127.0.0.1";
     }
 
-        // 3. Check if cart is empty
-        const cartResult = await this.cartService.getCartSummary();
-        if (!cartResult.success || !cartResult.data || !cartResult.data.items || cartResult.data.items.length === 0) {
-            window.location.href = 'cart.html';
-            return;
-        }
+    function proxiedImageUrl(url) {
+        if (!url) return NO_PHOTO;
+        if (url.startsWith("/")) return `/api/ImageProxy?url=${encodeURIComponent(url)}`;
+        return url;
+    }
 
-        const cartItems = cartResult.data.items;
-        this.subtotal = cartResult.data.subtotal || 0;
-
-        // 4. Render cart items in checkout
-        this.renderCartItems(cartItems);
-
+    function normalizeImageUrl(raw) {
+        if (!raw) return NO_PHOTO;
+        
         if (raw.startsWith("http://") || raw.startsWith("https://")) {
             return raw.includes("mahaksoft.com") && isDevelopmentHost()
                 ? proxiedImageUrl(raw)
@@ -87,22 +83,21 @@
         ) || getItemUnitPrice(item);
     }
 
-        container.innerHTML = items.map(item => `
-            <div class="flex items-center border-b border-gray-100 pb-4 mb-4 last:mb-0 last:pb-0 last:border-0">
-                <img src="${this.cartService.normalizeImageUrl(item.productImage)}" alt="${this.cartService.escapeHtml(item.productName)}" class="w-16 h-16 object-cover rounded-md" onerror="this.src='assets/images/product/nophoto.png'">
-                <div class="ms-3 flex-1">
-                    <h3 class="font-medium text-gray-700 dark:text-white">${this.cartService.escapeHtml(item.productName)}</h3>
-                    <p class="text-sm text-gray-500 dark:text-white">تعداد: ${item.quantity}</p>
-                </div>
-                <span class="text-green-500 text-sm">موجود</span>
-            </div>
-        `).join('');
+    function getItemTotal(item) {
+        return getItemUnitPrice(item) * getItemQuantity(item);
     }
 
-    renderOrderSummary() {
-        const subtotal = this.subtotal || 0;
-        const discount = 0; // Can be calculated based on discount codes
-        const total = subtotal + this.deliveryCost - discount;
+    function getItemName(item) {
+        return (
+            item.productName ||
+            item.ProductName ||
+            item.name ||
+            item.Name ||
+            item.product?.name ||
+            item.product?.Name ||
+            "نامشخص"
+        );
+    }
 
     function getItemImage(item) {
         return normalizeImageUrl(
@@ -164,18 +159,16 @@
 
     function renderSelectedAddress(address) {
         const addressDetails = document.getElementById("checkout-address-details");
-        const recipientInfo = document.getElementById("checkout-recipient-info");
         const changeButton = document.getElementById("change-address-btn");
 
         if (!address) {
             if (addressDetails) {
                 addressDetails.innerHTML = `
-                    <span class="text-red-500">آدرسی برای این کاربر ثبت نشده است.</span>
-                    <a href="user-panel-address.html" class="text-primary font-medium">افزودن آدرس جدید</a>
+                    <span class="text-red-500">لطفا آدرس را وارد کنید</span>
+                    <a href="user-panel-address.html" class="text-primary font-medium mt-2 inline-block">افزودن آدرس جدید</a>
                 `;
             }
-            if (recipientInfo) recipientInfo.textContent = "اطلاعات گیرنده ثبت نشده است";
-            if (changeButton) changeButton.disabled = true;
+            if (changeButton) changeButton.disabled = false;
             return;
         }
 
@@ -188,12 +181,6 @@
                 <span>کد پستی: ${escapeHtml(address.postalCode || "-")}</span>
             `;
         }
-
-        if (recipientInfo) {
-            const fullName = `${address.firstName || ""} ${address.lastName || ""}`.trim() || "-";
-            const phone = address.phoneNumber || "بدون شماره تماس";
-            recipientInfo.textContent = `${fullName} - ${phone}`;
-        }
     }
 
     function renderAddressModal() {
@@ -204,7 +191,7 @@
             container.innerHTML = `
                 <div class="text-center py-8 text-gray-500 dark:text-gray-300">
                     <p>آدرسی برای نمایش وجود ندارد.</p>
-                    <a href="user-panel-address.html" class="inline-block mt-4 px-4 py-2 rounded-lg bg-primary text-white">افزودن آدرس</a>
+                    <a href="user-panel-address.html" class="inline-block mt-4 px-4 py-2 rounded-lg bg-primary text-white">افزودن آدرس جدید</a>
                 </div>
             `;
             return;
@@ -290,6 +277,12 @@
 
         state.cart = result.data || {};
         state.items = result.items || state.cart.items || [];
+        
+        if (!state.items || state.items.length === 0) {
+            window.location.href = 'cart.html';
+            return;
+        }
+        
         renderCartItems();
         renderTotals();
     }
@@ -304,8 +297,10 @@
 
     function bindEvents() {
         document.getElementById("change-address-btn")?.addEventListener("click", openAddressModal);
-        document.getElementById("address-modal-close")?.addEventListener("click", closeAddressModal);
-        document.getElementById("address-modal-backdrop")?.addEventListener("click", closeAddressModal);
+        
+        document.querySelectorAll("[data-modal-close]").forEach(btn => {
+            btn.addEventListener("click", closeAddressModal);
+        });
 
         document.getElementById("checkout-address-list")?.addEventListener("click", event => {
             const button = event.target.closest("[data-checkout-address-id]");
@@ -318,7 +313,7 @@
             closeAddressModal();
         });
 
-        document.getElementById("checkout-submit-btn")?.addEventListener("click", event => {
+        document.getElementById("checkout-submit-btn")?.addEventListener("click", async event => {
             event.preventDefault();
 
             if (!state.items.length) {
@@ -326,35 +321,65 @@
                 return;
             }
 
-            // Prepare order data
-            const cartResult = await this.cartService.getCartSummary();
-            const orderData = {
-                items: cartResult.success ? cartResult.data.items : [],
-                deliveryMethod: this.selectedDeliveryMethod,
-                deliveryDate: this.selectedDay,
-                deliveryTimeSlot: this.selectedTimeSlot,
-                deliveryCost: this.deliveryCost,
-                subtotal: this.subtotal,
-                total: this.subtotal + this.deliveryCost
-            };
+            if (!state.selectedAddress) {
+                window.utils?.showToast?.("لطفا آدرس تحویل سفارش را انتخاب کنید", "error");
+                return;
+            }
+
+            const btn = document.getElementById("checkout-submit-btn");
+            const originalText = btn.textContent;
+            btn.textContent = "در حال انتقال به درگاه...";
+            btn.classList.add("opacity-70", "pointer-events-none");
 
             try {
-                // Here you would normally send the order to the backend
-                // const response = await this.apiClient.post('/order', orderData);
+                // Step 1: Process Checkout (Creates the order and clears the cart)
+                const checkoutResult = await window.apiClient.post('/Checkout', {
+                    cartId: state.cart.id,
+                    shippingAddressId: state.selectedAddress.id
+                });
 
-            window.utils?.showToast?.("اطلاعات سفارش آماده پرداخت است", "success");
+                if (!checkoutResult.isSuccess || !checkoutResult.data?.order?.id) {
+                    throw new Error(checkoutResult.errorMessage || "خطا در ثبت سفارش");
+                }
+
+                const orderId = checkoutResult.data.order.id;
+
+                // Step 2: Initiate Payment via API using OrderId
+                const paymentResult = await window.apiClient.post('/Payment/initiate', {
+                    orderId: orderId,
+                    gateway: "ZarinPal"
+                });
+
+                if (paymentResult.isSuccess && paymentResult.data?.paymentUrl) {
+                    // Update cart count UI proactively before redirect
+                    if (window.cartService && typeof window.cartService.updateCartCount === "function") {
+                        await window.cartService.updateCartCount();
+                    }
+                    window.location.href = paymentResult.data.paymentUrl;
+                } else {
+                    throw new Error(paymentResult.errorMessage || "خطا در اتصال به درگاه پرداخت");
+                }
+            } catch (error) {
+                window.logger?.error("Checkout/Payment error:", error);
+                window.utils?.showToast?.(error.message || "خطا در عملیات تسویه حساب", "error");
+                btn.textContent = originalText;
+                btn.classList.remove("opacity-70", "pointer-events-none");
+            }
         });
     }
 
-                // Clear cart
-                await this.cartService.clearCart();
+    async function init() {
+        if (!window.authService?.isAuthenticated()) {
+            window.location.href = `login.html?returnUrl=${encodeURIComponent(window.location.pathname)}`;
+            return;
+        }
 
         bindEvents();
 
         try {
             await Promise.all([loadCart(), loadAddresses()]);
-            window.cartService.updateCartCount?.();
-            window.cartService.renderCartOffcanvas?.();
+            window.cartService?.updateCartCount?.();
+            window.cartService?.renderCartOffcanvas?.();
         } catch (error) {
             window.logger?.error("Checkout initialization failed:", error);
             window.utils?.showToast?.(error.message || "خطا در دریافت اطلاعات تسویه حساب", "error");

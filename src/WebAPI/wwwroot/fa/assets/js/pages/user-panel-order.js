@@ -139,13 +139,18 @@ const OrderManager = {
     const tbody = document.querySelector("#orders-list-view tbody");
     if (!tbody) return;
 
-    if (!orders || orders.length === 0) {
+    const visibleOrders = orders ? orders.filter(o => {
+        const s = o.orderStatus || o.status;
+        return s !== "Pending";
+    }) : [];
+
+    if (!visibleOrders || visibleOrders.length === 0) {
       tbody.innerHTML =
         '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">هیچ سفارشی یافت نشد.</td></tr>';
       return;
     }
 
-    tbody.innerHTML = orders
+    tbody.innerHTML = visibleOrders
       .map((order) => {
         const status = order.orderStatus || order.status;
         const total = order.finalAmount ?? order.totalAmount ?? 0;
@@ -162,13 +167,12 @@ const OrderManager = {
               ${this.formatMoney(total)}
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${this.getStatusClass(status)}">
-                ${this.getStatusText(status)}
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${this.getStatusClass(order)}">
+                ${this.getStatusText(order)}
               </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-              <button onclick="OrderManager.showDetails('${order.id}')" class="text-primary hover:text-primary-dark ml-2">جزئیات</button>
-              ${this.canTrack(status) ? `<button onclick="OrderManager.trackOrder('${order.id}')" class="text-blue-600 hover:text-blue-800 ml-2">رهگیری</button>` : ""}
+              ${this.canTrack(status) ? `<button onclick="OrderManager.trackOrder('${order.id}')" class="text-blue-600 hover:text-blue-800 ml-2">رهگیری</button>` : "-"}
             </td>
           </tr>
         `;
@@ -187,7 +191,8 @@ const OrderManager = {
     return `${new Intl.NumberFormat("fa-IR").format(Number(value) || 0)} ریال`;
   },
 
-  getStatusClass: function (status) {
+  getStatusClass: function (order) {
+    const status = typeof order === 'string' ? order : (order.orderStatus || order.status);
     switch (status) {
       case "Pending":
         return "bg-yellow-100 text-yellow-800";
@@ -199,21 +204,27 @@ const OrderManager = {
         return "bg-green-100 text-green-800";
       case "Cancelled":
         return "bg-red-100 text-red-800";
+      case "Confirmed":
+        if (typeof order !== 'string' && !order.syncedToMahak) {
+            return "bg-blue-100 text-blue-800";
+        }
+        return "bg-green-100 text-green-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   },
 
-  getStatusText: function (status) {
+  getStatusText: function (order) {
+    const status = typeof order === 'string' ? order : (order.orderStatus || order.status);
     const map = {
       Pending: "در انتظار پرداخت",
       Processing: "در حال پردازش",
       Shipped: "ارسال شده",
       Delivered: "تحویل شده",
-      Cancelled: "لغو شده",
+      Cancelled: "ناموفق / لغو شده",
       Returned: "مرجوع شده",
+      Confirmed: (typeof order !== 'string' && !order.syncedToMahak) ? "در انتظار تایید" : "تایید",
     };
-
     return map[status] || status || "نامشخص";
   },
 
@@ -308,8 +319,8 @@ const OrderManager = {
         </div>
         <div>
           <p class="text-sm text-gray-500 mb-1">وضعیت</p>
-          <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full ${this.getStatusClass(order.orderStatus || order.status)}">
-            ${this.getStatusText(order.orderStatus || order.status)}
+          <span class="px-3 py-1 inline-flex text-sm font-semibold rounded-full ${this.getStatusClass(order)}">
+            ${this.getStatusText(order)}
           </span>
         </div>
         <div>

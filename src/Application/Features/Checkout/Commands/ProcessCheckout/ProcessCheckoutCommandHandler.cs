@@ -109,7 +109,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
             }
             // 5. Simplified logic: No coupons, fixed costs
             decimal discountAmount = 0m;
-            decimal shippingCost = 0m;
+            decimal shippingCost = request.Request.ShippingCost ?? 0m;
             decimal taxAmount = 0m; // Set to 0 or desired default
             decimal totalAmount = subtotal + taxAmount + shippingCost - discountAmount;
 
@@ -165,9 +165,6 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
 
             // 11. Inventory was already reserved atomically by InventoryService
 
-            // 12. Clear cart
-            await _cartRepository.ClearCartAsync(cart.Id, cancellationToken);
-
             // 13. Prepare result
             var orderDto = _mapper.Map<OnlineShop.Application.DTOs.UserOrder.UserOrderDto>(order);
             
@@ -178,7 +175,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 TotalItems = cartItems.Count(),
                 SubTotal = subtotal,
                 TaxAmount = taxAmount,
-                ShippingAmount = (decimal)request.Request.ShippingCost!,
+                ShippingAmount = shippingCost,
                 DiscountAmount = discountAmount,
                 TotalAmount = totalAmount,
                 Currency = "IRR",
@@ -192,6 +189,9 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ProcessCheckout
                 Summary = summary,
                 Message = "سفارش شما با موفقیت ثبت شد و موجودی محصولات رزرو گردید"
             };
+
+            // 12. Clear cart (moved here to prevent clearing cart when command fails or throws exception)
+            await _cartRepository.ClearCartAsync(cart.Id, cancellationToken);
 
             return Result<CheckoutResultDto>.Success(result);
         }

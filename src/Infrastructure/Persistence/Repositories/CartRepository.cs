@@ -109,14 +109,9 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .Where(ci => ci.CartId == cartId && !ci.Deleted)
                 .ToListAsync(cancellationToken);
 
-            foreach (var item in cartItems)
-            {
-                item.Delete(null);
-            }
-
             if (cartItems.Any())
             {
-                _context.CartItems.UpdateRange(cartItems);
+                _context.CartItems.RemoveRange(cartItems);
                 await _context.SaveChangesAsync(cancellationToken);
             }
         }

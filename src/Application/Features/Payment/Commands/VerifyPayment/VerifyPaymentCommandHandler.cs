@@ -54,12 +54,35 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
                 });
             }
 
+            if (!string.Equals(request.Request.Status, "OK", StringComparison.OrdinalIgnoreCase))
+            {
+                payment.MarkAsFailed("تراکنش ناموفق یا لغو توسط کاربر");
+                
+                // Cancel order and release stock immediately
+                order.Cancel("پرداخت ناموفق یا لغو توسط کاربر");
+                await _inventoryService.ReleaseStockForCancelledOrder(order.Id, cancellationToken);
+                
+                await _orderRepository.UpdateAsync(order, cancellationToken);
+
+                return Result<PaymentVerificationResultDto>.Success(new PaymentVerificationResultDto
+                {
+                    IsSuccess = false,
+                    Message = "تراکنش لغو شده است",
+                    OrderId = order.Id
+                });
+            }
+
             // Verify with Gateway
             var verificationResult = await _paymentGateway.VerifyPaymentAsync(request.Request.Authority, (long)payment.Amount);
 
             if (!verificationResult.Success)
             {
                 payment.MarkAsFailed(verificationResult.Message);
+                
+                // Cancel order and release stock immediately
+                order.Cancel("پرداخت ناموفق یا لغو توسط کاربر");
+                await _inventoryService.ReleaseStockForCancelledOrder(order.Id, cancellationToken);
+                
                 await _orderRepository.UpdateAsync(order, cancellationToken);
 
                 return Result<PaymentVerificationResultDto>.Success(new PaymentVerificationResultDto
