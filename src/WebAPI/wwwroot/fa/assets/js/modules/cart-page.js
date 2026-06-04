@@ -146,7 +146,6 @@ class CartPage {
                 <a href="/product.html?id=${item.productId}" class="font-bold text-base hover:text-green-600 transition">${this.escapeHtml(item.productName)}</a>
                 ${variantInfo ? `<p class="text-sm text-gray-500 dark:text-gray-400">${this.escapeHtml(variantInfo)}</p>` : ""}
                 <p class="text-sm text-gray-500">قیمت واحد: ${unitPrice} ریال</p>
-                ${!item.isAvailable ? '<span class="text-xs text-red-500 font-semibold">ناموجود</span>' : ""}
                 <div class="flex items-center mt-2">
                   <div class="inline-flex items-center space-x-2 border rounded-full px-4 py-2 dark:bg-zinc-800 bg-white shadow">
                     <button id="inc-${item.id}" 

@@ -126,7 +126,7 @@ class UserPanelOrders {
     }
 
     renderOrderRow(order) {
-        const statusBadge = this.getStatusBadge(order.status || order.orderStatus);
+        const statusBadge = this.getStatusBadge(order);
         const orderDate = this.formatDate(order.createdAt || order.orderDate);
         const orderNumber = order.orderNumber || order.id || 'N/A';
         const totalAmount = order.totalAmount || order.total || 0;
@@ -154,17 +154,28 @@ class UserPanelOrders {
         `;
     }
 
-    getStatusBadge(status) {
+    getStatusBadge(order) {
+        let status = typeof order === 'string' ? order : (order.status || order.orderStatus);
+        
         const statusMap = {
             'Pending': { label: 'در انتظار پرداخت', class: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' },
             'Processing': { label: 'در حال پردازش', class: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' },
             'Shipped': { label: 'ارسال شده', class: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' },
             'Delivered': { label: 'تحویل داده شده', class: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' },
             'Cancelled': { label: 'لغو شده', class: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' },
-            'Returned': { label: 'مرجوع شده', class: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }
+            'Returned': { label: 'مرجوع شده', class: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' },
+            'Confirmed': { label: 'در انتظار تایید', class: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' }
         };
 
-        const statusInfo = statusMap[status] || { label: status || 'نامشخص', class: 'bg-gray-100 text-gray-800' };
+        let statusInfo = statusMap[status] || { label: status || 'نامشخص', class: 'bg-gray-100 text-gray-800' };
+
+        if (status === 'Confirmed' && typeof order !== 'string') {
+            if (order.syncedToMahak) {
+                statusInfo = { label: 'تایید', class: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' };
+            } else {
+                statusInfo = { label: 'در انتظار تایید', class: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' };
+            }
+        }
 
         return `
             <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusInfo.class}">
@@ -281,7 +292,7 @@ class UserPanelOrders {
                     </div>
                     <div>
                         <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">وضعیت</h4>
-                        <div class="mt-1">${this.getStatusBadge(order.status || order.orderStatus)}</div>
+                        <div class="mt-1">${this.getStatusBadge(order)}</div>
                     </div>
                     <div>
                         <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">مبلغ کل</h4>

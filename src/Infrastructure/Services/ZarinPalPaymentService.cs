@@ -67,33 +67,42 @@ namespace OnlineShop.Infrastructure.Services
 
                 _logger.LogDebug("ZarinPal Response: {Response}", responseContent);
 
-                var result = JsonSerializer.Deserialize<ZarinPalResponse>(responseContent, new JsonSerializerOptions 
-                { 
-                    PropertyNameCaseInsensitive = true 
-                });
-
-                if (result?.Data?.Code == 100)
+                using var document = JsonDocument.Parse(responseContent);
+                var root = document.RootElement;
+                
+                if (root.TryGetProperty("data", out var dataElement) && dataElement.ValueKind == JsonValueKind.Object)
                 {
-                    var authority = result.Data.Authority;
-                    var paymentUrl = _isSandbox
-                        ? $"https://sandbox.zarinpal.com/pg/StartPay/{authority}"
-                        : $"https://payment.zarinpal.com/pg/StartPay/{authority}";
+                    if (dataElement.TryGetProperty("code", out var codeElement) && codeElement.GetInt32() == 100)
+                    {
+                        var authority = dataElement.GetProperty("authority").GetString() ?? string.Empty;
+                        var paymentUrl = _isSandbox
+                            ? $"https://sandbox.zarinpal.com/pg/StartPay/{authority}"
+                            : $"https://payment.zarinpal.com/pg/StartPay/{authority}";
 
-                    _logger.LogInformation("Payment initiated successfully. Authority: {Authority}", authority);
-                    return (true, paymentUrl, authority, "Success");
+                        _logger.LogInformation("Payment initiated successfully. Authority: {Authority}", authority);
+                        return (true, paymentUrl, authority, "Success");
+                    }
                 }
-                else
+                
+                var errorMessage = "خطای نامشخص";
+                int errorCode = -999;
+                
+                if (root.TryGetProperty("errors", out var errorsElement) && errorsElement.ValueKind == JsonValueKind.Object)
                 {
-                    var errorMessage = result?.Data?.Message ?? "خطای نامشخص";
-                    _logger.LogWarning("Payment initiation failed. Code: {Code}, Message: {Message}", 
-                        result?.Data?.Code, errorMessage);
-                    return (false, string.Empty, string.Empty, errorMessage);
+                    if (errorsElement.TryGetProperty("message", out var msgElement) && msgElement.ValueKind == JsonValueKind.String)
+                        errorMessage = msgElement.GetString() ?? errorMessage;
+                        
+                    if (errorsElement.TryGetProperty("code", out var errCodeElement) && errCodeElement.ValueKind == JsonValueKind.Number)
+                        errorCode = errCodeElement.GetInt32();
                 }
+
+                _logger.LogWarning("Payment initiation failed. Code: {Code}, Message: {Message}", errorCode, errorMessage);
+                return (false, string.Empty, string.Empty, errorMessage);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception during payment initiation for OrderId: {OrderId}", orderId);
-                return (false, string.Empty, string.Empty, "خطا در برقراری ارتباط با درگاه پرداخت");
+                return (false, string.Empty, string.Empty, $"خطا در برقراری ارتباط با درگاه پرداخت: {ex.Message}");
             }
         }
 
@@ -118,26 +127,32 @@ namespace OnlineShop.Infrastructure.Services
 
                 _logger.LogDebug("ZarinPal Verify Response: {Response}", responseContent);
 
-                var result = JsonSerializer.Deserialize<ZarinPalVerifyResponse>(responseContent, new JsonSerializerOptions 
-                { 
-                    PropertyNameCaseInsensitive = true 
-                });
-
-                if (result?.Data?.Code == 100 || result?.Data?.Code == 101)
+                using var document = JsonDocument.Parse(responseContent);
+                var root = document.RootElement;
+                
+                if (root.TryGetProperty("data", out var dataElement) && dataElement.ValueKind == JsonValueKind.Object)
                 {
-                    var refId = result.Data.RefId?.ToString() ?? string.Empty;
-                    var message = result.Data.Code == 100 ? "پرداخت با موفقیت انجام شد" : "پرداخت قبلاً تایید شده بود";
-                    
-                    _logger.LogInformation("Payment verified successfully. RefId: {RefId}, Code: {Code}", refId, result.Data.Code);
-                    return (true, refId, message);
+                    if (dataElement.TryGetProperty("code", out var codeElement) && (codeElement.GetInt32() == 100 || codeElement.GetInt32() == 101))
+                    {
+                        var code = codeElement.GetInt32();
+                        var refId = dataElement.GetProperty("ref_id").GetInt64().ToString();
+                        var message = code == 100 ? "پرداخت با موفقیت انجام شد" : "پرداخت قبلاً تایید شده بود";
+                        
+                        _logger.LogInformation("Payment verified successfully. RefId: {RefId}, Code: {Code}", refId, code);
+                        return (true, refId, message);
+                    }
                 }
-                else
+                
+                int errorCode = -999;
+                if (root.TryGetProperty("errors", out var errorsElement) && errorsElement.ValueKind == JsonValueKind.Object)
                 {
-                    var errorMessage = GetErrorMessage(result?.Data?.Code ?? -999);
-                    _logger.LogWarning("Payment verification failed. Code: {Code}, Message: {Message}", 
-                        result?.Data?.Code, errorMessage);
-                    return (false, string.Empty, errorMessage);
+                    if (errorsElement.TryGetProperty("code", out var errCodeElement) && errCodeElement.ValueKind == JsonValueKind.Number)
+                        errorCode = errCodeElement.GetInt32();
                 }
+                
+                var errorMessage = GetErrorMessage(errorCode);
+                _logger.LogWarning("Payment verification failed. Code: {Code}, Message: {Message}", errorCode, errorMessage);
+                return (false, string.Empty, errorMessage);
             }
             catch (Exception ex)
             {
@@ -165,39 +180,6 @@ namespace OnlineShop.Infrastructure.Services
                 101 => "پرداخت قبلاً تایید شده",
                 _ => $"خطای نامشخص (کد: {code})"
             };
-        }
-
-        // Response Models
-        private class ZarinPalResponse
-        {
-            public ZarinPalData? Data { get; set; }
-            public List<object>? Errors { get; set; }
-        }
-
-        private class ZarinPalData
-        {
-            public int Code { get; set; }
-            public string? Message { get; set; }
-            public string? Authority { get; set; }
-            public string? FeeType { get; set; }
-            public int Fee { get; set; }
-        }
-
-        private class ZarinPalVerifyResponse
-        {
-            public ZarinPalVerifyData? Data { get; set; }
-            public List<object>? Errors { get; set; }
-        }
-
-        private class ZarinPalVerifyData
-        {
-            public int Code { get; set; }
-            public string? Message { get; set; }
-            public long? RefId { get; set; }
-            public string? CardHash { get; set; }
-            public string? CardPan { get; set; }
-            public string? FeeType { get; set; }
-            public int Fee { get; set; }
         }
     }
 }

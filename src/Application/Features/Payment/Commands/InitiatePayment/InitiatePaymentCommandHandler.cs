@@ -5,28 +5,29 @@ using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Application.DTOs.Payment;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Domain.Interfaces.Repositories;
+using OnlineShop.Application.Services;
 
 namespace OnlineShop.Application.Features.Payment.Commands.InitiatePayment
 {
     public class InitiatePaymentCommandHandler : IRequestHandler<InitiatePaymentCommand, Result<PaymentInitiationResultDto>>
     {
         private readonly IUserOrderRepository _orderRepository;
+        private readonly IUserPaymentRepository _paymentRepository;
         private readonly IPaymentGatewayService _paymentGateway;
+        private readonly IInventoryService _inventoryService;
         private readonly ILogger<InitiatePaymentCommandHandler> _logger;
-        // Need PaymentRepository if available, strictly speaking. Or just save via db context if using generic repo pattern?
-        // Assuming we need to add a Payment repository interface or use a generic one.
-        // For now preventing compilation error by assuming we might need to add it or use DbContext.
-        // Let's implement a quick Mock Gateway inside Application or Infrastructure.
-        
-        // I'll check if IUserPaymentRepository exists.
 
         public InitiatePaymentCommandHandler(
             IUserOrderRepository orderRepository,
+            IUserPaymentRepository paymentRepository,
             IPaymentGatewayService paymentGateway,
+            IInventoryService inventoryService,
             ILogger<InitiatePaymentCommandHandler> logger)
         {
             _orderRepository = orderRepository;
+            _paymentRepository = paymentRepository;
             _paymentGateway = paymentGateway;
+            _inventoryService = inventoryService;
             _logger = logger;
         }
 
@@ -48,10 +49,7 @@ namespace OnlineShop.Application.Features.Payment.Commands.InitiatePayment
                  return Result<PaymentInitiationResultDto>.Failure("این سفارش قابل پرداخت نیست");
             }
 
-            // Create Payment Record (Ideally via Repository)
-            // Since we don't have PaymentRepository injected yet, I will simulate logic or rely on Navigation prop if possible
-            // But UserOrder.Payments is a collection.
-            
+            // Create Payment Record
             var payment = OnlineShop.Domain.Entities.UserPayment.Create(
                 request.UserId,
                 order.Id,
@@ -60,22 +58,27 @@ namespace OnlineShop.Application.Features.Payment.Commands.InitiatePayment
                 "IRR"
             );
             
-            order.Payments.Add(payment);
-            await _orderRepository.UpdateAsync(order, cancellationToken); // Saving via Order aggregate root
-
-            // Call Gateway
+            // Call Gateway before saving to avoid multiple DbContext updates or tracking issues
             long amount = (long)order.TotalAmount;
             var gatewayResult = await _paymentGateway.InitiatePaymentAsync(order.Id, amount, "09123456789", $"Payment for Order {order.OrderNumber}");
 
             if (!gatewayResult.Success)
             {
                  payment.MarkAsFailed(gatewayResult.Message);
+                 // Save the failed payment independently to avoid touching the AsNoTracking Order graph
+                 await _paymentRepository.AddAsync(payment, cancellationToken);
+
+                 // Cancel order and release inventory because payment initiation failed
+                 order.Cancel("خطا در ارتباط با درگاه بانکی", "System");
                  await _orderRepository.UpdateAsync(order, cancellationToken);
+                 await _inventoryService.ReleaseStockForCancelledOrder(order.Id, cancellationToken);
+
                  return Result<PaymentInitiationResultDto>.Failure(gatewayResult.Message);
             }
 
             payment.MarkAsProcessing(gatewayResult.Authority);
-            await _orderRepository.UpdateAsync(order, cancellationToken);
+            // Save the successful payment independently
+            await _paymentRepository.AddAsync(payment, cancellationToken);
 
             return Result<PaymentInitiationResultDto>.Success(new PaymentInitiationResultDto
             {
