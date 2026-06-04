@@ -15,7 +15,7 @@
       '<button id="manual-category-button" class="flex justify-between w-full text-start" aria-expanded="false" aria-controls="manual-category-list">' +
       '<span class="flex-1">دسته‌بندی</span>' +
       '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform transform" id="icon-manual-category-list" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">' +
-      '<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />' +
+      '<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 0 1 1.414 0L10 10.586l3.293-3.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 0-1.414z" clip-rule="evenodd" />' +
       "</svg>" +
       "</button>" +
       '<ul id="manual-category-list" class="hidden space-y-2 mt-2 pr-4">' +
