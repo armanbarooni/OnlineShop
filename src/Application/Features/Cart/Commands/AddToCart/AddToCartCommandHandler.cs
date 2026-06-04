@@ -131,7 +131,6 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
 
                 _logger.LogInformation("Successfully added product to cart. Cart now has {ItemCount} items",
                     cart.CartItems.Count);
-                cart.CartItems.Count);
                 return Result<CartDto>.Success(cartDto);
             }
             catch (Exception ex)  {
@@ -139,7 +138,6 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
             }
 
             return Result<CartDto>.Failure("Failed to add item to cart");
-        }
         }
 
         private CartDto MapToDto(OnlineShop.Domain.Entities.Cart cart, Domain.Entities.Product product)
