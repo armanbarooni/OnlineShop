@@ -8,6 +8,11 @@ class AddressService {
         this.apiClient = window.apiClient;
     }
 
+    unwrapResponseData(response) {
+        const payload = response?.data ?? response;
+        return payload?.data ?? payload;
+    }
+
     getCurrentUserId() {
         try {
             const token = localStorage.getItem('accessToken');
@@ -47,7 +52,7 @@ class AddressService {
             const response = await this.apiClient.get(`/useraddress/user/${userId}`);
             return {
                 success: true,
-                data: response.data || response
+                data: this.unwrapResponseData(response)
             };
         } catch (error) {
             window.logger.error('Error fetching addresses:', error);
@@ -66,7 +71,7 @@ class AddressService {
             const response = await this.apiClient.get(`/useraddress/${addressId}`);
             return {
                 success: true,
-                data: response.data || response
+                data: this.unwrapResponseData(response)
             };
         } catch (error) {
             window.logger.error('Error fetching address:', error);
@@ -85,7 +90,7 @@ class AddressService {
             const response = await this.apiClient.post('/useraddress', addressData);
             return {
                 success: true,
-                data: response.data || response,
+                data: this.unwrapResponseData(response),
                 message: 'آدرس با موفقیت اضافه شد'
             };
         } catch (error) {
@@ -105,7 +110,7 @@ class AddressService {
             const response = await this.apiClient.put(`/useraddress/${addressId}`, addressData);
             return {
                 success: true,
-                data: response.data || response,
+                data: this.unwrapResponseData(response),
                 message: 'آدرس با موفقیت به‌روزرسانی شد'
             };
         } catch (error) {
@@ -163,7 +168,7 @@ class AddressService {
             const response = await this.apiClient.get('/useraddress/default');
             return {
                 success: true,
-                data: response.data || response
+                data: this.unwrapResponseData(response)
             };
         } catch (error) {
             window.logger.error('Error fetching default address:', error);
@@ -280,7 +285,7 @@ class AddressService {
             const response = await this.apiClient.get(`/useraddress/search?q=${encodeURIComponent(query)}`);
             return {
                 success: true,
-                data: response.data || response
+                data: this.unwrapResponseData(response)
             };
         } catch (error) {
             window.logger.error('Error searching addresses:', error);
@@ -299,7 +304,7 @@ class AddressService {
             const response = await this.apiClient.get('/useraddress/statistics');
             return {
                 success: true,
-                data: response.data || response
+                data: this.unwrapResponseData(response)
             };
         } catch (error) {
             window.logger.error('Error fetching address statistics:', error);
