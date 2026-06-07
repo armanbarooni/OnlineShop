@@ -30,42 +30,42 @@ namespace OnlineShop.WebAPI.Workers
         {
             _logger.LogInformation("MahakSyncWorker is starting.");
 
-            var options = _backgroundSyncOptions.CurrentValue;
-            var initialDelaySeconds = Math.Max(0, options.IncomingInitialDelaySeconds);
-            if (initialDelaySeconds > 0)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(initialDelaySeconds), stoppingToken);
-            }
+            await RunSyncCycleAsync(stoppingToken);
 
+            var options = _backgroundSyncOptions.CurrentValue;
             var intervalMinutes = Math.Max(1, options.IncomingIntervalMinutes);
             using var timer = new PeriodicTimer(TimeSpan.FromMinutes(intervalMinutes));
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("MahakSyncWorker running sync at: {time}", DateTimeOffset.Now);
-
-                try
-                {
-                    using var scope = _serviceScopeFactory.CreateScope();
-                    var syncService = scope.ServiceProvider.GetRequiredService<MahakSyncService>();
-                    await syncService.SyncAsync(stoppingToken);
-                }
-                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-                {
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error occurred in MahakSyncWorker.");
-                }
-
                 if (!await timer.WaitForNextTickAsync(stoppingToken))
                 {
                     break;
                 }
+
+                await RunSyncCycleAsync(stoppingToken);
             }
 
             _logger.LogInformation("MahakSyncWorker is stopping.");
+        }
+
+        private async Task RunSyncCycleAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation("MahakSyncWorker running sync at: {time}", DateTimeOffset.Now);
+
+            try
+            {
+                using var scope = _serviceScopeFactory.CreateScope();
+                var syncService = scope.ServiceProvider.GetRequiredService<MahakSyncService>();
+                await syncService.SyncAsync(stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred in MahakSyncWorker.");
+            }
         }
     }
 }

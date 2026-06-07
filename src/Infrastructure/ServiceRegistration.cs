@@ -120,6 +120,8 @@ public static class ServiceRegistration
         {
             client.Timeout = TimeSpan.FromSeconds(mahakTimeoutSeconds);
         });
+        services.AddScoped<IMahakCustomerSyncService>(sp => sp.GetRequiredService<MahakOutgoingSyncService>());
+        services.AddScoped<IMahakOrderSyncService>(sp => sp.GetRequiredService<MahakOutgoingSyncService>());
         
         // Payment Gateway - ZarinPal (replace with MockPaymentService for testing)
         services.AddHttpClient<ZarinPalPaymentService>();

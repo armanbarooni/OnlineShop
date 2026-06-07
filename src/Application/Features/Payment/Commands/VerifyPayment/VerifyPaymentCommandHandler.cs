@@ -13,17 +13,20 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
         private readonly IUserOrderRepository _orderRepository;
         private readonly IPaymentGatewayService _paymentGateway;
         private readonly IInventoryService _inventoryService;
+        private readonly IMahakOrderSyncService _mahakOrderSyncService;
         private readonly ILogger<VerifyPaymentCommandHandler> _logger;
 
         public VerifyPaymentCommandHandler(
             IUserOrderRepository orderRepository,
             IPaymentGatewayService paymentGateway,
             IInventoryService inventoryService,
+            IMahakOrderSyncService mahakOrderSyncService,
             ILogger<VerifyPaymentCommandHandler> logger)
         {
             _orderRepository = orderRepository;
             _paymentGateway = paymentGateway;
             _inventoryService = inventoryService;
+            _mahakOrderSyncService = mahakOrderSyncService;
             _logger = logger;
         }
 
@@ -110,6 +113,16 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
             }
 
             await _orderRepository.UpdateAsync(order, cancellationToken);
+
+            try
+            {
+                await _mahakOrderSyncService.SyncOrderToMahakAsync(order.Id, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Payment for order {OrderId} was verified but Mahak sync failed. Order will remain pending for retry.", order.Id);
+            }
+
             _logger.LogInformation("Payment verified and order {OrderNumber} confirmed. Stock updated.", order.OrderNumber);
 
             return Result<PaymentVerificationResultDto>.Success(new PaymentVerificationResultDto

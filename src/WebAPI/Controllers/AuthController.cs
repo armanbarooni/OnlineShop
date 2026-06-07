@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.DTOs.Auth;
 using OnlineShop.Application.DTOs.UserProfile;
 using OnlineShop.Application.Features.Auth.Commands.SendOtp;
@@ -25,6 +26,7 @@ namespace OnlineShop.WebAPI.Controllers
 		private readonly ILogger<AuthController> _logger;
 		private readonly IMediator _mediator;
 		private readonly IHostEnvironment _environment;
+		private readonly IMahakCustomerSyncService _mahakCustomerSyncService;
 
 		public AuthController(
 			UserManager<ApplicationUser> userManager,
@@ -32,7 +34,8 @@ namespace OnlineShop.WebAPI.Controllers
 			ITokenService tokenService,
 			ILogger<AuthController> logger,
 			IMediator mediator,
-			IHostEnvironment environment)
+			IHostEnvironment environment,
+			IMahakCustomerSyncService mahakCustomerSyncService)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
@@ -40,6 +43,7 @@ namespace OnlineShop.WebAPI.Controllers
 			_logger = logger;
 			_mediator = mediator;
 			_environment = environment;
+			_mahakCustomerSyncService = mahakCustomerSyncService;
 		}
 
 		[HttpPost("login")]
@@ -192,6 +196,20 @@ namespace OnlineShop.WebAPI.Controllers
 			// Assign default role
 			await _userManager.AddToRoleAsync(user, "User");
 
+			try
+			{
+				await _mahakCustomerSyncService.SyncCustomerToMahakAsync(user.Id, HttpContext.RequestAborted);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Failed to sync newly registered user {UserId} to Mahak. Rolling back registration.", user.Id);
+				await _userManager.DeleteAsync(user);
+				return StatusCode(StatusCodes.Status502BadGateway, new
+				{
+					message = "ثبت‌نام انجام نشد چون ارسال کاربر به محک ناموفق بود"
+				});
+			}
+
 			var roles = await _userManager.GetRolesAsync(user);
 			var tokens = await _tokenService.GenerateTokensAsync(dto.Email, roles);
 
@@ -271,6 +289,24 @@ namespace OnlineShop.WebAPI.Controllers
 
 			if (result.IsSuccess)
 			{
+				var user = await _userManager.FindByNameAsync(dto.PhoneNumber);
+				if (user == null)
+				{
+					_logger.LogError("User registration with phone succeeded but user lookup failed for {PhoneNumber}", dto.PhoneNumber);
+					return StatusCode(StatusCodes.Status500InternalServerError, Result<AuthResponseDto>.Failure("کاربر ثبت شد ولی بازیابی اطلاعات کاربر ناموفق بود"));
+				}
+
+				try
+				{
+					await _mahakCustomerSyncService.SyncCustomerToMahakAsync(user.Id, cancellationToken);
+				}
+				catch (Exception ex)
+				{
+					_logger.LogError(ex, "Failed to sync newly registered phone user {UserId} to Mahak. Rolling back registration.", user.Id);
+					await _userManager.DeleteAsync(user);
+					return StatusCode(StatusCodes.Status502BadGateway, Result<AuthResponseDto>.Failure("ثبت‌نام انجام نشد چون ارسال کاربر به محک ناموفق بود"));
+				}
+
 				_logger.LogInformation("User registered successfully with phone: {PhoneNumber}", dto.PhoneNumber);
 				return CreatedAtAction(nameof(Login), result);
 			}

@@ -7,15 +7,17 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Infrastructure.Mahak.Models;
 
 namespace OnlineShop.Infrastructure.Services
 {
-    public class MahakOutgoingSyncService
+    public class MahakOutgoingSyncService : IMahakCustomerSyncService, IMahakOrderSyncService
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<MahakOutgoingSyncService> _logger;
@@ -127,6 +129,31 @@ namespace OnlineShop.Infrastructure.Services
             return await _orderRepository.GetUnsyncedOrdersAsync(cancellationToken);
         }
 
+        public async Task SyncOrderToMahakAsync(Guid orderId, CancellationToken cancellationToken)
+        {
+            if (!IsConfigured())
+            {
+                _logger.LogDebug("Mahak direct order sync skipped: Username/Password not configured in appsettings.json");
+                return;
+            }
+
+            await EnsureAuthenticatedAsync(cancellationToken);
+
+            var order = await _orderRepository.GetByIdForMahakSyncAsync(orderId, cancellationToken);
+            if (order == null)
+            {
+                throw new InvalidOperationException($"Order {orderId} not found for Mahak sync.");
+            }
+
+            if (order.SyncedToMahak)
+            {
+                _logger.LogInformation("Order {OrderId} already synced to Mahak. Skipping direct sync.", orderId);
+                return;
+            }
+
+            await SendOrderToMahakAsync(order, cancellationToken);
+        }
+
         private async Task SendOrderToMahakAsync(UserOrder order, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Sending order {OrderId} to Mahak", order.Id);
@@ -186,19 +213,25 @@ namespace OnlineShop.Infrastructure.Services
             // Convert order items
             foreach (var item in order.OrderItems)
             {
-                // Find ProductDetail's Mahak ID (not Product!)
-                // We need to find ANY ProductDetail for this Product
-                // In a real scenario, we'd need to know which specific variant was ordered
-                // For now, we'll use the first ProductDetail mapping we find
-                var productDetailMapping = await _mahakMappingRepository.GetByLocalEntityIdAsync(
+                MahakMapping? productDetailMapping = null;
+
+                if (item.VariantId.HasValue)
+                {
+                    productDetailMapping = await _mahakMappingRepository.GetByLocalEntityIdAsync(
+                        "ProductVariant",
+                        item.VariantId.Value,
+                        cancellationToken);
+                }
+
+                productDetailMapping ??= await _mahakMappingRepository.GetByLocalEntityIdAsync(
                     "ProductDetail",
-                    item.ProductId,  // ProductDetail mappings point to Product via LocalEntityId
+                    item.ProductId,
                     cancellationToken);
 
                 if (productDetailMapping == null)
                 {
-                    _logger.LogWarning("ProductDetail mapping not found for Product {ProductId}, skipping order item", item.ProductId);
-                    continue;
+                    throw new InvalidOperationException(
+                        $"Mahak mapping not found for order item {item.Id} (ProductId: {item.ProductId}, VariantId: {item.VariantId}).");
                 }
 
                 // StoreId is required as per Mahak support
@@ -227,6 +260,11 @@ namespace OnlineShop.Infrastructure.Services
                     Description = item.ProductName,
                     Gift = 0
                 });
+            }
+
+            if (mahakOrderDetails.Count == 0)
+            {
+                throw new InvalidOperationException($"Order {order.Id} has no Mahak order details. Sync aborted.");
             }
 
             // Send to Mahak
@@ -260,6 +298,29 @@ namespace OnlineShop.Infrastructure.Services
             await _orderRepository.UpdateAsync(order, cancellationToken);
         }
 
+        public async Task SyncCustomerToMahakAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            if (!IsConfigured())
+            {
+                _logger.LogDebug("Mahak direct customer sync skipped: Username/Password not configured in appsettings.json");
+                return;
+            }
+
+            await EnsureAuthenticatedAsync(cancellationToken);
+
+            var user = await _userManager.Users
+                .Where(u => u.Id == userId)
+                .Include(u => u.UserProfile)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (user == null)
+            {
+                throw new InvalidOperationException($"User {userId} not found for Mahak sync.");
+            }
+
+            await EnsureCustomerSyncedAsync(user, cancellationToken);
+        }
+
         private async Task<int> EnsureCustomerSyncedAsync(ApplicationUser user, CancellationToken cancellationToken)
         {
             // If user already has Mahak Person ID, return it
@@ -268,6 +329,13 @@ namespace OnlineShop.Infrastructure.Services
                 _logger.LogDebug("User {UserId} already synced to Mahak with PersonId {PersonId}", 
                     user.Id, user.MahakPersonId.Value);
                 return user.MahakPersonId.Value;
+            }
+
+            if (user.MahakPersonClientId.HasValue)
+            {
+                _logger.LogDebug("User {UserId} already synced to Mahak with PersonClientId {PersonClientId}",
+                    user.Id, user.MahakPersonClientId.Value);
+                return Convert.ToInt32(user.MahakPersonClientId.Value);
             }
 
             _logger.LogInformation("Syncing customer {UserId} ({Name}) to Mahak", 

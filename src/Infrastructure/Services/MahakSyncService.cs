@@ -661,6 +661,10 @@ namespace OnlineShop.Infrastructure.Services
                             product.SetDeletedByMahak(false);
                         }
 
+                        var totalVariantStock = group
+                            .Where(d => !d.Deleted)
+                            .Sum(d => (int)d.Count1);
+
                         decimal price = firstActiveDetail.DefaultSellPriceLevel switch
                         {
                             1 => firstActiveDetail.Price1,
@@ -682,6 +686,8 @@ namespace OnlineShop.Infrastructure.Services
                         {
                             product.SetBarcode(firstActiveDetail.Barcode);
                         }
+
+                        product.SetStockQuantity(totalVariantStock);
 
                         await _productRepository.UpdateAsync(product, cancellationToken);
                     }
@@ -1034,7 +1040,7 @@ namespace OnlineShop.Infrastructure.Services
                 var existing = await _productVariantRepository.GetByIdAsync(variantMapping.LocalEntityId, cancellationToken);
                 if (existing != null)
                 {
-                    existing.Update(size ?? existing.Size, color ?? existing.Color, sku, existing.StockQuantity, existing.AdditionalPrice, null);
+                    existing.Update(size ?? existing.Size, color ?? existing.Color, sku, stock, existing.AdditionalPrice, null);
                     existing.SetMeasurementValues(parsed.feature8Value, parsed.feature9Value);
                     if (!string.IsNullOrEmpty(detail.Barcode))
                         existing.SetBarcode(detail.Barcode);

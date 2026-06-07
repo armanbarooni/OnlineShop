@@ -101,11 +101,33 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task<UserOrder?> GetByIdForMahakSyncAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return await _context.UserOrders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductVariant)
+                .Include(o => o.User)
+                    .ThenInclude(u => u.UserProfile)
+                .Include(o => o.ShippingAddress)
+                .Include(o => o.BillingAddress)
+                .Include(o => o.Payments)
+                .FirstOrDefaultAsync(o => o.Id == id && !o.Deleted, cancellationToken);
+        }
+
         public async Task<List<UserOrder>> GetUnsyncedOrdersAsync(CancellationToken cancellationToken)
         {
             return await _context.UserOrders
                 .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.ProductVariant)
                 .Include(o => o.User) // Include user for customer sync to Mahak
+                    .ThenInclude(u => u.UserProfile)
+                .Include(o => o.ShippingAddress)
+                .Include(o => o.BillingAddress)
+                .Include(o => o.Payments)
                 .Where(o => !o.SyncedToMahak && (o.OrderStatus == "Completed" || o.OrderStatus == "Confirmed") && !o.Deleted)
                 .OrderBy(o => o.CreatedAt)
                 .ToListAsync(cancellationToken);
