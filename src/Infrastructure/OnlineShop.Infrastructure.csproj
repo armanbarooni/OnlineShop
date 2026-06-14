@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\Application\OnlineShop.Application.csproj" />
@@ -6,7 +6,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.27" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.27" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.27">
       <PrivateAssets>all</PrivateAssets>

@@ -115,6 +115,7 @@ public static class ServiceRegistration
         {
             client.Timeout = TimeSpan.FromSeconds(mahakTimeoutSeconds);
         });
+        services.AddScoped<IMahakInventorySyncService>(sp => sp.GetRequiredService<MahakSyncService>());
 
         services.AddHttpClient<MahakOutgoingSyncService>(client =>
         {

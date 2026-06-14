@@ -8,6 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Identity;
+using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Infrastructure.Mahak.Models;
@@ -15,7 +17,7 @@ using System.Text.Json.Serialization;
 
 namespace OnlineShop.Infrastructure.Services
 {
-    public class MahakSyncService
+    public class MahakSyncService : IMahakInventorySyncService
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<MahakSyncService> _logger;
@@ -26,6 +28,7 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IMahakMappingRepository _mahakMappingRepository;
         private readonly IProductImageRepository _productImageRepository;
         private readonly IProductVariantRepository _productVariantRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         private string _token;
         private static readonly SemaphoreSlim TokenSemaphore = new(1, 1);
@@ -42,7 +45,8 @@ namespace OnlineShop.Infrastructure.Services
             IProductCategoryRepository productCategoryRepository,
             IMahakMappingRepository mahakMappingRepository,
             IProductImageRepository productImageRepository,
-            IProductVariantRepository productVariantRepository)
+            IProductVariantRepository productVariantRepository,
+            UserManager<ApplicationUser> userManager)
         {
             _httpClient = httpClient;
             _logger = logger;
@@ -53,6 +57,7 @@ namespace OnlineShop.Infrastructure.Services
             _mahakMappingRepository = mahakMappingRepository;
             _productImageRepository = productImageRepository;
             _productVariantRepository = productVariantRepository;
+            _userManager = userManager;
             
             _httpClient.BaseAddress = new Uri(BaseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -75,6 +80,9 @@ namespace OnlineShop.Infrastructure.Services
             return !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password) &&
                    !string.IsNullOrEmpty(packageNo) && !string.IsNullOrEmpty(databaseId);
         }
+
+        public Task SyncInventoryFromMahakAsync(CancellationToken cancellationToken)
+            => SyncAsync(cancellationToken);
 
         public async Task SyncAsync(CancellationToken cancellationToken)
         {
@@ -950,27 +958,65 @@ namespace OnlineShop.Infrastructure.Services
 
                     if (mapping != null)
                     {
-                        // Person already mapped - just log it
-                        _logger.LogDebug("Person {PersonId} ({Name} {Family}) already mapped to local entity {LocalId}", 
+                        var mappedUser = await _userManager.FindByIdAsync(mapping.LocalEntityId.ToString());
+                        if (mappedUser != null)
+                        {
+                            var needsUpdate = mappedUser.MahakPersonId != mahakPerson.PersonId ||
+                                              mappedUser.MahakPersonClientId != mahakPerson.PersonClientId;
+
+                            if (needsUpdate)
+                            {
+                                mappedUser.MahakPersonId = mahakPerson.PersonId;
+                                mappedUser.MahakPersonClientId = mahakPerson.PersonClientId;
+                                mappedUser.MahakSyncedAt = DateTime.UtcNow;
+                                await _userManager.UpdateAsync(mappedUser);
+                            }
+                        }
+
+                        _logger.LogDebug("Person {PersonId} ({Name} {Family}) already mapped to local entity {LocalId}",
                             mahakPerson.PersonId, mahakPerson.Name, mahakPerson.Family, mapping.LocalEntityId);
                         updated++;
                     }
                     else
                     {
-                        // New person from Mahak - create mapping with placeholder GUID
-                        // When user registers on website, we'll update this mapping with real User ID
-                        var placeholderGuid = Guid.NewGuid(); // Unique placeholder to avoid duplicate key
-                        var newMapping = MahakMapping.Create(
-                            "Person",
-                            placeholderGuid,
-                            mahakPerson.PersonId,
-                            mahakPerson.PersonCode.ToString());
+                        var matchedUser = _userManager.Users.FirstOrDefault(u =>
+                            (u.MahakPersonClientId.HasValue && u.MahakPersonClientId.Value == mahakPerson.PersonClientId) ||
+                            (!string.IsNullOrWhiteSpace(mahakPerson.Mobile) && u.PhoneNumber == mahakPerson.Mobile) ||
+                            (!string.IsNullOrWhiteSpace(mahakPerson.Email) && u.Email == mahakPerson.Email));
 
-                        await _mahakMappingRepository.AddAsync(newMapping, cancellationToken);
-                        
-                        _logger.LogInformation("New person from Mahak: {PersonId} - {Name} {Family} (Mobile: {Mobile})", 
-                            mahakPerson.PersonId, mahakPerson.Name, mahakPerson.Family, mahakPerson.Mobile);
-                        created++;
+                        if (matchedUser != null)
+                        {
+                            matchedUser.MahakPersonId = mahakPerson.PersonId;
+                            matchedUser.MahakPersonClientId = mahakPerson.PersonClientId;
+                            matchedUser.MahakSyncedAt = DateTime.UtcNow;
+                            await _userManager.UpdateAsync(matchedUser);
+
+                            var userMapping = MahakMapping.Create(
+                                "Person",
+                                matchedUser.Id,
+                                mahakPerson.PersonId,
+                                mahakPerson.PersonCode.ToString(),
+                                $"Matched incoming Mahak person on {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}");
+
+                            await _mahakMappingRepository.AddAsync(userMapping, cancellationToken);
+                            updated++;
+                        }
+                        else
+                        {
+                            // New person from Mahak - create mapping with placeholder GUID
+                            var placeholderGuid = Guid.NewGuid();
+                            var newMapping = MahakMapping.Create(
+                                "Person",
+                                placeholderGuid,
+                                mahakPerson.PersonId,
+                                mahakPerson.PersonCode.ToString());
+
+                            await _mahakMappingRepository.AddAsync(newMapping, cancellationToken);
+
+                            _logger.LogInformation("New person from Mahak: {PersonId} - {Name} {Family} (Mobile: {Mobile})",
+                                mahakPerson.PersonId, mahakPerson.Name, mahakPerson.Family, mahakPerson.Mobile);
+                            created++;
+                        }
                     }
 
                     // Save RowVersion for this person

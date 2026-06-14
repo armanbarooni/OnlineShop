@@ -125,7 +125,6 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Login error:', error);
-            // api-client throws errors, so we need to handle them properly
             const errorMessage = this.extractErrorMessage(error, 'خطا در ورود');
             
             return {
@@ -236,7 +235,7 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Verify OTP error:', error);
-            const message = this.extractErrorMessage(error, 'خطا در اتصال به سرور');
+            const message = this.extractErrorMessage(error, 'خطا در ورود');
 
             return {
                 success: false,
@@ -415,11 +414,12 @@ class AuthService {
             window.logger.error('Registration with phone error:', error);
             let errorMessage = this.extractErrorMessage(error, 'خطا در ثبت‌نام');
 
-            // Parse specific error messages (after extracting from HTTP error format)
-            if (errorMessage.includes('PHONE_EXISTS') || errorMessage.includes('شماره موبایل')) {
+            if (errorMessage.includes('کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است') || errorMessage.includes('PHONE_EXISTS')) {
                 errorMessage = 'کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است';
-            } else if (errorMessage.includes('OTP') || errorMessage.includes('کد تایید')) {
+            } else if (errorMessage.includes('کد تایید') || errorMessage.includes('OTP')) {
                 errorMessage = 'کد تایید نامعتبر یا منقضی شده است';
+            } else if (errorMessage.includes('ثبت‌نام انجام نشد:')) {
+                errorMessage = errorMessage;
             } else if (errorMessage.includes('VALIDATION_ERROR') || errorMessage.includes('اعتبارسنجی')) {
                 errorMessage = errorMessage.replace('VALIDATION_ERROR:', '').trim();
             } else if (errorMessage.includes('405') || errorMessage.includes('Method Not Allowed')) {

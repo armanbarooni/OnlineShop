@@ -830,14 +830,12 @@ function renderSpecifications(product) {
     if (!rowsBySize.has(sizeLabel)) {
       rowsBySize.set(sizeLabel, {
         size: sizeLabel,
-        stock: 0,
         feature8Values: new Set(),
         feature9Values: new Set(),
       });
     }
 
     const row = rowsBySize.get(sizeLabel);
-    row.stock += toNumber(variant.stock) || 0;
     if (variant.feature8Value) row.feature8Values.add(variant.feature8Value);
     if (variant.feature9Value) row.feature9Values.add(variant.feature9Value);
   });
@@ -847,7 +845,6 @@ function renderSpecifications(product) {
     column9Title,
     rows: Array.from(rowsBySize.values()).map((row) => ({
       size: row.size,
-      stock: row.stock,
       feature8Values: Array.from(row.feature8Values),
       feature9Values: Array.from(row.feature9Values),
     })),
@@ -865,7 +862,6 @@ function renderSpecifications(product) {
               <th class="py-3 px-3 sm:px-4 text-start font-bold text-gray-800 dark:text-white whitespace-nowrap">سایز</th>
               <th class="py-3 px-3 sm:px-4 text-start font-bold text-gray-800 dark:text-white whitespace-nowrap">${escapeHtml(sizeTableDto.column8Title)}</th>
               <th class="py-3 px-3 sm:px-4 text-start font-bold text-gray-800 dark:text-white whitespace-nowrap">${escapeHtml(sizeTableDto.column9Title)}</th>
-              <th class="py-3 px-3 sm:px-4 text-start font-bold text-gray-800 dark:text-white whitespace-nowrap">موجودی</th>
             </tr>
           </thead>
           <tbody>
@@ -878,18 +874,13 @@ function renderSpecifications(product) {
                           <td class="py-3 px-3 sm:px-4 font-semibold text-primary-700 dark:text-primary-300 whitespace-nowrap">${escapeHtml(row.size)}</td>
                           <td class="py-3 px-3 sm:px-4 text-gray-700 dark:text-gray-300 whitespace-nowrap">${escapeHtml((row.feature8Values || []).join("، "))}</td>
                           <td class="py-3 px-3 sm:px-4 text-gray-700 dark:text-gray-300 whitespace-nowrap">${escapeHtml((row.feature9Values || []).join("، "))}</td>
-                          <td class="py-3 px-3 sm:px-4 whitespace-nowrap">
-                            <span class="${row.stock > 0 ? "text-green-600" : "text-red-600"} font-semibold">
-                              ${row.stock > 0 ? `${formatCount(row.stock)} عدد` : "ناموجود"}
-                            </span>
-                          </td>
                         </tr>
                       `;
                     })
                     .join("")
                 : `
                   <tr>
-                    <td colspan="4" class="py-6 px-4 text-center text-gray-500 dark:text-gray-400">
+                    <td colspan="3" class="py-6 px-4 text-center text-gray-500 dark:text-gray-400">
                       اطلاعاتی برای جدول سایز این محصول ثبت نشده است.
                     </td>
                   </tr>
@@ -909,10 +900,6 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
-}
-
-function formatCount(value) {
-  return new Intl.NumberFormat("fa-IR").format(Math.round(value));
 }
 
 // Format price

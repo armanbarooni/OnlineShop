@@ -2,12 +2,11 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Application.Common.Models;
-
 using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Application.DTOs.Auth;
 using OnlineShop.Domain.Entities;
-
 using OnlineShop.Domain.Interfaces.Repositories;
+
 namespace OnlineShop.Application.Features.Auth.Commands.LoginWithPhone
 {
     public class LoginWithPhoneCommandHandler : IRequestHandler<LoginWithPhoneCommand, Result<AuthResponseDto>>
@@ -28,7 +27,6 @@ namespace OnlineShop.Application.Features.Auth.Commands.LoginWithPhone
 
         public async Task<Result<AuthResponseDto>> Handle(LoginWithPhoneCommand request, CancellationToken cancellationToken)
         {
-            // Verify OTP first
             var otp = await _otpRepository.GetValidOtpByPhoneAsync(request.Request.PhoneNumber, cancellationToken);
 
             if (otp == null || otp.Code != request.Request.Code)
@@ -36,22 +34,21 @@ namespace OnlineShop.Application.Features.Auth.Commands.LoginWithPhone
                 return Result<AuthResponseDto>.Failure("کد تایید نامعتبر یا منقضی شده است");
             }
 
-            // Find user by phone number
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == request.Request.PhoneNumber, cancellationToken);
+            var user = await _userManager.Users.FirstOrDefaultAsync(
+                u => u.PhoneNumber == request.Request.PhoneNumber,
+                cancellationToken);
+
             if (user == null)
             {
-                return Result<AuthResponseDto>.Failure("شما هنوز ثبت‌نام نکرده‌اید. لطفاً ابتدا ثبت‌نام کنید");
+                return Result<AuthResponseDto>.Failure("با این شماره موبایل حساب کاربری پیدا نشد. ابتدا ثبت‌نام کنید");
             }
 
-            // Update last login
             user.LastLoginAt = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
 
-            // Mark OTP as used
             otp.MarkAsUsed();
             await _otpRepository.UpdateAsync(otp, cancellationToken);
 
-            // Generate tokens
             var roles = await _userManager.GetRolesAsync(user);
             var tokens = await _tokenService.GenerateTokensAsync(user.PhoneNumber!, roles);
 
@@ -59,6 +56,3 @@ namespace OnlineShop.Application.Features.Auth.Commands.LoginWithPhone
         }
     }
 }
-
-
-

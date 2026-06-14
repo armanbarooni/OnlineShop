@@ -52,7 +52,7 @@ class CartPage {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
             <h2 class="text-xl font-bold text-gray-600 dark:text-gray-300">سبد خرید شما خالی است</h2>
-            <a href="/shop.html" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">مشاهده محصولات</a>
+            <a href="shop.html" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">مشاهده محصولات</a>
           </div>
         `;
         this.updateSummary(0, 0, 0);
@@ -69,7 +69,7 @@ class CartPage {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
             <h2 class="text-xl font-bold text-gray-600 dark:text-gray-300">سبد خرید شما خالی است</h2>
-            <a href="/shop.html" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">مشاهده محصولات</a>
+            <a href="shop.html" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">مشاهده محصولات</a>
           </div>
         `;
         this.updateSummary(0, 0, 0);
@@ -108,7 +108,7 @@ class CartPage {
       // Update summary
       const subtotal = cartData.subtotal || items.reduce((sum, i) => sum + i.totalPrice, 0);
       const discount = cartData.discountAmount || 0;
-      const shipping = cartData.shippingCost || 0;
+      const shipping = 0;
       this.updateSummary(subtotal, discount, shipping);
 
     } catch (error) {
@@ -135,7 +135,7 @@ class CartPage {
           <div class="lg:col-span-3 col-span-4 w-full">
             <div class="flex flex-wrap">
               <figure>
-                <a href="/product.html?id=${item.productId}">
+                <a href="product.html?id=${item.productId}">
                   <img class="size-32 object-cover rounded-lg" 
                        src="${imageUrl}" 
                        alt="${this.escapeHtml(item.productName)}"
@@ -143,7 +143,7 @@ class CartPage {
                 </a>
               </figure>
               <div class="space-y-3 ms-4 flex-1">
-                <a href="/product.html?id=${item.productId}" class="font-bold text-base hover:text-green-600 transition">${this.escapeHtml(item.productName)}</a>
+                <a href="product.html?id=${item.productId}" class="font-bold text-base hover:text-green-600 transition">${this.escapeHtml(item.productName)}</a>
                 ${variantInfo ? `<p class="text-sm text-gray-500 dark:text-gray-400">${this.escapeHtml(variantInfo)}</p>` : ""}
                 <p class="text-sm text-gray-500">قیمت واحد: ${unitPrice} ریال</p>
                 <div class="flex items-center mt-2">
@@ -216,7 +216,7 @@ class CartPage {
           window.location.href = `login.html?returnUrl=${encodeURIComponent("checkout.html")}`;
           return;
         }
-        window.location.href = "/checkout.html";
+        window.location.href = "checkout.html";
       };
     }
   }

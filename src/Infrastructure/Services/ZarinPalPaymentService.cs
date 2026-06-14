@@ -75,9 +75,9 @@ namespace OnlineShop.Infrastructure.Services
                     if (dataElement.TryGetProperty("code", out var codeElement) && codeElement.GetInt32() == 100)
                     {
                         var authority = dataElement.GetProperty("authority").GetString() ?? string.Empty;
-                        var paymentUrl = _isSandbox
-                            ? $"https://sandbox.zarinpal.com/pg/StartPay/{authority}"
-                            : $"https://payment.zarinpal.com/pg/StartPay/{authority}";
+                        var paymentUrl = //_isSandbox
+                            $"https://sandbox.zarinpal.com/pg/StartPay/{authority}";
+                           // : $"https://payment.zarinpal.com/pg/StartPay/{authority}";
 
                         _logger.LogInformation("Payment initiated successfully. Authority: {Authority}", authority);
                         return (true, paymentUrl, authority, "Success");

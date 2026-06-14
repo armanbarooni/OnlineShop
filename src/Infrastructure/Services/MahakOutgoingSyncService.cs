@@ -87,7 +87,10 @@ namespace OnlineShop.Infrastructure.Services
                 // 1. Login
                 await EnsureAuthenticatedAsync(cancellationToken);
 
-                // 2. Get unsync orders (paid but not synced to Mahak)
+                // 2. Try syncing pending customers first, but do not block orders if customer sync fails.
+                await SyncPendingCustomersToMahakAsync(cancellationToken);
+
+                // 3. Get unsync orders (paid but not synced to Mahak)
                 var unsyncedOrders = await GetUnsyncedOrdersAsync(cancellationToken);
 
                 if (unsyncedOrders == null || !unsyncedOrders.Any())
@@ -98,7 +101,7 @@ namespace OnlineShop.Infrastructure.Services
 
                 _logger.LogInformation("Found {Count} orders to sync to Mahak", unsyncedOrders.Count);
 
-                // 3. Convert and send orders
+                // 4. Convert and send orders
                 int success = 0;
                 int failed = 0;
 
@@ -127,6 +130,40 @@ namespace OnlineShop.Infrastructure.Services
         private async Task<List<UserOrder>> GetUnsyncedOrdersAsync(CancellationToken cancellationToken)
         {
             return await _orderRepository.GetUnsyncedOrdersAsync(cancellationToken);
+        }
+
+        public async Task SyncPendingCustomersToMahakAsync(CancellationToken cancellationToken)
+        {
+            if (!IsConfigured())
+            {
+                return;
+            }
+
+            var pendingUsers = await _userManager.Users
+                .Where(u => !u.MahakPersonClientId.HasValue)
+                .Include(u => u.UserProfile)
+                .OrderBy(u => u.CreatedAt)
+                .ToListAsync(cancellationToken);
+
+            if (pendingUsers.Count == 0)
+            {
+                _logger.LogDebug("No pending customers to sync to Mahak");
+                return;
+            }
+
+            _logger.LogInformation("Found {Count} pending customers to sync to Mahak", pendingUsers.Count);
+
+            foreach (var user in pendingUsers)
+            {
+                try
+                {
+                    await EnsureCustomerSyncedAsync(user, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to sync pending customer {UserId} to Mahak", user.Id);
+                }
+            }
         }
 
         public async Task SyncOrderToMahakAsync(Guid orderId, CancellationToken cancellationToken)
@@ -158,22 +195,12 @@ namespace OnlineShop.Infrastructure.Services
         {
             _logger.LogInformation("Sending order {OrderId} to Mahak", order.Id);
 
-            // Ensure customer is synced to Mahak first
-            int mahakPersonId = 0;
-            if (order.User != null)
+            int? mahakPersonId = order.User?.MahakPersonId;
+
+            if (!mahakPersonId.HasValue)
             {
-                try
-                {
-                    mahakPersonId = await EnsureCustomerSyncedAsync(order.User, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to sync customer for order {OrderId}, will send order without PersonId", order.Id);
-                }
-            }
-            else
-            {
-                _logger.LogWarning("Order {OrderId} has no User loaded, cannot sync customer", order.Id);
+                _logger.LogInformation("Order {OrderId} will be sent to Mahak without PersonId because user {UserId} has not received MahakPersonId yet",
+                    order.Id, order.UserId);
             }
 
             // Convert order to Mahak format
@@ -194,7 +221,7 @@ namespace OnlineShop.Infrastructure.Services
             {
                 OrderClientId = order.Id.GetHashCode(), // Use hash of GUID as long
                 VisitorId = _visitorId,
-                PersonId = mahakPersonId > 0 ? mahakPersonId : null, // Link to customer if synced
+                PersonId = mahakPersonId, // Send only when actual Mahak PersonId is available
                 OrderType = 201, // Sales invoice
                 OrderDate = order.CreatedAt,
                 DeliveryDate = order.CreatedAt.AddDays(3), // Estimate
@@ -204,7 +231,7 @@ namespace OnlineShop.Infrastructure.Services
                 OtherCost = 0,
                 SettlementType = 1, // Cash (since payment is done)
                 Immediate = false,
-                Description = $"Website Order #{order.OrderNumber}",
+                Description = BuildOrderDescription(order),
                 ShippingAddress = shippingAddressJson
             };
 
@@ -257,7 +284,7 @@ namespace OnlineShop.Infrastructure.Services
                     DiscountType = 0,
                     TaxPercent = 0,
                     ChargePercent = 0,
-                    Description = item.ProductName,
+                    Description = BuildOrderItemDescription(item),
                     Gift = 0
                 });
             }
@@ -296,6 +323,63 @@ namespace OnlineShop.Infrastructure.Services
             // Mark order as synced
             order.SetMahakSynced(mahakOrder.OrderClientId.ToString());
             await _orderRepository.UpdateAsync(order, cancellationToken);
+        }
+
+        private static string BuildOrderDescription(UserOrder order)
+        {
+            var parts = new List<string>
+            {
+                $"Website Order #{order.OrderNumber}"
+            };
+
+            var customerName = $"{order.User?.FirstName} {order.User?.LastName}".Trim();
+            if (!string.IsNullOrWhiteSpace(customerName))
+            {
+                parts.Add($"Customer: {customerName}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(order.User?.PhoneNumber))
+            {
+                parts.Add($"Mobile: {order.User.PhoneNumber}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(order.Notes))
+            {
+                parts.Add($"Notes: {order.Notes}");
+            }
+
+            return string.Join(" | ", parts);
+        }
+
+        private static string BuildOrderItemDescription(UserOrderItem item)
+        {
+            var parts = new List<string> { item.ProductName };
+
+            if (!string.IsNullOrWhiteSpace(item.ProductVariant?.Color))
+            {
+                parts.Add($"Color: {item.ProductVariant.Color}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.ProductVariant?.Size))
+            {
+                parts.Add($"Size: {item.ProductVariant.Size}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.ProductVariant?.SKU))
+            {
+                parts.Add($"SKU: {item.ProductVariant.SKU}");
+            }
+            else if (!string.IsNullOrWhiteSpace(item.ProductSku))
+            {
+                parts.Add($"SKU: {item.ProductSku}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.Notes))
+            {
+                parts.Add($"Notes: {item.Notes}");
+            }
+
+            return string.Join(" | ", parts);
         }
 
         public async Task SyncCustomerToMahakAsync(Guid userId, CancellationToken cancellationToken)

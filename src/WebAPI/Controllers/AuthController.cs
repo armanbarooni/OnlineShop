@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +56,7 @@ namespace OnlineShop.WebAPI.Controllers
 			if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
 			{
 				_logger.LogWarning("Login failed - missing identifier or password for {Identifier}", dto.Email);
-				return Unauthorized(new { message = "ایمیل/شماره موبایل و رمز عبور الزامی است" });
+	                    return Unauthorized(new { message = "ایمیل/شماره موبایل و رمز عبور الزامی است" });
 			}
 
 			// Try to find user by phone number OR email
@@ -80,7 +80,7 @@ namespace OnlineShop.WebAPI.Controllers
 				if (user == null)
 				{
 					_logger.LogWarning("Login failed - user not found for: {Identifier}", dto.Email);
-					return Unauthorized(new { message = "نام کاربری یا رمز عبور اشتباه است" });
+	                        return Unauthorized(new { message = "حساب کاربری با این ایمیل یا شماره موبایل یافت نشد. ابتدا ثبت‌نام کنید" });
 				}
 			}
 
@@ -91,7 +91,7 @@ namespace OnlineShop.WebAPI.Controllers
 				if (user == null)
 				{
 					_logger.LogWarning("Login failed - invalid password for user: {Email}", dto.Email);
-					return Unauthorized(new { message = "نام کاربری یا رمز عبور اشتباه است" });
+	                        return Unauthorized(new { message = "رمز عبور اشتباه است" });
 				}
 			}
 			else
@@ -120,14 +120,14 @@ namespace OnlineShop.WebAPI.Controllers
 			if (string.IsNullOrWhiteSpace(dto.RefreshToken))
 			{
 				_logger.LogWarning("Token refresh failed - missing refresh token");
-				return Unauthorized(new { message = "Refresh token الزامی است" });
+				return Unauthorized(new { message = "Refresh token Ø§Ù„Ø²Ø§Ù…ÛŒ Ø§Ø³Øª" });
 			}
 
 			var tokens = await _tokenService.RefreshTokenAsync(dto.RefreshToken);
 			if (tokens == null)
 			{
 				_logger.LogWarning("Token refresh failed - invalid or expired refresh token");
-				return Unauthorized(new { message = "Refresh token نامعتبر یا منقضی شده است" });
+				return Unauthorized(new { message = "Refresh token Ù†Ø§Ù…Ø¹ØªØ¨Ø± ÛŒØ§ Ù…Ù†Ù‚Ø¶ÛŒ Ø´Ø¯Ù‡ Ø§Ø³Øª" });
 			}
 
 			_logger.LogInformation("Token refresh successful for user: {Email}", tokens.Email);
@@ -144,7 +144,7 @@ namespace OnlineShop.WebAPI.Controllers
 			if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
 			{
 				_logger.LogWarning("Registration failed - missing email or password for {Email}", dto.Email);
-				return BadRequest(new { message = "ایمیل و رمز عبور الزامی است" });
+				return BadRequest(new { message = "Ø§ÛŒÙ…ÛŒÙ„ Ùˆ Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ø§Ù„Ø²Ø§Ù…ÛŒ Ø§Ø³Øª" });
 			}
 
 			var existingUser = await _userManager.FindByEmailAsync(dto.Email);
@@ -152,7 +152,7 @@ namespace OnlineShop.WebAPI.Controllers
 			{
 				_logger.LogWarning("Registration failed - user already exists for email: {Email}", dto.Email);
 				return BadRequest(new { 
-					message = "کاربری با این ایمیل قبلاً ثبت‌نام کرده است",
+					message = "Ú©Ø§Ø±Ø¨Ø±ÛŒ Ø¨Ø§ Ø§ÛŒÙ† Ø§ÛŒÙ…ÛŒÙ„ Ù‚Ø¨Ù„Ø§Ù‹ Ø«Ø¨Øªâ€ŒÙ†Ø§Ù… Ú©Ø±Ø¯Ù‡ Ø§Ø³Øª",
 					code = "EMAIL_EXISTS"
 				});
 			}
@@ -164,7 +164,7 @@ namespace OnlineShop.WebAPI.Controllers
                 {
                     _logger.LogWarning("Registration failed - user already exists for phone: {Phone}", dto.PhoneNumber);
                     return BadRequest(new { 
-                        message = "کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است",
+                        message = "Ú©Ø§Ø±Ø¨Ø±ÛŒ Ø¨Ø§ Ø§ÛŒÙ† Ø´Ù…Ø§Ø±Ù‡ Ù…ÙˆØ¨Ø§ÛŒÙ„ Ù‚Ø¨Ù„Ø§Ù‹ Ø«Ø¨Øªâ€ŒÙ†Ø§Ù… Ú©Ø±Ø¯Ù‡ Ø§Ø³Øª",
                         code = "PHONE_EXISTS"
                     });
                 }
@@ -202,12 +202,7 @@ namespace OnlineShop.WebAPI.Controllers
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, "Failed to sync newly registered user {UserId} to Mahak. Rolling back registration.", user.Id);
-				await _userManager.DeleteAsync(user);
-				return StatusCode(StatusCodes.Status502BadGateway, new
-				{
-					message = "ثبت‌نام انجام نشد چون ارسال کاربر به محک ناموفق بود"
-				});
+				_logger.LogWarning(ex, "Failed to sync newly registered user {UserId} to Mahak. Registration will continue and background sync will retry.", user.Id);
 			}
 
 			var roles = await _userManager.GetRolesAsync(user);
@@ -293,7 +288,7 @@ namespace OnlineShop.WebAPI.Controllers
 				if (user == null)
 				{
 					_logger.LogError("User registration with phone succeeded but user lookup failed for {PhoneNumber}", dto.PhoneNumber);
-					return StatusCode(StatusCodes.Status500InternalServerError, Result<AuthResponseDto>.Failure("کاربر ثبت شد ولی بازیابی اطلاعات کاربر ناموفق بود"));
+					return StatusCode(StatusCodes.Status500InternalServerError, Result<AuthResponseDto>.Failure("Ú©Ø§Ø±Ø¨Ø± Ø«Ø¨Øª Ø´Ø¯ ÙˆÙ„ÛŒ Ø¨Ø§Ø²ÛŒØ§Ø¨ÛŒ Ø§Ø·Ù„Ø§Ø¹Ø§Øª Ú©Ø§Ø±Ø¨Ø± Ù†Ø§Ù…ÙˆÙÙ‚ Ø¨ÙˆØ¯"));
 				}
 
 				try
@@ -302,9 +297,7 @@ namespace OnlineShop.WebAPI.Controllers
 				}
 				catch (Exception ex)
 				{
-					_logger.LogError(ex, "Failed to sync newly registered phone user {UserId} to Mahak. Rolling back registration.", user.Id);
-					await _userManager.DeleteAsync(user);
-					return StatusCode(StatusCodes.Status502BadGateway, Result<AuthResponseDto>.Failure("ثبت‌نام انجام نشد چون ارسال کاربر به محک ناموفق بود"));
+					_logger.LogWarning(ex, "Failed to sync newly registered phone user {UserId} to Mahak. Registration will continue and background sync will retry.", user.Id);
 				}
 
 				_logger.LogInformation("User registered successfully with phone: {PhoneNumber}", dto.PhoneNumber);
@@ -347,7 +340,7 @@ namespace OnlineShop.WebAPI.Controllers
 
 			if (string.IsNullOrWhiteSpace(dto.PhoneNumber))
 			{
-				return BadRequest(new { message = "شماره تلفن الزامی است" });
+				return BadRequest(new { message = "Ø´Ù…Ø§Ø±Ù‡ ØªÙ„ÙÙ† Ø§Ù„Ø²Ø§Ù…ÛŒ Ø§Ø³Øª" });
 			}
 
 			// Check if user exists with this phone number
@@ -356,7 +349,7 @@ namespace OnlineShop.WebAPI.Controllers
 			{
 				// Don't reveal that user doesn't exist for security reasons
 				_logger.LogWarning("Forgot password request for non-existent phone: {PhoneNumber}", dto.PhoneNumber);
-				return Ok(new { message = "در صورت وجود حساب کاربری با این شماره، کد بازیابی ارسال شد" });
+				return Ok(new { message = "Ø¯Ø± ØµÙˆØ±Øª ÙˆØ¬ÙˆØ¯ Ø­Ø³Ø§Ø¨ Ú©Ø§Ø±Ø¨Ø±ÛŒ Ø¨Ø§ Ø§ÛŒÙ† Ø´Ù…Ø§Ø±Ù‡ØŒ Ú©Ø¯ Ø¨Ø§Ø²ÛŒØ§Ø¨ÛŒ Ø§Ø±Ø³Ø§Ù„ Ø´Ø¯" });
 			}
 
 			// Send OTP for password reset
@@ -372,11 +365,11 @@ namespace OnlineShop.WebAPI.Controllers
 			if (result.IsSuccess)
 			{
 				_logger.LogInformation("Password reset OTP sent successfully to {PhoneNumber}", dto.PhoneNumber);
-				return Ok(new { message = "کد بازیابی رمز عبور به شماره موبایل شما ارسال شد" });
+				return Ok(new { message = "Ú©Ø¯ Ø¨Ø§Ø²ÛŒØ§Ø¨ÛŒ Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ø¨Ù‡ Ø´Ù…Ø§Ø±Ù‡ Ù…ÙˆØ¨Ø§ÛŒÙ„ Ø´Ù…Ø§ Ø§Ø±Ø³Ø§Ù„ Ø´Ø¯" });
 			}
 
 			_logger.LogWarning("Failed to send password reset OTP to {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
-			return BadRequest(new { message = result.ErrorMessage ?? "خطا در ارسال کد بازیابی" });
+			return BadRequest(new { message = result.ErrorMessage ?? "Ø®Ø·Ø§ Ø¯Ø± Ø§Ø±Ø³Ø§Ù„ Ú©Ø¯ Ø¨Ø§Ø²ÛŒØ§Ø¨ÛŒ" });
 		}
 
 		/// <summary>
@@ -391,7 +384,7 @@ namespace OnlineShop.WebAPI.Controllers
 
 			if (string.IsNullOrWhiteSpace(dto.PhoneNumber) || string.IsNullOrWhiteSpace(dto.OtpCode) || string.IsNullOrWhiteSpace(dto.NewPassword))
 			{
-				return BadRequest(new { message = "شماره تلفن، کد تایید و رمز عبور جدید الزامی است" });
+				return BadRequest(new { message = "Ø´Ù…Ø§Ø±Ù‡ ØªÙ„ÙÙ†ØŒ Ú©Ø¯ ØªØ§ÛŒÛŒØ¯ Ùˆ Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ø¬Ø¯ÛŒØ¯ Ø§Ù„Ø²Ø§Ù…ÛŒ Ø§Ø³Øª" });
 			}
 
 			// Verify OTP
@@ -407,7 +400,7 @@ namespace OnlineShop.WebAPI.Controllers
 			if (!verifyResult.IsSuccess)
 			{
 				_logger.LogWarning("OTP verification failed for password reset: {Error}", verifyResult.ErrorMessage);
-				return BadRequest(new { message = verifyResult.ErrorMessage ?? "کد تایید نامعتبر است" });
+				return BadRequest(new { message = verifyResult.ErrorMessage ?? "Ú©Ø¯ ØªØ§ÛŒÛŒØ¯ Ù†Ø§Ù…Ø¹ØªØ¨Ø± Ø§Ø³Øª" });
 			}
 
 			// Find user by phone number
@@ -415,7 +408,7 @@ namespace OnlineShop.WebAPI.Controllers
 			if (user == null)
 			{
 				_logger.LogWarning("User not found for phone number: {PhoneNumber}", dto.PhoneNumber);
-				return BadRequest(new { message = "کاربری با این شماره تلفن یافت نشد" });
+				return BadRequest(new { message = "Ú©Ø§Ø±Ø¨Ø±ÛŒ Ø¨Ø§ Ø§ÛŒÙ† Ø´Ù…Ø§Ø±Ù‡ ØªÙ„ÙÙ† ÛŒØ§ÙØª Ù†Ø´Ø¯" });
 			}
 
 			// Reset password
@@ -425,13 +418,13 @@ namespace OnlineShop.WebAPI.Controllers
 			if (result.Succeeded)
 			{
 				_logger.LogInformation("Password reset successful for user: {UserId}", user.Id);
-				return Ok(new { message = "رمز عبور با موفقیت تغییر یافت" });
+				return Ok(new { message = "Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ø¨Ø§ Ù…ÙˆÙÙ‚ÛŒØª ØªØºÛŒÛŒØ± ÛŒØ§ÙØª" });
 			}
 
 			var errors = result.Errors.Select(e => e.Description).ToList();
 			_logger.LogWarning("Password reset failed for user {UserId}: {Errors}", user.Id, string.Join(", ", errors));
 			return BadRequest(new { 
-				message = "خطا در تغییر رمز عبور",
+				message = "Ø®Ø·Ø§ Ø¯Ø± ØªØºÛŒÛŒØ± Ø±Ù…Ø² Ø¹Ø¨ÙˆØ±",
 				errors = errors 
 			});
 		}
@@ -449,14 +442,14 @@ namespace OnlineShop.WebAPI.Controllers
 			if (string.IsNullOrEmpty(userId))
 			{
 				_logger.LogWarning("GetCurrentUser failed - user ID not found in claims");
-				return Unauthorized(new { message = "شناسه کاربر یافت نشد" });
+				return Unauthorized(new { message = "Ø´Ù†Ø§Ø³Ù‡ Ú©Ø§Ø±Ø¨Ø± ÛŒØ§ÙØª Ù†Ø´Ø¯" });
 			}
 
 			var user = await _userManager.FindByIdAsync(userId);
 			if (user == null)
 			{
 				_logger.LogWarning("GetCurrentUser failed - user not found for ID: {UserId}", userId);
-				return Unauthorized(new { message = "کاربر یافت نشد" });
+				return Unauthorized(new { message = "Ú©Ø§Ø±Ø¨Ø± ÛŒØ§ÙØª Ù†Ø´Ø¯" });
 			}
 
 			var userProfile = new UserProfileDto

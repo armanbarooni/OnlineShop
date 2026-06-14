@@ -319,6 +319,18 @@ function toggleOffcanvas(id) {
     let offcanvas = document.getElementById(id);
     if (!offcanvas) return;
 
+    ensureOffcanvasClosedState(offcanvas);
+
+    const isOpen =
+        offcanvas.classList.contains("visible") &&
+        !offcanvas.classList.contains("invisible") &&
+        !offcanvas.classList.contains("opacity-0");
+
+    if (isOpen) {
+        closeOffcanvas();
+        return;
+    }
+
     // Remove any previous translation or opacity classes
     offcanvas.classList.remove("translate-x-full", "-translate-x-full", "-translate-y-full", "translate-y-full", "opacity-0");
     offcanvas.style.transform = "translate3d(0, 0, 0)";
@@ -340,6 +352,73 @@ function toggleOffcanvas(id) {
 }
 window.toggleDropdown = toggleDropdown;
 
+function ensureOffcanvasClosedState(offcanvas) {
+    if (!offcanvas || offcanvas.dataset.closedTransformClass) {
+        return;
+    }
+
+    const knownClosedClasses = [
+        "translate-x-full",
+        "-translate-x-full",
+        "-translate-y-full",
+        "translate-y-full"
+    ];
+
+    const existingClosedClass = knownClosedClasses.find(cls => offcanvas.classList.contains(cls));
+    if (existingClosedClass) {
+        offcanvas.dataset.closedTransformClass = existingClosedClass;
+        return;
+    }
+
+    if (offcanvas.classList.contains("start-0") || offcanvas.id.includes("right")) {
+        offcanvas.dataset.closedTransformClass = "-translate-x-full";
+        return;
+    }
+
+    if (offcanvas.classList.contains("end-0") || offcanvas.id.includes("left")) {
+        offcanvas.dataset.closedTransformClass = "translate-x-full";
+        return;
+    }
+
+    if (offcanvas.id.includes("top")) {
+        offcanvas.dataset.closedTransformClass = "-translate-y-full";
+        return;
+    }
+
+    if (offcanvas.id.includes("bottom")) {
+        offcanvas.dataset.closedTransformClass = "translate-y-full";
+    }
+}
+
+function applyClosedOffcanvasState(offcanvas) {
+    ensureOffcanvasClosedState(offcanvas);
+
+    const closedClass = offcanvas.dataset.closedTransformClass || "";
+    offcanvas.classList.remove("translate-x-full", "-translate-x-full", "-translate-y-full", "translate-y-full");
+
+    if (closedClass) {
+        offcanvas.classList.add(closedClass);
+    }
+
+    switch (closedClass) {
+        case "translate-x-full":
+            offcanvas.style.transform = "translate3d(100%, 0, 0)";
+            break;
+        case "-translate-x-full":
+            offcanvas.style.transform = "translate3d(-100%, 0, 0)";
+            break;
+        case "-translate-y-full":
+            offcanvas.style.transform = "translate3d(0, -100%, 0)";
+            break;
+        case "translate-y-full":
+            offcanvas.style.transform = "translate3d(0, 100%, 0)";
+            break;
+        default:
+            offcanvas.style.transform = "";
+            break;
+    }
+}
+
 // Function to close all offcanvas elements
 function closeOffcanvas() {
     // Loop through all elements with the class 'offcanvas'
@@ -348,34 +427,7 @@ function closeOffcanvas() {
         el.classList.add("opacity-0");
         el.classList.remove("opacity-100", "visible");
         el.classList.add("invisible");
-
-        if (el.classList.contains("start-0")) {
-            el.classList.add("-translate-x-full");
-            el.classList.remove("translate-x-full");
-            el.style.transform = "translate3d(-100%, 0, 0)";
-        } else if (el.classList.contains("end-0")) {
-            el.classList.add("translate-x-full");
-            el.classList.remove("-translate-x-full");
-            el.style.transform = "translate3d(100%, 0, 0)";
-        } else if (el.id.includes("right")) {
-            el.classList.add("translate-x-full");
-            el.style.transform = "translate3d(100%, 0, 0)";
-        } else if (el.id.includes("left")) {
-            el.classList.add("-translate-x-full");
-            el.style.transform = "translate3d(-100%, 0, 0)";
-        }
-
-        // Check if the offcanvas is at the top and add corresponding translation class
-        if (el.id.includes("top")) {
-            el.classList.add("-translate-y-full");
-            el.style.transform = "translate3d(0, -100%, 0)";
-        }
-
-        // Check if the offcanvas is at the bottom and add corresponding translation class
-        if (el.id.includes("bottom")) {
-            el.classList.add("translate-y-full");
-            el.style.transform = "translate3d(0, 100%, 0)";
-        }
+        applyClosedOffcanvasState(el);
     });
 
     // Set a timeout to hide overlays after animation is complete
@@ -390,6 +442,167 @@ function closeOffcanvas() {
 // Ensure inline HTML handlers can always access these functions
 window.toggleOffcanvas = toggleOffcanvas;
 window.closeOffcanvas = closeOffcanvas;
+
+document.querySelectorAll(".offcanvas").forEach(ensureOffcanvasClosedState);
+
+document.addEventListener("click", function (event) {
+    const offcanvasLink = event.target.closest(".offcanvas a[href]");
+    if (!offcanvasLink) return;
+
+    const href = offcanvasLink.getAttribute("href") || "";
+    if (!href || href === "#" || href.startsWith("javascript:")) {
+        return;
+    }
+
+    closeOffcanvas();
+});
+
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        closeOffcanvas();
+    }
+});
+
+const localizedStorefrontPages = new Set([
+    "/fa/index.html",
+    "/fa/product.html",
+    "/fa/shop.html",
+    "/fa/cart.html",
+    "/fa/checkout.html",
+    "/fa/user-panel-index.html",
+    "/fa/user-panel-favorite.html",
+    "/fa/user-panel-address.html"
+]);
+
+function shouldNormalizeLocalizedStorefrontRoutes() {
+    return localizedStorefrontPages.has(window.location.pathname.toLowerCase());
+}
+
+function normalizeLocalizedStorefrontHref(rawHref) {
+    if (!rawHref || rawHref.startsWith("#") || rawHref.startsWith("mailto:") || rawHref.startsWith("tel:") || rawHref.startsWith("javascript:")) {
+        return null;
+    }
+
+    let url;
+    try {
+        url = new URL(rawHref, window.location.href);
+    } catch (_) {
+        return null;
+    }
+
+    if (url.origin !== window.location.origin) {
+        return null;
+    }
+
+    const path = url.pathname.toLowerCase();
+    const exactMap = {
+        "/": "/fa/index.html",
+        "/index.html": "/fa/index.html",
+        "/shop": "/fa/shop.html",
+        "/shop.html": "/fa/shop.html",
+        "/product": "/fa/product.html",
+        "/product.html": "/fa/product.html",
+        "/cart": "/fa/cart.html",
+        "/cart.html": "/fa/cart.html",
+        "/checkout": "/fa/checkout.html",
+        "/checkout.html": "/fa/checkout.html",
+        "/user-panel": "/fa/user-panel-index.html",
+        "/user-panel-index.html": "/fa/user-panel-index.html",
+        "/user-panel-favorite": "/fa/user-panel-favorite.html",
+        "/user-panel-favorite.html": "/fa/user-panel-favorite.html",
+        "/user-panel-address": "/fa/user-panel-address.html",
+        "/user-panel-address.html": "/fa/user-panel-address.html",
+        "/login": "/fa/login.html",
+        "/login.html": "/fa/login.html",
+        "/pages": "/fa/index.html",
+        "/order-guide": "/fa/checkout.html",
+        "/shipping-policy": "/fa/checkout.html",
+        "/payment-methods": "/fa/checkout.html",
+        "/privacy": "/fa/index.html",
+        "/terms": "/fa/index.html",
+        "/faq": "/fa/index.html",
+        "/contact": "/fa/index.html"
+    };
+
+    let localizedPath = exactMap[path];
+    if (!localizedPath && path.startsWith("/category/")) {
+        localizedPath = "/fa/shop.html";
+    }
+
+    if (!localizedPath || localizedPath === url.pathname) {
+        return null;
+    }
+
+    url.pathname = localizedPath;
+    return `${url.pathname}${url.search}${url.hash}`;
+}
+
+function normalizeLocalizedStorefrontLinks(root = document) {
+    if (!shouldNormalizeLocalizedStorefrontRoutes()) {
+        return;
+    }
+
+    root.querySelectorAll("a[href]").forEach((anchor) => {
+        const currentHref = anchor.getAttribute("href") || "";
+        if (currentHref === "#") {
+            const label = (anchor.textContent || "").replace(/\s+/g, " ").trim();
+            if (label.includes("خانه")) {
+                anchor.setAttribute("href", "index.html");
+                return;
+            }
+            if (label.includes("پنل کاربری")) {
+                anchor.setAttribute("href", "user-panel-index.html");
+                return;
+            }
+            if (label.includes("رفتن به بالا")) {
+                anchor.setAttribute("href", "#topHeader");
+                return;
+            }
+        }
+
+        const normalizedHref = normalizeLocalizedStorefrontHref(currentHref);
+        if (normalizedHref) {
+            anchor.setAttribute("href", normalizedHref);
+        }
+    });
+}
+
+if (shouldNormalizeLocalizedStorefrontRoutes()) {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => normalizeLocalizedStorefrontLinks());
+    } else {
+        normalizeLocalizedStorefrontLinks();
+    }
+
+    const routeNormalizerObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    normalizeLocalizedStorefrontLinks(node);
+                }
+            });
+        });
+    });
+
+    routeNormalizerObserver.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
+
+    document.addEventListener("click", function (event) {
+        const anchor = event.target.closest("a[href]");
+        if (!anchor) {
+            return;
+        }
+
+        const normalizedHref = normalizeLocalizedStorefrontHref(anchor.getAttribute("href"));
+        if (!normalizedHref) {
+            return;
+        }
+
+        anchor.setAttribute("href", normalizedHref);
+    }, true);
+}
 
 /**
  * STICKY MEGA MENU MODULE

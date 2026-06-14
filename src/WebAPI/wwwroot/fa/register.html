@@ -1048,18 +1048,18 @@
                 const submitButton = document.getElementById('completeRegistrationButton');
                 window.utils.showLoading(submitButton, 'در حال ثبت‌نام...');
 
-                // Verify OTP for Registration purpose, then register user
-                const verify = await window.authService.verifyOTP(registrationData.mobile, registrationData.otp);
+                // Final registration step should only verify the OTP code, not log the user in.
+                const verify = await window.authService.verifyOTPOnly(registrationData.mobile, registrationData.otp);
                 if (!verify || verify.success !== true) {
                     window.utils.showToast((verify && verify.error) || 'کد تایید نامعتبر است.', 'error');
                     return;
                 }
 
-                const response = await window.authService.register({
+                const response = await window.authService.registerWithPhone({
                     firstName: registrationData.firstName,
                     lastName: registrationData.lastName,
                     phone: registrationData.mobile,
-                    email: (document.getElementById('email') && document.getElementById('email').value) || null,
+                    otp: registrationData.otp,
                     password: registrationData.password
                 });
 
@@ -1208,16 +1208,16 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
-            // Validate email in frontend
-            if (!email) {
-                showRegisterError('لطفاً ایمیل را وارد کنید');
-                return;
+            if (email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showRegisterError('فرمت ایمیل معتبر نیست');
+                    return;
+                }
             }
 
-            // Validate email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showRegisterError('فرمت ایمیل معتبر نیست');
+            if (!registrationData.otp) {
+                showRegisterError('ابتدا کد تایید پیامک را دریافت و تایید کنید');
                 return;
             }
 
@@ -1225,7 +1225,8 @@
                 firstName: firstName,
                 lastName: lastName,
                 phone: phone,
-                email: email,
+                email: email || null,
+                otp: registrationData.otp,
                 password: password
             };
 
@@ -1244,33 +1245,26 @@
         `;
 
             try {
-                const result = await authService.register(formData);
+                const result = await authService.registerWithPhone(formData);
 
                 if (result.success) {
                     showRegisterSuccess('ثبت نام شما با موفقیت انجام شد!');
-                    // OTP post-registration message removed for production simplicity
-
-                    // Clear form data after successful registration
                     clearRegistrationForm();
 
-                    // Redirect to dashboard after short delay
                     setTimeout(() => {
-                        window.location.href = 'user-panel-index.html';
+                        window.location.href = 'login.html';
                     }, 2000);
                 } else {
-                    showRegisterError(result.error || 'خطا در ثبت نام. لطفاً دوباره تلاش کنید.');
-                    // Clear sensitive fields (password) on error, but keep name/email for retry
+                    showRegisterError(result.error || 'ثبت‌نام انجام نشد. لطفاً دوباره تلاش کنید.');
                     document.getElementById('password').value = '';
                     document.getElementById('confirm-password').value = '';
                 }
             } catch (error) {
                 console.error('Registration error:', error);
                 showRegisterError('خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.');
-                // Clear sensitive fields on error
                 document.getElementById('password').value = '';
                 document.getElementById('confirm-password').value = '';
             } finally {
-                // Reset button state
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }

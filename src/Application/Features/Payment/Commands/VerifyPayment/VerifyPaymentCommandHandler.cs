@@ -14,6 +14,7 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
         private readonly IPaymentGatewayService _paymentGateway;
         private readonly IInventoryService _inventoryService;
         private readonly IMahakOrderSyncService _mahakOrderSyncService;
+        private readonly IMahakInventorySyncService _mahakInventorySyncService;
         private readonly ILogger<VerifyPaymentCommandHandler> _logger;
 
         public VerifyPaymentCommandHandler(
@@ -21,12 +22,14 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
             IPaymentGatewayService paymentGateway,
             IInventoryService inventoryService,
             IMahakOrderSyncService mahakOrderSyncService,
+            IMahakInventorySyncService mahakInventorySyncService,
             ILogger<VerifyPaymentCommandHandler> logger)
         {
             _orderRepository = orderRepository;
             _paymentGateway = paymentGateway;
             _inventoryService = inventoryService;
             _mahakOrderSyncService = mahakOrderSyncService;
+            _mahakInventorySyncService = mahakInventorySyncService;
             _logger = logger;
         }
 
@@ -114,13 +117,27 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
 
             await _orderRepository.UpdateAsync(order, cancellationToken);
 
+            var orderSyncedToMahak = false;
             try
             {
                 await _mahakOrderSyncService.SyncOrderToMahakAsync(order.Id, cancellationToken);
+                orderSyncedToMahak = true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Payment for order {OrderId} was verified but Mahak sync failed. Order will remain pending for retry.", order.Id);
+            }
+
+            if (orderSyncedToMahak)
+            {
+                try
+                {
+                    await _mahakInventorySyncService.SyncInventoryFromMahakAsync(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Order {OrderId} synced to Mahak but inventory refresh from Mahak failed. Periodic sync will retry.", order.Id);
+                }
             }
 
             _logger.LogInformation("Payment verified and order {OrderNumber} confirmed. Stock updated.", order.OrderNumber);
