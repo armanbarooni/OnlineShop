@@ -9,8 +9,8 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public long PersonClientId { get; set; }
         public int PersonCode { get; set; }
         public int? PersonGroupId { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Family { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
         public string Mobile { get; set; } = string.Empty;
         public string? Phone { get; set; }
         public string? Email { get; set; }
@@ -18,7 +18,7 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public string? EconomicCode { get; set; }
         public string? PostalCode { get; set; }
         public string? Address { get; set; }
-        public int Type { get; set; } // 0=Real person, 1=Legal entity
+        public int PersonType { get; set; } // 0=Real person, 1=Legal entity
         public bool Deleted { get; set; }
         public long RowVersion { get; set; }
     }
@@ -45,14 +45,14 @@ namespace OnlineShop.Infrastructure.Mahak.Models
     {
         public long PersonClientId { get; set; }
         public int? PersonGroupId { get; set; } // Required for creating person
-        public string Name { get; set; } = string.Empty;
-        public string Family { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
         public string Mobile { get; set; } = string.Empty;
         public string? Email { get; set; }
         public string? NationalCode { get; set; }
         public string? Address { get; set; }
         public string? PostalCode { get; set; }
-        public int Type { get; set; } = 0; // Real person by default
+        public int PersonType { get; set; } = 0; // Real person by default
         public bool Deleted { get; set; } = false;
     }
 
@@ -64,6 +64,7 @@ namespace OnlineShop.Infrastructure.Mahak.Models
     {
         public long VisitorPersonClientId { get; set; }
         public int VisitorId { get; set; }
+        public int? PersonId { get; set; }
         public long PersonClientId { get; set; }
         public bool Deleted { get; set; } = false;
     }

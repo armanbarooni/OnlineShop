@@ -84,6 +84,8 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         /// Longitude for delivery location
         /// </summary>
         public double? Longitude { get; set; }
+
+        public bool Deleted { get; set; } = false;
     }
 
     /// <summary>
@@ -160,6 +162,8 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         /// Gift quantity
         /// </summary>
         public decimal Gift { get; set; }
+
+        public bool Deleted { get; set; } = false;
     }
 
     /// <summary>

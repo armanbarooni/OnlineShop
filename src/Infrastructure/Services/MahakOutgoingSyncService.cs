@@ -195,13 +195,12 @@ namespace OnlineShop.Infrastructure.Services
         {
             _logger.LogInformation("Sending order {OrderId} to Mahak", order.Id);
 
-            int? mahakPersonId = order.User?.MahakPersonId;
-
-            if (!mahakPersonId.HasValue)
+            if (order.User == null)
             {
-                _logger.LogInformation("Order {OrderId} will be sent to Mahak without PersonId because user {UserId} has not received MahakPersonId yet",
-                    order.Id, order.UserId);
+                throw new InvalidOperationException($"User {order.UserId} was not loaded for order {order.Id}.");
             }
+
+            var mahakPersonId = await EnsureCustomerSyncedAsync(order.User, cancellationToken);
 
             // Convert order to Mahak format
             // ShippingAddress must be JSON format as per Mahak support
@@ -221,7 +220,7 @@ namespace OnlineShop.Infrastructure.Services
             {
                 OrderClientId = order.Id.GetHashCode(), // Use hash of GUID as long
                 VisitorId = _visitorId,
-                PersonId = mahakPersonId, // Send only when actual Mahak PersonId is available
+                PersonId = mahakPersonId,
                 OrderType = 201, // Sales invoice
                 OrderDate = order.CreatedAt,
                 DeliveryDate = order.CreatedAt.AddDays(3), // Estimate
@@ -317,11 +316,15 @@ namespace OnlineShop.Infrastructure.Services
             }
 
             var responseText = await response.Content.ReadAsStringAsync();
+            var saveResult = DeserializeSaveResult(responseText, $"order {order.Id}");
+            var orderResult = GetSuccessfulEntityResult(saveResult.Data?.Objects?.Orders, "Orders");
+            GetSuccessfulEntityResult(saveResult.Data?.Objects?.OrderDetails, "OrderDetails", requireSingleResult: false);
+
             _logger.LogInformation("Order {OrderId} sent to Mahak successfully. Response: {Response}", 
                 order.Id, responseText);
 
             // Mark order as synced
-            order.SetMahakSynced(mahakOrder.OrderClientId.ToString());
+            order.SetMahakSynced(orderResult.EntityId.ToString());
             await _orderRepository.UpdateAsync(order, cancellationToken);
         }
 
@@ -415,13 +418,6 @@ namespace OnlineShop.Infrastructure.Services
                 return user.MahakPersonId.Value;
             }
 
-            if (user.MahakPersonClientId.HasValue)
-            {
-                _logger.LogDebug("User {UserId} already synced to Mahak with PersonClientId {PersonClientId}",
-                    user.Id, user.MahakPersonClientId.Value);
-                return Convert.ToInt32(user.MahakPersonClientId.Value);
-            }
-
             _logger.LogInformation("Syncing customer {UserId} ({Name}) to Mahak", 
                 user.Id, $"{user.FirstName} {user.LastName}");
 
@@ -434,21 +430,21 @@ namespace OnlineShop.Infrastructure.Services
             }
 
             // Create Person model
-            var personClientId = Math.Abs(user.Id.GetHashCode());
+            var personClientId = user.MahakPersonClientId ?? GetPositiveClientId(user.Id);
             var mahakPerson = new MahakPersonModel
             {
                 PersonClientId = personClientId,
                 PersonGroupId = personGroupId, // Required for creating person
-                Name = user.FirstName,
-                Family = user.LastName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 Mobile = user.PhoneNumber ?? string.Empty,
                 Email = user.Email,
-                Type = 0, // Real person
+                PersonType = 0, // Real person
                 Deleted = false
             };
 
-            // Prepare request with Person
-            var request = new SaveAllDataRequest
+            // Person must be created first so the real server-side PersonId can be used below.
+            var personRequest = new SaveAllDataRequest
             {
                 People = new List<MahakPersonModel> { mahakPerson }
             };
@@ -461,7 +457,7 @@ namespace OnlineShop.Infrastructure.Services
                     var pictureModel = await CreateProfilePictureModelAsync(user, personClientId, cancellationToken);
                     if (pictureModel != null)
                     {
-                        request.Pictures = new List<MahakPictureModel> { pictureModel };
+                        personRequest.Pictures = new List<MahakPictureModel> { pictureModel };
                         _logger.LogInformation("Including profile picture for user {UserId}", user.Id);
                     }
                 }
@@ -471,49 +467,117 @@ namespace OnlineShop.Infrastructure.Services
                 }
             }
 
-            // Create VisitorPeople link (REQUIRED for real sales with inventory deduction)
-            var visitorPersonClientId = Math.Abs((user.Id.ToString() + "_visitor").GetHashCode());
+            var personSaveResult = await SaveAllDataAsync(personRequest, $"customer {user.Id}", cancellationToken);
+            var personResult = GetSuccessfulEntityResult(personSaveResult.Data?.Objects?.People, "People");
+            if (personResult.EntityId <= 0)
+            {
+                throw new InvalidOperationException($"Mahak did not return a valid PersonId for user {user.Id}.");
+            }
+
+            // Create VisitorPeople link in a second request using the real PersonId.
+            var visitorPersonClientId = personClientId * 10L + 1L;
             var visitorPerson = new MahakVisitorPersonModel
             {
                 VisitorPersonClientId = visitorPersonClientId,
                 VisitorId = _visitorId,
+                PersonId = personResult.EntityId,
                 PersonClientId = personClientId,
                 Deleted = false
             };
-            request.VisitorPeople = new List<MahakVisitorPersonModel> { visitorPerson };
+            var visitorRequest = new SaveAllDataRequest
+            {
+                VisitorPeople = new List<MahakVisitorPersonModel> { visitorPerson }
+            };
+            var visitorSaveResult = await SaveAllDataAsync(visitorRequest, $"visitor-person for user {user.Id}", cancellationToken);
+            GetSuccessfulEntityResult(visitorSaveResult.Data?.Objects?.VisitorPeople, "VisitorPeople");
 
-            // Log the request for debugging
+            _logger.LogInformation(
+                "Customer {UserId} synced to Mahak successfully. PersonId: {PersonId}, PersonClientId: {PersonClientId}, VisitorPersonClientId: {VisitorPersonClientId}",
+                user.Id, personResult.EntityId, personClientId, visitorPersonClientId);
+
+            user.MahakPersonId = personResult.EntityId;
+            user.MahakPersonClientId = personClientId;
+            user.MahakSyncedAt = DateTime.UtcNow;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                throw new InvalidOperationException($"Failed to save Mahak identifiers for user {user.Id}: {string.Join(", ", updateResult.Errors.Select(e => e.Description))}");
+            }
+
+            return personResult.EntityId;
+        }
+
+        private async Task<SaveAllDataResultApiResult> SaveAllDataAsync(
+            SaveAllDataRequest request,
+            string operation,
+            CancellationToken cancellationToken)
+        {
             var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
-            _logger.LogDebug("Sending customer to Mahak. Request: {Request}", requestJson);
+            _logger.LogDebug("Sending {Operation} to Mahak. Request: {Request}", operation, requestJson);
 
-            // Send to Mahak
             var content = new StringContent(
                 JsonSerializer.Serialize(request),
                 System.Text.Encoding.UTF8,
                 "application/json-patch+json");
-
             var response = await _httpClient.PostAsync("SaveAllDataV2", content, cancellationToken);
+            var responseText = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to sync customer to Mahak. Status: {Status}, Error: {Error}", 
-                    response.StatusCode, error);
-                throw new Exception($"Failed to sync customer to Mahak. Status: {response.StatusCode}");
+                throw new InvalidOperationException(
+                    $"Failed to send {operation} to Mahak. Status: {response.StatusCode}, Content: {responseText}");
             }
 
-            var responseText = await response.Content.ReadAsStringAsync();
-            _logger.LogInformation("Customer {UserId} synced to Mahak successfully. PersonClientId: {PersonClientId}, VisitorPersonClientId: {VisitorPersonClientId}", 
-                user.Id, personClientId, visitorPersonClientId);
+            return DeserializeSaveResult(responseText, operation);
+        }
 
-            // Save PersonClientId to user
-            // Note: Mahak doesn't return the server-generated PersonId in SaveAllDataV2 response
-            // So we use personClientId as the identifier
-            user.MahakPersonClientId = personClientId;
-            user.MahakSyncedAt = DateTime.UtcNow;
-            await _userManager.UpdateAsync(user);
-            
-            return personClientId;
+        private static SaveAllDataResultApiResult DeserializeSaveResult(string responseText, string operation)
+        {
+            var result = JsonSerializer.Deserialize<SaveAllDataResultApiResult>(responseText, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            if (result == null || !result.Result)
+            {
+                throw new InvalidOperationException(
+                    $"Mahak rejected {operation}. Code: {result?.Code}, Message: {result?.Message ?? responseText}");
+            }
+
+            return result;
+        }
+
+        private static EntityUpdateResult GetSuccessfulEntityResult(
+            MultiEntityUpdateResult? updateResult,
+            string entityName,
+            bool requireSingleResult = true)
+        {
+            var results = updateResult?.Results;
+            if (results == null || results.Count == 0)
+            {
+                throw new InvalidOperationException($"Mahak returned no result for {entityName}.");
+            }
+
+            var failed = results.Where(r => !r.Result).ToList();
+            if (failed.Count > 0)
+            {
+                var errors = string.Join("; ", failed.SelectMany(r => r.Errors ?? new List<PropertyErrorModel>())
+                    .Select(e => $"{e.Property}: {e.Error ?? e.Code.ToString()}"));
+                throw new InvalidOperationException($"Mahak rejected {entityName}. {errors}".Trim());
+            }
+
+            if (requireSingleResult && results.Count != 1)
+            {
+                throw new InvalidOperationException($"Mahak returned {results.Count} results for {entityName}; expected one.");
+            }
+
+            return results[0];
+        }
+
+        private static long GetPositiveClientId(Guid id)
+        {
+            var value = id.GetHashCode();
+            return value == int.MinValue ? (long)int.MaxValue + 1 : Math.Abs((long)value);
         }
 
         private async Task<MahakPictureModel?> CreateProfilePictureModelAsync(ApplicationUser user, long personClientId, CancellationToken cancellationToken)

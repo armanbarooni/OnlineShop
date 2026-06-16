@@ -108,6 +108,7 @@ namespace OnlineShop.Infrastructure.Services
                 long fromPhotoGalleryVersion = await _mahakSyncLogRepository.GetLastRowVersionAsync("PhotoGallery", cancellationToken);
                 long fromProductDetailStoreAssetVersion = await _mahakSyncLogRepository.GetLastRowVersionAsync("ProductDetailStoreAsset", cancellationToken);
                 long fromPersonVersion = await _mahakSyncLogRepository.GetLastRowVersionAsync("Person", cancellationToken);
+                long fromVisitorPersonVersion = await _mahakSyncLogRepository.GetLastRowVersionAsync("VisitorPerson", cancellationToken);
                 
                 _logger.LogInformation("Requesting data from Mahak with RowVersions - Product: {ProductVer}, ProductDetail: {DetailVer}, Category: {CategoryVer}", 
                     fromProductVersion, fromProductDetailVersion, fromProductCategoryVersion);
@@ -121,7 +122,8 @@ namespace OnlineShop.Infrastructure.Services
                     FromPictureVersion = fromPictureVersion,
                     FromPhotoGalleryVersion = fromPhotoGalleryVersion,
                     FromProductDetailStoreAssetVersion = fromProductDetailStoreAssetVersion,
-                    FromPersonVersion = fromPersonVersion
+                    FromPersonVersion = fromPersonVersion,
+                    FromVisitorPersonVersion = fromVisitorPersonVersion
                 };
 
                 var response = await GetAllDataAsync(request, cancellationToken);
@@ -139,6 +141,7 @@ namespace OnlineShop.Infrastructure.Services
                 await ProcessInventoryAsync(response.Objects.ProductDetailStoreAssets, cancellationToken);
                 await ProcessImagesAsync(response.Objects.PhotoGalleries, response.Objects.Pictures, cancellationToken);
                 await ProcessPeopleAsync(response.Objects.People, cancellationToken);
+                ProcessVisitorPeople(response.Objects.VisitorPeople);
 
                 // 5. Log Success (Updating local RowVersions happens via storing MahakSyncLog entries)
                 if (response.Objects.ProductCategories != null && response.Objects.ProductCategories.Any())
@@ -163,6 +166,12 @@ namespace OnlineShop.Infrastructure.Services
                 {
                      var maxVersion = response.Objects.ProductDetailStoreAssets.Max(x => x.RowVersion);
                      await LogSyncAsync("ProductDetailStoreAsset", maxVersion, response.Objects.ProductDetailStoreAssets.Count, "Success", cancellationToken);
+                }
+
+                if (response.Objects.VisitorPeople != null && response.Objects.VisitorPeople.Any())
+                {
+                     var maxVersion = response.Objects.VisitorPeople.Max(x => x.RowVersion);
+                     await LogSyncAsync("VisitorPerson", maxVersion, response.Objects.VisitorPeople.Count, "Success", cancellationToken);
                 }
                 
                 if (response.Objects.Pictures != null && response.Objects.Pictures.Any())
@@ -664,15 +673,6 @@ namespace OnlineShop.Infrastructure.Services
 
                     if (firstActiveDetail != null)
                     {
-                        if (product.DeletedByMahak)
-                        {
-                            product.SetDeletedByMahak(false);
-                        }
-
-                        var totalVariantStock = group
-                            .Where(d => !d.Deleted)
-                            .Sum(d => (int)d.Count1);
-
                         decimal price = firstActiveDetail.DefaultSellPriceLevel switch
                         {
                             1 => firstActiveDetail.Price1,
@@ -695,18 +695,7 @@ namespace OnlineShop.Infrastructure.Services
                             product.SetBarcode(firstActiveDetail.Barcode);
                         }
 
-                        product.SetStockQuantity(totalVariantStock);
-
                         await _productRepository.UpdateAsync(product, cancellationToken);
-                    }
-                    else
-                    {
-                        if (!product.DeletedByMahak)
-                        {
-                            product.SetDeletedByMahak(true);
-                            await _productRepository.UpdateAsync(product, cancellationToken);
-                            _logger.LogInformation("Marked product as DeletedByMahak because all ProductDetails are deleted. ProductId: {ProductId}", product.Id);
-                        }
                     }
                     
                     // Create/update mappings for ProductDetail and ProductVariant (color/size)
@@ -737,6 +726,26 @@ namespace OnlineShop.Infrastructure.Services
                 updated, errors);
         }
 
+        private void ProcessVisitorPeople(List<VisitorPersonModel>? visitorPeople)
+        {
+            if (visitorPeople == null || visitorPeople.Count == 0)
+            {
+                _logger.LogInformation("No VisitorPeople relations received from Mahak");
+                return;
+            }
+
+            foreach (var relation in visitorPeople)
+            {
+                _logger.LogInformation(
+                    "Mahak VisitorPerson relation {Status}: VisitorPersonId={VisitorPersonId}, VisitorId={VisitorId}, PersonId={PersonId}, RowVersion={RowVersion}",
+                    relation.Deleted ? "DELETED" : "ACTIVE",
+                    relation.VisitorPersonId,
+                    relation.VisitorId,
+                    relation.PersonId,
+                    relation.RowVersion);
+            }
+        }
+
         private async Task ProcessInventoryAsync(List<ProductDetailStoreAssetModel>? inventory, CancellationToken cancellationToken)
         {
             if (inventory == null || !inventory.Any())
@@ -750,18 +759,32 @@ namespace OnlineShop.Infrastructure.Services
             int updated = 0;
             int errors = 0;
 
-            // Group inventory by Product (not ProductDetail) to sum all variant quantities
+            var defaultStoreId = int.TryParse(_configuration["Mahak:DefaultStoreId"], out var configuredStoreId)
+                ? configuredStoreId
+                : 31940;
+
+            // GetAllData is incremental and can contain multiple stores for one detail. Collapse only
+            // the configured sales store before updating local variants, otherwise a zero record from
+            // another store can overwrite the website stock.
             var inventoryByProductDetail = inventory
-                .Where(i => !i.Deleted)
-                .Select(i => new
+                .Where(i => !i.Deleted && i.StoreId == defaultStoreId)
+                .GroupBy(i => i.ProductDetailId)
+                .Select(group => new
                 {
-                    ProductDetailId = i.ProductDetailId,
-                    Quantity = (int)i.Count1
+                    ProductDetailId = group.Key,
+                    Quantity = (int)group.Sum(i => i.Count1)
                 })
                 .ToList();
 
+            if (inventoryByProductDetail.Count == 0)
+            {
+                _logger.LogInformation("No inventory records found for configured Mahak store {StoreId}", defaultStoreId);
+                return;
+            }
+
             // Map ProductDetailIds to ProductIds and group
-            var productInventories = new Dictionary<Guid, int>();
+            var affectedProductIds = new HashSet<Guid>();
+            var directProductQuantities = new Dictionary<Guid, int>();
             
             foreach (var inv in inventoryByProductDetail)
             {
@@ -771,11 +794,8 @@ namespace OnlineShop.Infrastructure.Services
                 if (productDetailMapping != null)
                 {
                     var productId = productDetailMapping.LocalEntityId;
-                    if (!productInventories.ContainsKey(productId))
-                    {
-                        productInventories[productId] = 0;
-                    }
-                    productInventories[productId] += inv.Quantity;
+                    affectedProductIds.Add(productId);
+                    directProductQuantities[productId] = directProductQuantities.GetValueOrDefault(productId) + inv.Quantity;
 
                     // Update variant stock if we have a variant mapping for this ProductDetailId
                     var variantMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
@@ -809,21 +829,25 @@ namespace OnlineShop.Infrastructure.Services
                 }
             }
 
-            // Update each product with total inventory
-            foreach (var kvp in productInventories)
+            // Recalculate totals from all locally stored variants. The Mahak response only contains
+            // changed rows, so summing the response itself would zero or undercount unaffected variants.
+            foreach (var productId in affectedProductIds)
             {
                 try
                 {
-                    var product = await _productRepository.GetByIdTrackedAsync(kvp.Key, cancellationToken);
+                    var product = await _productRepository.GetByIdTrackedAsync(productId, cancellationToken);
                     
                     if (product == null)
                     {
-                        _logger.LogWarning("Product entity not found for ProductId {ProductId}", kvp.Key);
+                        _logger.LogWarning("Product entity not found for ProductId {ProductId}", productId);
                         continue;
                     }
 
-                    // Update stock quantity with total from all variants
-                    product.SetStockQuantity(kvp.Value);
+                    var variants = await _productVariantRepository.GetByProductIdAsync(productId, cancellationToken);
+                    var totalQuantity = variants.Count > 0
+                        ? variants.Sum(v => v.StockQuantity)
+                        : directProductQuantities.GetValueOrDefault(productId);
+                    product.SetStockQuantity(totalQuantity);
                     
                     // Save changes
                     try
@@ -831,7 +855,7 @@ namespace OnlineShop.Infrastructure.Services
                         await _productRepository.UpdateAsync(product, cancellationToken);
                         updated++;
                         _logger.LogInformation("Updated inventory for product {ProductName}: {Quantity} (from all variants)", 
-                            product.Name, kvp.Value);
+                            product.Name, totalQuantity);
                     }
                     catch (Exception updateEx)
                     {
@@ -842,7 +866,7 @@ namespace OnlineShop.Infrastructure.Services
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error processing inventory for ProductId {ProductId}: {Error}", 
-                        kvp.Key, ex.Message);
+                        productId, ex.Message);
                     errors++;
                 }
             }
@@ -974,7 +998,7 @@ namespace OnlineShop.Infrastructure.Services
                         }
 
                         _logger.LogDebug("Person {PersonId} ({Name} {Family}) already mapped to local entity {LocalId}",
-                            mahakPerson.PersonId, mahakPerson.Name, mahakPerson.Family, mapping.LocalEntityId);
+                            mahakPerson.PersonId, mahakPerson.FirstName, mahakPerson.LastName, mapping.LocalEntityId);
                         updated++;
                     }
                     else
@@ -1014,7 +1038,7 @@ namespace OnlineShop.Infrastructure.Services
                             await _mahakMappingRepository.AddAsync(newMapping, cancellationToken);
 
                             _logger.LogInformation("New person from Mahak: {PersonId} - {Name} {Family} (Mobile: {Mobile})",
-                                mahakPerson.PersonId, mahakPerson.Name, mahakPerson.Family, mahakPerson.Mobile);
+                                mahakPerson.PersonId, mahakPerson.FirstName, mahakPerson.LastName, mahakPerson.Mobile);
                             created++;
                         }
                     }
@@ -1070,23 +1094,14 @@ namespace OnlineShop.Infrastructure.Services
                 ? detail.Barcode
                 : $"PD-{detail.ProductDetailId}";
 
-            var stock = (int)detail.Count1;
-            var price = detail.DefaultSellPriceLevel switch
-            {
-                1 => detail.Price1,
-                2 => detail.Price2,
-                3 => detail.Price3,
-                4 => detail.Price4,
-                5 => detail.Price5,
-                _ => detail.Price1
-            };
-
             if (variantMapping != null)
             {
                 var existing = await _productVariantRepository.GetByIdAsync(variantMapping.LocalEntityId, cancellationToken);
                 if (existing != null)
                 {
-                    existing.Update(size ?? existing.Size, color ?? existing.Color, sku, stock, existing.AdditionalPrice, null);
+                    // ProductDetail.Count1 is not store inventory. Preserve stock until
+                    // ProductDetailStoreAssets supplies the configured store quantity.
+                    existing.Update(size ?? existing.Size, color ?? existing.Color, sku, existing.StockQuantity, existing.AdditionalPrice, null);
                     existing.SetMeasurementValues(parsed.feature8Value, parsed.feature9Value);
                     if (!string.IsNullOrEmpty(detail.Barcode))
                         existing.SetBarcode(detail.Barcode);
@@ -1100,7 +1115,7 @@ namespace OnlineShop.Infrastructure.Services
                 size ?? "یک‌سایز",
                 color ?? "نامشخص",
                 sku,
-                stock);
+                0);
 
             if (!string.IsNullOrEmpty(detail.Barcode))
                 variant.SetBarcode(detail.Barcode);

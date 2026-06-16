@@ -13,6 +13,7 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public long FromProductDetailStoreAssetVersion { get; set; }
         public long FromPersonVersion { get; set; }
         public long FromPersonAddressVersion { get; set; }
+        public long FromVisitorPersonVersion { get; set; }
         // Add other Versions as needed
     }
 
@@ -21,6 +22,50 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public bool Result { get; set; }
         public string? Message { get; set; }
         public T Data { get; set; }
+    }
+
+    public class SaveAllDataResultApiResult
+    {
+        public bool Result { get; set; }
+        public int Code { get; set; }
+        public string? Message { get; set; }
+        public SaveAllDataResultObject? Data { get; set; }
+    }
+
+    public class SaveAllDataResultObject
+    {
+        public SaveAllDataResult? Objects { get; set; }
+    }
+
+    public class SaveAllDataResult
+    {
+        public MultiEntityUpdateResult? People { get; set; }
+        public MultiEntityUpdateResult? VisitorPeople { get; set; }
+        public MultiEntityUpdateResult? Orders { get; set; }
+        public MultiEntityUpdateResult? OrderDetails { get; set; }
+    }
+
+    public class MultiEntityUpdateResult
+    {
+        public List<EntityUpdateResult>? Results { get; set; }
+    }
+
+    public class EntityUpdateResult
+    {
+        public bool Result { get; set; }
+        public int Index { get; set; }
+        public int EntityId { get; set; }
+        public long EntityClientId { get; set; }
+        public int EntityCode { get; set; }
+        public long RowVersion { get; set; }
+        public List<PropertyErrorModel>? Errors { get; set; }
+    }
+
+    public class PropertyErrorModel
+    {
+        public string? Property { get; set; }
+        public int Code { get; set; }
+        public string? Error { get; set; }
     }
 
     public class GetAllDataResponse
@@ -38,7 +83,21 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public List<PhotoGalleryModel>? PhotoGalleries { get; set; }
         public List<PersonModel>? People { get; set; }
         public List<PersonAddressModel>? PersonAddresses { get; set; }
+        public List<VisitorPersonModel>? VisitorPeople { get; set; }
         // Add other lists as needed
+    }
+
+    public class VisitorPersonModel
+    {
+        public int VisitorPersonId { get; set; }
+        public int PersonId { get; set; }
+        public int VisitorId { get; set; }
+        public bool Deleted { get; set; }
+        public long RowVersion { get; set; }
+        public long PersonClientId { get; set; }
+        public int PersonCode { get; set; }
+        public long VisitorClientId { get; set; }
+        public int VisitorCode { get; set; }
     }
     
     public class LoginModel
