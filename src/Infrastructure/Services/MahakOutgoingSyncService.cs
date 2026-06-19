@@ -26,6 +26,7 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IMahakMappingRepository _mahakMappingRepository;
         private readonly IMahakSyncLogRepository _mahakSyncLogRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMahakTrafficLogger _mahakTrafficLogger;
 
         private string? _token;
         private int _visitorId;
@@ -42,7 +43,8 @@ namespace OnlineShop.Infrastructure.Services
             IUserOrderRepository orderRepository,
             IMahakMappingRepository mahakMappingRepository,
             IMahakSyncLogRepository mahakSyncLogRepository,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IMahakTrafficLogger mahakTrafficLogger)
         {
             _httpClient = httpClient;
             _logger = logger;
@@ -51,6 +53,7 @@ namespace OnlineShop.Infrastructure.Services
             _mahakMappingRepository = mahakMappingRepository;
             _mahakSyncLogRepository = mahakSyncLogRepository;
             _userManager = userManager;
+            _mahakTrafficLogger = mahakTrafficLogger;
             
             _httpClient.BaseAddress = new Uri(BaseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -202,20 +205,6 @@ namespace OnlineShop.Infrastructure.Services
 
             var mahakPersonId = await EnsureCustomerSyncedAsync(order.User, cancellationToken);
 
-            // Convert order to Mahak format
-            // ShippingAddress must be JSON format as per Mahak support
-            string? shippingAddressJson = null;
-            if (order.ShippingAddress != null)
-            {
-                shippingAddressJson = JsonSerializer.Serialize(new
-                {
-                    fullAddress = order.ShippingAddress.ToString(),
-                    city = order.ShippingAddress.City,
-                    state = order.ShippingAddress.State,
-                    postalCode = order.ShippingAddress.PostalCode
-                });
-            }
-
             var mahakOrder = new MahakOrderModel
             {
                 OrderClientId = order.Id.GetHashCode(), // Use hash of GUID as long
@@ -223,15 +212,14 @@ namespace OnlineShop.Infrastructure.Services
                 PersonId = mahakPersonId,
                 OrderType = 201, // Sales invoice
                 OrderDate = order.CreatedAt,
-                DeliveryDate = order.CreatedAt.AddDays(3), // Estimate
+                DeliveryDate = order.CreatedAt,
                 Discount = order.DiscountAmount,
                 DiscountType = 0, // Amount
                 SendCost = order.ShippingAmount,
                 OtherCost = 0,
                 SettlementType = 1, // Cash (since payment is done)
                 Immediate = false,
-                Description = BuildOrderDescription(order),
-                ShippingAddress = shippingAddressJson
+                Description = BuildOrderDescription(order)
             };
 
             var mahakOrderDetails = new List<MahakOrderDetailModel>();
@@ -303,19 +291,33 @@ namespace OnlineShop.Infrastructure.Services
             // Log the request for debugging
             var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
             _logger.LogDebug("Sending order to Mahak. Request: {Request}", requestJson);
+            await _mahakTrafficLogger.LogRequestAsync(
+                "SendSalesInvoice",
+                "SaveAllDataV2",
+                "این دیتا برای ارسال فاکتور فروش به محک است",
+                request,
+                cancellationToken);
 
             var content = new StringContent(JsonSerializer.Serialize(request), System.Text.Encoding.UTF8, "application/json");
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json-patch+json");
 
             var response = await _httpClient.PostAsync("SaveAllDataV2", content, cancellationToken);
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            await _mahakTrafficLogger.LogResponseAsync(
+                "SendSalesInvoice",
+                "SaveAllDataV2",
+                "این دیتا پاسخ محک بعد از ارسال فاکتور فروش است",
+                (int)response.StatusCode,
+                response.IsSuccessStatusCode,
+                responseText,
+                cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Failed to send order to Mahak. Status: {response.StatusCode}, Content: {errorContent}");
+                throw new Exception($"Failed to send order to Mahak. Status: {response.StatusCode}, Content: {responseText}");
             }
 
-            var responseText = await response.Content.ReadAsStringAsync();
             var saveResult = DeserializeSaveResult(responseText, $"order {order.Id}");
             var orderResult = GetSuccessfulEntityResult(saveResult.Data?.Objects?.Orders, "Orders");
             GetSuccessfulEntityResult(saveResult.Data?.Objects?.OrderDetails, "OrderDetails", requireSingleResult: false);
@@ -514,13 +516,29 @@ namespace OnlineShop.Infrastructure.Services
         {
             var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
             _logger.LogDebug("Sending {Operation} to Mahak. Request: {Request}", operation, requestJson);
+            var comment = ResolveSaveAllDataComment(operation);
+            await _mahakTrafficLogger.LogRequestAsync(
+                operation,
+                "SaveAllDataV2",
+                comment.request,
+                request,
+                cancellationToken);
 
             var content = new StringContent(
                 JsonSerializer.Serialize(request),
                 System.Text.Encoding.UTF8,
                 "application/json-patch+json");
             var response = await _httpClient.PostAsync("SaveAllDataV2", content, cancellationToken);
-            var responseText = await response.Content.ReadAsStringAsync();
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            await _mahakTrafficLogger.LogResponseAsync(
+                operation,
+                "SaveAllDataV2",
+                comment.response,
+                (int)response.StatusCode,
+                response.IsSuccessStatusCode,
+                responseText,
+                cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -529,6 +547,27 @@ namespace OnlineShop.Infrastructure.Services
             }
 
             return DeserializeSaveResult(responseText, operation);
+        }
+
+        private static (string request, string response) ResolveSaveAllDataComment(string operation)
+        {
+            if (operation.StartsWith("customer", StringComparison.OrdinalIgnoreCase))
+            {
+                return (
+                    "این دیتا برای ارسال مشتری به محک است",
+                    "این دیتا پاسخ محک بعد از ارسال مشتری است");
+            }
+
+            if (operation.StartsWith("visitor-person", StringComparison.OrdinalIgnoreCase))
+            {
+                return (
+                    "این دیتا برای اتصال مشتری به ویزیتور محک است",
+                    "این دیتا پاسخ محک بعد از اتصال مشتری به ویزیتور است");
+            }
+
+            return (
+                "این دیتا برای ارسال اطلاعات به محک است",
+                "این دیتا پاسخ محک بعد از ارسال اطلاعات است");
         }
 
         private static SaveAllDataResultApiResult DeserializeSaveResult(string responseText, string operation)
@@ -677,20 +716,36 @@ namespace OnlineShop.Infrastructure.Services
                 password = hashedPassword
             };
 
+            await _mahakTrafficLogger.LogRequestAsync(
+                "LoginOutgoing",
+                "Login",
+                "این دیتا برای ورود به محک قبل از ارسال مشتری یا فاکتور فروش است",
+                loginModel,
+                cancellationToken);
+
             var content = new StringContent(JsonSerializer.Serialize(loginModel), System.Text.Encoding.UTF8, "application/json");
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json-patch+json");
 
             var response = await _httpClient.PostAsync("Login", content, cancellationToken);
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            await _mahakTrafficLogger.LogResponseAsync(
+                "LoginOutgoing",
+                "Login",
+                "این دیتا پاسخ محک برای ورود قبل از ارسال مشتری یا فاکتور فروش است",
+                (int)response.StatusCode,
+                response.IsSuccessStatusCode,
+                responseText,
+                cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception($"Mahak login failed. Status: {response.StatusCode}");
             }
 
-            var result = await JsonSerializer.DeserializeAsync<MahakApiResult<LoginResultModel>>(
-                await response.Content.ReadAsStreamAsync(),
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true },
-                cancellationToken);
+            var result = JsonSerializer.Deserialize<MahakApiResult<LoginResultModel>>(
+                responseText,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (result == null || !result.Result || result.Data == null)
             {

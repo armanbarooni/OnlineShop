@@ -29,6 +29,7 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IProductImageRepository _productImageRepository;
         private readonly IProductVariantRepository _productVariantRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMahakTrafficLogger _mahakTrafficLogger;
 
         private string _token;
         private static readonly SemaphoreSlim TokenSemaphore = new(1, 1);
@@ -46,7 +47,8 @@ namespace OnlineShop.Infrastructure.Services
             IMahakMappingRepository mahakMappingRepository,
             IProductImageRepository productImageRepository,
             IProductVariantRepository productVariantRepository,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IMahakTrafficLogger mahakTrafficLogger)
         {
             _httpClient = httpClient;
             _logger = logger;
@@ -58,6 +60,7 @@ namespace OnlineShop.Infrastructure.Services
             _productImageRepository = productImageRepository;
             _productVariantRepository = productVariantRepository;
             _userManager = userManager;
+            _mahakTrafficLogger = mahakTrafficLogger;
             
             _httpClient.BaseAddress = new Uri(BaseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -225,25 +228,39 @@ namespace OnlineShop.Infrastructure.Services
 
             _logger.LogInformation("Attempting Mahak login for user: {Username}, MD5 Hash: {Hash}", username, hashedPassword);
 
+            await _mahakTrafficLogger.LogRequestAsync(
+                "Login",
+                "Login",
+                "این دیتا برای ورود به محک و گرفتن توکن است",
+                loginModel,
+                cancellationToken);
+
             var content = new StringContent(JsonSerializer.Serialize(loginModel), System.Text.Encoding.UTF8, "application/json");
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json-patch+json");
             
             var response = await _httpClient.PostAsync("Login", content, cancellationToken); // Use simple Login endpoint
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            await _mahakTrafficLogger.LogResponseAsync(
+                "Login",
+                "Login",
+                "این دیتا پاسخ محک برای ورود و توکن است",
+                (int)response.StatusCode,
+                response.IsSuccessStatusCode,
+                responseText,
+                cancellationToken);
             
             if (!response.IsSuccessStatusCode)
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Mahak login failed. Status: {Status}, Content: {Content}", response.StatusCode, errorContent);
-                throw new Exception($"Login failed. Status: {response.StatusCode}, Content: {errorContent}");
+                _logger.LogError("Mahak login failed. Status: {Status}, Content: {Content}", response.StatusCode, responseText);
+                throw new Exception($"Login failed. Status: {response.StatusCode}, Content: {responseText}");
             }
 
-            var responseText = await response.Content.ReadAsStringAsync();
             _logger.LogDebug("Login response: {Response}", responseText);
 
-            var result = await JsonSerializer.DeserializeAsync<MahakApiResult<LoginResultModel>>(
-                await response.Content.ReadAsStreamAsync(), 
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }, 
-                cancellationToken);
+            var result = JsonSerializer.Deserialize<MahakApiResult<LoginResultModel>>(
+                responseText,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (result == null || !result.Result || result.Data == null)
             {
@@ -306,20 +323,36 @@ namespace OnlineShop.Infrastructure.Services
 
         private async Task<GetAllDataResponse?> GetAllDataAsync(RequestAllDataModel request, CancellationToken cancellationToken)
         {
+            await _mahakTrafficLogger.LogRequestAsync(
+                "GetAllData",
+                "GetAllData",
+                "این دیتا برای گرفتن موجودی، کالا، دسته‌بندی، تصاویر و مشتری‌ها از محک است",
+                request,
+                cancellationToken);
+
             var content = new StringContent(JsonSerializer.Serialize(request), System.Text.Encoding.UTF8, "application/json"); // or "application/json-patch+json" as per docs
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json-patch+json");
 
             var response = await _httpClient.PostAsync("GetAllData", content, cancellationToken);
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            await _mahakTrafficLogger.LogResponseAsync(
+                "GetAllData",
+                "GetAllData",
+                "این دیتا پاسخ محک برای موجودی، کالا، دسته‌بندی، تصاویر و مشتری‌ها است",
+                (int)response.StatusCode,
+                response.IsSuccessStatusCode,
+                responseText,
+                cancellationToken);
             
             if (!response.IsSuccessStatusCode)
             {
                  throw new Exception($"GetAllData failed. Status: {response.StatusCode}");
             }
 
-            var result = await JsonSerializer.DeserializeAsync<MahakApiResult<GetAllDataResponse>>(
-                await response.Content.ReadAsStreamAsync(), 
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }, 
-                cancellationToken);
+            var result = JsonSerializer.Deserialize<MahakApiResult<GetAllDataResponse>>(
+                responseText,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (result == null || !result.Result)
             {

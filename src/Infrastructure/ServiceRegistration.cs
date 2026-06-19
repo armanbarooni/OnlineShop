@@ -107,6 +107,7 @@ public static class ServiceRegistration
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<Domain.Interfaces.Services.IInvoiceService, Infrastructure.Services.InvoiceService>();
+        services.AddScoped<IMahakTrafficLogger, MahakTrafficFileLogger>();
 
         var mahakTimeoutSeconds = configuration.GetValue<int?>("BackgroundSync:MahakHttpTimeoutSeconds") ?? 20;
         mahakTimeoutSeconds = Math.Clamp(mahakTimeoutSeconds, 5, 120);
