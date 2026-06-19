@@ -25,21 +25,33 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.MahakMappings
                 .AsNoTracking()
-                .FirstOrDefaultAsync(mm => mm.EntityType == entityType && mm.LocalEntityId == localEntityId, cancellationToken);
+                .FirstOrDefaultAsync(mm =>
+                    mm.EntityType == entityType &&
+                    mm.LocalEntityId == localEntityId &&
+                    !mm.Deleted &&
+                    mm.MappingStatus == "Active",
+                    cancellationToken);
         }
 
         public async Task<MahakMapping?> GetByMahakEntityIdAsync(string entityType, int mahakEntityId, CancellationToken cancellationToken)
         {
             return await _context.MahakMappings
                 .AsNoTracking()
-                .FirstOrDefaultAsync(mm => mm.EntityType == entityType && mm.MahakEntityId == mahakEntityId, cancellationToken);
+                .FirstOrDefaultAsync(mm =>
+                    mm.EntityType == entityType &&
+                    mm.MahakEntityId == mahakEntityId &&
+                    !mm.Deleted &&
+                    mm.MappingStatus == "Active",
+                    cancellationToken);
         }
 
         public async Task<IEnumerable<MahakMapping>> GetByEntityTypeAsync(string entityType, CancellationToken cancellationToken)
         {
             return await _context.MahakMappings
                 .AsNoTracking()
-                .Where(mm => mm.EntityType == entityType)
+                .Where(mm => mm.EntityType == entityType &&
+                             !mm.Deleted &&
+                             mm.MappingStatus == "Active")
                 .ToListAsync(cancellationToken);
         }
 
@@ -47,7 +59,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.MahakMappings
                 .AsNoTracking()
-                .Where(mm => mm.MappingStatus == "Active")
+                .Where(mm => !mm.Deleted && mm.MappingStatus == "Active")
                 .ToListAsync(cancellationToken);
         }
 

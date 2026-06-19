@@ -77,12 +77,52 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void UpdateMahakDetailMetadata(
+            long productDetailClientId,
+            string size,
+            string color,
+            string sku,
+            decimal? additionalPrice,
+            string? barcode,
+            string? feature8Value,
+            string? feature9Value)
+        {
+            if (string.IsNullOrWhiteSpace(size))
+                throw new ArgumentException("سایز نباید خالی باشد");
+            if (string.IsNullOrWhiteSpace(color))
+                throw new ArgumentException("رنگ نباید خالی باشد");
+            if (string.IsNullOrWhiteSpace(sku))
+                throw new ArgumentException("SKU نباید خالی باشد");
+            if (additionalPrice.HasValue && additionalPrice.Value < 0)
+                throw new ArgumentException("قیمت اضافی نمی‌تواند منفی باشد");
+
+            MahakClientId = productDetailClientId;
+            Size = size.Trim().ToUpper();
+            Color = color.Trim();
+            SKU = sku.Trim().ToUpper();
+            AdditionalPrice = additionalPrice;
+            Barcode = barcode?.Trim();
+            Feature8Value = string.IsNullOrWhiteSpace(feature8Value) ? null : feature8Value.Trim();
+            Feature9Value = string.IsNullOrWhiteSpace(feature9Value) ? null : feature9Value.Trim();
+        }
+
+        public void SetMahakVariantId(int productVariantId)
+        {
+            if (productVariantId <= 0)
+                throw new ArgumentException("شناسه تنوع محک باید بزرگتر از صفر باشد");
+
+            MahakId = productVariantId;
+        }
+
         public void SetStockQuantity(int quantity)
+            => SetStockQuantity(quantity, DateTime.UtcNow);
+
+        public void SetStockQuantity(int quantity, DateTime updatedAt)
         {
             if (quantity < 0)
                 throw new ArgumentException("موجودی نمی‌تواند منفی باشد");
             StockQuantity = quantity;
-            UpdatedAt = DateTime.UtcNow;
+            UpdatedAt = updatedAt;
         }
 
         public void AddStock(int quantity)
@@ -94,13 +134,16 @@ namespace OnlineShop.Domain.Entities
         }
 
         public void ReduceStock(int quantity)
+            => ReduceStock(quantity, DateTime.UtcNow);
+
+        public void ReduceStock(int quantity, DateTime updatedAt)
         {
             if (quantity <= 0)
                 throw new ArgumentException("مقدار کاهش موجودی باید مثبت باشد");
             if (quantity > StockQuantity)
                 throw new InvalidOperationException("موجودی کافی نیست");
             StockQuantity -= quantity;
-            UpdatedAt = DateTime.UtcNow;
+            UpdatedAt = updatedAt;
         }
 
         public void SetAdditionalPrice(decimal? additionalPrice)

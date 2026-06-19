@@ -5,6 +5,7 @@ namespace OnlineShop.Domain.Interfaces.Repositories
     public interface IProductVariantRepository
     {
         Task<ProductVariant?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<ProductVariant?> GetByMahakIdAsync(int mahakId, CancellationToken cancellationToken = default);
         Task<List<ProductVariant>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<List<ProductVariant>> GetByProductIdAsync(Guid productId, CancellationToken cancellationToken = default);
         Task<ProductVariant?> GetBySKUAsync(string sku, CancellationToken cancellationToken = default);

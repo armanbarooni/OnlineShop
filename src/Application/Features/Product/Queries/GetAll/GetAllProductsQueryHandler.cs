@@ -27,7 +27,7 @@ namespace OnlineShop.Application.Features.Product.Queries.GetAll
         {
             // Get queryable with includes
             var query = await _productRepository.GetQueryableWithIncludesAsync(cancellationToken);
-            query = query.Where(p => !p.Deleted && !p.DeletedByMahak);
+            query = query.Where(p => !p.Deleted && !p.DeletedByMahak && p.ProductDetails.Any(pd => !pd.Deleted));
 
             // Apply search
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))

@@ -68,6 +68,21 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void ApplyMahakDetail(
+            int productDetailId,
+            long productDetailClientId,
+            long rowVersion,
+            string value,
+            bool deleted)
+        {
+            MahakId = productDetailId;
+            MahakClientId = productDetailClientId;
+            RowVersion = rowVersion;
+            Value = string.IsNullOrWhiteSpace(value) ? "{}" : value.Trim();
+            Deleted = deleted;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         public void Delete(string? updatedBy)
         {
             if (Deleted)

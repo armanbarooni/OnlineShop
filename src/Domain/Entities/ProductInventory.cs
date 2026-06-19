@@ -127,6 +127,9 @@ namespace OnlineShop.Domain.Entities
         }
 
         public void CommitSale(int quantity)
+            => CommitSale(quantity, DateTime.UtcNow);
+
+        public void CommitSale(int quantity, DateTime updatedAt)
         {
             if (quantity <= 0)
                 throw new ArgumentException("مقدار فروش باید بزرگتر از صفر باشد");
@@ -137,7 +140,7 @@ namespace OnlineShop.Domain.Entities
             ReservedQuantity -= quantity;
             AvailableQuantity -= quantity; // Reduce physical stock
             SoldQuantity += quantity;
-            UpdatedAt = DateTime.UtcNow;
+            UpdatedAt = updatedAt;
         }
 
         public void AddStock(int quantity)

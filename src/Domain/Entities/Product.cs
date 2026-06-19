@@ -79,11 +79,25 @@ namespace OnlineShop.Domain.Entities
         }
 
         public void SetStockQuantity(int qty)
+            => SetStockQuantity(qty, DateTime.UtcNow);
+
+        public void SetStockQuantity(int qty, DateTime updatedAt)
         {
             if (qty < 0)
                 throw new ArgumentException("ØªØ¹Ø¯Ø§Ø¯ Ù…ÙˆØ¬ÙˆØ¯ÛŒ Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ù…Ù†ÙÛŒ Ø¨Ø§Ø´Ø¯");
             StockQuantity = qty;
-            UpdatedAt = DateTime.UtcNow;
+            UpdatedAt = updatedAt;
+        }
+
+        public void ReduceStock(int quantity, DateTime updatedAt)
+        {
+            if (quantity <= 0)
+                throw new ArgumentException("مقدار کاهش موجودی باید مثبت باشد");
+            if (quantity > StockQuantity)
+                throw new InvalidOperationException("موجودی کافی نیست");
+
+            StockQuantity -= quantity;
+            UpdatedAt = updatedAt;
         }
 
         public void Update(string name, string description, decimal price, int qty, string? updatedBy)

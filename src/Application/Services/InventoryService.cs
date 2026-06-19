@@ -17,13 +17,19 @@ namespace OnlineShop.Application.Services
     {
         private readonly IProductInventoryRepository _inventoryRepository;
         private readonly IUserOrderItemRepository _orderItemRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly IProductVariantRepository _productVariantRepository;
 
         public InventoryService(
             IProductInventoryRepository inventoryRepository,
-            IUserOrderItemRepository orderItemRepository)
+            IUserOrderItemRepository orderItemRepository,
+            IProductRepository productRepository,
+            IProductVariantRepository productVariantRepository)
         {
             _inventoryRepository = inventoryRepository;
             _orderItemRepository = orderItemRepository;
+            _productRepository = productRepository;
+            _productVariantRepository = productVariantRepository;
         }
 
         public async Task<bool> CheckStockAvailability(Guid productId, int quantity, CancellationToken cancellationToken)
@@ -66,6 +72,7 @@ namespace OnlineShop.Application.Services
         public async Task CommitOrder(Guid orderId, CancellationToken cancellationToken)
         {
             var orderItems = await _orderItemRepository.GetByOrderIdAsync(orderId, cancellationToken);
+            var soldAt = TruncateToSecond(DateTime.UtcNow);
             const int maxRetries = 3;
 
             foreach (var item in orderItems)
@@ -84,7 +91,7 @@ namespace OnlineShop.Application.Services
                     {
                         if (inventory.ReservedQuantity >= item.Quantity)
                         {
-                            inventory.CommitSale(item.Quantity);
+                            inventory.CommitSale(item.Quantity, soldAt);
                             await _inventoryRepository.UpdateAsync(inventory, cancellationToken);
                         }
                         else
@@ -103,6 +110,45 @@ namespace OnlineShop.Application.Services
                     }
                 }
             }
+
+            await ReduceCatalogStockAsync(orderItems.ToList(), soldAt, cancellationToken);
+        }
+
+        private async Task ReduceCatalogStockAsync(
+            List<UserOrderItem> orderItems,
+            DateTime soldAt,
+            CancellationToken cancellationToken)
+        {
+            foreach (var variantGroup in orderItems
+                .Where(i => i.VariantId.HasValue)
+                .GroupBy(i => i.VariantId!.Value))
+            {
+                var variant = await _productVariantRepository.GetByIdAsync(variantGroup.Key, cancellationToken);
+                if (variant == null)
+                {
+                    continue;
+                }
+
+                variant.ReduceStock(variantGroup.Sum(i => i.Quantity), soldAt);
+                await _productVariantRepository.UpdateAsync(variant, cancellationToken);
+            }
+
+            foreach (var productGroup in orderItems.GroupBy(i => i.ProductId))
+            {
+                var product = await _productRepository.GetByIdAsync(productGroup.Key, cancellationToken);
+                if (product == null)
+                {
+                    continue;
+                }
+
+                product.ReduceStock(productGroup.Sum(i => i.Quantity), soldAt);
+                await _productRepository.UpdateAsync(product, cancellationToken);
+            }
+        }
+
+        private static DateTime TruncateToSecond(DateTime value)
+        {
+            return new DateTime(value.Ticks - value.Ticks % TimeSpan.TicksPerSecond, value.Kind);
         }
 
         public async Task ReleaseStockForCancelledOrder(Guid orderId, CancellationToken cancellationToken)

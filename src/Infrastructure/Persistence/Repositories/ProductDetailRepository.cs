@@ -18,14 +18,22 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.ProductDetails
                 .AsNoTracking()
-                .FirstOrDefaultAsync(pd => pd.Id == id, cancellationToken);
+                .FirstOrDefaultAsync(pd => pd.Id == id && !pd.Deleted, cancellationToken);
+        }
+
+        public async Task<ProductDetail?> GetByMahakIdIgnoreFiltersAsync(int mahakId, CancellationToken cancellationToken)
+        {
+            return await _context.ProductDetails
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(pd => pd.MahakId == mahakId, cancellationToken);
         }
 
         public async Task<IEnumerable<ProductDetail>> GetByProductIdAsync(Guid productId, CancellationToken cancellationToken)
         {
             return await _context.ProductDetails
                 .AsNoTracking()
-                .Where(pd => pd.ProductId == productId)
+                .Where(pd => pd.ProductId == productId && !pd.Deleted)
                 .OrderBy(pd => pd.DisplayOrder)
                 .ToListAsync(cancellationToken);
         }
@@ -34,6 +42,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         {
             return await _context.ProductDetails
                 .AsNoTracking()
+                .Where(pd => !pd.Deleted)
                 .OrderBy(pd => pd.ProductId)
                 .ThenBy(pd => pd.DisplayOrder)
                 .ToListAsync(cancellationToken);
@@ -65,7 +74,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         public async Task DeleteByProductIdAsync(Guid productId, CancellationToken cancellationToken)
         {
             var productDetails = await _context.ProductDetails
-                .Where(pd => pd.ProductId == productId)
+                .Where(pd => pd.ProductId == productId && !pd.Deleted)
                 .ToListAsync(cancellationToken);
 
             foreach (var detail in productDetails)

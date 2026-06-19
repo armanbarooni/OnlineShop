@@ -16,6 +16,9 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
         public Task<ProductVariant?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
             => _context.ProductVariants.AsNoTracking().FirstOrDefaultAsync(pv => pv.Id == id && !pv.Deleted, cancellationToken);
 
+        public Task<ProductVariant?> GetByMahakIdAsync(int mahakId, CancellationToken cancellationToken = default)
+            => _context.ProductVariants.AsNoTracking().FirstOrDefaultAsync(pv => pv.MahakId == mahakId && !pv.Deleted, cancellationToken);
+
         public Task<List<ProductVariant>> GetAllAsync(CancellationToken cancellationToken = default)
             => _context.ProductVariants.AsNoTracking().Where(pv => !pv.Deleted).OrderBy(pv => pv.DisplayOrder).ToListAsync(cancellationToken);
 

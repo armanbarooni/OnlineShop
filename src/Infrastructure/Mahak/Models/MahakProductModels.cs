@@ -49,6 +49,8 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public decimal Count2 { get; set; }
         public bool Deleted { get; set; }
         public long RowVersion { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public DateTime? UpdateDate { get; set; }
     }
 
     public class ProductCategoryModel

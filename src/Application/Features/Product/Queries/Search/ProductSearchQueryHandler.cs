@@ -28,7 +28,7 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
                 // Get products with all includes for filtering
                 var allProducts = await _repository.GetAllWithIncludesAsync(cancellationToken);
                 var visibleProducts = allProducts
-                    .Where(p => !p.Deleted && !p.DeletedByMahak)
+                    .Where(p => !p.Deleted && !p.DeletedByMahak && p.ProductDetails.Any(pd => !pd.Deleted))
                     .ToList();
                 var query = visibleProducts.AsQueryable();
 
