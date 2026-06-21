@@ -25,7 +25,6 @@ namespace OnlineShop.Infrastructure.Services
             _httpClient = httpClient;
             
             _merchantId = _configuration["ZarinPal:MerchantId"] ?? throw new InvalidOperationException("ZarinPal MerchantId not configured");
-            _isSandbox = _configuration.GetValue<bool>("ZarinPal:IsSandbox", true);
             _baseUrl = "https://payment.zarinpal.com/pg/v4/payment";
             
             _logger.LogInformation("ZarinPal Payment Service initialized. Sandbox: {IsSandbox}", _isSandbox);
@@ -73,9 +72,7 @@ namespace OnlineShop.Infrastructure.Services
                     if (dataElement.TryGetProperty("code", out var codeElement) && codeElement.GetInt32() == 100)
                     {
                         var authority = dataElement.GetProperty("authority").GetString() ?? string.Empty;
-                        var paymentUrl = //_isSandbox
-                            $"https://sandbox.zarinpal.com/pg/StartPay/{authority}";
-                           // : $"https://payment.zarinpal.com/pg/StartPay/{authority}";
+                        var paymentUrl = $"https://payment.zarinpal.com/pg/StartPay/{authority}";
 
                         _logger.LogInformation("Payment initiated successfully. Authority: {Authority}", authority);
                         return (true, paymentUrl, authority, "Success");
