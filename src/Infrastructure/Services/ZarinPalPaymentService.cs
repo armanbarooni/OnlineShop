@@ -26,9 +26,7 @@ namespace OnlineShop.Infrastructure.Services
             
             _merchantId = _configuration["ZarinPal:MerchantId"] ?? throw new InvalidOperationException("ZarinPal MerchantId not configured");
             _isSandbox = _configuration.GetValue<bool>("ZarinPal:IsSandbox", true);
-            _baseUrl = _isSandbox 
-                ? "https://sandbox.zarinpal.com/pg/v4/payment"
-                : "https://payment.zarinpal.com/pg/v4/payment";
+            _baseUrl = "https://payment.zarinpal.com/pg/v4/payment";
             
             _logger.LogInformation("ZarinPal Payment Service initialized. Sandbox: {IsSandbox}", _isSandbox);
         }
