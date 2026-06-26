@@ -209,6 +209,43 @@ function isVisibleProduct(product) {
   );
 }
 
+function getProductVariantList(product) {
+  return [
+    ...(Array.isArray(product?.productVariants) ? product.productVariants : []),
+    ...(Array.isArray(product?.ProductVariants) ? product.ProductVariants : []),
+    ...(Array.isArray(product?.variants) ? product.variants : []),
+    ...(Array.isArray(product?.Variants) ? product.Variants : [])
+  ];
+}
+
+function getVariantStock(variant) {
+  const stock = Number(
+    variant?.stockQuantity ??
+    variant?.StockQuantity ??
+    variant?.stock ??
+    variant?.Stock ??
+    variant?.quantity ??
+    variant?.Quantity ??
+    0
+  );
+  return Number.isFinite(stock) ? stock : 0;
+}
+
+function isProductInStock(product) {
+  if (getProductVariantList(product).some((variant) => getVariantStock(variant) > 0)) {
+    return true;
+  }
+
+  const stock = Number(
+    product?.stockQuantity ??
+    product?.StockQuantity ??
+    product?.quantity ??
+    product?.Quantity ??
+    0
+  );
+  return Number.isFinite(stock) && stock > 0;
+}
+
 function renderProductsState(containerId, message) {
   const container = findProductContainer(containerId);
   if (!container) return;
@@ -269,10 +306,11 @@ function createProductCard(product) {
       ? rawImageUrl
       : `/api/ImageProxy?url=${encodeURIComponent(rawImageUrl)}`
     : "assets/images/product/nophoto.png";
-  const price = product.price || 0;
-  const originalPrice = product.originalPrice || price;
+  const hasStock = isProductInStock(product);
+  const price = hasStock ? (product.price || 0) : null;
+  const originalPrice = hasStock ? (product.originalPrice || price) : null;
   const discount =
-    originalPrice > price
+    hasStock && originalPrice > price
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
       : 0;
   const productUrl = `product.html?id=${product.id}`;
@@ -303,10 +341,10 @@ function createProductCard(product) {
                 </a>
                 <div class="flex items-center justify-between mt-3">
                     <div class="flex flex-col">
-                        ${discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-                        <span class="text-lg font-bold text-primary">${formatPrice(price)} ????</span>
+                        ${hasStock && discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
+                        <span class="text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${formatPrice(price)} ????` : "Ù†Ø§Ù…ÙˆØ¬ÙˆØ¯"}</span>
                     </div>
-                    <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition">
+                    <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" ${hasStock ? "" : "disabled"}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
                         </svg>
@@ -315,6 +353,32 @@ function createProductCard(product) {
             </article>
         </div>
     `;
+}
+
+function isProductInStock(product) {
+  const variants = [
+    ...(Array.isArray(product?.productVariants) ? product.productVariants : []),
+    ...(Array.isArray(product?.ProductVariants) ? product.ProductVariants : []),
+    ...(Array.isArray(product?.variants) ? product.variants : []),
+    ...(Array.isArray(product?.Variants) ? product.Variants : [])
+  ];
+
+  const variantStock = variants.some((variant) => {
+    const stock = Number(
+      variant?.stockQuantity ??
+      variant?.StockQuantity ??
+      variant?.stock ??
+      variant?.Stock ??
+      variant?.quantity ??
+      variant?.Quantity ??
+      0
+    );
+    return Number.isFinite(stock) && stock > 0;
+  });
+  if (variantStock) return true;
+
+  const stock = Number(product?.stockQuantity ?? product?.StockQuantity ?? product?.quantity ?? product?.Quantity ?? 0);
+  return Number.isFinite(stock) && stock > 0;
 }
 
 // Format price

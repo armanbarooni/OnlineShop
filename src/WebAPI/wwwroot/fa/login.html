@@ -244,7 +244,7 @@
                     <div class="mt-6 text-center">
                         <p class="text-sm text-gray-500 dark:text-gray-400">
                             حساب کاربری ندارید؟
-                            <a href="register.html"
+                            <a id="register-link" href="register.html"
                                 class="font-medium text-primary dark:text-primary-dark hover:underline">ثبت نام کنید</a>
                         </p>
                     </div>
@@ -258,6 +258,7 @@
     <script src="assets/js/utils/logger.js"></script>
     <script src="assets/js/dependencies/app.js"></script>
     <script src="assets/js/api-client.js"></script>
+    <script src="assets/js/services/cart-service.js"></script>
     <script src="assets/js/auth-service.js"></script>
     <script src="assets/js/auth-guard.js"></script>
     <script src="assets/js/utils.js"></script>
@@ -378,6 +379,34 @@
             const redirectUrl = getSafeLoginRedirectUrl();
             localStorage.removeItem('intendedUrl');
             window.location.href = redirectUrl;
+        }
+
+        function getSafeRegisterRedirectUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const returnUrl = params.get('returnUrl') || params.get('redirect') || localStorage.getItem('intendedUrl') || 'checkout.html';
+
+            try {
+                const target = new URL(returnUrl, window.location.href);
+                const pageName = target.pathname.split('/').pop() || 'checkout.html';
+                if (target.origin !== window.location.origin || pageName === 'login.html' || pageName === 'register.html') {
+                    return 'checkout.html';
+                }
+                return target.pathname.split('/').pop() + target.search + target.hash;
+            } catch (error) {
+                return 'checkout.html';
+            }
+        }
+
+        async function transferGuestCartAfterAuth() {
+            if (!window.cartService || typeof window.cartService.transferGuestCartToUser !== 'function') {
+                return;
+            }
+
+            try {
+                await window.cartService.transferGuestCartToUser();
+            } catch (error) {
+                console.error('Guest cart transfer error:', error);
+            }
         }
 
         // Function to send OTP code
@@ -541,12 +570,14 @@
                         password.value
                     );
 
-                    if (result.success) {
-                        // Show success message
-                        showLoginSuccess('ورود با موفقیت انجام شد!');
+                if (result.success) {
+                    // Show success message
+                    showLoginSuccess('ورود با موفقیت انجام شد!');
 
-                        // Clear form after successful login
-                        clearLoginForm();
+                    await transferGuestCartAfterAuth();
+
+                    // Clear form after successful login
+                    clearLoginForm();
 
                         // Redirect to dashboard after short delay
                         setTimeout(() => {
@@ -614,6 +645,8 @@
 
                 if (result.success) {
                     showLoginSuccess('ورود با موفقیت انجام شد!');
+
+                    await transferGuestCartAfterAuth();
 
                     // Clear form after successful login
                     clearLoginForm();
@@ -695,6 +728,11 @@
             setTimeout(() => {
                 successDiv.remove();
             }, 3000);
+        }
+
+        const registerLink = document.getElementById('register-link');
+        if (registerLink) {
+            registerLink.href = `register.html?returnUrl=${encodeURIComponent(getSafeRegisterRedirectUrl())}`;
         }
 
     </script>

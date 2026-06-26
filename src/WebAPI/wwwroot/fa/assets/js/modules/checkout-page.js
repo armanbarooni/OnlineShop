@@ -8,7 +8,44 @@
         cart: null,
         items: [],
         addresses: [],
-        selectedAddress: null
+        selectedAddress: null,
+        isAddressFormOpen: false,
+        isSavingAddress: false,
+        province: "",
+        city: ""
+    };
+
+    const IRAN_LOCATION_DATA = {
+        "تهران": ["تهران", "اسلامشهر", "ری", "ورامین", "شهریار", "دماوند", "قدس", "رباط کریم", "پرند"],
+        "البرز": ["کرج", "فردیس", "نظرآباد", "هشتگرد", "ماهدشت", "اشتهارد"],
+        "اصفهان": ["اصفهان", "کاشان", "خمینی‌شهر", "نجف‌آباد", "شاهین‌شهر", "فولادشهر", "آران و بیدگل"],
+        "فارس": ["شیراز", "مرودشت", "جهرم", "کازرون", "فسا", "لار", "داراب", "اقلید"],
+        "خراسان رضوی": ["مشهد", "نیشابور", "سبزوار", "تربت حیدریه", "چناران", "طرقبه", "کاشمر"],
+        "مازندران": ["ساری", "آمل", "بابل", "قائم‌شهر", "بابلسر", "بهشهر", "نوشهر", "چالوس"],
+        "گیلان": ["رشت", "لاهیجان", "بندر انزلی", "رودسر", "آستارا", "صومعه‌سرا", "فومن"],
+        "آذربایجان شرقی": ["تبریز", "مراغه", "مرند", "اهر", "میانه", "شبستر", "سراب"],
+        "آذربایجان غربی": ["ارومیه", "خوی", "مهاباد", "بوکان", "سلماس", "پیرانشهر", "میاندوآب"],
+        "خوزستان": ["اهواز", "آبادان", "خرمشهر", "دزفول", "ماهشهر", "شادگان", "اندیمشک"],
+        "کرمان": ["کرمان", "رفسنجان", "سیرجان", "جیرفت", "بم", "زرند"],
+        "یزد": ["یزد", "میبد", "اردکان", "بافق", "مهریز"],
+        "قم": ["قم"],
+        "قزوین": ["قزوین", "الوند", "تاکستان", "آبیک"],
+        "همدان": ["همدان", "ملایر", "نهاوند", "تویسرکان", "اسدآباد"],
+        "کرمانشاه": ["کرمانشاه", "اسلام‌آباد غرب", "سنقر", "هرسین", "کنگاور"],
+        "هرمزگان": ["بندرعباس", "قشم", "کیش", "بندر لنگه", "میناب"],
+        "سیستان و بلوچستان": ["زاهدان", "زابل", "ایرانشهر", "چابهار", "خاش", "سراوان"],
+        "بوشهر": ["بوشهر", "برازجان", "گناوه", "کنگان", "دیلم"],
+        "خراسان شمالی": ["بجنورد", "شیروان", "اسفراین", "جاجرم"],
+        "خراسان جنوبی": ["بیرجند", "قائن", "نهبندان", "فردوس", "طبس"],
+        "اردبیل": ["اردبیل", "پارس‌آباد", "مشگین‌شهر", "خلخال", "نمین"],
+        "زنجان": ["زنجان", "ابهر", "خرمدره", "ماه‌نشان"],
+        "سمنان": ["سمنان", "شاهرود", "دامغان", "گرمسار", "مهدی‌شهر"],
+        "لرستان": ["خرم‌آباد", "بروجرد", "دورود", "الیگودرز", "ازنا"],
+        "ایلام": ["ایلام", "دهلران", "مهران", "آبدانان"],
+        "کردستان": ["سنندج", "مریوان", "بانه", "قروه", "سقز"],
+        "چهارمحال و بختیاری": ["شهرکرد", "بروجن", "فارسان", "لردگان"],
+        "کهگیلویه و بویراحمد": ["یاسوج", "دهدشت", "گچساران"],
+        "مرکزی": ["اراک", "ساوه", "خمین", "محلات", "دلیجان"]
     };
 
     function formatPrice(value) {
@@ -157,6 +194,100 @@
         return parts.join("، ");
     }
 
+    function getCheckoutAddressPayload(address) {
+        if (!address) return "";
+
+        const parts = [
+            address.state,
+            address.city,
+            address.addressLine1,
+            address.addressLine2,
+            address.postalCode
+        ].filter(Boolean);
+
+        return parts.join("، ");
+    }
+
+    function getCheckoutAddressId(address) {
+        return address?.id ?? address?.addressId ?? address?.AddressId ?? null;
+    }
+
+    function normalizeSearchText(value) {
+        return String(value || "").trim().toLowerCase();
+    }
+
+    function renderOptionList(containerId, inputId, valuesOrGetter, onSelect, placeholder) {
+        const container = document.getElementById(containerId);
+        const input = document.getElementById(inputId);
+        if (!container || !input) return;
+
+        const values = typeof valuesOrGetter === "function" ? valuesOrGetter() : valuesOrGetter;
+        const query = normalizeSearchText(input.value);
+        const filtered = values.filter(value => normalizeSearchText(value).includes(query));
+
+        if (!filtered.length) {
+            container.innerHTML = `<div class="px-4 py-3 text-sm text-gray-500 dark:text-gray-300">${placeholder}</div>`;
+        } else {
+            container.innerHTML = filtered.map(value => `
+                <button type="button" data-value="${escapeHtml(value)}" class="w-full text-start px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+                    ${escapeHtml(value)}
+                </button>
+            `).join("");
+        }
+
+        container.classList.toggle("hidden", false);
+    }
+
+    function bindSearchableField(inputId, listId, valuesOrGetter, onSelect, placeholder) {
+        const input = document.getElementById(inputId);
+        const list = document.getElementById(listId);
+        if (!input || !list) return;
+
+        input.addEventListener("focus", () => renderOptionList(listId, inputId, valuesOrGetter, onSelect, placeholder));
+        input.addEventListener("input", () => {
+            renderOptionList(listId, inputId, valuesOrGetter, onSelect, placeholder);
+        });
+
+        document.addEventListener("click", event => {
+            if (!list.contains(event.target) && event.target !== input) {
+                list.classList.add("hidden");
+            }
+        });
+
+        list.addEventListener("click", event => {
+            const button = event.target.closest("[data-value]");
+            if (!button) return;
+            const value = button.dataset.value;
+            input.value = value;
+            list.classList.add("hidden");
+            onSelect(value);
+        });
+    }
+
+    function initProvinceCitySelectors() {
+        const provinceInput = document.getElementById("checkout-address-state");
+        const cityInput = document.getElementById("checkout-address-city");
+        if (!provinceInput || !cityInput) return;
+
+        const provinces = Object.keys(IRAN_LOCATION_DATA);
+        bindSearchableField("checkout-address-state", "checkout-state-options", provinces, (province) => {
+            state.province = province;
+            const cities = IRAN_LOCATION_DATA[province] || [];
+            state.city = "";
+            cityInput.value = "";
+            cityInput.disabled = false;
+            cityInput.placeholder = "جستجوی شهر";
+            cityInput.focus();
+            bindSearchableField("checkout-address-city", "checkout-city-options", () => IRAN_LOCATION_DATA[state.province] || [], (city) => {
+                state.city = city;
+            }, "شهری پیدا نشد");
+            renderOptionList("checkout-city-options", "checkout-address-city", () => IRAN_LOCATION_DATA[state.province] || [], (city) => {
+                state.city = city;
+            }, "شهری پیدا نشد");
+        }, "استانی پیدا نشد");
+        cityInput.disabled = true;
+    }
+
     function renderSelectedAddress(address) {
         const addressDetails = document.getElementById("checkout-address-details");
         const changeButton = document.getElementById("change-address-btn");
@@ -165,7 +296,7 @@
             if (addressDetails) {
                 addressDetails.innerHTML = `
                     <span class="text-red-500">لطفا آدرس را وارد کنید</span>
-                    <a href="user-panel-address.html" class="text-primary font-medium mt-2 inline-block">افزودن آدرس جدید</a>
+                    <button type="button" id="checkout-add-address-inline" class="text-primary font-medium mt-2 inline-block text-start">افزودن آدرس جدید</button>
                 `;
             }
             if (changeButton) changeButton.disabled = false;
@@ -191,39 +322,126 @@
             container.innerHTML = `
                 <div class="text-center py-8 text-gray-500 dark:text-gray-300">
                     <p>آدرسی برای نمایش وجود ندارد.</p>
-                    <a href="user-panel-address.html" class="inline-block mt-4 px-4 py-2 rounded-lg bg-primary text-white">افزودن آدرس جدید</a>
+                    <button type="button" id="checkout-show-address-form" class="inline-block mt-4 px-4 py-2 rounded-lg bg-primary text-white">افزودن آدرس جدید</button>
                 </div>
             `;
-            return;
+        } else {
+            container.innerHTML = state.addresses.map(address => {
+                const isSelected = state.selectedAddress && address.id === state.selectedAddress.id;
+                return `
+                    <button type="button"
+                        data-checkout-address-id="${escapeHtml(address.id)}"
+                        class="w-full text-start p-4 rounded-lg border transition ${isSelected ? "border-primary bg-primary/5" : "border-gray-200 dark:border-gray-700 hover:border-primary"}">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="space-y-2">
+                                <div class="font-bold text-gray-800 dark:text-white">${escapeHtml(address.title || "آدرس")}</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-300">${escapeHtml(getAddressText(address))}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">کد پستی: ${escapeHtml(address.postalCode || "-")}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">${escapeHtml(`${address.firstName || ""} ${address.lastName || ""}`.trim())} ${address.phoneNumber ? " - " + escapeHtml(address.phoneNumber) : ""}</div>
+                            </div>
+                            ${address.isDefault ? `<span class="shrink-0 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">پیش‌فرض</span>` : ""}
+                        </div>
+                    </button>
+                `;
+            }).join("");
         }
 
-        container.innerHTML = state.addresses.map(address => {
-            const isSelected = state.selectedAddress && address.id === state.selectedAddress.id;
-            return `
-                <button type="button"
-                    data-checkout-address-id="${escapeHtml(address.id)}"
-                    class="w-full text-start p-4 rounded-lg border transition ${isSelected ? "border-primary bg-primary/5" : "border-gray-200 dark:border-gray-700 hover:border-primary"}">
-                    <div class="flex items-start justify-between gap-4">
-                        <div class="space-y-2">
-                            <div class="font-bold text-gray-800 dark:text-white">${escapeHtml(address.title || "آدرس")}</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-300">${escapeHtml(getAddressText(address))}</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400">کد پستی: ${escapeHtml(address.postalCode || "-")}</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400">${escapeHtml(`${address.firstName || ""} ${address.lastName || ""}`.trim())} ${address.phoneNumber ? " - " + escapeHtml(address.phoneNumber) : ""}</div>
-                        </div>
-                        ${address.isDefault ? `<span class="shrink-0 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">پیش‌فرض</span>` : ""}
-                    </div>
-                </button>
-            `;
-        }).join("");
+        const formSection = document.getElementById("checkout-address-form-section");
+        if (formSection) {
+            formSection.classList.toggle("hidden", !state.isAddressFormOpen && state.addresses.length > 0);
+        }
     }
 
     function openAddressModal() {
+        state.isAddressFormOpen = state.addresses.length === 0;
         renderAddressModal();
         document.getElementById("addressSelectionModal")?.classList.remove("hidden");
+        if (state.isAddressFormOpen) {
+            document.getElementById("checkout-address-form-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
     }
 
     function closeAddressModal() {
         document.getElementById("addressSelectionModal")?.classList.add("hidden");
+        state.isAddressFormOpen = false;
+        renderAddressModal();
+    }
+
+    function openAddressForm() {
+        state.isAddressFormOpen = true;
+        renderAddressModal();
+        document.getElementById("checkout-address-form-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function resetAddressForm() {
+        const form = document.getElementById("checkout-address-form");
+        form?.reset();
+    }
+
+    async function saveAddressFromCheckout() {
+        if (state.isSavingAddress) return;
+
+        const title = document.getElementById("checkout-address-title")?.value || "";
+        const stateValue = document.getElementById("checkout-address-state")?.value || "";
+        const city = document.getElementById("checkout-address-city")?.value || "";
+        const addressLine1 = document.getElementById("checkout-address-line1")?.value || "";
+        const postalCode = document.getElementById("checkout-address-postal")?.value || "";
+        const firstName = document.getElementById("checkout-address-firstname")?.value || "";
+        const lastName = document.getElementById("checkout-address-lastname")?.value || "";
+        const phoneNumber = document.getElementById("checkout-address-phone")?.value || "";
+        const isDefault = document.getElementById("checkout-address-default")?.checked || false;
+
+        const addressData = {
+            title: title.trim(),
+            firstName: firstName.trim(),
+            lastName: lastName.trim() || "-",
+            addressLine1: addressLine1.trim(),
+            city: city.trim(),
+            state: stateValue.trim(),
+            postalCode: postalCode.trim(),
+            phoneNumber: phoneNumber.trim(),
+            country: "Iran",
+            isDefault,
+            isShippingAddress: true,
+            isBillingAddress: isDefault
+        };
+
+        const validation = window.addressService.validateAddressData(addressData);
+        if (!validation.isValid) {
+            window.utils?.showToast?.(Object.values(validation.errors)[0] || "لطفا اطلاعات آدرس را کامل کنید", "error");
+            return;
+        }
+
+        const btn = document.getElementById("checkout-save-address-btn");
+        const originalText = btn?.textContent || "ذخیره آدرس";
+
+        try {
+            state.isSavingAddress = true;
+            if (btn) {
+                btn.textContent = "در حال ذخیره...";
+                btn.disabled = true;
+            }
+
+            const response = await window.addressService.createAddress(addressData);
+            if (!response.success) {
+                throw new Error(response.error || "خطا در ذخیره آدرس");
+            }
+
+            window.utils?.showToast?.("آدرس جدید با موفقیت اضافه شد", "success");
+            await loadAddresses();
+            state.isAddressFormOpen = false;
+            renderAddressModal();
+            resetAddressForm();
+        } catch (error) {
+            window.logger?.error("Error saving checkout address:", error);
+            window.utils?.showToast?.(error.message || "خطا در ذخیره آدرس", "error");
+        } finally {
+            state.isSavingAddress = false;
+            if (btn) {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
     }
 
     function renderCartItems() {
@@ -296,10 +514,38 @@
     }
 
     function bindEvents() {
+        initProvinceCitySelectors();
         document.getElementById("change-address-btn")?.addEventListener("click", openAddressModal);
+        document.getElementById("checkout-save-address-btn")?.addEventListener("click", saveAddressFromCheckout);
+        document.getElementById("checkout-address-cancel-btn")?.addEventListener("click", () => {
+            state.isAddressFormOpen = false;
+            renderAddressModal();
+        });
         
         document.querySelectorAll("[data-modal-close]").forEach(btn => {
             btn.addEventListener("click", closeAddressModal);
+        });
+
+        document.getElementById("address-modal-backdrop")?.addEventListener("click", closeAddressModal);
+        document.getElementById("address-modal-close")?.addEventListener("click", closeAddressModal);
+        document.getElementById("addressSelectionModal")?.addEventListener("click", event => {
+            if (event.target.closest("#checkout-show-address-form")) {
+                event.preventDefault();
+                openAddressForm();
+                return;
+            }
+
+            if (event.target.closest("#checkout-add-address-inline")) {
+                event.preventDefault();
+                openAddressModal();
+                return;
+            }
+
+            if (event.target.closest("#checkout-address-cancel-btn")) {
+                event.preventDefault();
+                state.isAddressFormOpen = false;
+                renderAddressModal();
+            }
         });
 
         document.getElementById("checkout-address-list")?.addEventListener("click", event => {
@@ -335,7 +581,8 @@
                 // Step 1: Process Checkout (Creates the order and clears the cart)
                 const checkoutResult = await window.apiClient.post('/Checkout', {
                     cartId: state.cart.id,
-                    shippingAddressId: state.selectedAddress.id
+                    shippingAddressId: getCheckoutAddressId(state.selectedAddress),
+                    shippingAddressText: getCheckoutAddressPayload(state.selectedAddress)
                 });
 
                 if (!checkoutResult.success || !checkoutResult.data?.isSuccess || !checkoutResult.data?.data?.order?.id) {
@@ -378,6 +625,9 @@
 
         try {
             await Promise.all([loadCart(), loadAddresses()]);
+            if (!state.addresses.length) {
+                openAddressModal();
+            }
             window.cartService?.updateCartCount?.();
             window.cartService?.renderCartOffcanvas?.();
         } catch (error) {

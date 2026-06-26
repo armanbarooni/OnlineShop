@@ -167,6 +167,28 @@ namespace OnlineShop.Infrastructure.Mahak.Models
     }
 
     /// <summary>
+    /// Model for receipts sent to Mahak
+    /// </summary>
+    public class MahakReceiptModel
+    {
+        public long ReceiptClientId { get; set; }
+        public int? ReceiptCode { get; set; }
+        public int PersonId { get; set; }
+        public int VisitorId { get; set; }
+        public decimal CashAmount { get; set; }
+        public int? CashCode { get; set; }
+        public string? Description { get; set; }
+        public DateTime Date { get; set; }
+        public int? ProjectId { get; set; }
+        public int? OrderId { get; set; }
+        public bool Deleted { get; set; } = false;
+        public DateTime UpdateDate { get; set; }
+        public long OrderClientId { get; set; }
+        public int? OrderCode { get; set; }
+        public int OrderType { get; set; } = 201;
+    }
+
+    /// <summary>
     /// Request model for SaveAllDataV2 endpoint
     /// </summary>
     public class SaveAllDataRequest
@@ -176,6 +198,7 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public List<MahakVisitorPersonModel>? VisitorPeople { get; set; }
         public List<MahakOrderModel>? Orders { get; set; }
         public List<MahakOrderDetailModel>? OrderDetails { get; set; }
+        public List<MahakReceiptModel>? Receipts { get; set; }
         // Add other entities as needed
     }
 }

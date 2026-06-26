@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -27,6 +28,10 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IMahakSyncLogRepository _mahakSyncLogRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMahakTrafficLogger _mahakTrafficLogger;
+        private static readonly JsonSerializerOptions SaveAllDataJsonOptions = new()
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
 
         private string? _token;
         private int _visitorId;
@@ -204,10 +209,15 @@ namespace OnlineShop.Infrastructure.Services
             }
 
             var mahakPersonId = await EnsureCustomerSyncedAsync(order.User, cancellationToken);
+            var orderClientId = order.Id.GetHashCode(); // Use hash of GUID as long
+            var paidPayment = order.Payments
+                .Where(p => string.Equals(p.PaymentStatus, "Paid", StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(p => p.PaidAt ?? p.CreatedAt)
+                .FirstOrDefault();
 
             var mahakOrder = new MahakOrderModel
             {
-                OrderClientId = order.Id.GetHashCode(), // Use hash of GUID as long
+                OrderClientId = orderClientId,
                 VisitorId = _visitorId,
                 PersonId = mahakPersonId,
                 OrderType = 201, // Sales invoice
@@ -281,15 +291,49 @@ namespace OnlineShop.Infrastructure.Services
                 throw new InvalidOperationException($"Order {order.Id} has no Mahak order details. Sync aborted.");
             }
 
+            List<MahakReceiptModel>? receipts = null;
+            if (paidPayment != null)
+            {
+                var paidAt = paidPayment.PaidAt ?? order.UpdatedAt ?? DateTime.UtcNow;
+                receipts = new List<MahakReceiptModel>
+                {
+                    new()
+                    {
+                        ReceiptClientId = orderClientId,
+                        ReceiptCode = null,
+                        PersonId = mahakPersonId,
+                        VisitorId = _visitorId,
+                        CashAmount = paidPayment.Amount,
+                        CashCode = null,
+                        Description = $"Payment for order {order.OrderNumber}",
+                        Date = paidAt,
+                        ProjectId = null,
+                        OrderId = null,
+                        Deleted = false,
+                        UpdateDate = paidAt,
+                        OrderClientId = orderClientId,
+                        OrderCode = null,
+                        OrderType = mahakOrder.OrderType
+                    }
+                };
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Order {OrderId} is being synced to Mahak without a paid payment record, so no receipt will be sent.",
+                    order.Id);
+            }
+
             // Send to Mahak
             var request = new SaveAllDataRequest
             {
                 Orders = new List<MahakOrderModel> { mahakOrder },
-                OrderDetails = mahakOrderDetails
+                OrderDetails = mahakOrderDetails,
+                Receipts = receipts
             };
 
             // Log the request for debugging
-            var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+            var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions(SaveAllDataJsonOptions) { WriteIndented = true });
             _logger.LogDebug("Sending order to Mahak. Request: {Request}", requestJson);
             await _mahakTrafficLogger.LogRequestAsync(
                 "SendSalesInvoice",
@@ -298,7 +342,7 @@ namespace OnlineShop.Infrastructure.Services
                 request,
                 cancellationToken);
 
-            var content = new StringContent(JsonSerializer.Serialize(request), System.Text.Encoding.UTF8, "application/json");
+            var content = new StringContent(JsonSerializer.Serialize(request, SaveAllDataJsonOptions), System.Text.Encoding.UTF8, "application/json");
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json-patch+json");
 
             var response = await _httpClient.PostAsync("SaveAllDataV2", content, cancellationToken);

@@ -3,6 +3,7 @@
  */
 
 let normalizedVariants = [];
+let availableVariants = [];
 
 function isVisibleProduct(product) {
   return (
@@ -161,11 +162,16 @@ function setupAddToCartButton(product) {
   if (!addToCartBtn) return;
 
   addToCartBtn.onclick = async function() {
+    if (availableVariants.length === 0) {
+      showToast("این کالا ناموجود است", "warning");
+      return;
+    }
+
     // Get selected variant
     const colorSelect = document.getElementById("product-color-select");
     const sizeSelect = document.getElementById("product-size-select");
-    const colors = extractUniqueValues(normalizedVariants, "color");
-    const sizes = extractUniqueValues(normalizedVariants, "size");
+    const colors = extractUniqueValues(availableVariants, "color");
+    const sizes = extractUniqueValues(availableVariants, "size");
     const needColor = colors.length > 0;
     const needSize = sizes.length > 0;
 
@@ -334,6 +340,18 @@ function renderPrice(product) {
   const currentPriceEl = document.getElementById("product-current-price");
   const oldPriceEl = document.getElementById("product-old-price");
   const discountBadge = document.getElementById("product-discount-badge");
+  const hasStock = availableVariants.length > 0 || ((toNumber(product.stockQuantity) || toNumber(product.quantity) || 0) > 0);
+
+  if (!hasStock) {
+    if (currentPriceEl) {
+      currentPriceEl.textContent = "ناموجود";
+      currentPriceEl.classList.add("text-red-600");
+      currentPriceEl.removeAttribute("content");
+    }
+    if (oldPriceEl) oldPriceEl.classList.add("hidden");
+    if (discountBadge) discountBadge.classList.add("hidden");
+    return;
+  }
 
   const price = product.price || 0;
   const salePrice = product.salePrice || null;
@@ -616,6 +634,15 @@ function resolveVariantStock(row, product) {
   return fallbackStock ?? 0;
 }
 
+function isVariantInStock(variant) {
+  return (toNumber(variant?.stock) || 0) > 0;
+}
+
+function getVariantsForColor(color) {
+  if (!color) return [];
+  return availableVariants.filter((variant) => variant.color === color);
+}
+
 function buildSizeVariants(product) {
   const rows = [
     ...toArray(product.productDetails),
@@ -674,12 +701,13 @@ function updateStockBySelectedVariant() {
   const sizeSelect = document.getElementById("product-size-select");
   const statusEl = document.getElementById("product-stock-status");
 
-  const colors = extractUniqueValues(normalizedVariants, "color");
-  const sizes = extractUniqueValues(normalizedVariants, "size");
+  const colors = extractUniqueValues(availableVariants, "color");
+  const selectedColor = colorSelect ? stringOrEmpty(colorSelect.value) : "";
+  const colorVariants = selectedColor ? getVariantsForColor(selectedColor) : [];
+  const sizes = selectedColor ? extractUniqueValues(colorVariants, "size") : [];
   const needColor = colors.length > 0;
   const needSize = sizes.length > 0;
 
-  const selectedColor = colorSelect ? stringOrEmpty(colorSelect.value) : "";
   const selectedSize = sizeSelect ? stringOrEmpty(sizeSelect.value) : "";
 
   if ((needColor && !selectedColor) || (needSize && !selectedSize)) {
@@ -688,7 +716,7 @@ function updateStockBySelectedVariant() {
     return;
   }
 
-  const matched = normalizedVariants.filter((variant) => {
+  const matched = availableVariants.filter((variant) => {
     const colorOk = !needColor || variant.color === selectedColor;
     const sizeOk = !needSize || variant.size === selectedSize;
     return colorOk && sizeOk;
@@ -724,30 +752,43 @@ function renderVariantSelectors(product) {
   if (!container || !colorSelect || !sizeSelect) return;
 
   normalizedVariants = buildSizeVariants(product);
-  const colors = extractUniqueValues(normalizedVariants, "color");
-  const sizes = extractUniqueValues(normalizedVariants, "size");
+  availableVariants = normalizedVariants.filter(isVariantInStock);
+  const colors = extractUniqueValues(availableVariants, "color");
+  const selectedColor = colorSelect ? stringOrEmpty(colorSelect.value) : "";
+  const sizes = selectedColor
+    ? extractUniqueValues(getVariantsForColor(selectedColor), "size")
+    : extractUniqueValues(availableVariants, "size");
 
   if (colors.length === 0 && sizes.length === 0) {
     container.classList.add("hidden");
     if (statusEl) statusEl.classList.add("hidden");
-    toggleAddToCartByStock(true);
+    if (statusEl) {
+      statusEl.textContent = "ناموجود";
+      statusEl.classList.remove("hidden");
+      statusEl.classList.add("text-red-600");
+    }
+    toggleAddToCartByStock(false);
     return;
   }
 
   container.classList.remove("hidden");
   fillSelect(colorSelect, colors, "انتخاب رنگ");
-  fillSelect(sizeSelect, sizes, "انتخاب سایز");
+  fillSelect(sizeSelect, sizes, colors.length > 0 ? "ابتدا رنگ را انتخاب کنید" : "انتخاب سایز");
 
   if (colors.length === 1) colorSelect.value = colors[0];
-  if (sizes.length === 1) sizeSelect.value = sizes[0];
 
   if (colorWrap) colorWrap.classList.toggle("hidden", colors.length === 0);
-  if (sizeWrap) sizeWrap.classList.toggle("hidden", sizes.length === 0);
+  if (sizeWrap) sizeWrap.classList.toggle("hidden", colors.length > 0 && !colorSelect.value);
 
   colorSelect.onchange = updateStockBySelectedVariant;
   sizeSelect.onchange = updateStockBySelectedVariant;
 
   if (statusEl) statusEl.classList.add("hidden");
+  if (colorSelect.value) {
+    const colorSizes = extractUniqueValues(getVariantsForColor(colorSelect.value), "size");
+    fillSelect(sizeSelect, colorSizes, "انتخاب سایز");
+    if (sizeWrap) sizeWrap.classList.remove("hidden");
+  }
   updateStockBySelectedVariant();
 }
 

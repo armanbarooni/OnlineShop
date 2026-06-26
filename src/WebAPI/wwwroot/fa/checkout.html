@@ -616,17 +616,70 @@
                 class="relative w-full max-w-2xl bg-white dark:bg-gray-800 dark:text-white rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
                     <h3 id="addressSelectionModalTitle" class="text-lg font-bold">انتخاب آدرس تحویل</h3>
-                    <button type="button" id="address-modal-close"
-                        class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
-                        aria-label="بستن">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                    <div class="flex items-center gap-3">
+                        <button type="button" id="checkout-show-address-form"
+                            class="text-sm font-medium text-primary hover:text-primary/80">
+                            افزودن آدرس جدید
+                        </button>
+                        <button type="button" id="address-modal-close"
+                            class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
+                            aria-label="بستن">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div id="checkout-address-list" class="p-4 space-y-3">
                     <p class="text-sm text-gray-500 dark:text-gray-300">در حال دریافت آدرس‌ها...</p>
+                </div>
+                <div id="checkout-address-form-section" class="hidden border-t border-gray-200 dark:border-gray-700 p-4">
+                    <h4 class="font-bold mb-4">افزودن آدرس جدید</h4>
+                    <form id="checkout-address-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label for="checkout-address-title" class="block text-sm font-medium mb-2">عنوان آدرس</label>
+                            <input id="checkout-address-title" type="text" class="w-full border rounded-lg px-4 py-3 bg-transparent" placeholder="مثلا: منزل">
+                        </div>
+                        <div class="relative">
+                            <label for="checkout-address-state" class="block text-sm font-medium mb-2">استان</label>
+                            <input id="checkout-address-state" type="text" autocomplete="off" class="w-full border rounded-lg px-4 py-3 bg-transparent" placeholder="جستجوی استان">
+                            <div id="checkout-state-options" class="hidden absolute z-20 mt-1 w-full max-h-56 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"></div>
+                        </div>
+                        <div class="relative">
+                            <label for="checkout-address-city" class="block text-sm font-medium mb-2">شهر</label>
+                            <input id="checkout-address-city" type="text" autocomplete="off" class="w-full border rounded-lg px-4 py-3 bg-transparent" placeholder="ابتدا استان را انتخاب کنید" disabled>
+                            <div id="checkout-city-options" class="hidden absolute z-20 mt-1 w-full max-h-56 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"></div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="checkout-address-line1" class="block text-sm font-medium mb-2">آدرس</label>
+                            <textarea id="checkout-address-line1" rows="3" class="w-full border rounded-lg px-4 py-3 bg-transparent" placeholder="آدرس دقیق"></textarea>
+                        </div>
+                        <div>
+                            <label for="checkout-address-postal" class="block text-sm font-medium mb-2">کد پستی</label>
+                            <input id="checkout-address-postal" type="text" inputmode="numeric" maxlength="10" class="w-full border rounded-lg px-4 py-3 bg-transparent" placeholder="10 رقمی">
+                        </div>
+                        <div>
+                            <label for="checkout-address-phone" class="block text-sm font-medium mb-2">تلفن همراه</label>
+                            <input id="checkout-address-phone" type="tel" inputmode="numeric" maxlength="11" class="w-full border rounded-lg px-4 py-3 bg-transparent" placeholder="09xxxxxxxxx">
+                        </div>
+                        <div>
+                            <label for="checkout-address-firstname" class="block text-sm font-medium mb-2">نام</label>
+                            <input id="checkout-address-firstname" type="text" class="w-full border rounded-lg px-4 py-3 bg-transparent" placeholder="نام">
+                        </div>
+                        <div>
+                            <label for="checkout-address-lastname" class="block text-sm font-medium mb-2">نام خانوادگی</label>
+                            <input id="checkout-address-lastname" type="text" class="w-full border rounded-lg px-4 py-3 bg-transparent" placeholder="نام خانوادگی">
+                        </div>
+                        <div class="md:col-span-2 flex items-center gap-2">
+                            <input id="checkout-address-default" type="checkbox" class="size-4">
+                            <label for="checkout-address-default" class="text-sm">تنظیم به عنوان آدرس پیش‌فرض</label>
+                        </div>
+                        <div class="md:col-span-2 flex justify-end gap-3 pt-2">
+                            <button type="button" id="checkout-address-cancel-btn" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600">انصراف</button>
+                            <button type="button" id="checkout-save-address-btn" class="px-4 py-2 rounded-lg bg-primary text-white">ذخیره آدرس</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

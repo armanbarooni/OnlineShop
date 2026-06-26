@@ -773,6 +773,7 @@
     <script src="assets/js/utils/logger.js"></script>
     <script src="assets/js/dependencies/app.js"></script>
     <script src="assets/js/api-client.js"></script>
+    <script src="assets/js/services/cart-service.js"></script>
     <script src="assets/js/auth-service.js"></script>
     <script src="assets/js/auth-guard.js"></script>
     <script src="assets/js/utils.js"></script>
@@ -782,6 +783,34 @@
         let currentStep = 1;
         let registrationData = {};
         let otpSent = false;
+
+        function getSafeRegisterReturnUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const candidate = params.get('returnUrl') || params.get('redirect') || localStorage.getItem('intendedUrl') || 'checkout.html';
+
+            try {
+                const target = new URL(candidate, window.location.href);
+                const pageName = target.pathname.split('/').pop() || 'checkout.html';
+                if (target.origin !== window.location.origin || pageName === 'login.html' || pageName === 'register.html') {
+                    return 'checkout.html';
+                }
+                return target.pathname.split('/').pop() + target.search + target.hash;
+            } catch (error) {
+                return 'checkout.html';
+            }
+        }
+
+        async function transferGuestCartAfterAuth() {
+            if (!window.cartService || typeof window.cartService.transferGuestCartToUser !== 'function') {
+                return;
+            }
+
+            try {
+                await window.cartService.transferGuestCartToUser();
+            } catch (error) {
+                console.error('Guest cart transfer error:', error);
+            }
+        }
 
         // Prevent form caching and clear placeholders
         document.addEventListener('DOMContentLoaded', function () {
@@ -1065,8 +1094,9 @@
 
                 if (response.success) {
                     window.utils.showToast('ثبت‌نام با موفقیت انجام شد', 'success');
+                    await transferGuestCartAfterAuth();
                     setTimeout(() => {
-                        window.location.href = 'login.html';
+                        window.location.href = getSafeRegisterReturnUrl();
                     }, 2000);
                 } else {
                     window.utils.showToast(response.error || 'خطا در ثبت‌نام', 'error');
@@ -1249,10 +1279,11 @@
 
                 if (result.success) {
                     showRegisterSuccess('ثبت نام شما با موفقیت انجام شد!');
+                    await transferGuestCartAfterAuth();
                     clearRegistrationForm();
 
                     setTimeout(() => {
-                        window.location.href = 'login.html';
+                        window.location.href = getSafeRegisterReturnUrl();
                     }, 2000);
                 } else {
                     showRegisterError(result.error || 'ثبت‌نام انجام نشد. لطفاً دوباره تلاش کنید.');

@@ -284,10 +284,11 @@
     const id = product.id || product.productId || "";
     const name = product.name || product.productName || "محصول بدون نام";
     const productUrl = `product.html?id=${encodeURIComponent(id)}`;
-    const price = getProductPrice(product);
-    const originalPrice = getProductOriginalPrice(product, price);
+    const hasStock = isProductInStock(product);
+    const price = hasStock ? getProductPrice(product) : null;
+    const originalPrice = hasStock ? getProductOriginalPrice(product, price) : null;
     const discount =
-      originalPrice > price
+      hasStock && originalPrice > price
         ? Math.round(((originalPrice - price) / originalPrice) * 100)
         : 0;
 
@@ -315,14 +316,10 @@
           <div class="flex items-center justify-between mt-auto" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
             <meta itemprop="priceCurrency" content="IRR">
             <div class="flex flex-col">
-              ${
-                discount > 0
-                  ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>`
-                  : ""
-              }
-              <span class="text-lg font-bold text-primary" itemprop="price" content="${price}">${formatPrice(price)} ریال</span>
+              ${hasStock && discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
+              <span class="text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}" itemprop="price"${hasStock ? ` content="${price}"` : ""}>${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
             </div>
-            <button type="button" data-add-to-cart-product-id="${escapeAttribute(id)}" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition" aria-label="افزودن به سبد خرید">
+            <button type="button" data-add-to-cart-product-id="${escapeAttribute(id)}" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" aria-label="افزودن به سبد خرید" ${hasStock ? "" : "disabled"}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 pointer-events-none">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
               </svg>
@@ -605,6 +602,43 @@
           price,
       ) || price
     );
+  }
+
+  function getVariantStock(variant) {
+    const stock = Number(
+      variant?.stockQuantity ??
+      variant?.StockQuantity ??
+      variant?.stock ??
+      variant?.Stock ??
+      variant?.quantity ??
+      variant?.Quantity ??
+      0
+    );
+    return Number.isFinite(stock) ? stock : 0;
+  }
+
+  function getProductVariantList(product) {
+    return [
+      ...(Array.isArray(product?.productVariants) ? product.productVariants : []),
+      ...(Array.isArray(product?.ProductVariants) ? product.ProductVariants : []),
+      ...(Array.isArray(product?.variants) ? product.variants : []),
+      ...(Array.isArray(product?.Variants) ? product.Variants : [])
+    ];
+  }
+
+  function isProductInStock(product) {
+    if (getProductVariantList(product).some((variant) => getVariantStock(variant) > 0)) {
+      return true;
+    }
+
+    const stock = Number(
+      product?.stockQuantity ??
+      product?.StockQuantity ??
+      product?.quantity ??
+      product?.Quantity ??
+      0
+    );
+    return Number.isFinite(stock) && stock > 0;
   }
 
   function getProductImageData(product) {

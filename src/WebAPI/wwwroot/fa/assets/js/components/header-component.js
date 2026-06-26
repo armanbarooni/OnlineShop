@@ -130,13 +130,14 @@ class HeaderComponent {
           product.productImages && product.productImages.length > 0
             ? product.productImages[0].imageUrl
             : "assets/images/product/nophoto.png";
-        const price = product.price || 0;
+        const hasStock = this.isProductInStock(product);
+        const price = hasStock ? (product.price || 0) : null;
         return `
                 <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
                     <img src="${imageUrl}" alt="${product.name || "?????"}" class="w-16 h-16 object-contain rounded me-3">
                     <div class="flex-1">
                         <h4 class="font-semibold text-sm dark:text-white">${product.name || "?????"}</h4>
-                        <p class="text-primary font-bold text-sm">${this.formatPrice(price)} ????</p>
+                        <p class="font-bold text-sm ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${this.formatPrice(price)} ????` : "Ù†Ø§Ù…ÙˆØ¬ÙˆØ¯"}</p>
                     </div>
                 </a>
             `;
@@ -145,6 +146,39 @@ class HeaderComponent {
 
     searchResults.innerHTML = html;
     searchResults.classList.remove("hidden");
+  }
+
+  isProductInStock(product) {
+    const variants = [
+      ...(Array.isArray(product?.productVariants) ? product.productVariants : []),
+      ...(Array.isArray(product?.ProductVariants) ? product.ProductVariants : []),
+      ...(Array.isArray(product?.variants) ? product.variants : []),
+      ...(Array.isArray(product?.Variants) ? product.Variants : [])
+    ];
+
+    const variantStock = variants.some((variant) => {
+      const stock = Number(
+        variant?.stockQuantity ??
+        variant?.StockQuantity ??
+        variant?.stock ??
+        variant?.Stock ??
+        variant?.quantity ??
+        variant?.Quantity ??
+        0
+      );
+      return Number.isFinite(stock) && stock > 0;
+    });
+
+    if (variantStock) return true;
+
+    const stock = Number(
+      product?.stockQuantity ??
+      product?.StockQuantity ??
+      product?.quantity ??
+      product?.Quantity ??
+      0
+    );
+    return Number.isFinite(stock) && stock > 0;
   }
 
   async updateCartCount() {

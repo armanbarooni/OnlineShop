@@ -7,6 +7,7 @@ class CartService {
         this.apiClient = window.apiClient;
         this.baseUrl = "/cart";
         this.storageKey = (window.config && window.config.storage && window.config.storage.cartItems) || "cartItems";
+        this._guestCartTransferPromise = null;
     }
 
     isAuthenticated() {
@@ -27,6 +28,82 @@ class CartService {
     saveGuestCartItems(items) {
         localStorage.setItem(this.storageKey, JSON.stringify(items));
         this.notifyCartUpdated();
+    }
+
+    async transferGuestCartToUser() {
+        if (!this.isAuthenticated()) {
+            return {
+                success: false,
+                transferredCount: 0,
+                remainingCount: this.getGuestCartItems().length,
+                message: "کاربر احراز هویت نشده است"
+            };
+        }
+
+        if (this._guestCartTransferPromise) {
+            return this._guestCartTransferPromise;
+        }
+
+        this._guestCartTransferPromise = (async () => {
+            const guestItems = this.getGuestCartItems();
+            if (!guestItems.length) {
+                return {
+                    success: true,
+                    transferredCount: 0,
+                    remainingCount: 0
+                };
+            }
+
+            const remainingItems = [];
+            let transferredCount = 0;
+
+            for (const item of guestItems) {
+                try {
+                    const variantId = this.normalizeVariantKey(item.variantId) || null;
+                    const quantity = Number(item.quantity || 0);
+
+                    if (!item.productId || quantity <= 0) {
+                        remainingItems.push(item);
+                        continue;
+                    }
+
+                    const result = await this.addToCart(
+                        item.productId,
+                        quantity,
+                        variantId ? item.variantId : null
+                    );
+
+                    if (result?.success) {
+                        transferredCount += 1;
+                    } else {
+                        remainingItems.push(item);
+                    }
+                } catch (error) {
+                    window.logger?.error("Error transferring guest cart item:", error);
+                    remainingItems.push(item);
+                }
+            }
+
+            if (remainingItems.length === 0) {
+                localStorage.removeItem(this.storageKey);
+            } else {
+                localStorage.setItem(this.storageKey, JSON.stringify(remainingItems));
+            }
+
+            this.notifyCartUpdated();
+
+            return {
+                success: remainingItems.length === 0,
+                transferredCount,
+                remainingCount: remainingItems.length
+            };
+        })();
+
+        try {
+            return await this._guestCartTransferPromise;
+        } finally {
+            this._guestCartTransferPromise = null;
+        }
     }
 
     notifyCartUpdated() {
@@ -651,6 +728,13 @@ class CartService {
 }
 
 window.cartService = new CartService();
+
+window.addEventListener("auth:login", () => {
+    if (!window.cartService) return;
+    window.cartService.transferGuestCartToUser().catch(error => {
+        window.logger?.error("Guest cart transfer failed:", error);
+    });
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     window.cartService.updateCartCount();
