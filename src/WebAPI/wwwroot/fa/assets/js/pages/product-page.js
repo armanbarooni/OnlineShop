@@ -819,6 +819,9 @@ function renderVariantSelectors(product) {
 function renderDescription(product) {
   // Update Intro tab content
   const introTab = document.getElementById("Intro");
+  const descriptionContainer = document.getElementById(
+    "product-description-content",
+  );
   const descText =
     product.description && product.description.trim().length > 0
       ? product.description
@@ -850,31 +853,41 @@ function renderDescription(product) {
 
   // Update features list
   const featuresList = document.getElementById("product-features-list");
-  if (featuresList && descText) {
-    // Split description by newlines or create list items
-    const features = descText.split("\n").filter((f) => f.trim());
-    if (features.length > 0) {
-      featuresList.innerHTML = features
-        .map(
-          (feature) => `
-                <li class="flex items-start gap-2">
-                    <span class="inline-block text-base leading-7 break-words">${escapeHtml(feature.trim())}</span>
-                </li>
+  const features = descText.split("\n").filter((f) => f.trim());
+  if (featuresList) {
+    featuresList.innerHTML = features
+      .map(
+        (feature) => `
+              <li class="flex items-start gap-2">
+                  <span class="inline-block text-base leading-7 break-words">${escapeHtml(feature.trim())}</span>
+              </li>
+          `,
+      )
+      .join("");
+  }
+
+  if (descriptionContainer) {
+    descriptionContainer.innerHTML = features.length > 1
+      ? features
+          .map(
+            (line) => `
+              <p class="text-sm sm:text-base leading-8 text-gray-700 dark:text-gray-300">
+                ${escapeHtml(line)}
+              </p>
             `,
-        )
-        .join("");
-    }
+          )
+          .join("")
+      : `
+          <p class="text-sm sm:text-base leading-8 text-gray-700 dark:text-gray-300">
+            ${escapeHtml(descText)}
+          </p>
+        `;
   }
 }
 
 // Render product specifications
 function renderSpecifications(product) {
-  const specsTab = document.getElementById("Specifications");
-  if (!specsTab) return;
-
-  const specsDiv =
-    specsTab.querySelector("div.space-y-5 > div") ||
-    specsTab.querySelector("div.space-y-5");
+  const specsDiv = document.getElementById("product-size-table-container");
   if (!specsDiv) return;
 
   const variants = buildSizeVariants(product);
@@ -890,7 +903,8 @@ function renderSpecifications(product) {
       column9Title = variant.feature9Title;
     }
 
-    const sizeLabel = variant.size || "تک سایز";
+    const sizeLabel = normalizeSizeLabel(variant.size);
+    if (!sizeLabel) return;
     if (!rowsBySize.has(sizeLabel)) {
       rowsBySize.set(sizeLabel, {
         size: sizeLabel,
@@ -917,11 +931,13 @@ function renderSpecifications(product) {
   const hasData = sizeRows.length > 0;
 
   specsDiv.innerHTML = `
-    <h2 class="text-xl sm:text-2xl pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:start-0 before:h-1 before:w-22 before:bg-primary-500 before:rounded dark:text-white">جدول سایز</h2>
-    <div class="rounded-xl border border-gray-200 dark:border-zinc-700 shadow-sm overflow-hidden">
+    <div class="rounded-2xl border border-zinc-200/90 dark:border-zinc-700 bg-zinc-50/90 dark:bg-zinc-800/55 shadow-[0_10px_30px_rgba(0,0,0,0.06)] overflow-hidden">
+      <div class="px-4 sm:px-5 pt-4 sm:pt-5 pb-3 border-b border-zinc-200/80 dark:border-zinc-700">
+        <h2 class="text-xl sm:text-2xl font-black text-zinc-800 dark:text-white">جدول سایز</h2>
+      </div>
       <div class="overflow-x-auto">
         <table class="min-w-full text-xs sm:text-sm">
-          <thead class="bg-gray-100 dark:bg-zinc-700">
+          <thead class="bg-zinc-100/90 dark:bg-zinc-700/80">
             <tr>
               <th class="py-3 px-3 sm:px-4 text-start font-bold text-gray-800 dark:text-white whitespace-nowrap">سایز</th>
               <th class="py-3 px-3 sm:px-4 text-start font-bold text-gray-800 dark:text-white whitespace-nowrap">${escapeHtml(sizeTableDto.column8Title)}</th>
@@ -955,6 +971,22 @@ function renderSpecifications(product) {
       </div>
     </div>
   `;
+}
+
+function normalizeSizeLabel(size) {
+  const label = String(size ?? "").trim();
+  if (!label) return "";
+
+  const normalized = label
+    .replace(/\u200c/g, "")
+    .replace(/\s+/g, "")
+    .toLowerCase();
+
+  if (normalized === "تکسایز" || normalized === "onesize" || normalized === "one-size") {
+    return "";
+  }
+
+  return label;
 }
 
 function escapeHtml(value) {

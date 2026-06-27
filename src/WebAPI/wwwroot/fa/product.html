@@ -41,7 +41,7 @@
       rel="stylesheet"
       href="assets/js/plugin/swiper/swiper-bundle.min.css"
     />
-    <link rel="stylesheet" href="assets/css/app.css" />
+    <link rel="stylesheet" href="assets/css/app.css?v=20260627-9" />
     <link
       rel="preload"
       href="assets/fonts/payda/PeydaWebFaNum-Medium.woff2"
@@ -351,13 +351,21 @@
                     </div>
                     <!-- feature -->
                     <div class="space-y-5">
-                      <h4 class="font-bold text-lg">ویژگی‌های محصول:</h4>
-                      <ul
-                        id="product-features-list"
-                        class="flex flex-col items-start items-baseline flex-wrap space-x-3 space-y-3"
-                        itemprop="description"
-                      ></ul>
-                      <!-- see all feature -->
+                      <div class="space-y-3">
+                        <h4 class="font-bold text-lg">ویژگی‌های محصول:</h4>
+                        <ul
+                          id="product-features-list"
+                          class="flex flex-col items-start items-baseline flex-wrap space-x-3 space-y-3"
+                        ></ul>
+                      </div>
+                      <div class="space-y-3">
+                        <h4 class="font-bold text-lg">توضیحات محصول:</h4>
+                        <div
+                          id="product-description-content"
+                          class="text-sm sm:text-base leading-8 text-gray-700 dark:text-gray-300"
+                        ></div>
+                      </div>
+                      <div id="product-size-table-container"></div>
                     </div>
                   </section>
                   <!-- meta -->
@@ -681,348 +689,6 @@
       </div>
     </section>
     <!-- ================= end content section ================= -->
-
-    <!-- ================= start section product review ================= -->
-    <section id="metaData" class="py-5">
-      <div class="container">
-        <!-- navbar -->
-        <nav
-          class="px-5 rounded-xl dark:border dark:bg-gray-800 bg-gray-300"
-          itemscope
-          itemtype="https://schema.org/Product"
-        >
-          <ul
-            class="flex gap-2 overflow-x-auto whitespace-nowrap py-3"
-            role="tablist"
-          >
-            <li role="presentation">
-              <button
-                class="bg-white tab-button px-4 py-3 text-sm sm:text-base rounded-xl transition-colors dark:bg-zinc-700 active"
-                role="tab"
-                data-tab="Intro"
-                aria-controls="description"
-                aria-selected="true"
-                itemprop="description"
-              >
-                توضیحات کالا
-              </button>
-            </li>
-            <li role="presentation">
-              <button
-                class="bg-white tab-button px-4 py-3 text-sm sm:text-base rounded-xl transition-colors dark:bg-zinc-700"
-                role="tab"
-                data-tab="Specifications"
-                aria-controls="specs"
-                itemprop="additionalProperty"
-              >
-                جدول سایز
-              </button>
-            </li>
-
-            <li role="presentation">
-              <button
-                class="bg-white tab-button px-4 py-3 text-sm sm:text-base rounded-xl transition-colors dark:bg-zinc-700"
-                role="tab"
-                data-tab="Comments"
-                aria-controls="reviews"
-                itemprop="aggregateRating"
-                itemscope
-                itemtype="https://schema.org/AggregateRating"
-              >
-                نظرات
-              </button>
-            </li>
-            <li role="presentation">
-              <button
-                class="bg-white tab-button px-4 py-3 text-sm sm:text-base rounded-xl transition-colors dark:bg-zinc-700"
-                role="tab"
-                data-tab="Questions"
-                aria-controls="faq"
-                itemscope
-                itemtype="https://schema.org/FAQPage"
-              >
-                پرسش و پاسخ
-              </button>
-            </li>
-          </ul>
-        </nav>
-
-        <!-- content -->
-        <div class="tab-contents mt-4">
-          <!-- Intro -->
-          <div
-            id="Intro"
-            class="p-4 sm:p-5 bg-white dark:bg-gray-800 dark:text-white rounded-xl hidden tab-content border border-gray-300 drop-shadow tab-content"
-          >
-            <div class="space-y-5"></div>
-          </div>
-          <!-- Specifications -->
-          <div
-            id="Specifications"
-            class="p-4 sm:p-5 bg-white dark:bg-gray-800 dark:text-white rounded-xl hidden tab-content border border-gray-300 drop-shadow tab-content"
-          >
-            <div class="space-y-5"></div>
-          </div>
-          <!-- Additional -->
-          <div
-            id="Additional"
-            class="p-4 sm:p-5 bg-white dark:bg-gray-800 dark:text-white rounded-xl hidden tab-content border border-gray-300 drop-shadow tab-content"
-            data-content="3"
-          >
-            <h2
-              class="text-2xl pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:start-0 before:h-1 before:w-22 before:bg-primary-500 before:rounded dark:text-white"
-            >
-              مشخصات فنی
-            </h2>
-
-            <div class="mx-auto p-6">
-              <div class="pb-10 last:pb-0">
-                <h2 class="text-2xl font-bold mt-6 mb-4 pb-2">مشخصات کلی</h2>
-                <div class="grid grid-cols-2 gap-6 text-start">
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >نوع گوشی موبایل:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >سیستم عامل اندروید</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >دسته بندی:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >اقتصادی</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >مدل:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >Realme C61</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >زمان معرفی:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >ژوئن 2024</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >ابعاد:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >164.7x76.7x7.8 میلی‌متر</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >وزن:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >188 گرم</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >توضیحات بدنه:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >قاب جلو از شیشه، قاب پشت و فریم از جنس پلاستیک</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >قابلیت‌های مقاومتی:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >مقاومت در برابر پاشش آب و گرد و غبار</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >ویژگی‌های کلیدی:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >دارای گواهی IP54، مقاوم در برابر پاشش آب و گرد و غبار</span
-                  >
-                </div>
-              </div>
-              <div class="pb-10 last:pb-0">
-                <h2 class="text-2xl font-bold mt-6 mb-4 pb-2">صفحه نمایش</h2>
-                <div class="grid grid-cols-2 gap-6 text-start">
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >فناوری صفحه نمایش:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >IPS LCD</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >نرخ بروزرسانی تصویر:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >90 هرتز</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >روشنایی صفحه نمایش:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >560 نیت</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >اندازه:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >6.74 اینچ</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >نسبت صفحه نمایش به بدنه:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >85.5%</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >نسبت تصویر:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >20:9</span
-                  >
-                  <span
-                    class="px-5 rounded-xl dark:bg-zinc bg-gray-200 border border-gray-300 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:bg-gray-700 dark:text-white bg-gray-300"
-                    >رزولوشن صفحه نمایش:</span
-                  >
-                  <span
-                    class="bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:bg-gray-800 rounded dark:text-white"
-                    >720x1600 پیکسل</span
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Comments -->
-          <div
-            id="Comments"
-            class="p-4 sm:p-5 bg-white dark:bg-gray-800 dark:text-white rounded-xl hidden tab-content border border-gray-300 drop-shadow tab-content"
-            data-content="4"
-          ></div>
-          <!-- Questions and Answers -->
-          <div
-            id="Questions"
-            class="p-4 sm:p-5 bg-white dark:bg-gray-800 dark:text-white rounded-xl hidden tab-content border border-gray-300 drop-shadow tab-content"
-            data-content="5"
-          >
-            <!-- form -->
-            <div class="w-full pb-4 border-b my-5 border-b-gray-300">
-              <form action="">
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label for="nameQ" class="mb-3 inline-block"
-                      >نام و نام خانوادگی:</label
-                    >
-                    <input
-                      id="nameQ"
-                      type="text"
-                      placeholder="نام خود را وارد کنید"
-                      class="w-full px-3 py-4 border-gray-300 border rounded-lg"
-                    />
-                  </div>
-                  <div>
-                    <label for="emailQ" class="mb-3 inline-block">ایمیل:</label>
-                    <input
-                      id="emailQ"
-                      type="email"
-                      placeholder="ایمیل خود را وارد کنید"
-                      class="w-full px-3 py-4 border-gray-300 border rounded-lg"
-                    />
-                  </div>
-                </div>
-                <div class="flex items-center space-x-2 mb-4">
-                  <input
-                    type="checkbox"
-                    id="saveInfoQ"
-                    class="ms-2 ms-2 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                  />
-                  <label for="saveInfoQ"
-                    >ذخیره نام، ایمیل و وب‌سایت من برای نظرات بعدی</label
-                  >
-                </div>
-                <div>
-                  <label for="commentQ" class="mb-3 inline-block">نظر:</label>
-                  <textarea
-                    id="commentQ"
-                    placeholder="متن نظر!"
-                    class="w-full px-3 py-4 border-gray-300 border rounded-lg h-32 mb-4"
-                  ></textarea>
-                </div>
-                <button
-                  class="bg-primary-grad text-white py-3 px-20 rounded-lg"
-                >
-                  ثبت نظر
-                </button>
-              </form>
-            </div>
-            <!-- Questions -->
-            <div class="space-y-5">
-              <div class="grid py-5 gap-4 grid-cols-4">
-                <div class="md:col-span-3 col-span-4">
-                  <div class="flex space-x-3 items-center">
-                    <div class="space-x-3 flex items-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="size-6"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25"
-                        ></path>
-                      </svg>
-                      <span class="text-sm">مرتب سازی:</span>
-                    </div>
-                    <nav>
-                      <ul class="flex items-center space-x-3 text-sm">
-                        <li><a href="" class="text-primary">جدیدترین</a></li>
-                        <li><a href="">بیشترین پاسخ</a></li>
-                      </ul>
-                    </nav>
-                  </div>
-                </div>
-                <div class="md:col-span-1 col-span-4">
-                  <div class="md:text-end">
-                    <span class="text-neutral-600 text-sm dark:text-white"
-                      >852 نظر تایید شده</span
-                    >
-                  </div>
-                </div>
-              </div>
-              <!-- Questions Item -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- ================= end section product review ================= -->
     <div data-layout-partial="site-footer"></div>
 
     <!-- ================= start cart offcanvas ================= -->
@@ -2054,7 +1720,7 @@
     <script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
     <script src="assets/js/dependencies/swiper-script.js"></script>
     <script src="assets/js/dependencies/app.js"></script>
-    <script src="assets/js/pages/product-page.js?v=guest-cart-20260627a"></script>
+    <script src="assets/js/pages/product-page.js?v=guest-cart-20260627c"></script>
     <script src="assets/js/components/cart-badge.js"></script>
 </body>
 </html>
