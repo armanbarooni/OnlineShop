@@ -500,30 +500,32 @@ class CartService {
 
         body.innerHTML = items.map(item => `
             <div class="py-3 last:mb-35">
-                <div class="flex flex-wrap items-center">
-                    <div class="text-start w-1/3">
+                <article class="flex gap-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-900 p-3 shadow-sm">
+                    <div class="shrink-0">
                         <img
-                            class="max-w-full"
+                            class="h-24 w-24 rounded-xl object-contain bg-gray-50 dark:bg-zinc-800 p-2"
                             src="${this.normalizeImageUrl(item.productImage)}"
                             alt="${this.escapeHtml(item.productName)}"
                             loading="lazy"
                             onerror="this.src='assets/images/product/nophoto.png'"
                         />
                     </div>
-                    <div class="w-2/3 space-y-4">
-                        <h3 class="font-bold leading-7">${this.escapeHtml(item.productName)}</h3>
-                        ${item.variantInfo ? `<p class="text-xs text-gray-500 dark:text-gray-300">${this.escapeHtml(item.variantInfo)}</p>` : ""}
-                        <div class="flex items-center justify-between">
-                            <ins class="no-underline text-xl text-green-600 font-bold">
-                                ${this.formatPrice(item.totalPrice)}
-                                <span class="text-sm font-normal text-gray-700 dark:text-white">ریال</span>
-                            </ins>
+                    <div class="min-w-0 flex-1 flex flex-col gap-3">
+                        <div>
+                            <h3 class="font-bold leading-7 text-sm text-gray-900 dark:text-white line-clamp-2">${this.escapeHtml(item.productName)}</h3>
+                            ${item.variantInfo ? `<p class="mt-1 text-xs text-gray-500 dark:text-gray-300">${this.escapeHtml(item.variantInfo)}</p>` : ""}
                         </div>
-                        <div class="flex items-end justify-between">
-                            <span>تعداد: ${item.quantity}</span>
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex flex-col gap-1">
+                                <ins class="no-underline text-lg text-green-600 font-bold">
+                                    ${this.formatPrice(item.totalPrice)}
+                                    <span class="text-sm font-normal text-gray-700 dark:text-white">ریال</span>
+                                </ins>
+                                <div class="text-xs text-gray-500 dark:text-gray-300">تعداد: ${item.quantity}</div>
+                            </div>
                             <button
                                 type="button"
-                                class="bg-red-100 dark:border dark:bg-transparent dark:text-white text-red-950 p-2 rounded-lg"
+                                class="inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-red-700 transition hover:bg-red-100 dark:border-red-900/40 dark:bg-transparent dark:text-red-300"
                                 data-remove-cart-item="${this.escapeHtml(item.id)}"
                                 aria-label="حذف محصول از سبد خرید"
                             >
@@ -531,7 +533,7 @@ class CartService {
                             </button>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
         `).join("");
 
