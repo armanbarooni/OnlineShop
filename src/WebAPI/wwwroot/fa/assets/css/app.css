@@ -6551,7 +6551,7 @@
 @layer utilities {
   .container {
     margin-inline: auto;
-    width: calc(100% - 3rem);
+    width: calc(100% - 5rem);
     max-width: none;
     padding-inline: 0;
   }
