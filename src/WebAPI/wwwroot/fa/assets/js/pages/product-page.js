@@ -708,6 +708,15 @@ function updateStockBySelectedVariant() {
   const needColor = colors.length > 0;
   const needSize = sizes.length > 0;
 
+  if (sizeSelect) {
+    sizeSelect.disabled = needColor && !selectedColor;
+    if (needColor && !selectedColor) {
+      fillSelect(sizeSelect, extractUniqueValues(availableVariants, "size"), "ابتدا رنگ را انتخاب کنید");
+    } else if (selectedColor) {
+      fillSelect(sizeSelect, sizes, "انتخاب سایز");
+    }
+  }
+
   const selectedSize = sizeSelect ? stringOrEmpty(sizeSelect.value) : "";
 
   if ((needColor && !selectedColor) || (needSize && !selectedSize)) {
@@ -778,17 +787,13 @@ function renderVariantSelectors(product) {
   if (colors.length === 1) colorSelect.value = colors[0];
 
   if (colorWrap) colorWrap.classList.toggle("hidden", colors.length === 0);
-  if (sizeWrap) sizeWrap.classList.toggle("hidden", colors.length > 0 && !colorSelect.value);
+  if (sizeWrap) sizeWrap.classList.remove("hidden");
+  if (sizeSelect) sizeSelect.disabled = colors.length > 0 && !colorSelect.value;
 
   colorSelect.onchange = updateStockBySelectedVariant;
   sizeSelect.onchange = updateStockBySelectedVariant;
 
   if (statusEl) statusEl.classList.add("hidden");
-  if (colorSelect.value) {
-    const colorSizes = extractUniqueValues(getVariantsForColor(colorSelect.value), "size");
-    fillSelect(sizeSelect, colorSizes, "انتخاب سایز");
-    if (sizeWrap) sizeWrap.classList.remove("hidden");
-  }
   updateStockBySelectedVariant();
 }
 
