@@ -1,13 +1,43 @@
 ﻿// API Client for Online Shop
 class ApiClient {
-    constructor() {
-        this.baseURL = window.config?.api?.baseURL || 'http://localhost:5000/api';
+    constructor(baseURL = null) {
+        this.baseURL = this.resolveBaseURL(baseURL);
         this.token = this.normalizeToken(localStorage.getItem('accessToken'));
         this.refreshToken = this.normalizeToken(localStorage.getItem('refreshToken'));
         if (!this.token) localStorage.removeItem('accessToken');
         if (!this.refreshToken) localStorage.removeItem('refreshToken');
         this.tokenRefreshInterval = null;
         this.setupTokenRefresh();
+    }
+
+    resolveBaseURL(explicitBaseURL = null) {
+        const normalize = (value) => {
+            if (typeof value !== 'string') return null;
+            const trimmed = value.trim();
+            return trimmed || null;
+        };
+
+        const fromExplicit = normalize(explicitBaseURL);
+        if (fromExplicit) return fromExplicit;
+
+        const fromSharedConfig = normalize(window.config?.api?.baseURL);
+        if (fromSharedConfig) return fromSharedConfig;
+
+        if (typeof window.resolveApiBaseURL === 'function') {
+            const resolved = normalize(window.resolveApiBaseURL(window.__APP_RUNTIME_CONFIG__ ?? null));
+            if (resolved) return resolved;
+        }
+
+        const configuredApiBaseUrl = normalize(window.__API_BASE_URL__) ||
+            normalize(document.querySelector('meta[name="api-base-url"]')?.content);
+        if (configuredApiBaseUrl) return configuredApiBaseUrl;
+
+        const hostname = window.location?.hostname?.toLowerCase?.() || '';
+        if (!hostname || hostname === 'localhost' || hostname === '127.0.0.1') {
+            return 'http://localhost:5000/api';
+        }
+
+        return '/api';
     }
 
     normalizeToken(token) {
@@ -32,7 +62,7 @@ class ApiClient {
 
     // Set base URL
     setBaseURL(url) {
-        this.baseURL = url;
+        this.baseURL = this.resolveBaseURL(url);
     }
 
     // Get headers

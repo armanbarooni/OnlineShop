@@ -21,6 +21,12 @@ This document lists the environment variables required to run OnlineShop across 
 | SMSIR__TEMPLATEID | Sms.ir verification template ID. | 325822 |
 | SMSIR__USESANDBOX | Enable Sms.ir sandbox mode (	rue / alse). | alse |
 | SMSIR__OTPPARAMNAME | Sms.ir parameter name for OTP code. | Code |
+| ZARINPAL__MERCHANTID | ZarinPal merchant UUID. | bea6c3b6-ece3-425c-b2f3-b3b13c0f9006 |
+| ZARINPAL__ISSANDBOX | Enable ZarinPal sandbox mode. | false |
+| ZARINPAL__BASEURL | ZarinPal API base URL. | https://api.zarinpal.com/pg/v4/payment |
+| ZARINPAL__PAYMENTPAGEBASEURL | ZarinPal payment page base URL. | https://www.zarinpal.com/pg/StartPay |
+| ZARINPAL__CALLBACKURL | Backend callback URL for payment verification. | https://yourdomain.com/api/Payment/callback |
+| ZARINPAL__FRONTENDRESULTURL | Frontend result page after payment. | https://yourdomain.com/fa/cart.html |
 | CORS__ALLOWFRONTEND__{index} | Allowed frontend origin(s) for CORS policy. Provide each origin with an incremental index. | https://app.example.com |
 
 ## Front-end Overrides (Optional)

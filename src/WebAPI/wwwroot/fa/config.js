@@ -30,7 +30,7 @@
         return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
     };
 
-        const resolveApiBaseUrl = (runtimeConfig, environmentName) => {
+    const resolveApiBaseUrl = (runtimeConfig, environmentName) => {
         const configuredApiBaseUrl =
             runtimeConfig?.apiBaseUrl ||
             window.__API_BASE_URL__ ||
@@ -46,6 +46,29 @@
         }
 
         return '/api';
+    };
+
+    const resolveMahakContentBaseUrl = (runtimeConfig) => {
+        const configuredBaseUrl =
+            runtimeConfig?.mahakContentBaseUrl ||
+            window.__MAHAK_CONTENT_BASE_URL__ ||
+            document.querySelector('meta[name="mahak-content-base-url"]')?.content;
+
+        const normalizedConfiguredUrl = normalizeApiBaseUrl(configuredBaseUrl);
+        if (normalizedConfiguredUrl) {
+            return normalizedConfiguredUrl;
+        }
+
+        return 'https://mahakacc.mahaksoft.com';
+    };
+
+    const getResolvedApiBaseUrl = (runtimeConfig = window.__APP_RUNTIME_CONFIG__ ?? null) => {
+        const environmentName = runtimeConfig?.environment ?? detectEnvironment(hostname);
+        return resolveApiBaseUrl(runtimeConfig, environmentName);
+    };
+
+    const getResolvedMahakContentBaseUrl = (runtimeConfig = window.__APP_RUNTIME_CONFIG__ ?? null) => {
+        return resolveMahakContentBaseUrl(runtimeConfig);
     };
 
     const defaultAuth = {
@@ -78,6 +101,9 @@
                 maxFileSize: runtimeConfig?.upload?.maxFileSize ?? 5 * 1024 * 1024,
                 allowedTypes: runtimeConfig?.upload?.allowedTypes ?? ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
             },
+            content: {
+                mahakBaseURL: getResolvedMahakContentBaseUrl(runtimeConfig)
+            },
             storage: {
                 lastViewedProducts: runtimeConfig?.storage?.lastViewedProducts ?? 'lastViewedProducts',
                 comparisonList: runtimeConfig?.storage?.comparisonList ?? 'comparisonList',
@@ -97,6 +123,8 @@
             window.__APP_RUNTIME_CONFIG__ = runtimeConfig;
         }
 
+        window.resolveApiBaseURL = getResolvedApiBaseUrl;
+        window.resolveMahakContentBaseURL = getResolvedMahakContentBaseUrl;
         window.config = buildConfig(window.__APP_RUNTIME_CONFIG__ ?? null);
         window.dispatchEvent(new CustomEvent('app:config-ready', { detail: window.config }));
         return window.config;

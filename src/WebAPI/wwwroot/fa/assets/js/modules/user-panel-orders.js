@@ -2,7 +2,7 @@ import { ApiClient } from '../api-client.js';
 
 class UserPanelOrders {
     constructor() {
-        this.apiClient = new ApiClient('http://localhost:5000/api');
+        this.apiClient = new ApiClient();
         this.orders = [];
         this.currentPage = 1;
         this.pageSize = 10;

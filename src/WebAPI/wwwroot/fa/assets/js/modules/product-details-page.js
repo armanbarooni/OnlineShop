@@ -6,7 +6,7 @@ import WishlistService from './wishlist-service.js';
 
 class ProductDetailsPage {
     constructor() {
-        this.apiClient = new ApiClient('http://localhost:5000/api');
+        this.apiClient = new ApiClient();
         this.productService = new ProductService(this.apiClient);
         this.cartService = new CartService(this.apiClient);
         this.wishlistService = new WishlistService(this.apiClient);

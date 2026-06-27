@@ -2,7 +2,10 @@
     "use strict";
 
     const NO_PHOTO = "assets/images/product/nophoto.png";
-    const MAHAK_CONTENT_BASE_URL = "https://mahakacc.mahaksoft.com";
+    const MAHAK_CONTENT_BASE_URL =
+        window.config?.content?.mahakBaseURL ||
+        window.resolveMahakContentBaseURL?.() ||
+        "https://mahakacc.mahaksoft.com";
 
     const state = {
         cart: null,

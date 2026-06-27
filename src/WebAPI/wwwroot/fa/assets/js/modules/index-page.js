@@ -7,7 +7,7 @@ import SearchService from './search-service.js';
 
 class HomePage {
     constructor() {
-        this.apiClient = new ApiClient('http://localhost:5000/api');
+        this.apiClient = new ApiClient();
         this.categoryService = new CategoryService(this.apiClient);
         this.productService = new ProductService(this.apiClient);
         this.cartService = new CartService(this.apiClient);

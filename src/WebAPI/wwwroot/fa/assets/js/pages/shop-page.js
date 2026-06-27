@@ -4,7 +4,10 @@
 (function () {
   "use strict";
 
-  const MAHAK_CONTENT_BASE_URL = "https://mahakacc.mahaksoft.com";
+  const MAHAK_CONTENT_BASE_URL =
+    window.config?.content?.mahakBaseURL ||
+    window.resolveMahakContentBaseURL?.() ||
+    "https://mahakacc.mahaksoft.com";
   const DEPENDENCY_RETRY_DELAY_MS = 100;
   const DEPENDENCY_MAX_ATTEMPTS = 50;
   const DEFAULT_PAGE_SIZE = 20;

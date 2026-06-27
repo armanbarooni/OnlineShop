@@ -1,5 +1,8 @@
 const FavoriteManager = {
-  mahakContentBaseUrl: "https://mahakacc.mahaksoft.com",
+  mahakContentBaseUrl:
+    window.config?.content?.mahakBaseURL ||
+    window.resolveMahakContentBaseURL?.() ||
+    "https://mahakacc.mahaksoft.com",
 
   state: {
     currentPage: 1,

@@ -37,7 +37,19 @@
 ```
 به آدرس Production واقعی تغییر دهید.
 
-### 4. JWT Secret (خط 13-17)
+### 4. ZarinPal configuration
+```json
+"ZarinPal": {
+  "IsSandbox": false,
+  "BaseUrl": "https://api.zarinpal.com/pg/v4/payment",
+  "PaymentPageBaseUrl": "https://www.zarinpal.com/pg/StartPay",
+  "CallbackUrl": "https://yourdomain.com/api/Payment/callback",
+  "FrontendResultUrl": "https://yourdomain.com/fa/cart.html"
+}
+```
+این مقادیر را با دامنه‌ی واقعی خودتان یا از طریق environment variables تنظیم کنید.
+
+### 5. JWT Secret (خط 13-17)
 ```json
 "Jwt": {
   "Secret": "YOUR_STRONG_SECRET_KEY_MIN_32_CHARACTERS"

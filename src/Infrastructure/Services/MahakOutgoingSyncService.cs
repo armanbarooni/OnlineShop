@@ -229,8 +229,16 @@ namespace OnlineShop.Infrastructure.Services
                 OtherCost = 0,
                 SettlementType = 1, // Cash (since payment is done)
                 Immediate = false,
-                Description = BuildOrderDescription(order)
+                Description = BuildOrderDescription(order),
+                ShippingAddress = BuildShippingAddressJson(order)
             };
+
+            if (string.IsNullOrWhiteSpace(mahakOrder.ShippingAddress))
+            {
+                _logger.LogWarning(
+                    "Order {OrderId} is missing shipping address data for Mahak sync. ShippingAddress will be omitted.",
+                    order.Id);
+            }
 
             var mahakOrderDetails = new List<MahakOrderDetailModel>();
 
@@ -398,6 +406,34 @@ namespace OnlineShop.Infrastructure.Services
             }
 
             return string.Join(" | ", parts);
+        }
+
+        private static string? BuildShippingAddressJson(UserOrder order)
+        {
+            var shippingAddress = order.ShippingAddress ?? order.BillingAddress;
+            if (shippingAddress == null)
+            {
+                return null;
+            }
+
+            var addressPayload = new
+            {
+                title = shippingAddress.Title,
+                firstName = shippingAddress.FirstName,
+                lastName = shippingAddress.LastName,
+                addressLine1 = shippingAddress.AddressLine1,
+                addressLine2 = shippingAddress.AddressLine2,
+                city = shippingAddress.City,
+                state = shippingAddress.State,
+                postalCode = shippingAddress.PostalCode,
+                country = shippingAddress.Country,
+                phoneNumber = shippingAddress.PhoneNumber,
+                isDefault = shippingAddress.IsDefault,
+                isBillingAddress = shippingAddress.IsBillingAddress,
+                isShippingAddress = shippingAddress.IsShippingAddress
+            };
+
+            return JsonSerializer.Serialize(addressPayload, SaveAllDataJsonOptions);
         }
 
         private static string BuildOrderItemDescription(UserOrderItem item)
