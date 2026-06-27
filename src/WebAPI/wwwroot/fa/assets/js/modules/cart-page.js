@@ -108,7 +108,7 @@ class CartPage {
       // Update summary
       const subtotal = cartData.subtotal || items.reduce((sum, i) => sum + i.totalPrice, 0);
       const discount = cartData.discountAmount || 0;
-      const shipping = 0;
+      const shipping = cartData.shippingCost || 0;
       this.updateSummary(subtotal, discount, shipping);
 
     } catch (error) {
@@ -130,44 +130,57 @@ class CartPage {
     const variantInfo = item.variantInfo || "";
 
     return `
-      <li class="mb-4">
-        <div class="grid grid-cols-4 gap-4 dark:bg-gray-800 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border p-4">
-          <div class="lg:col-span-3 col-span-4 w-full">
-            <div class="flex flex-wrap">
-              <figure>
-                <a href="product.html?id=${item.productId}">
-                  <img class="size-32 object-cover rounded-lg" 
-                       src="${imageUrl}" 
-                       alt="${this.escapeHtml(item.productName)}"
-                       onerror="this.src='assets/images/product/nophoto.png'">
-                </a>
-              </figure>
-              <div class="space-y-3 ms-4 flex-1">
-                <a href="product.html?id=${item.productId}" class="font-bold text-base hover:text-green-600 transition">${this.escapeHtml(item.productName)}</a>
-                ${variantInfo ? `<p class="text-sm text-gray-500 dark:text-gray-400">${this.escapeHtml(variantInfo)}</p>` : ""}
-                <p class="text-sm text-gray-500">قیمت واحد: ${unitPrice} ریال</p>
-                <div class="flex items-center mt-2">
-                  <div class="inline-flex items-center space-x-2 border rounded-full px-4 py-2 dark:bg-zinc-800 bg-white shadow">
-                    <button id="inc-${item.id}" 
-                            class="bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg hover:bg-green-600 transition cursor-pointer"
-                            ${!item.isAvailable || item.quantity >= item.availableStock ? 'disabled' : ''}>+</button>
-                    <span class="text-lg px-4 inline-block font-semibold">${item.quantity}</span>
-                    <button id="dec-${item.id}" 
-                            class="bg-gray-200 text-gray-600 w-8 h-8 rounded-full flex items-center justify-center text-lg hover:bg-gray-300 transition cursor-pointer">−</button>
-                  </div>
-                  <button id="remove-${item.id}" class="p-2 bg-red-500 rounded-full text-white ms-3 hover:bg-red-600 transition cursor-pointer" title="حذف">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                    </svg>
-                  </button>
-                </div>
+      <li>
+        <article class="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900 sm:flex-row sm:items-stretch">
+          <div class="shrink-0 self-center sm:self-start">
+            <a href="product.html?id=${item.productId}" class="block">
+              <img
+                class="h-24 w-24 rounded-2xl border border-gray-100 bg-gray-50 object-contain p-3 dark:border-zinc-700 dark:bg-zinc-800 sm:h-28 sm:w-28"
+                src="${imageUrl}"
+                alt="${this.escapeHtml(item.productName)}"
+                loading="lazy"
+                onerror="this.src='assets/images/product/nophoto.png'">
+            </a>
+          </div>
+
+          <div class="min-w-0 flex-1 space-y-3">
+            <div class="space-y-1">
+              <a href="product.html?id=${item.productId}" class="block text-base font-bold leading-7 text-gray-900 transition hover:text-green-600 dark:text-white">
+                <span class="line-clamp-2">${this.escapeHtml(item.productName)}</span>
+              </a>
+              ${variantInfo ? `<p class="inline-flex max-w-full rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-zinc-800 dark:text-gray-300">${this.escapeHtml(variantInfo)}</p>` : ""}
+              <p class="text-sm text-gray-500 dark:text-gray-400">قیمت واحد: ${unitPrice} ریال</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="inline-flex items-center overflow-hidden rounded-full border border-gray-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+                <button
+                  id="inc-${item.id}"
+                  class="flex h-9 w-9 items-center justify-center text-lg font-bold text-green-600 transition hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-zinc-700"
+                  ${!item.isAvailable || item.quantity >= item.availableStock ? 'disabled' : ''}>+</button>
+                <span class="min-w-12 px-4 text-center text-sm font-bold text-gray-900 dark:text-white">${item.quantity}</span>
+                <button
+                  id="dec-${item.id}"
+                  class="flex h-9 w-9 items-center justify-center text-lg font-bold text-gray-600 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700">−</button>
               </div>
+
+              <button
+                id="remove-${item.id}"
+                class="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300"
+                title="حذف">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                </svg>
+                حذف
+              </button>
             </div>
           </div>
-          <div class="lg:col-span-1 col-span-4 w-full flex items-end justify-end">
-            <span class="text-xl font-bold dark:text-white">${totalPrice} <span class="text-xs">ریال</span></span>
+
+          <div class="flex shrink-0 items-start justify-between sm:flex-col sm:items-end sm:justify-between">
+            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">جمع ردیف</span>
+            <span class="text-xl font-extrabold text-gray-900 dark:text-white">${totalPrice} <span class="text-xs font-semibold">ریال</span></span>
           </div>
-        </div>
+        </article>
       </li>
     `;
   }

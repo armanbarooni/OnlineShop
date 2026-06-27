@@ -247,7 +247,7 @@ const AddressManager = {
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 me-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
-                                <span>کد پستی: ${address.postalCode}</span>
+                                <span>کد پستی: ${address.postalCode || '-'}</span>
                             </div>
                             
                             ${address.phoneNumber ? `
@@ -387,9 +387,7 @@ const AddressManager = {
             textOnlyErrors.city = 'شهر فقط باید شامل حروف باشد';
         }
 
-        if (!sanitizedPostalCode) {
-            textOnlyErrors.postalCode = 'کد پستی الزامی است';
-        } else if (!/^\d{10}$/.test(sanitizedPostalCode)) {
+        if (sanitizedPostalCode && !/^\d{10}$/.test(sanitizedPostalCode)) {
             textOnlyErrors.postalCode = 'کد پستی باید ۱۰ رقم باشد';
         }
         if (phone && !sanitizedPhone) {

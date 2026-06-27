@@ -205,9 +205,7 @@ class AddressService {
             errors.state = 'استان الزامی است';
         }
 
-        if (!addressData.postalCode || addressData.postalCode.trim().length === 0) {
-            errors.postalCode = 'کد پستی الزامی است';
-        } else if (!/^\d{10}$/.test(addressData.postalCode)) {
+        if (addressData.postalCode && addressData.postalCode.trim().length > 0 && !/^\d{10}$/.test(addressData.postalCode)) {
             errors.postalCode = 'کد پستی باید ۱۰ رقم باشد';
         }
 
@@ -234,7 +232,7 @@ class AddressService {
             addressLine,
             address.city,
             address.state,
-            `کد پستی: ${address.postalCode}`
+            address.postalCode ? `کد پستی: ${address.postalCode}` : ''
         ];
         
         if (address.phoneNumber) {
