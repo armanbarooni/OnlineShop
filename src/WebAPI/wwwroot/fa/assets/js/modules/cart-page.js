@@ -108,8 +108,7 @@ class CartPage {
       // Update summary
       const subtotal = cartData.subtotal || items.reduce((sum, i) => sum + i.totalPrice, 0);
       const discount = cartData.discountAmount || 0;
-      const shipping = cartData.shippingCost || 0;
-      this.updateSummary(subtotal, discount, shipping);
+      this.updateSummary(subtotal, discount, 0);
 
     } catch (error) {
       console.error("Error loading cart:", error);
@@ -209,14 +208,12 @@ class CartPage {
   updateSummary(subtotal, discount, shipping) {
     const subtotalEl = document.getElementById("cart-subtotal");
     const discountEl = document.getElementById("cart-discount");
-    const shippingEl = document.getElementById("cart-shipping");
     const totalEl = document.getElementById("cart-total");
 
-    const total = subtotal - discount + shipping;
+    const total = subtotal - discount;
 
     if (subtotalEl) subtotalEl.textContent = `${this.formatPrice(subtotal)} ریال`;
     if (discountEl) discountEl.textContent = `${this.formatPrice(discount)} ریال`;
-    if (shippingEl) shippingEl.textContent = shipping > 0 ? `${this.formatPrice(shipping)} ریال` : "رایگان";
     if (totalEl) totalEl.textContent = `${this.formatPrice(total)} ریال`;
   }
 

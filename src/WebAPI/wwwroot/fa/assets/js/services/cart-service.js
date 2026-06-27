@@ -115,7 +115,7 @@ class CartService {
     buildGuestCart(items) {
         const normalizedItems = Array.isArray(items) ? items : [];
         const subtotal = normalizedItems.reduce((sum, item) => sum + ((item.totalPrice ?? (item.unitPrice || 0) * (item.quantity || 0)) || 0), 0);
-        const shippingCost = subtotal >= 10_000_000 || subtotal === 0 ? 0 : 500_000;
+        const shippingCost = 0;
 
         return {
             id: null,
@@ -600,11 +600,6 @@ class CartService {
             } else {
                 discount = coupon.discountValue;
             }
-        }
-
-        const freeShippingThreshold = 500000;
-        if (subtotal < freeShippingThreshold && subtotal > 0) {
-            shipping = 30000;
         }
 
         const taxableAmount = subtotal - discount;

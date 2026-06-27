@@ -341,6 +341,8 @@ function toggleOffcanvas(id) {
     // Add the class to make the offcanvas visible (full opacity)
     offcanvas.classList.add("opacity-100", "visible");
     offcanvas.classList.remove("invisible");
+    offcanvas.style.visibility = "visible";
+    offcanvas.style.pointerEvents = "auto";
 
     // Show all overlays (some pages render more than one .overlay)
     document.querySelectorAll(".overlay").forEach(overlay => {
@@ -428,6 +430,8 @@ function closeOffcanvas() {
         el.classList.remove("opacity-100", "visible");
         el.classList.add("invisible");
         applyClosedOffcanvasState(el);
+        el.style.visibility = "hidden";
+        el.style.pointerEvents = "none";
     });
 
     // Set a timeout to hide overlays after animation is complete
