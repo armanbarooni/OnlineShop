@@ -88,10 +88,10 @@
     --color-zinc-400: oklch(70.5% 0.015 286.067);
     --color-zinc-500: oklch(55.2% 0.016 285.938);
     --color-zinc-600: oklch(44.2% 0.017 285.786);
-    --color-zinc-700: oklch(37% 0.013 285.805);
-    --color-zinc-800: oklch(27.4% 0.006 286.033);
-    --color-zinc-900: oklch(21% 0.006 285.885);
-    --color-zinc-950: oklch(14.1% 0.005 285.823);
+    --color-zinc-700: #4B5563;
+    --color-zinc-800: #374151;
+    --color-zinc-900: #1F2937;
+    --color-zinc-950: #111827;
     --color-neutral-200: oklch(92.2% 0 0);
     --color-neutral-300: oklch(87% 0 0);
     --color-neutral-400: oklch(70.8% 0 0);
@@ -168,22 +168,22 @@
     --color-primary-700: oklch(58.428% 0.16536 45.6);
     --color-primary-800: oklch(46.002% 0.12831 46.486);
     --color-primary-900: oklch(32.841% 0.08751 49.451);
-    --color-secondary: #272C48FF;
-    --color-secondary-50: oklch(60.319% 0.08313 275.57);
-    --color-secondary-100: oklch(56.464% 0.0923 275);
-    --color-secondary-200: oklch(49.562% 0.09363 274.35);
-    --color-secondary-300: oklch(43.266% 0.08152 275.43);
-    --color-secondary-400: oklch(36.823% 0.06607 274.77);
-    --color-secondary-500: oklch(30.235% 0.05113 275.21);
-    --color-secondary-600: oklch(20.437% 0.02838 274.35);
-    --color-secondary-900: oklch(0% 0 none);
+    --color-secondary: #4B5563;
+    --color-secondary-50: #F9FAFB;
+    --color-secondary-100: #F3F4F6;
+    --color-secondary-200: #E5E7EB;
+    --color-secondary-300: #D1D5DB;
+    --color-secondary-400: #9CA3AF;
+    --color-secondary-500: #6B7280;
+    --color-secondary-600: #4B5563;
+    --color-secondary-900: #111827;
     --color-tertiary-500: oklch(69.625% 0.19409 26.276);
     --color-tertiary-600: oklch(65.347% 0.23281 28.509);
     --color-primary-light: #FF8229FF;
     --color-primary-dark: #b76122;
-    --color-secondary-light: #272C48FF;
-    --color-secondary-dark: #3d4487;
-    --color-dark: #1E293B;
+    --color-secondary-light: #6B7280;
+    --color-secondary-dark: #374151;
+    --color-dark: #111827;
     --color-light: #F8FAFC;
     --color-success: #10B981;
     --color-success-dark: #34D399;
@@ -191,9 +191,9 @@
     --color-danger-dark: #F87171;
     --color-warning: #F59E0B;
     --color-warning-dark: #FBBF24;
-    --color-background-dark: #0F172A;
+    --color-background-dark: #111827;
     --color-card-light: #FFFFFF;
-    --color-card-dark: #1E293B;
+    --color-card-dark: #1F2937;
     --color-text-primary-light: #1E293B;
     --color-text-primary-dark: #F8FAFC;
   }
@@ -2043,13 +2043,13 @@
     background-color: var(--color-secondary-500);
   }
   .bg-secondary-light\/10 {
-    background-color: color-mix(in srgb, #272C48FF 10%, transparent);
+    background-color: color-mix(in srgb, #6B7280 10%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-secondary-light) 10%, transparent);
     }
   }
   .bg-secondary\/10 {
-    background-color: color-mix(in srgb, #272C48FF 10%, transparent);
+    background-color: color-mix(in srgb, #6B7280 10%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-secondary) 10%, transparent);
     }
@@ -2919,7 +2919,7 @@
   .group-hover\:bg-secondary-light\/20 {
     &:is(:where(.group):hover *) {
       @media (hover: hover) {
-        background-color: color-mix(in srgb, #272C48FF 20%, transparent);
+        background-color: color-mix(in srgb, #6B7280 20%, transparent);
         @supports (color: color-mix(in lab, red, red)) {
           background-color: color-mix(in oklab, var(--color-secondary-light) 20%, transparent);
         }
@@ -5434,7 +5434,7 @@
   }
   .dark\:bg-secondary-dark\/40 {
     &:where(.dark, .dark *) {
-      background-color: color-mix(in srgb, #3d4487 40%, transparent);
+      background-color: color-mix(in srgb, #374151 40%, transparent);
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--color-secondary-dark) 40%, transparent);
       }
@@ -5442,7 +5442,7 @@
   }
   .dark\:bg-secondary\/20 {
     &:where(.dark, .dark *) {
-      background-color: color-mix(in srgb, #272C48FF 20%, transparent);
+      background-color: color-mix(in srgb, #6B7280 20%, transparent);
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--color-secondary) 20%, transparent);
       }
@@ -6934,6 +6934,54 @@
     --tw-gradient-from: var(--color-tertiary-600);
     --tw-gradient-to: var(--color-primary-600);
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  }
+  .home-panel {
+    border: 1px solid color-mix(in srgb, #ffffff 72%, #d1d5db);
+    border-radius: 1.75rem;
+    overflow: hidden;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+  }
+  .dark .home-panel {
+    border-color: color-mix(in srgb, #6b7280 35%, transparent);
+    background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  }
+  .home-panel--hero {
+    position: relative;
+  }
+  .home-panel--hero .swiper {
+    aspect-ratio: 2.5 / 1;
+    width: 100%;
+  }
+  .home-panel--hero .swiper-wrapper,
+  .home-panel--hero .swiper-slide {
+    height: 100%;
+  }
+  .home-panel--hero .swiper-slide > a,
+  .home-panel--hero .swiper-slide > a > div {
+    display: block;
+    height: 100%;
+  }
+  .home-panel--hero .swiper-slide img,
+  .home-panel--banner img {
+    display: block;
+    width: 100%;
+    object-fit: cover;
+  }
+  .home-panel--hero .swiper-slide img {
+    height: 100%;
+    min-height: 24rem;
+  }
+  @media (min-width: 640px) {
+    .home-panel--hero .swiper-slide img {
+      min-height: 28rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .home-panel--hero .swiper-slide img {
+      min-height: 34rem;
+    }
   }
   .product-box-item .image img {
     display: block;
