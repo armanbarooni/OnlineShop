@@ -714,7 +714,7 @@ function toggleAddToCartByStock(inStock) {
   addToCartBtn.classList.toggle("cursor-not-allowed", !inStock);
 }
 
-function updateStockBySelectedVariant() {
+function updateStockBySelectedVariant(source = "auto") {
   const colorSelect = document.getElementById("product-color-select");
   const sizeSelect = document.getElementById("product-size-select");
   const statusEl = document.getElementById("product-stock-status");
@@ -729,7 +729,9 @@ function updateStockBySelectedVariant() {
 
   if (sizeSelect) {
     sizeSelect.disabled = needColor && !selectedColor;
-    syncSizeSelectOptions(sizeSelect, selectedColor, allSizes, sizes);
+    if (source !== "size") {
+      syncSizeSelectOptions(sizeSelect, selectedColor, allSizes, sizes);
+    }
   }
 
   const selectedSize = sizeSelect ? stringOrEmpty(sizeSelect.value) : "";
@@ -806,11 +808,11 @@ function renderVariantSelectors(product) {
   if (sizeSelect) sizeSelect.disabled = colors.length > 0 && !colorSelect.value;
   syncSizeSelectOptions(sizeSelect, stringOrEmpty(colorSelect.value), allSizes, sizes);
 
-  colorSelect.onchange = updateStockBySelectedVariant;
-  sizeSelect.onchange = updateStockBySelectedVariant;
+  colorSelect.onchange = () => updateStockBySelectedVariant("color");
+  sizeSelect.onchange = () => updateStockBySelectedVariant("size");
 
   if (statusEl) statusEl.classList.add("hidden");
-  updateStockBySelectedVariant();
+  updateStockBySelectedVariant("init");
 }
 
 // Render product description
