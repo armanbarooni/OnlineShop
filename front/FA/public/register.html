@@ -145,7 +145,7 @@
                         <div>
                             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رمز عبور</label>
                             <div class="relative">
-                                <input type="password" id="password" class="w-full ps-4 pe-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="رمز عبور قوی انتخاب کنید" required oninput="checkPasswordStrength()">
+                                <input type="password" id="password" class="w-full ps-4 pe-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="رمز عبور" required minlength="6" oninput="checkPasswordStrength()">
                                 <button type="button" class="absolute password-toggle top-1/2 transform -translate-y-1/2 text-gray-400" onclick="togglePassword('password')">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -153,10 +153,10 @@
                                     </svg>
                                 </button>
                             </div>
-                            <div class="password-strength">
+                            <div class="password-strength hidden">
                                 <div class="password-strength-bar" id="password-strength-bar"></div>
                             </div>
-                            <div class="password-requirements" id="password-requirements">
+                            <div class="password-requirements hidden" id="password-requirements">
                                 <div class="requirement" id="req-length">
                                     <span class="requirement-icon">•</span>
                                     <span>حداقل ۸ کاراکتر</span>
@@ -184,7 +184,7 @@
                         <div>
                             <label for="confirm-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">تکرار رمز عبور</label>
                             <div class="relative">
-                                <input type="password" id="confirm-password" class="w-full ps-4 pe-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="رمز عبور را مجددا وارد کنید" required oninput="checkPasswordMatch()">
+                                <input type="password" id="confirm-password" class="w-full ps-4 pe-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="تکرار رمز عبور" required minlength="6" oninput="checkPasswordMatch()">
                                 <button type="button" class="absolute password-toggle top-1/2 transform -translate-y-1/2 text-gray-400" onclick="togglePassword('confirm-password')">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -361,9 +361,8 @@
         }
 
         // Check password strength
-        const strength = checkPasswordStrength(true);
-        if(strength < 3) {
-            window.utils.showToast('لطفا رمز عبور قوی‌تری انتخاب کنید', 'error');
+        if(password.length < 6) {
+            window.utils.showToast('رمز عبور باید حداقل ۶ کاراکتر باشد', 'error');
             return false;
         }
 

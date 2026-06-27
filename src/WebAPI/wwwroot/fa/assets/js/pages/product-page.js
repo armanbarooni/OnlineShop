@@ -688,6 +688,24 @@ function fillSelect(selectEl, values, defaultLabel) {
   selectEl.innerHTML = options.join("");
 }
 
+function syncSizeSelectOptions(sizeSelect, selectedColor, allSizes, colorSizes) {
+  if (!sizeSelect) return;
+
+  const optionsKey = selectedColor ? `color:${selectedColor}` : "all";
+  if (sizeSelect.dataset.optionsKey === optionsKey) {
+    return;
+  }
+
+  const previousValue = stringOrEmpty(sizeSelect.value);
+  const hasColor = Boolean(selectedColor);
+  fillSelect(sizeSelect, hasColor ? colorSizes : allSizes, hasColor ? "انتخاب سایز" : "ابتدا رنگ را انتخاب کنید");
+  sizeSelect.dataset.optionsKey = optionsKey;
+
+  if (previousValue && Array.from(sizeSelect.options).some((option) => option.value === previousValue)) {
+    sizeSelect.value = previousValue;
+  }
+}
+
 function toggleAddToCartByStock(inStock) {
   const addToCartBtn = document.getElementById("product-add-to-cart-btn");
   if (!addToCartBtn) return;
@@ -704,17 +722,14 @@ function updateStockBySelectedVariant() {
   const colors = extractUniqueValues(availableVariants, "color");
   const selectedColor = colorSelect ? stringOrEmpty(colorSelect.value) : "";
   const colorVariants = selectedColor ? getVariantsForColor(selectedColor) : [];
+  const allSizes = extractUniqueValues(availableVariants, "size");
   const sizes = selectedColor ? extractUniqueValues(colorVariants, "size") : [];
   const needColor = colors.length > 0;
   const needSize = sizes.length > 0;
 
   if (sizeSelect) {
     sizeSelect.disabled = needColor && !selectedColor;
-    if (needColor && !selectedColor) {
-      fillSelect(sizeSelect, extractUniqueValues(availableVariants, "size"), "ابتدا رنگ را انتخاب کنید");
-    } else if (selectedColor) {
-      fillSelect(sizeSelect, sizes, "انتخاب سایز");
-    }
+    syncSizeSelectOptions(sizeSelect, selectedColor, allSizes, sizes);
   }
 
   const selectedSize = sizeSelect ? stringOrEmpty(sizeSelect.value) : "";
@@ -763,10 +778,11 @@ function renderVariantSelectors(product) {
   normalizedVariants = buildSizeVariants(product);
   availableVariants = normalizedVariants.filter(isVariantInStock);
   const colors = extractUniqueValues(availableVariants, "color");
+  const allSizes = extractUniqueValues(availableVariants, "size");
   const selectedColor = colorSelect ? stringOrEmpty(colorSelect.value) : "";
   const sizes = selectedColor
     ? extractUniqueValues(getVariantsForColor(selectedColor), "size")
-    : extractUniqueValues(availableVariants, "size");
+    : allSizes;
 
   if (colors.length === 0 && sizes.length === 0) {
     container.classList.add("hidden");
@@ -782,13 +798,13 @@ function renderVariantSelectors(product) {
 
   container.classList.remove("hidden");
   fillSelect(colorSelect, colors, "انتخاب رنگ");
-  fillSelect(sizeSelect, sizes, colors.length > 0 ? "ابتدا رنگ را انتخاب کنید" : "انتخاب سایز");
 
   if (colors.length === 1) colorSelect.value = colors[0];
 
   if (colorWrap) colorWrap.classList.toggle("hidden", colors.length === 0);
   if (sizeWrap) sizeWrap.classList.remove("hidden");
   if (sizeSelect) sizeSelect.disabled = colors.length > 0 && !colorSelect.value;
+  syncSizeSelectOptions(sizeSelect, stringOrEmpty(colorSelect.value), allSizes, sizes);
 
   colorSelect.onchange = updateStockBySelectedVariant;
   sizeSelect.onchange = updateStockBySelectedVariant;

@@ -205,7 +205,7 @@
                                 <div class="relative">
                                     <input type="password" id="password"
                                         class="w-full ps-4 pe-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        placeholder="رمز عبور " required oninput="checkPasswordStrength()">
+                                        placeholder="رمز عبور" required minlength="6" oninput="checkPasswordStrength()">
                                     <button type="button"
                                         class="absolute password-toggle left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
                                         onclick="togglePassword('password')"
@@ -219,10 +219,10 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <div class="password-strength">
+                                <div class="password-strength hidden">
                                     <div class="password-strength-bar" id="password-strength-bar"></div>
                                 </div>
-                                <div class="password-requirements" id="password-requirements">
+                                <div class="password-requirements hidden" id="password-requirements">
                                     <div class="requirement" id="req-length">
                                         <span class="requirement-icon">•</span>
                                         <span>حداقل ۸ کاراکتر</span>
@@ -254,7 +254,7 @@
                                 <div class="relative">
                                     <input type="password" id="confirm-password"
                                         class="w-full ps-4 pe-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        placeholder="تکرار رمز عبور" required oninput="checkPasswordMatch()">
+                                        placeholder="تکرار رمز عبور" required minlength="6" oninput="checkPasswordMatch()">
                                     <button type="button"
                                         class="absolute password-toggle left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
                                         onclick="togglePassword('confirm-password')"
@@ -980,10 +980,8 @@
                 return false;
             }
 
-            // Check password strength
-            const strength = checkPasswordStrength(true);
-            if (strength < 3) {
-                window.utils.showToast('لطفاً رمز عبور قوی‌تری انتخاب کنید', 'error');
+            if (password.length < 6) {
+                window.utils.showToast('رمز عبور باید حداقل ۶ کاراکتر باشد', 'error');
                 return false;
             }
 
