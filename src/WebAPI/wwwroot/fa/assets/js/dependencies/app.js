@@ -373,12 +373,12 @@ function ensureOffcanvasClosedState(offcanvas) {
     }
 
     if (offcanvas.classList.contains("start-0") || offcanvas.id.includes("right")) {
-        offcanvas.dataset.closedTransformClass = "-translate-x-full";
+        offcanvas.dataset.closedTransformClass = "translate-x-full";
         return;
     }
 
     if (offcanvas.classList.contains("end-0") || offcanvas.id.includes("left")) {
-        offcanvas.dataset.closedTransformClass = "translate-x-full";
+        offcanvas.dataset.closedTransformClass = "-translate-x-full";
         return;
     }
 

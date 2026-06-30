@@ -8,22 +8,24 @@
     >
       <h2 class="sr-only" itemprop="name">تبلیغات و پیشنهادات ویژه</h2>
       <div class="container">
-        <div class="grid grid-cols-2 gap-2 md:gap-3 place-items-center">
+        <div class="grid grid-cols-2 gap-1.5 md:gap-3 place-items-stretch">
           <div
-            class="lg:col-span-1 col-span-2 home-panel home-panel--banner"
+            class="lg:col-span-1 col-span-1 home-panel home-panel--banner"
             itemprop="itemListElement"
             itemscope
             itemtype="https://schema.org/Promotion"
             itemid="#summer-promo"
           >
             <a
-              href="https://example.com/offers/summer-sale"
+              href="#"
               aria-label="مشاهده پیشنهادات تابستانی"
               itemprop="url"
+              onclick="event.preventDefault(); return false;"
+              class="block h-full w-full overflow-hidden rounded-2xl"
             >
               <img
                 src="assets/images/advert/banner-2.webp"
-                class="transition block duration-300 hover:-translate-y-1"
+                class="transition block h-full w-full object-cover duration-300 hover:-translate-y-1"
                 alt="تابستانه ویژه - تا ۵۰% تخفیف روی محصولات منتخب"
                 loading="lazy"
                 decoding="async"
@@ -53,20 +55,22 @@
             </a>
           </div>
           <div
-            class="lg:col-span-1 col-span-2 home-panel home-panel--banner"
+            class="lg:col-span-1 col-span-1 home-panel home-panel--banner"
             itemprop="itemListElement"
             itemscope
             itemtype="https://schema.org/Promotion"
             itemid="#autumn-promo"
           >
             <a
-              href="https://example.com/new-collection"
+              href="#"
               aria-label="مشاهده مجموعه جدید"
               itemprop="url"
+              onclick="event.preventDefault(); return false;"
+              class="block h-full w-full overflow-hidden rounded-2xl"
             >
               <img
                 src="assets/images/advert/banner-1.webp"
-                class="transition block duration-300 hover:-translate-y-1"
+                class="transition block h-full w-full object-cover duration-300 hover:-translate-y-1"
                 alt="مجموعه جدید پاییزه - آخرین مدل‌های روز دنیا"
                 loading="lazy"
                 decoding="async"

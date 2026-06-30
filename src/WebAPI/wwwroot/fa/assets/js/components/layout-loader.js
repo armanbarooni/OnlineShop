@@ -2,7 +2,7 @@
   "use strict";
 
   const PARTIAL_BASE_PATH = "partials/";
-  const PARTIAL_VERSION = "20260627-5";
+  const PARTIAL_VERSION = "20260630-1";
   const componentScripts = [];
   const loadedScripts = window.loadedLayoutComponentScripts || new Set();
   window.loadedLayoutComponentScripts = loadedScripts;

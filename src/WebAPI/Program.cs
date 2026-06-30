@@ -52,6 +52,12 @@ Log.Logger = BuildLoggerConfiguration(minimumLogLevel).CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (builder.Environment.IsDevelopment())
+{
+    // Force the local dev host to use the expected port used across the frontend.
+    builder.WebHost.UseUrls("http://localhost:5000");
+}
+
 // Use Serilog
 builder.Host.UseSerilog();
 

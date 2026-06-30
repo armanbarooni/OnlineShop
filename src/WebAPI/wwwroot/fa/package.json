@@ -5,7 +5,7 @@
   "main": "config.js",
   "scripts": {
     "start": "http-server -p 8080 -c-1 --cors",
-    "start:backend": "cd ../src/WebAPI && dotnet run --urls \"https://localhost:7025\"",
+    "start:backend": "cd ../src/WebAPI && dotnet run --urls \"https://localhost:5000\"",
     "start:all": "concurrently \"npm run start\" \"npm run start:backend\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

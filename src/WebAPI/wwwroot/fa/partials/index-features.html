@@ -1,229 +1,113 @@
-﻿<!-- ================= start feature section ================= -->
-    <section class="py-5">
-      <!-- for seo-->
-      <h2 class="sr-only">ویژگی های فروشگاه</h2>
-      <div class="container">
-        <div class="grid grid-cols-4 gap-4 place-items-center">
-          <div class="col-span-6 w-full place-items-center">
-            <div
-              class="grid gap-1 sm:gap-4 lg:mt-0 mt-3 lg:grid-cols-5 sm:grid-cols-3 grid-cols-5"
-            >
-              <article
-                itemscope
-                itemtype="https://schema.org/Service"
-                class="col-span-1 w-full"
-              >
-                <meta itemprop="name" content="ارسال سریع سفارشات" />
-                <meta
-                  itemprop="description"
-                  content="تحویل سفارشات در سریع‌ترین زمان ممکن"
-                />
-                <div
-                  class="p-1.5 sm:p-3 hover:drop-shadow-lg hover:-translate-y-2 dark:bg-gray-800 cursor-pointer transition duration-300 border border-gray-200 flex bg-white shadow-md rounded-lg flex-col items-center justify-center min-w-0"
-                >
-                  <div
-                    class="size-7 sm:size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      class="size-4 sm:size-6"
-                      aria-label="ارسال سریع سفارشات"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                      />
-                    </svg>
-                  </div>
-                  <div class="space-y-0.5 text-center mt-2 sm:mt-4">
-                    <h3 class="text-[9px] leading-tight sm:text-sm text-gray-600 font-bold dark:text-white">
-                      ارسال سریع سفارشات
-                    </h3>
-                    <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400"
-                      >فردای ثبت سفارش</span
-                    >
-                  </div>
-                </div>
-              </article>
+<!-- ================= start category showcase ================= -->
+<style>
+  .category-showcase-shell {
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 3vw, 1.5rem);
+  }
 
-              <article
-                itemscope
-                itemtype="https://schema.org/Service"
-                class="col-span-1 w-full"
-              >
-                <meta itemprop="name" content="تضمین کیفیت" />
-                <meta
-                  itemprop="description"
-                  content="یهترین کیفیت پارچه و دوخت"
-                />
-                <div
-                  class="p-1.5 sm:p-3 hover:drop-shadow-lg hover:-translate-y-2 dark:bg-gray-800 cursor-pointer transition duration-300 border border-gray-200 flex bg-white shadow-md rounded-lg flex-col items-center justify-center min-w-0"
-                >
-                  <div
-                    class="size-7 sm:size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      class="size-4 sm:size-6"
-                      aria-label="تضمین کیفیت"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
-                      />
-                    </svg>
-                  </div>
-                  <div class="space-y-0.5 text-center mt-2 sm:mt-4">
-                    <h3 class="text-[9px] leading-tight sm:text-sm text-gray-600 font-bold dark:text-white">
-                      تضمین کیفیت
-                    </h3>
-                    <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400">
-                      ضمانت کیفیت</span
-                    >
-                  </div>
-                </div>
-              </article>
-              <article
-                itemscope
-                itemtype="https://schema.org/Service"
-                class="col-span-1 w-full"
-              >
-                <meta itemprop="name" content="پشتیبانی ۲۴ ساعته" />
-                <meta
-                  itemprop="description"
-                  content="پشتیبانی آنلاین و تلفنی در هر ساعت از شبانه‌روز"
-                />
-                <div
-                  class="p-1.5 sm:p-3 border border-gray-200 flex dark:bg-gray-800 bg-white shadow-md rounded-lg flex-col items-center justify-center hover:shadow-lg hover:-translate-y-2 transition duration-300 cursor-pointer min-w-0"
-                >
-                  <div
-                    class="size-7 sm:size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white"
-                  >
-                    <svg
-                      aria-label="پشتیبانی ۲۴ ساعته"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      class="size-4 sm:size-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"
-                      />
-                    </svg>
-                  </div>
-                  <div class="space-y-0.5 text-center mt-2 sm:mt-4">
-                    <h3 class="text-[9px] leading-tight sm:text-sm text-gray-600 font-bold dark:text-white">
-                      پشتیبانی ۲۴ ساعته
-                    </h3>
-                    <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400"
-                      >پاسخگویی در هر زمان</span
-                    >
-                  </div>
-                </div>
-              </article>
-              <article
-                itemscope
-                itemtype="https://schema.org/Service"
-                class="col-span-1 w-full"
-              >
-                <meta itemprop="name" content="خرید آسان و سریع" />
-                <meta
-                  itemprop="description"
-                  content="فرآیند خرید راحت و بی‌دردسر با چند کلیک"
-                />
-                <div
-                  class="p-1.5 sm:p-3 border border-gray-200 flex dark:bg-gray-800 bg-white shadow-md rounded-lg flex-col items-center justify-center hover:shadow-lg hover:-translate-y-2 transition duration-300 cursor-pointer min-w-0"
-                >
-                  <div
-                    class="size-7 sm:size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      class="size-4 sm:size-6"
-                      aria-label="خرید آسان و سریع"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M3.75 9h16.5m-8.25-6h-6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3h-6"
-                      />
-                    </svg>
-                  </div>
-                  <div class="space-y-0.5 text-center mt-2 sm:mt-4">
-                    <h3 class="text-[9px] leading-tight sm:text-sm text-gray-600 font-bold dark:text-white">
-                      خرید آسان و سریع
-                    </h3>
-                    <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400"
-                      >چند کلیک تا خرید</span
-                    >
-                  </div>
-                </div>
-              </article>
-              <article
-                itemscope
-                itemtype="https://schema.org/DeliveryChargeSpecification"
-                class="col-span-1 w-full"
-              >
-                <meta itemprop="name" content="ارسال به سراسر کشور" />
-                <meta
-                  itemprop="description"
-                  content="ارسال محصولات به تمام نقاط کشور با استفاده از پست پیشتاز"
-                />
-                <meta itemprop="shippingMethod" content="پست پیشتاز" />
-                <meta itemprop="shippingDestination" content="تمام نقاط کشور" />
-                <div
-                  class="p-1.5 sm:p-3 border border-gray-200 flex dark:bg-gray-800 bg-white shadow-md rounded-lg flex-col items-center justify-center hover:shadow-lg hover:-translate-y-2 transition duration-300 cursor-pointer min-w-0"
-                >
-                  <div
-                    class="size-7 sm:size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      class="size-4 sm:size-6"
-                      aria-label="ارسال به سراسر کشور"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"
-                      />
-                    </svg>
-                  </div>
-                  <div class="space-y-0.5 text-center mt-2 sm:mt-4">
-                    <h3 class="text-[9px] leading-tight sm:text-sm text-gray-600 font-bold dark:text-white">
-                      ارسال به سراسر کشور
-                    </h3>
-                    <span class="hidden sm:block text-xs text-gray-500 dark:text-gray-400"
-                      >با پست پیشتاز</span
-                    >
-                  </div>
-                </div>
-              </article>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- ================= end feature section ================= -->
+  .category-showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  @media (max-width: 767.98px) {
+    .category-showcase-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+  }
+
+  @media (max-width: 479.98px) {
+    .category-showcase-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+  }
+</style>
+<section class="px-0 py-4 sm:py-6">
+  <h2 class="sr-only">دسته‌بندی‌های منتخب</h2>
+  <div class="category-showcase-shell">
+    <div class="category-showcase-grid">
+      <a
+        href="shop.html"
+        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        style="aspect-ratio: 4 / 3;"
+      >
+        <img
+          src="assets/images/category/1.jpg"
+          alt="خانه"
+          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+      </a>
+
+      <a
+        href="shop.html"
+        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        style="aspect-ratio: 4 / 3;"
+      >
+        <img
+          src="assets/images/category/2.jpg"
+          alt="شخصی"
+          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+      </a>
+
+      <a
+        href="shop.html"
+        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        style="aspect-ratio: 4 / 3;"
+      >
+        <img
+          src="assets/images/category/3.jpg"
+          alt="ورزشی"
+          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+      </a>
+
+      <a
+        href="shop.html"
+        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        style="aspect-ratio: 4 / 3;"
+      >
+        <img
+          src="assets/images/category/4.jpg"
+          alt="اسپیکر"
+          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+      </a>
+
+      <a
+        href="shop.html"
+        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        style="aspect-ratio: 4 / 3;"
+      >
+        <img
+          src="assets/images/category/5.jpg"
+          alt="هدفون"
+          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+      </a>
+
+      <a
+        href="shop.html"
+        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        style="aspect-ratio: 4 / 3;"
+      >
+        <img
+          src="assets/images/category/6.jpg"
+          alt="گیمینگ"
+          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+      </a>
+    </div>
+  </div>
+</section>
+<!-- ================= end category showcase ================= -->
