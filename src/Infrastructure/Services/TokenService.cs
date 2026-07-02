@@ -115,8 +115,14 @@ namespace OnlineShop.Infrastructure.Services
             tokenEntity.IsRevoked = true;
             tokenEntity.RevokedAt = DateTime.UtcNow;
 
-            // Generate new tokens
-            return await GenerateTokensAsync(user.Email!, roles);
+            var loginIdentifier = user.Email ?? user.UserName ?? user.PhoneNumber;
+            if (string.IsNullOrWhiteSpace(loginIdentifier))
+            {
+                return null;
+            }
+
+            // Generate new tokens with the identifier that exists for this user.
+            return await GenerateTokensAsync(loginIdentifier, roles);
         }
 
         public async Task RevokeTokenAsync(string refreshToken)

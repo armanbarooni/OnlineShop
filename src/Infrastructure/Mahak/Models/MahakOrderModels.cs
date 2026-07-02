@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace OnlineShop.Infrastructure.Mahak.Models
 {
     /// <summary>
@@ -73,6 +75,7 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         /// <summary>
         /// Shipping address (JSON format)
         /// </summary>
+        [JsonPropertyOrder(1000)]
         public string? ShippingAddress { get; set; }
 
         /// <summary>

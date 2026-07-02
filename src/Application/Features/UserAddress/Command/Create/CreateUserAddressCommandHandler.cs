@@ -38,6 +38,7 @@ namespace OnlineShop.Application.Features.UserAddress.Command.Create
 
             userAddress.SetAddressLine2(request.UserAddress.AddressLine2);
             userAddress.SetPhoneNumber(request.UserAddress.PhoneNumber);
+            userAddress.SetMahakCityId(request.UserAddress.MahakCityId);
             
             if (request.UserAddress.IsDefault)
                 userAddress.SetAsDefault();

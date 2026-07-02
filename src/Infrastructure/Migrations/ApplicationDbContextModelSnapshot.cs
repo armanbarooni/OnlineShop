@@ -1078,6 +1078,9 @@ namespace OnlineShop.Infrastructure.Migrations
                     b.Property<int?>("MahakId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("MahakCityId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(15)
@@ -2557,6 +2560,8 @@ namespace OnlineShop.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MahakCityId");
 
                     b.HasIndex("PostalCode");
 

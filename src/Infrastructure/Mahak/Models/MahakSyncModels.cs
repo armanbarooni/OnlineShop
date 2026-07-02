@@ -14,6 +14,7 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public long FromPersonVersion { get; set; }
         public long FromPersonAddressVersion { get; set; }
         public long FromVisitorPersonVersion { get; set; }
+        public long FromRegionVersion { get; set; }
         // Add other Versions as needed
     }
 
@@ -84,7 +85,18 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public List<PersonModel>? People { get; set; }
         public List<PersonAddressModel>? PersonAddresses { get; set; }
         public List<VisitorPersonModel>? VisitorPeople { get; set; }
+        public List<RegionModel>? Regions { get; set; }
         // Add other lists as needed
+    }
+
+    public class RegionModel
+    {
+        public int CityID { get; set; }
+        public string CityName { get; set; } = string.Empty;
+        public int ProvinceID { get; set; }
+        public string ProvinceName { get; set; } = string.Empty;
+        public string? MapCode { get; set; }
+        public long RowVersion { get; set; }
     }
 
     public class VisitorPersonModel

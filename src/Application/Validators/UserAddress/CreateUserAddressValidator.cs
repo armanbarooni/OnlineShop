@@ -62,6 +62,11 @@ namespace OnlineShop.Application.Validators.UserAddress
             RuleFor(x => x.PhoneNumber)
                 .MaximumLength(20)
                 .WithMessage("Phone number cannot exceed 20 characters");
+
+            RuleFor(x => x.MahakCityId)
+                .GreaterThan(0)
+                .When(x => x.MahakCityId.HasValue)
+                .WithMessage("Mahak city id must be greater than zero");
         }
     }
 }

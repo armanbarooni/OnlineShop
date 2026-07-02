@@ -104,6 +104,7 @@ public static class ServiceRegistration
             services.AddScoped<IStockAlertRepository, StockAlertRepository>();
         
         // Services
+        services.AddMemoryCache();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<Domain.Interfaces.Services.IInvoiceService, Infrastructure.Services.InvoiceService>();
@@ -124,6 +125,12 @@ public static class ServiceRegistration
         });
         services.AddScoped<IMahakCustomerSyncService>(sp => sp.GetRequiredService<MahakOutgoingSyncService>());
         services.AddScoped<IMahakOrderSyncService>(sp => sp.GetRequiredService<MahakOutgoingSyncService>());
+
+        services.AddHttpClient<MahakRegionService>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(mahakTimeoutSeconds);
+        });
+        services.AddScoped<IMahakRegionService>(sp => sp.GetRequiredService<MahakRegionService>());
         
         // Payment Gateway - ZarinPal (replace with MockPaymentService for testing)
         services.AddHttpClient<ZarinPalPaymentService>();

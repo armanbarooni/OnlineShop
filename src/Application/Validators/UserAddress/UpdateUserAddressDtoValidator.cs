@@ -72,6 +72,11 @@ namespace OnlineShop.Application.Validators.UserAddress
                 .Matches(@"^09\d{9}$")
                 .When(x => !string.IsNullOrEmpty(x.PhoneNumber))
                 .WithMessage("Phone number must be a valid Iranian mobile number (09XXXXXXXXX)");
+
+            RuleFor(x => x.MahakCityId)
+                .GreaterThan(0)
+                .When(x => x.MahakCityId.HasValue)
+                .WithMessage("Mahak city id must be greater than zero");
         }
     }
 }

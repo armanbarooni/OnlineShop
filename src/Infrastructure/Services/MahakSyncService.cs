@@ -1338,7 +1338,6 @@ namespace OnlineShop.Infrastructure.Services
             existingDetail.ApplyMahakDetail(
                 detail.ProductDetailId,
                 detail.ProductDetailClientId,
-                detail.RowVersion,
                 value,
                 detail.Deleted);
 

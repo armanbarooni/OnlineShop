@@ -15,6 +15,7 @@ namespace OnlineShop.Domain.Entities
         public string PostalCode { get; private set; } = string.Empty;
         public string Country { get; private set; } = string.Empty;
         public string? PhoneNumber { get; private set; }
+        public int? MahakCityId { get; private set; }
         public bool IsDefault { get; private set; }
         public bool IsBillingAddress { get; private set; }
         public bool IsShippingAddress { get; private set; }
@@ -135,6 +136,15 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void SetMahakCityId(int? mahakCityId)
+        {
+            if (mahakCityId.HasValue && mahakCityId.Value <= 0)
+                throw new ArgumentException("Mahak city id must be a positive number.");
+
+            MahakCityId = mahakCityId;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         public void SetAsDefault()
         {
             IsDefault = true;
@@ -166,7 +176,7 @@ namespace OnlineShop.Domain.Entities
 
         public void Update(string title, string firstName, string lastName, string addressLine1, 
             string? addressLine2, string city, string state, string postalCode, string country, 
-            string? phoneNumber, bool isDefault = false, bool isBillingAddress = false, bool isShippingAddress = false, string? updatedBy = null)
+            string? phoneNumber, int? mahakCityId = null, bool isDefault = false, bool isBillingAddress = false, bool isShippingAddress = false, string? updatedBy = null)
         {
             SetTitle(title);
             SetFirstName(firstName);
@@ -178,6 +188,7 @@ namespace OnlineShop.Domain.Entities
             SetPostalCode(postalCode);
             SetCountry(country);
             SetPhoneNumber(phoneNumber);
+            SetMahakCityId(mahakCityId);
             
             if (isDefault) SetAsDefault();
             else RemoveAsDefault();

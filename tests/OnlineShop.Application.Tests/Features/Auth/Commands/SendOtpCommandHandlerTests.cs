@@ -2,9 +2,9 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Features.Auth.Commands.SendOtp;
 using OnlineShop.Application.DTOs.Auth;
-using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Domain.Entities;
@@ -16,7 +16,6 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
         private readonly Mock<IOtpRepository> _mockOtpRepository;
         private readonly Mock<ISmsService> _mockSmsService;
         private readonly Mock<Microsoft.Extensions.Logging.ILogger<SendOtpCommandHandler>> _mockLogger;
-        private readonly Mock<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>> _mockUserManager;
         private readonly IOptions<SmsSettings> _smsSettings;
         private readonly SendOtpCommandHandler _handler;
 
@@ -25,9 +24,6 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
             _mockOtpRepository = new Mock<IOtpRepository>();
             _mockSmsService = new Mock<ISmsService>();
             _mockLogger = new Mock<Microsoft.Extensions.Logging.ILogger<SendOtpCommandHandler>>();
-            _mockUserManager = new Mock<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>>(
-                new Mock<Microsoft.AspNetCore.Identity.IUserStore<ApplicationUser>>().Object, 
-                null, null, null, null, null, null, null, null);
 
             _smsSettings = Options.Create(new SmsSettings
             {
@@ -39,7 +35,6 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
                 _mockOtpRepository.Object,
                 _mockSmsService.Object,
                 _smsSettings,
-                _mockUserManager.Object,
                 _mockLogger.Object
             );
         }
@@ -215,6 +210,52 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
             capturedOtp.Should().NotBeNull();
             capturedOtp!.Code.Should().HaveLength(6);
             capturedOtp.Code.Should().MatchRegex(@"^\d{6}$"); // 6 digits
+        }
+
+        [Fact]
+        public async Task Handle_LoginPurpose_ShouldSendOtpEvenIfUserDoesNotExist()
+        {
+            // Arrange
+            var command = new SendOtpCommand
+            {
+                Request = new SendOtpDto
+                {
+                    PhoneNumber = "09123456789",
+                    Purpose = "Login"
+                }
+            };
+
+            _mockOtpRepository.Setup(r => r.GetLatestOtpAsync(
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Otp?)null);
+
+            _mockOtpRepository.Setup(r => r.InvalidatePreviousOtpsAsync(
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            _mockOtpRepository.Setup(r => r.AddAsync(
+                It.IsAny<Otp>(),
+                It.IsAny<CancellationToken>()))
+                .Returns((Otp otp, CancellationToken ct) => Task.FromResult(otp));
+
+            _mockSmsService.Setup(s => s.SendOtpAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.IsSuccess.Should().BeTrue();
+            _mockSmsService.Verify(s => s.SendOtpAsync(
+                "09123456789",
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+                Times.Once);
         }
     }
 }

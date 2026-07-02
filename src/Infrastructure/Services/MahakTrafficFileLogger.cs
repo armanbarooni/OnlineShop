@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -14,7 +15,8 @@ namespace OnlineShop.Infrastructure.Services
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.Never
+            DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         private readonly IConfiguration _configuration;

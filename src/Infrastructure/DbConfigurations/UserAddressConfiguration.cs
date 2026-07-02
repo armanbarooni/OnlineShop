@@ -49,6 +49,8 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             builder.Property(ua => ua.PhoneNumber)
                 .HasMaxLength(20);
 
+            builder.Property(ua => ua.MahakCityId);
+
             builder.Property(ua => ua.IsDefault)
                 .IsRequired()
                 .HasDefaultValue(false);
@@ -81,6 +83,7 @@ namespace OnlineShop.Infrastructure.DbConfigurations
             builder.HasIndex(ua => ua.UserId);
             builder.HasIndex(ua => new { ua.UserId, ua.IsDefault });
             builder.HasIndex(ua => ua.PostalCode);
+            builder.HasIndex(ua => ua.MahakCityId);
         }
     }
 }

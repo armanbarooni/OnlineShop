@@ -322,6 +322,15 @@ using (var scope = app.Services.CreateScope())
     {
         Log.Information("Database migration on startup is disabled.");
     }
+
+    if (shouldSeedDefaults)
+    {
+        await OnlineShop.Infrastructure.Data.DatabaseSeeder.SeedRolesAsync(scope.ServiceProvider);
+    }
+    else
+    {
+        Log.Information("Default user and role seeding is disabled.");
+    }
 }
 
 if (swaggerEnabled)
@@ -332,19 +341,6 @@ if (swaggerEnabled)
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Online Shop API V1");
         c.RoutePrefix = swaggerAtRoot ? string.Empty : swaggerRoutePrefix;
     });
-}
-
-if (app.Environment.IsDevelopment())
-{
-    using (var scope = app.Services.CreateScope())
-    {
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        if (shouldSeedDefaults)
-        {
-            await OnlineShop.Infrastructure.Data.DatabaseSeeder.SeedRolesAsync(scope.ServiceProvider);
-        }
-    }
 }
 
 

@@ -38,6 +38,7 @@ namespace OnlineShop.Application.Features.UserAddress.Command.Update
                 request.UserAddress.PostalCode,
                 request.UserAddress.Country,
                 request.UserAddress.PhoneNumber,
+                request.UserAddress.MahakCityId,
                 request.UserAddress.IsDefault,
                 request.UserAddress.IsBillingAddress,
                 request.UserAddress.IsShippingAddress,

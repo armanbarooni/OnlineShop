@@ -1,9 +1,13 @@
 (function () {
     const hostname = window.location?.hostname ?? 'localhost';
+    const isLocalHost = (host) => {
+        const normalizedHost = (host || '').toLowerCase();
+        return !normalizedHost || normalizedHost === 'localhost' || normalizedHost === '127.0.0.1';
+    };
 
     const detectEnvironment = (host) => {
         const normalizedHost = (host || '').toLowerCase();
-        if (!normalizedHost || normalizedHost === 'localhost' || normalizedHost === '127.0.0.1') {
+        if (isLocalHost(normalizedHost)) {
             return 'development';
         }
         if (normalizedHost.includes('staging') || normalizedHost.includes('test')) {
@@ -37,11 +41,16 @@
             document.querySelector('meta[name="api-base-url"]')?.content;
 
         const normalizedConfiguredUrl = normalizeApiBaseUrl(configuredApiBaseUrl);
-        if (normalizedConfiguredUrl) {
+        const isDevelopmentLocalhostUrl =
+            !isLocalHost(hostname) &&
+            runtimeConfig?.environment === 'development' &&
+            /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/api\/?$/i.test(normalizedConfiguredUrl || '');
+
+        if (normalizedConfiguredUrl && !isDevelopmentLocalhostUrl) {
             return normalizedConfiguredUrl;
         }
 
-        if (environmentName === 'development') {
+        if (environmentName === 'development' && isLocalHost(hostname)) {
             return 'http://localhost:5000/api';
         }
 
@@ -63,7 +72,9 @@
     };
 
     const getResolvedApiBaseUrl = (runtimeConfig = window.__APP_RUNTIME_CONFIG__ ?? null) => {
-        const environmentName = runtimeConfig?.environment ?? detectEnvironment(hostname);
+        const environmentName = isLocalHost(hostname)
+            ? (runtimeConfig?.environment ?? detectEnvironment(hostname))
+            : detectEnvironment(hostname);
         return resolveApiBaseUrl(runtimeConfig, environmentName);
     };
 
@@ -77,7 +88,9 @@
         userKey: 'userData'
     };
     const buildConfig = (runtimeConfig) => {
-        const environmentName = runtimeConfig?.environment ?? detectEnvironment(hostname);
+        const environmentName = isLocalHost(hostname)
+            ? (runtimeConfig?.environment ?? detectEnvironment(hostname))
+            : detectEnvironment(hostname);
 
         return {
             environment: {

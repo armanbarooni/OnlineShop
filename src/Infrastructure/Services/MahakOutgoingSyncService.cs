@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -30,7 +31,12 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IMahakTrafficLogger _mahakTrafficLogger;
         private static readonly JsonSerializerOptions SaveAllDataJsonOptions = new()
         {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+        private static readonly JsonSerializerOptions ShippingAddressJsonOptions = new(SaveAllDataJsonOptions)
+        {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
 
         private string? _token;
@@ -370,7 +376,20 @@ namespace OnlineShop.Infrastructure.Services
                 throw new Exception($"Failed to send order to Mahak. Status: {response.StatusCode}, Content: {responseText}");
             }
 
-            var saveResult = DeserializeSaveResult(responseText, $"order {order.Id}");
+            var saveResult = DeserializeSaveResult(responseText, $"order {order.Id}", throwOnRejected: false);
+            if (!saveResult.Result && IsAlreadyRegisteredOrderResult(saveResult))
+            {
+                _logger.LogWarning(
+                    "Mahak reports order {OrderId} / {OrderNumber} is already registered. Marking local order as synced to prevent repeated sales invoice submissions.",
+                    order.Id,
+                    order.OrderNumber);
+
+                order.SetMahakSynced($"client:{orderClientId}");
+                await _orderRepository.UpdateAsync(order, cancellationToken);
+                return;
+            }
+
+            EnsureSaveResultAccepted(saveResult, $"order {order.Id}", responseText);
             var orderResult = GetSuccessfulEntityResult(saveResult.Data?.Objects?.Orders, "Orders");
             GetSuccessfulEntityResult(saveResult.Data?.Objects?.OrderDetails, "OrderDetails", requireSingleResult: false);
 
@@ -384,56 +403,67 @@ namespace OnlineShop.Infrastructure.Services
 
         private static string BuildOrderDescription(UserOrder order)
         {
-            var parts = new List<string>
+            var shippingAddress = order.ShippingAddress ?? order.BillingAddress;
+            if (shippingAddress == null)
             {
-                $"Website Order #{order.OrderNumber}"
-            };
-
-            var customerName = $"{order.User?.FirstName} {order.User?.LastName}".Trim();
-            if (!string.IsNullOrWhiteSpace(customerName))
-            {
-                parts.Add($"Customer: {customerName}");
+                return string.Empty;
             }
 
-            if (!string.IsNullOrWhiteSpace(order.User?.PhoneNumber))
+            var name = string.Join(" ", new[]
             {
-                parts.Add($"Mobile: {order.User.PhoneNumber}");
+                NormalizeShippingAddressValue(shippingAddress.FirstName),
+                NormalizeShippingAddressValue(shippingAddress.LastName)
+            }.Where(value => !string.IsNullOrWhiteSpace(value)));
+
+            var address = string.Join(" ", new[]
+            {
+                NormalizeShippingAddressValue(shippingAddress.State),
+                NormalizeShippingAddressValue(shippingAddress.City),
+                NormalizeShippingAddressValue(shippingAddress.AddressLine1),
+                NormalizeShippingAddressValue(shippingAddress.AddressLine2)
+            }.Where(value => !string.IsNullOrWhiteSpace(value)));
+
+            var phone = NormalizeShippingAddressValue(shippingAddress.PhoneNumber)
+                ?? NormalizeShippingAddressValue(order.User?.PhoneNumber);
+
+            var parts = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                parts.Add(name);
             }
 
-            if (!string.IsNullOrWhiteSpace(order.Notes))
+            if (!string.IsNullOrWhiteSpace(address))
             {
-                parts.Add($"Notes: {order.Notes}");
+                parts.Add(address);
             }
 
-            return string.Join(" | ", parts);
+            var postalCode = NormalizeShippingAddressValue(shippingAddress.PostalCode);
+            if (!string.IsNullOrWhiteSpace(postalCode))
+            {
+                parts.Add($"کد پستی : {postalCode}");
+            }
+
+            parts.Add($"تماس : {phone}");
+
+            return Environment.NewLine + string.Join(Environment.NewLine, parts);
         }
 
         private static string? BuildShippingAddressJson(UserOrder order)
         {
-            var shippingAddress = order.ShippingAddress ?? order.BillingAddress;
-            if (shippingAddress == null)
+            return null;
+        }
+
+        private static string? NormalizeShippingAddressValue(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
             {
                 return null;
             }
 
-            var addressPayload = new
-            {
-                title = shippingAddress.Title,
-                firstName = shippingAddress.FirstName,
-                lastName = shippingAddress.LastName,
-                addressLine1 = shippingAddress.AddressLine1,
-                addressLine2 = shippingAddress.AddressLine2,
-                city = shippingAddress.City,
-                state = shippingAddress.State,
-                postalCode = shippingAddress.PostalCode,
-                country = shippingAddress.Country,
-                phoneNumber = shippingAddress.PhoneNumber,
-                isDefault = shippingAddress.IsDefault,
-                isBillingAddress = shippingAddress.IsBillingAddress,
-                isShippingAddress = shippingAddress.IsShippingAddress
-            };
-
-            return JsonSerializer.Serialize(addressPayload, SaveAllDataJsonOptions);
+            return string.Join(
+                " ",
+                value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
         }
 
         private static string BuildOrderItemDescription(UserOrderItem item)
@@ -442,29 +472,15 @@ namespace OnlineShop.Infrastructure.Services
 
             if (!string.IsNullOrWhiteSpace(item.ProductVariant?.Color))
             {
-                parts.Add($"Color: {item.ProductVariant.Color}");
+                parts.Add(item.ProductVariant.Color);
             }
 
             if (!string.IsNullOrWhiteSpace(item.ProductVariant?.Size))
             {
-                parts.Add($"Size: {item.ProductVariant.Size}");
+                parts.Add(item.ProductVariant.Size);
             }
 
-            if (!string.IsNullOrWhiteSpace(item.ProductVariant?.SKU))
-            {
-                parts.Add($"SKU: {item.ProductVariant.SKU}");
-            }
-            else if (!string.IsNullOrWhiteSpace(item.ProductSku))
-            {
-                parts.Add($"SKU: {item.ProductSku}");
-            }
-
-            if (!string.IsNullOrWhiteSpace(item.Notes))
-            {
-                parts.Add($"Notes: {item.Notes}");
-            }
-
-            return string.Join(" | ", parts);
+            return string.Join(" - ", parts);
         }
 
         public async Task SyncCustomerToMahakAsync(Guid userId, CancellationToken cancellationToken)
@@ -650,20 +666,55 @@ namespace OnlineShop.Infrastructure.Services
                 "این دیتا پاسخ محک بعد از ارسال اطلاعات است");
         }
 
-        private static SaveAllDataResultApiResult DeserializeSaveResult(string responseText, string operation)
+        private static SaveAllDataResultApiResult DeserializeSaveResult(
+            string responseText,
+            string operation,
+            bool throwOnRejected = true)
         {
             var result = JsonSerializer.Deserialize<SaveAllDataResultApiResult>(responseText, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
 
-            if (result == null || !result.Result)
+            if (result == null)
             {
-                throw new InvalidOperationException(
-                    $"Mahak rejected {operation}. Code: {result?.Code}, Message: {result?.Message ?? responseText}");
+                throw new InvalidOperationException($"Mahak returned an invalid response for {operation}: {responseText}");
+            }
+
+            if (throwOnRejected)
+            {
+                EnsureSaveResultAccepted(result, operation, responseText);
             }
 
             return result;
+        }
+
+        private static void EnsureSaveResultAccepted(
+            SaveAllDataResultApiResult result,
+            string operation,
+            string responseText)
+        {
+            if (!result.Result)
+            {
+                throw new InvalidOperationException(
+                    $"Mahak rejected {operation}. Code: {result.Code}, Message: {result.Message ?? responseText}");
+            }
+        }
+
+        private static bool IsAlreadyRegisteredOrderResult(SaveAllDataResultApiResult result)
+        {
+            var orderResults = result.Data?.Objects?.Orders?.Results;
+            if (orderResults == null || orderResults.Count == 0)
+            {
+                return false;
+            }
+
+            return orderResults.Any(orderResult =>
+                !orderResult.Result &&
+                (orderResult.Errors ?? new List<PropertyErrorModel>()).Any(error =>
+                    string.Equals(error.Property, "OrderId", StringComparison.OrdinalIgnoreCase) &&
+                    (error.Error?.Contains("\u0648\u06CC\u0631\u0627\u06CC\u0634", StringComparison.OrdinalIgnoreCase) ?? false) &&
+                    (error.Error?.Contains("\u062B\u0628\u062A", StringComparison.OrdinalIgnoreCase) ?? false)));
         }
 
         private static EntityUpdateResult GetSuccessfulEntityResult(

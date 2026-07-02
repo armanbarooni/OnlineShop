@@ -71,13 +71,12 @@ namespace OnlineShop.Domain.Entities
         public void ApplyMahakDetail(
             int productDetailId,
             long productDetailClientId,
-            long rowVersion,
             string value,
             bool deleted)
         {
             MahakId = productDetailId;
             MahakClientId = productDetailClientId;
-            RowVersion = rowVersion;
+            // Keep RowVersion for EF concurrency control only.
             Value = string.IsNullOrWhiteSpace(value) ? "{}" : value.Trim();
             Deleted = deleted;
             UpdatedAt = DateTime.UtcNow;

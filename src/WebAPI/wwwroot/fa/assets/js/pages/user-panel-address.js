@@ -6,6 +6,8 @@ const AddressManager = {
     // Current editing address ID (null for create mode)
     editingAddressId: null,
     isSaving: false,
+    mahakRegions: [],
+    selectedMahakCityId: null,
 
     init() {
         this.initUI();
@@ -47,6 +49,7 @@ const AddressManager = {
 
         this.initTextOnlyFields();
         this.initNumericOnlyFields();
+        this.loadMahakRegions();
 
         // Logout
         this.initLogout();
@@ -98,6 +101,117 @@ const AddressManager = {
                 }, 0);
             });
         });
+    },
+
+    async loadMahakRegions() {
+        const response = await window.addressService.getMahakRegions();
+        if (!response.success || !Array.isArray(response.data) || response.data.length === 0) {
+            window.utils?.showToast?.('لیست استان و شهر محک دریافت نشد', 'warning');
+            return;
+        }
+
+        this.mahakRegions = response.data;
+        this.bindMahakRegionInputs();
+    },
+
+    bindMahakRegionInputs() {
+        const provinceInput = document.getElementById('province');
+        const cityInput = document.getElementById('city');
+        if (!provinceInput || !cityInput) return;
+
+        let provinceList = document.getElementById('mahakProvinceOptions');
+        if (!provinceList) {
+            provinceList = document.createElement('datalist');
+            provinceList.id = 'mahakProvinceOptions';
+            document.body.appendChild(provinceList);
+        }
+
+        let cityList = document.getElementById('mahakCityOptions');
+        if (!cityList) {
+            cityList = document.createElement('datalist');
+            cityList.id = 'mahakCityOptions';
+            document.body.appendChild(cityList);
+        }
+
+        provinceInput.setAttribute('list', 'mahakProvinceOptions');
+        cityInput.setAttribute('list', 'mahakCityOptions');
+
+        this.mahakRegions = this.mahakRegions
+            .map(region => ({
+                ...region,
+                provinceName: this.normalizeLocationName(region.provinceName),
+                cityName: this.normalizeLocationName(region.cityName)
+            }))
+            .filter(region =>
+                region.cityId > 0 &&
+                region.provinceName &&
+                region.cityName &&
+                !region.cityName.startsWith('استان '));
+
+        const provinceNames = [...new Set(this.mahakRegions.map(region => region.provinceName).filter(Boolean))]
+            .sort((a, b) => a.localeCompare(b, 'fa'));
+        provinceList.innerHTML = provinceNames.map(name => `<option value="${this.escapeHtml(name)}"></option>`).join('');
+
+        const getSelectedProvince = () => {
+            const province = this.normalizeLocationName(provinceInput.value);
+            return provinceNames.includes(province) ? province : '';
+        };
+
+        const refreshCities = () => {
+            const selectedProvince = getSelectedProvince();
+            const cities = this.mahakRegions
+                .filter(region => region.provinceName === selectedProvince)
+                .sort((a, b) => a.cityName.localeCompare(b.cityName, 'fa'));
+
+            cityInput.disabled = !selectedProvince;
+            if (!selectedProvince) {
+                cityInput.value = '';
+                cityInput.placeholder = 'ابتدا استان را انتخاب کنید';
+            } else {
+                cityInput.placeholder = 'شهر را انتخاب کنید';
+            }
+
+            cityList.innerHTML = cities.map(region => `<option value="${this.escapeHtml(region.cityName)}" data-city-id="${region.cityId}"></option>`).join('');
+            this.selectedMahakCityId = this.resolveMahakCityId(selectedProvince, cityInput.value);
+        };
+
+        provinceInput.addEventListener('input', () => {
+            this.selectedMahakCityId = null;
+            cityInput.value = '';
+            refreshCities();
+        });
+
+        cityInput.addEventListener('input', () => {
+            this.selectedMahakCityId = this.resolveMahakCityId(provinceInput.value, cityInput.value);
+        });
+
+        refreshCities();
+    },
+
+    resolveMahakCityId(provinceName, cityName) {
+        const province = this.normalizeLocationName(provinceName);
+        const city = this.normalizeLocationName(cityName);
+        const match = this.mahakRegions.find(region =>
+            region.provinceName === province &&
+            region.cityName === city);
+        return match?.cityId || null;
+    },
+
+    normalizeLocationName(value) {
+        return String(value || '')
+            .replace(/ي/g, 'ی')
+            .replace(/ك/g, 'ک')
+            .replace(/\s+/g, ' ')
+            .trim();
+    },
+
+    escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     },
 
     sanitizeDigitsOnly(value, maxLength) {
@@ -313,6 +427,7 @@ const AddressManager = {
         document.getElementById('addressTitle').value = address.title || '';
         document.getElementById('province').value = address.state || '';
         document.getElementById('city').value = address.city || '';
+        this.selectedMahakCityId = address.mahakCityId || this.resolveMahakCityId(address.state, address.city);
         document.getElementById('address').value = address.addressLine1 || '';
         document.getElementById('postalCode').value = address.postalCode || '';
         document.getElementById('receiverName').value = `${address.firstName || ''} ${address.lastName || ''}`.trim();
@@ -347,6 +462,7 @@ const AddressManager = {
 
     resetForm() {
         document.querySelector('#addressModal form').reset();
+        this.selectedMahakCityId = null;
         // Clear errors
         document.querySelectorAll('.error-message').forEach(el => el.remove());
         document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error', 'border-red-500'));
@@ -399,6 +515,8 @@ const AddressManager = {
             return;
         }
 
+        const mahakCityId = this.selectedMahakCityId || this.resolveMahakCityId(sanitizedProvince, sanitizedCity);
+
         const addressData = {
             title: title,
             firstName: firstName,
@@ -408,6 +526,7 @@ const AddressManager = {
             state: sanitizedProvince,
             postalCode: sanitizedPostalCode,
             phoneNumber: sanitizedPhone,
+            mahakCityId: mahakCityId,
             country: 'Iran',
             isDefault: isDefault,
             isShippingAddress: true,
@@ -470,7 +589,8 @@ const AddressManager = {
             addressLine1: 'address',
             postalCode: 'postalCode',
             firstName: 'receiverName', // Map both to receiverName
-            phoneNumber: 'phone'
+            phoneNumber: 'phone',
+            mahakCityId: 'city'
         };
 
         // Display new errors

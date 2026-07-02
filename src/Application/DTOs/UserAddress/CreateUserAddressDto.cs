@@ -12,6 +12,7 @@ namespace OnlineShop.Application.DTOs.UserAddress
         public string PostalCode { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
+        public int? MahakCityId { get; set; }
         public bool IsDefault { get; set; } = false;
         public bool IsBillingAddress { get; set; } = false;
         public bool IsShippingAddress { get; set; } = false;
@@ -30,6 +31,7 @@ namespace OnlineShop.Application.DTOs.UserAddress
         public string PostalCode { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
+        public int? MahakCityId { get; set; }
         public bool IsDefault { get; set; } = false;
         public bool IsBillingAddress { get; set; } = false;
         public bool IsShippingAddress { get; set; } = false;
@@ -49,6 +51,7 @@ namespace OnlineShop.Application.DTOs.UserAddress
         public string PostalCode { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
+        public int? MahakCityId { get; set; }
         public bool IsDefault { get; set; }
         public bool IsBillingAddress { get; set; }
         public bool IsShippingAddress { get; set; }

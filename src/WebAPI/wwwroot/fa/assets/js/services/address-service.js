@@ -179,6 +179,24 @@ class AddressService {
         }
     }
 
+    async getMahakRegions() {
+        try {
+            const response = await this.apiClient.get('/mahakregions');
+            const data = this.unwrapResponseData(response);
+            return {
+                success: true,
+                data: Array.isArray(data) ? data : []
+            };
+        } catch (error) {
+            window.logger?.error('Error fetching Mahak regions:', error);
+            return {
+                success: false,
+                error: this.apiClient.handleError(error),
+                data: []
+            };
+        }
+    }
+
     /**
      * Validate address data
      */
@@ -203,6 +221,10 @@ class AddressService {
 
         if (!addressData.state || addressData.state.trim().length === 0) {
             errors.state = 'استان الزامی است';
+        }
+
+        if (!addressData.mahakCityId || Number(addressData.mahakCityId) <= 0) {
+            errors.mahakCityId = 'شهر را از لیست شهرهای محک انتخاب کنید';
         }
 
         if (addressData.postalCode && addressData.postalCode.trim().length > 0 && !/^\d{10}$/.test(addressData.postalCode)) {

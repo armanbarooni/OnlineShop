@@ -15,7 +15,9 @@
         isAddressFormOpen: false,
         isSavingAddress: false,
         province: "",
-        city: ""
+        city: "",
+        mahakRegions: [],
+        mahakCityId: null
     };
 
     const IRAN_LOCATION_DATA = {
@@ -219,6 +221,14 @@
         return String(value || "").trim().toLowerCase();
     }
 
+    function normalizeLocationName(value) {
+        return String(value || "")
+            .replace(/ي/g, "ی")
+            .replace(/ك/g, "ک")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
     function renderOptionList(containerId, inputId, valuesOrGetter, onSelect, placeholder) {
         const container = document.getElementById(containerId);
         const input = document.getElementById(inputId);
@@ -267,30 +277,86 @@
         });
     }
 
-    function initProvinceCitySelectors() {
+    function resolveMahakCityId(provinceName, cityName) {
+        const province = normalizeLocationName(provinceName);
+        const city = normalizeLocationName(cityName);
+        const match = state.mahakRegions.find(region =>
+            region.provinceName === province &&
+            region.cityName === city);
+        return match?.cityId || null;
+    }
+
+    async function initProvinceCitySelectors() {
         const provinceInput = document.getElementById("checkout-address-state");
         const cityInput = document.getElementById("checkout-address-city");
         if (!provinceInput || !cityInput) return;
 
-        const provinces = Object.keys(IRAN_LOCATION_DATA);
+        const regionResult = await window.addressService.getMahakRegions();
+        if (regionResult.success && Array.isArray(regionResult.data) && regionResult.data.length) {
+            state.mahakRegions = regionResult.data
+                .map(region => ({
+                    ...region,
+                    provinceName: normalizeLocationName(region.provinceName),
+                    cityName: normalizeLocationName(region.cityName)
+                }))
+                .filter(region =>
+                    Number(region.cityId) > 0 &&
+                    region.provinceName &&
+                    region.cityName &&
+                    !region.cityName.startsWith("استان "));
+        } else {
+            window.utils?.showToast?.("لیست استان و شهر محک دریافت نشد", "warning");
+        }
+
+        state.mahakRegions = state.mahakRegions
+            .filter(region => !region.cityName.startsWith("\u0627\u0633\u062A\u0627\u0646 "));
+
+        const provinces = () => [...new Set(state.mahakRegions.map(region => region.provinceName).filter(Boolean))]
+            .sort((a, b) => a.localeCompare(b, "fa"));
+        const selectedProvince = () => {
+            const province = normalizeLocationName(provinceInput.value);
+            return provinces().includes(province) ? province : "";
+        };
+        const citiesForSelectedProvince = () => state.mahakRegions
+            .filter(region => region.provinceName === selectedProvince())
+            .map(region => region.cityName)
+            .sort((a, b) => a.localeCompare(b, "fa"));
+
         bindSearchableField("checkout-address-state", "checkout-state-options", provinces, (province) => {
-            state.province = province;
-            const cities = IRAN_LOCATION_DATA[province] || [];
+            state.province = normalizeLocationName(province);
             state.city = "";
+            state.mahakCityId = null;
             cityInput.value = "";
             cityInput.disabled = false;
             cityInput.placeholder = "جستجوی شهر";
             cityInput.focus();
-            bindSearchableField("checkout-address-city", "checkout-city-options", () => IRAN_LOCATION_DATA[state.province] || [], (city) => {
-                state.city = city;
-            }, "شهری پیدا نشد");
-            renderOptionList("checkout-city-options", "checkout-address-city", () => IRAN_LOCATION_DATA[state.province] || [], (city) => {
-                state.city = city;
-            }, "شهری پیدا نشد");
         }, "استانی پیدا نشد");
-        cityInput.disabled = true;
-    }
 
+        bindSearchableField("checkout-address-city", "checkout-city-options", citiesForSelectedProvince, (city) => {
+            state.city = normalizeLocationName(city);
+            state.mahakCityId = resolveMahakCityId(state.province, city);
+        }, "شهری پیدا نشد");
+
+        provinceInput.addEventListener("input", () => {
+            const province = selectedProvince();
+            if (!province || province !== state.province) {
+                state.province = "";
+                state.city = "";
+                state.mahakCityId = null;
+                cityInput.value = "";
+                cityInput.disabled = true;
+                cityInput.placeholder = "ابتدا استان را انتخاب کنید";
+            }
+        });
+
+        cityInput.addEventListener("input", () => {
+            state.city = normalizeLocationName(cityInput.value);
+            state.mahakCityId = resolveMahakCityId(state.province, state.city);
+        });
+
+        cityInput.disabled = true;
+        cityInput.placeholder = "ابتدا استان را انتخاب کنید";
+    }
     function renderSelectedAddress(address) {
         const addressDetails = document.getElementById("checkout-address-details");
         const changeButton = document.getElementById("change-address-btn");
@@ -403,6 +469,7 @@
             state: stateValue.trim(),
             postalCode: postalCode.trim(),
             phoneNumber: phoneNumber.trim(),
+            mahakCityId: state.mahakCityId || resolveMahakCityId(stateValue, city),
             country: "Iran",
             isDefault,
             isShippingAddress: true,
