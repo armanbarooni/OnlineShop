@@ -7021,6 +7021,49 @@
     display: block;
     transform: scale(1.15);
   }
+  @media (max-width: 640px) {
+    #topHeader {
+      padding-block: 0.5rem;
+    }
+
+    #topHeader .size-6,
+    #topHeader .size-7,
+    #topHeader .lg\:size-8 {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .site-mobile-nav .size-6 {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .product-box-item {
+      padding: 0.75rem;
+      border-radius: 1rem;
+    }
+
+    .product-box-item .image img {
+      width: 128px;
+      height: 128px;
+    }
+
+    .default-carousel .swiper-slide > a > div {
+      height: 14rem;
+    }
+
+    .custom-swiper-prev,
+    .custom-swiper-next {
+      transform: scale(0.75);
+      transform-origin: center;
+    }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+  }
   .section-heading {
     position: relative;
   }

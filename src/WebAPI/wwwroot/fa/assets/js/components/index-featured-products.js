@@ -209,30 +209,30 @@
 
     return `
       <div class="swiper-slide px-1.5 py-2">
-        <article class="bg-white product-box-item drop-shadow-md rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1">
+        <article class="bg-white product-box-item drop-shadow-md rounded-xl p-3 sm:p-4 dark:bg-gray-800 dark:border-white dark:border-1">
           <header class="flex items-center relative justify-between">
             ${discount > 0 ? `<span class="absolute top-1 end-1 bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ""}
           </header>
           <figure class="relative overflow-hidden rounded-lg mb-3">
             <a href="${productUrl}" class="block">
-              <img src="${imageUrl}" alt="${name}" class="w-full h-48 object-contain" loading="lazy" decoding="async" onerror="${imageErrorHandler}">
+              <img src="${imageUrl}" alt="${name}" class="w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" onerror="${imageErrorHandler}">
             </a>
-            <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 pointer-events-none">
+            <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5 pointer-events-none">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
               </svg>
             </button>
           </figure>
                 <a href="${productUrl}">
-                    <h3 class="text-sm font-bold mb-2 line-clamp-2 dark:text-white">${name}</h3>
+                    <h3 class="text-xs sm:text-sm font-bold mb-2 line-clamp-2 dark:text-white">${name}</h3>
                 </a>
                 <div class="flex items-center justify-between mt-3">
                     <div class="flex flex-col">
-                        ${hasStock && discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-                        <span class="text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
+                        ${hasStock && discount > 0 ? `<span class="text-[11px] sm:text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
+                        <span class="text-base sm:text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
                     </div>
-                    <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" aria-label="افزودن به سبد خرید" ${hasStock ? "" : "disabled"}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                    <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-1.5 sm:p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" aria-label="افزودن به سبد خرید" ${hasStock ? "" : "disabled"}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
               </svg>
             </button>
@@ -335,8 +335,8 @@
 
     container.innerHTML = `
       <div class="swiper-slide px-1.5 py-2">
-        <article class="bg-white product-box-item drop-shadow-md rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1">
-          <p class="text-center text-gray-500 dark:text-gray-300 py-16">${message}</p>
+        <article class="bg-white product-box-item drop-shadow-md rounded-xl p-3 sm:p-4 dark:bg-gray-800 dark:border-white dark:border-1">
+          <p class="text-center text-gray-500 dark:text-gray-300 py-12 sm:py-16">${message}</p>
         </article>
       </div>
     `;

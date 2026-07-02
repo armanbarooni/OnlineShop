@@ -12,6 +12,25 @@
     gap: 12px;
   }
 
+  .category-showcase-card {
+    position: relative;
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 1.55rem;
+    -webkit-clip-path: inset(0 round 1.55rem);
+    clip-path: inset(0 round 1.55rem);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgb(24 24 27);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.22);
+    transition: transform 300ms ease;
+    transform: translateZ(0);
+  }
+
+  .category-showcase-card > img {
+    border-radius: inherit;
+  }
+
   @media (max-width: 767.98px) {
     .category-showcase-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -32,7 +51,7 @@
     <div class="category-showcase-grid">
       <a
         href="shop.html"
-        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
         style="aspect-ratio: 4 / 3;"
       >
         <img
@@ -45,7 +64,7 @@
 
       <a
         href="shop.html"
-        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
         style="aspect-ratio: 4 / 3;"
       >
         <img
@@ -58,7 +77,7 @@
 
       <a
         href="shop.html"
-        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
         style="aspect-ratio: 4 / 3;"
       >
         <img
@@ -71,7 +90,7 @@
 
       <a
         href="shop.html"
-        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
         style="aspect-ratio: 4 / 3;"
       >
         <img
@@ -84,7 +103,7 @@
 
       <a
         href="shop.html"
-        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
         style="aspect-ratio: 4 / 3;"
       >
         <img
@@ -97,7 +116,7 @@
 
       <a
         href="shop.html"
-        class="group relative block h-full min-h-[148px] isolate overflow-hidden rounded-[1.55rem] border border-white/10 bg-zinc-900 shadow-[0_18px_34px_rgba(0,0,0,0.22)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
+        class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
         style="aspect-ratio: 4 / 3;"
       >
         <img

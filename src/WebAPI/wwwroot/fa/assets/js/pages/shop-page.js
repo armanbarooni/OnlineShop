@@ -297,33 +297,33 @@
 
     return `
       <div class="lg:col-span-4 md:col-span-6 col-span-12 w-full">
-        <article class="bg-white product-box-item drop-shadow-md rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1 h-full flex flex-col" itemscope itemtype="http://schema.org/Product">
+        <article class="bg-white product-box-item drop-shadow-md rounded-xl p-3 sm:p-4 dark:bg-gray-800 dark:border-white dark:border-1 h-full flex flex-col" itemscope itemtype="http://schema.org/Product">
           <figure class="relative overflow-hidden rounded-lg mb-3">
             <a href="${productUrl}" class="block" itemprop="url">
-              <img src="${escapeAttribute(image.src)}" alt="${escapeAttribute(name)}" class="w-full h-48 object-contain" loading="lazy" decoding="async" itemprop="image" onerror="${imageErrorHandler}">
+              <img src="${escapeAttribute(image.src)}" alt="${escapeAttribute(name)}" class="w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" itemprop="image" onerror="${imageErrorHandler}">
             </a>
             ${
               discount > 0
                 ? `<span class="absolute top-2 end-2 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">${discount}%</span>`
                 : ""
             }
-            <button type="button" data-wishlist-product-id="${escapeAttribute(id)}" class="absolute top-2 start-2 z-30 p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 pointer-events-none">
+            <button type="button" data-wishlist-product-id="${escapeAttribute(id)}" class="absolute top-2 start-2 z-30 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5 pointer-events-none">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"></path>
               </svg>
             </button>
           </figure>
           <a href="${productUrl}" class="block flex-1">
-            <h3 class="text-sm font-bold mb-2 line-clamp-2 dark:text-white" itemprop="name">${escapeHtml(name)}</h3>
+            <h3 class="text-xs sm:text-sm font-bold mb-2 line-clamp-2 dark:text-white" itemprop="name">${escapeHtml(name)}</h3>
           </a>
           <div class="flex items-center justify-between mt-auto" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
             <meta itemprop="priceCurrency" content="IRR">
             <div class="flex flex-col">
-              ${hasStock && discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-              <span class="text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}" itemprop="price"${hasStock ? ` content="${price}"` : ""}>${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
+              ${hasStock && discount > 0 ? `<span class="text-[11px] sm:text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
+              <span class="text-base sm:text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}" itemprop="price"${hasStock ? ` content="${price}"` : ""}>${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
             </div>
-            <button type="button" data-add-to-cart-product-id="${escapeAttribute(id)}" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" aria-label="افزودن به سبد خرید" ${hasStock ? "" : "disabled"}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 pointer-events-none">
+            <button type="button" data-add-to-cart-product-id="${escapeAttribute(id)}" class="bg-primary text-white p-1.5 sm:p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" aria-label="افزودن به سبد خرید" ${hasStock ? "" : "disabled"}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5 pointer-events-none">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"></path>
               </svg>
             </button>
@@ -1190,8 +1190,8 @@
 
     container.innerHTML = `
       <div class="lg:col-span-4 md:col-span-6 col-span-12 w-full">
-        <div class="rounded-xl bg-white dark:bg-gray-800 p-4 shadow-sm animate-pulse">
-          <div class="h-48 rounded-lg bg-gray-200 dark:bg-gray-700 mb-4"></div>
+        <div class="rounded-xl bg-white dark:bg-gray-800 p-3 sm:p-4 shadow-sm animate-pulse">
+          <div class="h-40 sm:h-48 rounded-lg bg-gray-200 dark:bg-gray-700 mb-4"></div>
           <div class="h-4 rounded bg-gray-200 dark:bg-gray-700 mb-3"></div>
           <div class="h-4 w-2/3 rounded bg-gray-200 dark:bg-gray-700 mb-6"></div>
           <div class="flex items-center justify-between">
@@ -1201,8 +1201,8 @@
         </div>
       </div>
       <div class="lg:col-span-4 md:col-span-6 col-span-12 w-full hidden md:block">
-        <div class="rounded-xl bg-white dark:bg-gray-800 p-4 shadow-sm animate-pulse">
-          <div class="h-48 rounded-lg bg-gray-200 dark:bg-gray-700 mb-4"></div>
+        <div class="rounded-xl bg-white dark:bg-gray-800 p-3 sm:p-4 shadow-sm animate-pulse">
+          <div class="h-40 sm:h-48 rounded-lg bg-gray-200 dark:bg-gray-700 mb-4"></div>
           <div class="h-4 rounded bg-gray-200 dark:bg-gray-700 mb-3"></div>
           <div class="h-4 w-2/3 rounded bg-gray-200 dark:bg-gray-700 mb-6"></div>
           <div class="flex items-center justify-between">
@@ -1212,8 +1212,8 @@
         </div>
       </div>
       <div class="lg:col-span-4 md:col-span-6 col-span-12 w-full hidden lg:block">
-        <div class="rounded-xl bg-white dark:bg-gray-800 p-4 shadow-sm animate-pulse">
-          <div class="h-48 rounded-lg bg-gray-200 dark:bg-gray-700 mb-4"></div>
+        <div class="rounded-xl bg-white dark:bg-gray-800 p-3 sm:p-4 shadow-sm animate-pulse">
+          <div class="h-40 sm:h-48 rounded-lg bg-gray-200 dark:bg-gray-700 mb-4"></div>
           <div class="h-4 rounded bg-gray-200 dark:bg-gray-700 mb-3"></div>
           <div class="h-4 w-2/3 rounded bg-gray-200 dark:bg-gray-700 mb-6"></div>
           <div class="flex items-center justify-between">
