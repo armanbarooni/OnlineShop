@@ -7,6 +7,7 @@ class ApiClient {
         if (!this.token) localStorage.removeItem('accessToken');
         if (!this.refreshToken) localStorage.removeItem('refreshToken');
         this.tokenRefreshInterval = null;
+        this.refreshPromise = null;
         this.setupTokenRefresh();
     }
 
@@ -314,6 +315,20 @@ class ApiClient {
 
     // Refresh access token
     async refreshAccessToken() {
+        if (this.refreshPromise) {
+            return await this.refreshPromise;
+        }
+
+        this.refreshPromise = this.refreshAccessTokenCore();
+
+        try {
+            return await this.refreshPromise;
+        } finally {
+            this.refreshPromise = null;
+        }
+    }
+
+    async refreshAccessTokenCore() {
         if (!this.refreshToken) {
             return false;
         }
@@ -322,7 +337,8 @@ class ApiClient {
             const response = await fetch(`${this.baseURL}/auth/refresh`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 credentials: 'include', // Include credentials for CORS
                 mode: 'cors', // Explicitly set CORS mode
@@ -355,7 +371,7 @@ class ApiClient {
                 // Refresh failed, redirect to login
                 this.clearTokens();
                 if (window.location.pathname.includes('user-panel')) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/fa/login.html';
                 }
                 return false;
             }

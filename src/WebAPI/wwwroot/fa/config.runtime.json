@@ -1,7 +1,7 @@
 {
-  "environment": "development",
-  "apiBaseUrl": "http://localhost:5000/api",
-  "frontendBaseUrl": "http://localhost:5000",
+  "environment": "production",
+  "apiBaseUrl": "/api",
+  "frontendBaseUrl": "",
   "apiTimeout": 30000,
   "apiRetryAttempts": 3,
   "auth": {

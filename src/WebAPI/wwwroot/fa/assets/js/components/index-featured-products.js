@@ -202,7 +202,7 @@
         ? Math.round(((originalPrice - price) / originalPrice) * 100)
         : 0;
     const productUrl = "product.html?id=" + product.id;
-    const name = product.name || "نام محصول";
+    const name = product.name || "\u0645\u062d\u0635\u0648\u0644";
     const wishlistClick =
       "event.preventDefault(); event.stopPropagation(); addToWishlist('" +
       product.id +
@@ -218,7 +218,7 @@
             <a href="${productUrl}" class="block">
               <img src="${imageUrl}" alt="${name}" class="w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" onerror="${imageErrorHandler}">
             </a>
-            <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
+            <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="\u0627\u0641\u0632\u0648\u062f\u0646 \u0628\u0647 \u0639\u0644\u0627\u0642\u0647\u200c\u0645\u0646\u062f\u06cc\u200c\u0647\u0627">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5 pointer-events-none">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
               </svg>
@@ -230,9 +230,9 @@
                 <div class="flex items-center justify-between mt-3">
                     <div class="flex flex-col">
                         ${hasStock && discount > 0 ? `<span class="text-[11px] sm:text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-                        <span class="text-base sm:text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
+                        <span class="text-base sm:text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${formatPrice(price)} \u0631\u06cc\u0627\u0644` : "\u0646\u0627\u0645\u0648\u062c\u0648\u062f"}</span>
                     </div>
-                    <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-1.5 sm:p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" aria-label="افزودن به سبد خرید" ${hasStock ? "" : "disabled"}>
+                    <button onclick="addToCart('${product.id}')" class="bg-primary text-white p-1.5 sm:p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" aria-label="\u0627\u0641\u0632\u0648\u062f\u0646 \u0628\u0647 \u0633\u0628\u062f \u062e\u0631\u06cc\u062f" ${hasStock ? "" : "disabled"}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
               </svg>
@@ -279,7 +279,7 @@
     button.classList.toggle("dark:text-white", !isActive);
     button.setAttribute(
       "aria-label",
-      isActive ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها",
+      isActive ? "\u062d\u0630\u0641 \u0627\u0632 \u0639\u0644\u0627\u0642\u0647\u200c\u0645\u0646\u062f\u06cc\u200c\u0647\u0627" : "\u0627\u0641\u0632\u0648\u062f\u0646 \u0628\u0647 \u0639\u0644\u0627\u0642\u0647\u200c\u0645\u0646\u062f\u06cc\u200c\u0647\u0627",
     );
 
     const icon = button.querySelector("svg");
@@ -322,7 +322,7 @@
       .filter(isProductInStock)
       .slice(0, MAX_VISIBLE_PRODUCTS);
     if (visibleProducts.length === 0) {
-      renderState("محصولی برای نمایش وجود ندارد");
+      renderState("\u0645\u062d\u0635\u0648\u0644\u06cc \u0628\u0631\u0627\u06cc \u0646\u0645\u0627\u06cc\u0634 \u0648\u062c\u0648\u062f \u0646\u062f\u0627\u0631\u062f");
       return;
     }
 
@@ -355,7 +355,8 @@
     return !!(
       window.apiClient &&
       window.productService &&
-      typeof window.productService.getNewProducts === "function"
+      typeof window.productService.getNewProducts === "function" &&
+      typeof window.Swiper === "function"
     );
   }
 
@@ -376,14 +377,14 @@
 
     const dependenciesReady = await waitForProductDependencies();
     if (!dependenciesReady) {
-      renderState("Ø³Ø±ÙˆÛŒØ³ Ù…Ø­ØµÙˆÙ„Ø§Øª Ø¯Ø± Ø¯Ø³ØªØ±Ø³ Ù†ÛŒØ³Øª");
+      renderState("\u0633\u0631\u0648\u06cc\u0633 \u0645\u062d\u0635\u0648\u0644\u0627\u062a \u062f\u0631 \u062f\u0633\u062a\u0631\u0633 \u0646\u06cc\u0633\u062a");
       return;
     }
 
     hasLoadedProducts = true;
 
     if (!window.productService || !window.apiClient) {
-      renderState("سرویس محصولات در دسترس نیست");
+      renderState("\u0633\u0631\u0648\u06cc\u0633 \u0645\u062d\u0635\u0648\u0644\u0627\u062a \u062f\u0631 \u062f\u0633\u062a\u0631\u0633 \u0646\u06cc\u0633\u062a");
       return;
     }
 
@@ -404,12 +405,12 @@
         return;
       }
 
-      renderState("محصولی برای نمایش وجود ندارد");
+      renderState("\u0645\u062d\u0635\u0648\u0644\u06cc \u0628\u0631\u0627\u06cc \u0646\u0645\u0627\u06cc\u0634 \u0648\u062c\u0648\u062f \u0646\u062f\u0627\u0631\u062f");
     } catch (error) {
       if (window.logger && typeof window.logger.error === "function") {
         window.logger.error("Error loading featured products:", error);
       }
-      renderState("خطا در دریافت محصولات");
+      renderState("\u062e\u0637\u0627 \u062f\u0631 \u062f\u0631\u06cc\u0627\u0641\u062a \u0645\u062d\u0635\u0648\u0644\u0627\u062a");
     }
   }
 
