@@ -80,7 +80,7 @@ namespace OnlineShop.WebAPI.Controllers
 				if (user == null)
 				{
 					_logger.LogWarning("Login failed - user not found for: {Identifier}", dto.Email);
-	                        return Unauthorized(new { message = "حساب کاربری با این ایمیل یا شماره موبایل یافت نشد. ابتدا ثبت‌نام کنید" });
+	                        return Unauthorized(new { message = "کاربری با این نام یافت نشد" });
 				}
 			}
 
@@ -91,7 +91,7 @@ namespace OnlineShop.WebAPI.Controllers
 				if (user == null)
 				{
 					_logger.LogWarning("Login failed - invalid password for user: {Email}", dto.Email);
-	                        return Unauthorized(new { message = "رمز عبور اشتباه است" });
+	                        return Unauthorized(new { message = "نام کاربری یا رمز عبور اشتباه است" });
 				}
 			}
 			else
@@ -249,7 +249,7 @@ namespace OnlineShop.WebAPI.Controllers
 			}
 
 			_logger.LogWarning("Failed to send OTP to {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
-			return BadRequest(result);
+			return Ok(result);
 		}
 
 		[HttpPost("verify-otp")]
@@ -269,7 +269,7 @@ namespace OnlineShop.WebAPI.Controllers
 			}
 
 			_logger.LogWarning("Failed to verify OTP for {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
-			return BadRequest(result);
+			return Ok(result);
 		}
 
 		[HttpPost("register-phone")]
@@ -305,7 +305,7 @@ namespace OnlineShop.WebAPI.Controllers
 			}
 
 			_logger.LogWarning("Failed to register user with phone {PhoneNumber}: {Error}", dto.PhoneNumber, result.ErrorMessage);
-			return BadRequest(result);
+			return Ok(result);
 		}
 
 		[HttpPost("login-phone")]

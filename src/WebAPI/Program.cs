@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Infrastructure.Persistence;
 using OnlineShop.Infrastructure;
+using OnlineShop.Infrastructure.Security;
 using OnlineShop.API.Middleware;
 using OnlineShop.Application.Common;
 using OnlineShop.WebAPI.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using System.IO.Compression;
 using System.Linq;
 using System.Security.Claims;
@@ -249,9 +249,8 @@ builder.Services.AddCors(options =>
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var issuer = jwtSection["Issuer"];
 var audience = jwtSection["Audience"];
-var secret = jwtSection["Secret"];
-var secretBytes = string.IsNullOrWhiteSpace(secret) ? Array.Empty<byte>() : Encoding.UTF8.GetBytes(secret);
-if (secretBytes.Length < 32)
+var configuredSecretLength = JwtSigningKeyProvider.GetConfiguredSecretLength(builder.Configuration);
+if (configuredSecretLength < 32)
 {
     Log.Warning("JWT secret is not configured or shorter than 32 bytes. Ensure JWT__SECRET environment variable is set in production.");
 }
@@ -259,8 +258,8 @@ Log.Information("Loaded JWT settings for {Environment}: Issuer='{Issuer}', Audie
     builder.Environment.EnvironmentName,
     string.IsNullOrWhiteSpace(issuer) ? "<empty>" : issuer,
     string.IsNullOrWhiteSpace(audience) ? "<empty>" : audience,
-    secretBytes.Length);
-var key = new SymmetricSecurityKey(secretBytes.Length == 0 ? Encoding.UTF8.GetBytes("development-secret-placeholder-change-me") : secretBytes);
+    configuredSecretLength);
+var key = JwtSigningKeyProvider.CreateKey(builder.Configuration);
 
 builder.Services
     .AddAuthentication(options =>
@@ -281,9 +280,47 @@ builder.Services
             ValidIssuer = issuer,
             ValidAudience = audience,
             IssuerSigningKey = key,
+            IssuerSigningKeyResolver = (_, _, _, _) => new[] { JwtSigningKeyProvider.CreateKey(builder.Configuration) },
+            IssuerValidator = (tokenIssuer, _, _) =>
+            {
+                var validIssuer = builder.Configuration.GetSection("Jwt")["Issuer"];
+                if (string.Equals(tokenIssuer, validIssuer, StringComparison.Ordinal))
+                {
+                    return tokenIssuer;
+                }
+
+                throw new SecurityTokenInvalidIssuerException($"Invalid issuer '{tokenIssuer}'.");
+            },
+            AudienceValidator = (tokenAudiences, _, _) =>
+            {
+                var validAudience = builder.Configuration.GetSection("Jwt")["Audience"];
+                return tokenAudiences.Any(tokenAudience =>
+                    string.Equals(tokenAudience, validAudience, StringComparison.Ordinal));
+            },
             ClockSkew = TimeSpan.Zero,
             NameClaimType = ClaimTypes.Name,
             RoleClaimType = ClaimTypes.Role
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Log.Warning(
+                    context.Exception,
+                    "JWT authentication failed for {Path}: {Message}",
+                    context.HttpContext.Request.Path,
+                    context.Exception.Message);
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                Log.Warning(
+                    "JWT challenge for {Path}. Error={Error}, Description={Description}",
+                    context.HttpContext.Request.Path,
+                    context.Error,
+                    context.ErrorDescription);
+                return Task.CompletedTask;
+            }
         };
     });
 

@@ -6,9 +6,9 @@ using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Application.DTOs.Auth;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Infrastructure.Persistence;
+using OnlineShop.Infrastructure.Security;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace OnlineShop.Infrastructure.Services
 {
@@ -48,7 +48,6 @@ namespace OnlineShop.Infrastructure.Services
             var jwtSection = _configuration.GetSection("Jwt");
             var issuer = jwtSection["Issuer"]!;
             var audience = jwtSection["Audience"]!;
-            var secret = jwtSection["Secret"]!;
             var expiryMinutes = int.TryParse(jwtSection["ExpiryMinutes"], out var m) ? m : 60;
             var refreshDays = int.TryParse(jwtSection["RefreshExpiryDays"], out var d) ? d : 14;
 
@@ -61,7 +60,7 @@ namespace OnlineShop.Infrastructure.Services
             };
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+            var key = JwtSigningKeyProvider.CreateKey(_configuration);
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expires = DateTime.UtcNow.AddMinutes(expiryMinutes);
 

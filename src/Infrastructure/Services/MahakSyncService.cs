@@ -466,6 +466,17 @@ namespace OnlineShop.Infrastructure.Services
 
                     if (existingProduct != null)
                     {
+                        var localUpdatedAt = existingProduct.UpdatedAt ?? existingProduct.LastModifiedAt ?? existingProduct.CreatedAt;
+                        if (localUpdatedAt > DateTime.UtcNow)
+                        {
+                            _logger.LogInformation(
+                                "Skipping product update from Mahak because local product is newer. MahakId={MahakId}, LocalId={LocalId}, LocalUpdatedAt={LocalUpdatedAt}",
+                                mahakProduct.ProductId,
+                                existingProduct.Id,
+                                localUpdatedAt);
+                            continue;
+                        }
+
                         // UPDATE existing product
                         _logger.LogDebug("Updating product: {Name} (MahakId: {MahakId})", 
                             mahakProduct.Name, mahakProduct.ProductId);
@@ -1192,6 +1203,30 @@ namespace OnlineShop.Infrastructure.Services
                         if (existingImages.Any(i => i.ImageUrl == url))
                         {
                             _logger.LogDebug("Image {Url} already exists for product {ProductId}", url, product.Id);
+                            continue;
+                        }
+
+                        var primaryImage = existingImages.FirstOrDefault(i => i.IsPrimary);
+                        if (gallery.IsMain && primaryImage != null)
+                        {
+                            primaryImage.Update(
+                                imageUrl: url,
+                                altText: product.Name,
+                                title: product.Name,
+                                displayOrder: primaryImage.DisplayOrder,
+                                isPrimary: true,
+                                imageType: primaryImage.ImageType,
+                                fileSize: primaryImage.FileSize,
+                                mimeType: primaryImage.MimeType,
+                                updatedBy: null);
+
+                            await _productImageRepository.UpdateAsync(primaryImage, cancellationToken);
+                            newImages++;
+                            _logger.LogInformation(
+                                "Updated primary image for product {ProductName} (MahakId: {ItemCode}): {Url}",
+                                product.Name,
+                                gallery.ItemCode,
+                                url);
                             continue;
                         }
 

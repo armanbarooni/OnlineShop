@@ -1,4 +1,6 @@
 using MediatR;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OnlineShop.Application.Common.Models;
@@ -13,50 +15,58 @@ namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
     {
         private readonly IOtpRepository _otpRepository;
         private readonly ISmsService _smsService;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly SmsSettings _smsSettings;
         private readonly ILogger<SendOtpCommandHandler> _logger;
 
         public SendOtpCommandHandler(
             IOtpRepository otpRepository,
             ISmsService smsService,
+            UserManager<ApplicationUser> userManager,
             IOptions<SmsSettings> smsSettings,
             ILogger<SendOtpCommandHandler> logger)
         {
             _otpRepository = otpRepository;
             _smsService = smsService;
+            _userManager = userManager;
             _smsSettings = smsSettings.Value;
             _logger = logger;
         }
 
         public async Task<Result<OtpResponseDto>> Handle(SendOtpCommand request, CancellationToken cancellationToken)
         {
+            if (string.Equals(request.Request.Purpose, "Login", StringComparison.OrdinalIgnoreCase))
+            {
+                var userExists = await _userManager.Users.AnyAsync(
+                    u => u.PhoneNumber == request.Request.PhoneNumber,
+                    cancellationToken);
+
+                if (!userExists)
+                {
+                    return Result<OtpResponseDto>.Failure("کاربری با این شماره یافت نشد");
+                }
+            }
+
             var lastOtp = await _otpRepository.GetLatestOtpAsync(request.Request.PhoneNumber, cancellationToken);
-            if (lastOtp != null && !lastOtp.IsUsed)
+            if (lastOtp != null &&
+                !lastOtp.IsUsed &&
+                string.Equals(lastOtp.UsedFor, request.Request.Purpose, StringComparison.OrdinalIgnoreCase))
             {
                 var timeSinceLastOtp = DateTime.UtcNow - lastOtp.CreatedAt;
                 const int rateLimitMinutes = 2;
 
                 if (timeSinceLastOtp.TotalMinutes < rateLimitMinutes)
                 {
-                    var remainingSeconds = (int)((rateLimitMinutes * 60) - timeSinceLastOtp.TotalSeconds);
                     _logger.LogWarning(
                         "OTP rate limit exceeded for {PhoneNumber}. Last OTP sent {Seconds} seconds ago",
                         request.Request.PhoneNumber,
                         (int)timeSinceLastOtp.TotalSeconds);
 
-                    return Result<OtpResponseDto>.Failure(
-                        $"لطفاً {remainingSeconds} ثانیه دیگر صبر کنید و سپس دوباره تلاش کنید");
+                    return Result<OtpResponseDto>.Failure("پیامک برای شما اخیراً ارسال شده است، لطفاً حداقل ۲ دقیقه صبر کنید");
                 }
             }
 
             await _otpRepository.InvalidatePreviousOtpsAsync(request.Request.PhoneNumber, cancellationToken);
-
-            if (string.Equals(request.Request.Purpose, "Login", StringComparison.OrdinalIgnoreCase))
-            {
-                _logger.LogInformation(
-                    "SendOtp requested for login flow. Continuing to send OTP for {PhoneNumber}",
-                    request.Request.PhoneNumber);
-            }
 
             var code = GenerateOtpCode(_smsSettings.OtpLength);
             _logger.LogInformation(

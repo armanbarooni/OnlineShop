@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Application.DTOs.Auth;
@@ -26,29 +27,27 @@ namespace OnlineShop.Application.Features.Auth.Commands.RegisterWithPhone
 
         public async Task<Result<AuthResponseDto>> Handle(RegisterWithPhoneCommand request, CancellationToken cancellationToken)
         {
-            // TEMPORARY: OTP verification disabled for testing
-            // TODO: Re-enable OTP verification before production deployment
+            var phoneNumber = request.Request.PhoneNumber;
+            var existingUser = await _userManager.FindByNameAsync(phoneNumber)
+                ?? await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber, cancellationToken);
 
-            /* COMMENTED OUT - OTP VERIFICATION
-            var otp = await _otpRepository.GetValidOtpByPhoneAsync(request.Request.PhoneNumber, cancellationToken);
-            if (otp == null || otp.Code != request.Request.Code)
-            {
-                return Result<AuthResponseDto>.Failure("کد تایید نامعتبر یا منقضی شده است");
-            }
-            */
-
-            var existingUser = await _userManager.FindByNameAsync(request.Request.PhoneNumber);
             if (existingUser != null)
             {
-                return Result<AuthResponseDto>.Failure("کاربری با این شماره موبایل قبلاً ثبت‌نام کرده است");
+                return Result<AuthResponseDto>.Failure("این شماره قبلاً ثبت‌نام شده است");
+            }
+
+            var otp = await _otpRepository.GetValidOtpByPhoneAsync(phoneNumber, cancellationToken);
+            if (otp == null || otp.Code != request.Request.Code)
+            {
+                return Result<AuthResponseDto>.Failure("کد تأیید نادرست است");
             }
 
             var user = new ApplicationUser
             {
-                UserName = request.Request.PhoneNumber,
-                Email = request.Request.PhoneNumber + "@phone.local",
+                UserName = phoneNumber,
+                Email = phoneNumber + "@phone.local",
                 EmailConfirmed = false,
-                PhoneNumber = request.Request.PhoneNumber,
+                PhoneNumber = phoneNumber,
                 PhoneNumberConfirmed = true,
                 FirstName = request.Request.FirstName ?? string.Empty,
                 LastName = request.Request.LastName ?? string.Empty
@@ -71,6 +70,9 @@ namespace OnlineShop.Application.Features.Auth.Commands.RegisterWithPhone
             }
 
             await _userManager.AddToRoleAsync(user, "User");
+
+            otp.MarkAsUsed();
+            await _otpRepository.UpdateAsync(otp, cancellationToken);
 
             var roles = await _userManager.GetRolesAsync(user);
             var tokens = await _tokenService.GenerateTokensAsync(user.PhoneNumber!, roles);

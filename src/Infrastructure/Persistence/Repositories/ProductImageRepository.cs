@@ -54,6 +54,12 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
 
         public async Task UpdateAsync(ProductImage productImage, CancellationToken cancellationToken)
         {
+            var trackedImage = _context.ProductImages.Local.FirstOrDefault(pi => pi.Id == productImage.Id);
+            if (trackedImage != null && !ReferenceEquals(trackedImage, productImage))
+            {
+                _context.Entry(trackedImage).State = EntityState.Detached;
+            }
+
             _context.ProductImages.Update(productImage);
             await _context.SaveChangesAsync(cancellationToken);
         }
