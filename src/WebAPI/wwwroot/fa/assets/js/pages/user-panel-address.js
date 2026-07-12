@@ -106,7 +106,11 @@ const AddressManager = {
     async loadMahakRegions() {
         const response = await window.addressService.getMahakRegions();
         if (!response.success || !Array.isArray(response.data) || response.data.length === 0) {
-            window.utils?.showToast?.('لیست استان و شهر محک دریافت نشد', 'warning');
+            window.logger?.warn?.('Mahak regions were not loaded for user address page.', response);
+            const message = response.error
+                ? `\u0644\u06CC\u0633\u062A \u0627\u0633\u062A\u0627\u0646 \u0648 \u0634\u0647\u0631 \u0645\u062D\u06A9 \u062F\u0631\u06CC\u0627\u0641\u062A \u0646\u0634\u062F: ${response.error}`
+                : '\u0644\u06CC\u0633\u062A \u0627\u0633\u062A\u0627\u0646 \u0648 \u0634\u0647\u0631 \u0645\u062D\u06A9 \u062F\u0631\u06CC\u0627\u0641\u062A \u0646\u0634\u062F';
+            window.utils?.showToast?.(message, 'warning');
             return;
         }
 

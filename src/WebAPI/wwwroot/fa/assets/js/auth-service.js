@@ -169,9 +169,10 @@ class AuthService {
      */
     async verifyOTPOnly(phone, code) {
         try {
+            const normalizedCode = String(code || '').trim();
             const response = await this.apiClient.post('/auth/verify-otp', {
                 phoneNumber: phone,
-                code: code
+                code: normalizedCode
             });
 
             // Handle response structure
@@ -202,9 +203,10 @@ class AuthService {
      */
     async verifyOTP(phone, code) {
         try {
+            const normalizedCode = String(code || '').trim();
             const response = await this.apiClient.post('/auth/login-phone', {
                 phoneNumber: phone,
-                code: code
+                code: normalizedCode
             });
 
             // Handle response structure - now API client returns data directly for auth endpoints
@@ -340,7 +342,8 @@ class AuthService {
                 };
             }
 
-            if (!userData.otp || userData.otp.length !== 6) {
+            const normalizedOtp = String(userData.otp || '').trim();
+            if (!normalizedOtp || normalizedOtp.length !== 6) {
                 return {
                     success: false,
                     error: 'کد تایید الزامی است'
@@ -371,7 +374,7 @@ class AuthService {
             // Use register-phone endpoint
             const response = await this.apiClient.post('/auth/register-phone', {
                 phoneNumber: userData.phone.trim(),
-                code: userData.otp,
+                code: normalizedOtp,
                 firstName: userData.firstName.trim(),
                 lastName: userData.lastName.trim(),
                 password: userData.password

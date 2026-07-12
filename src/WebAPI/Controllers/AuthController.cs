@@ -113,11 +113,17 @@ namespace OnlineShop.WebAPI.Controllers
 		[HttpPost("refresh")]
 		[ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-		public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto dto)
+		public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto? dto)
 		{
-			_logger.LogInformation("Token refresh attempt");
+			_logger.LogInformation(
+				"Token refresh attempt. Origin={Origin}, Referer={Referer}, ContentType={ContentType}, HasBody={HasBody}, RefreshTokenLength={RefreshTokenLength}",
+				Request.Headers.Origin.ToString(),
+				Request.Headers.Referer.ToString(),
+				Request.ContentType,
+				Request.ContentLength.GetValueOrDefault() > 0,
+				dto?.RefreshToken?.Length ?? 0);
 
-			if (string.IsNullOrWhiteSpace(dto.RefreshToken))
+			if (string.IsNullOrWhiteSpace(dto?.RefreshToken))
 			{
 				_logger.LogWarning("Token refresh failed - missing refresh token");
 				return Unauthorized(new { message = "Refresh token Ø§Ù„Ø²Ø§Ù…ÛŒ Ø§Ø³Øª" });

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Application.DTOs.Auth;
@@ -8,7 +9,9 @@ using OnlineShop.Domain.Entities;
 using OnlineShop.Infrastructure.Persistence;
 using OnlineShop.Infrastructure.Security;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 using System.Security.Claims;
+using System.Text;
 
 namespace OnlineShop.Infrastructure.Services
 {
@@ -17,15 +20,18 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<TokenService> _logger;
 
         public TokenService(
             IConfiguration configuration,
             UserManager<ApplicationUser> userManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            ILogger<TokenService> logger)
         {
             _configuration = configuration;
             _userManager = userManager;
             _context = context;
+            _logger = logger;
         }
 
         public async Task<AuthResponseDto> GenerateTokensAsync(string emailOrPhoneNumber, IEnumerable<string> roles)
@@ -86,6 +92,13 @@ namespace OnlineShop.Infrastructure.Services
             _context.RefreshTokens.Add(refreshTokenEntity);
             await _context.SaveChangesAsync();
 
+            _logger.LogInformation(
+                "Generated auth tokens for user {UserId}. AccessExpiresAt={AccessExpiresAt:o}, RefreshExpiresAt={RefreshExpiresAt:o}, RefreshTokenHash={RefreshTokenHash}",
+                user.Id,
+                expires,
+                refreshTokenEntity.ExpiresAt,
+                GetTokenHash(refreshToken));
+
             return new AuthResponseDto
             {
                 AccessToken = accessToken,
@@ -98,14 +111,46 @@ namespace OnlineShop.Infrastructure.Services
 
         public async Task<AuthResponseDto?> RefreshTokenAsync(string refreshToken)
         {
+            var tokenHash = GetTokenHash(refreshToken);
+            _logger.LogInformation("Refresh token lookup started. RefreshTokenHash={RefreshTokenHash}", tokenHash);
+
             var tokenEntity = await _context.RefreshTokens
                 .Include(rt => rt.User)
-                .FirstOrDefaultAsync(rt => rt.Token == refreshToken && 
-                                         !rt.IsRevoked && 
-                                         rt.ExpiresAt > DateTime.UtcNow);
+                .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
 
             if (tokenEntity == null)
+            {
+                _logger.LogWarning("Refresh token rejected: not_found. RefreshTokenHash={RefreshTokenHash}", tokenHash);
                 return null;
+            }
+
+            if (tokenEntity.IsRevoked)
+            {
+                _logger.LogWarning(
+                    "Refresh token rejected: revoked. RefreshTokenHash={RefreshTokenHash}, UserId={UserId}, RevokedAt={RevokedAt:o}, ExpiresAt={ExpiresAt:o}",
+                    tokenHash,
+                    tokenEntity.UserId,
+                    tokenEntity.RevokedAt,
+                    tokenEntity.ExpiresAt);
+                return null;
+            }
+
+            if (tokenEntity.ExpiresAt <= DateTime.UtcNow)
+            {
+                _logger.LogWarning(
+                    "Refresh token rejected: expired. RefreshTokenHash={RefreshTokenHash}, UserId={UserId}, ExpiresAt={ExpiresAt:o}, UtcNow={UtcNow:o}",
+                    tokenHash,
+                    tokenEntity.UserId,
+                    tokenEntity.ExpiresAt,
+                    DateTime.UtcNow);
+                return null;
+            }
+
+            if (tokenEntity.User == null)
+            {
+                _logger.LogWarning("Refresh token rejected: user_missing. RefreshTokenHash={RefreshTokenHash}, UserId={UserId}", tokenHash, tokenEntity.UserId);
+                return null;
+            }
 
             var user = tokenEntity.User;
             var roles = await _userManager.GetRolesAsync(user);
@@ -117,11 +162,14 @@ namespace OnlineShop.Infrastructure.Services
             var loginIdentifier = user.Email ?? user.UserName ?? user.PhoneNumber;
             if (string.IsNullOrWhiteSpace(loginIdentifier))
             {
+                _logger.LogWarning("Refresh token rejected: user_identifier_missing. RefreshTokenHash={RefreshTokenHash}, UserId={UserId}", tokenHash, user.Id);
                 return null;
             }
 
             // Generate new tokens with the identifier that exists for this user.
-            return await GenerateTokensAsync(loginIdentifier, roles);
+            var tokens = await GenerateTokensAsync(loginIdentifier, roles);
+            _logger.LogInformation("Refresh token accepted. OldRefreshTokenHash={OldRefreshTokenHash}, UserId={UserId}", tokenHash, user.Id);
+            return tokens;
         }
 
         public async Task RevokeTokenAsync(string refreshToken)
@@ -135,6 +183,17 @@ namespace OnlineShop.Infrastructure.Services
                 tokenEntity.RevokedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
+        }
+
+        private static string GetTokenHash(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return "<empty>";
+            }
+
+            var hash = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            return Convert.ToHexString(hash)[..16];
         }
 
         public async Task RevokeAllUserTokensAsync(string email)

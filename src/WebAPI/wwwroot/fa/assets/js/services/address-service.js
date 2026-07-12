@@ -181,8 +181,13 @@ class AddressService {
 
     async getMahakRegions() {
         try {
+            window.logger?.info?.('Fetching Mahak regions...');
             const response = await this.apiClient.get('/mahakregions');
             const data = this.unwrapResponseData(response);
+            window.logger?.info?.('Mahak regions response received', {
+                isArray: Array.isArray(data),
+                count: Array.isArray(data) ? data.length : 0
+            });
             return {
                 success: true,
                 data: Array.isArray(data) ? data : []
@@ -191,7 +196,7 @@ class AddressService {
             window.logger?.error('Error fetching Mahak regions:', error);
             return {
                 success: false,
-                error: this.apiClient.handleError(error),
+                error: this.apiClient.handleError(error) || 'Mahak regions request failed',
                 data: []
             };
         }

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Application.DTOs.Auth;
@@ -14,20 +15,24 @@ namespace OnlineShop.Application.Features.Auth.Commands.RegisterWithPhone
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IOtpRepository _otpRepository;
         private readonly ITokenService _tokenService;
+        private readonly ILogger<RegisterWithPhoneCommandHandler> _logger;
 
         public RegisterWithPhoneCommandHandler(
             UserManager<ApplicationUser> userManager,
             IOtpRepository otpRepository,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            ILogger<RegisterWithPhoneCommandHandler> logger)
         {
             _userManager = userManager;
             _otpRepository = otpRepository;
             _tokenService = tokenService;
+            _logger = logger;
         }
 
         public async Task<Result<AuthResponseDto>> Handle(RegisterWithPhoneCommand request, CancellationToken cancellationToken)
         {
             var phoneNumber = request.Request.PhoneNumber;
+            var receivedCode = request.Request.Code?.Trim() ?? string.Empty;
             var existingUser = await _userManager.FindByNameAsync(phoneNumber)
                 ?? await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber, cancellationToken);
 
@@ -37,8 +42,23 @@ namespace OnlineShop.Application.Features.Auth.Commands.RegisterWithPhone
             }
 
             var otp = await _otpRepository.GetValidOtpByPhoneAsync(phoneNumber, cancellationToken);
-            if (otp == null || otp.Code != request.Request.Code)
+            if (otp == null)
             {
+                _logger.LogWarning(
+                    "Phone registration OTP failed for {PhoneNumber}. No valid unused OTP was found.",
+                    phoneNumber);
+                return Result<AuthResponseDto>.Failure("کد تأیید نادرست است");
+            }
+
+            if (otp.Code != receivedCode)
+            {
+                _logger.LogWarning(
+                    "Phone registration OTP failed for {PhoneNumber}. Expected: '{Expected}', Received: '{Received}', UsedFor: {UsedFor}, Attempts: {AttemptsCount}",
+                    phoneNumber,
+                    otp.Code,
+                    receivedCode,
+                    otp.UsedFor,
+                    otp.AttemptsCount);
                 return Result<AuthResponseDto>.Failure("کد تأیید نادرست است");
             }
 

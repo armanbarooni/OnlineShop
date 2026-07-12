@@ -554,27 +554,15 @@
                 return;
             }
 
-            try {
-                // Use verifyOTPOnly instead of verifyOTP to avoid login
-                const result = await window.authService.verifyOTPOnly(mobile, otp);
-                if (result.success) {
-                    // Store OTP in registration data for final submission
-                    registrationData.otp = otp;
+            // Do not call /auth/verify-otp here. That endpoint consumes the OTP,
+            // and register-phone must receive the same unused code in the final step.
+            registrationData.otp = otp;
 
-                    // Move to final step
-                    document.getElementById('step3').classList.remove('active');
-                    document.getElementById('step4').classList.add('active');
-                    currentStep = 4;
-                    updateStepIndicator(3, 4);
-                    updateReviewSection();
-                    window.utils?.showToast('کد تایید با موفقیت تایید شد', 'success');
-                } else {
-                    window.utils?.showToast(result.error || 'کد تایید نامعتبر است', 'error');
-                }
-            } catch (error) {
-                console.error('Error verifying OTP:', error);
-                window.utils?.showToast('خطا در تایید کد', 'error');
-            }
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('step4').classList.add('active');
+            currentStep = 4;
+            updateStepIndicator(3, 4);
+            updateReviewSection();
         }
 
         // Resend OTP code
@@ -1074,13 +1062,6 @@
             try {
                 const submitButton = document.getElementById('completeRegistrationButton');
                 window.utils.showLoading(submitButton, 'در حال ثبت‌نام...');
-
-                // Final registration step should only verify the OTP code, not log the user in.
-                const verify = await window.authService.verifyOTPOnly(registrationData.mobile, registrationData.otp);
-                if (!verify || verify.success !== true) {
-                    window.utils.showToast((verify && verify.error) || 'کد تایید نامعتبر است.', 'error');
-                    return;
-                }
 
                 const response = await window.authService.registerWithPhone({
                     firstName: registrationData.firstName,

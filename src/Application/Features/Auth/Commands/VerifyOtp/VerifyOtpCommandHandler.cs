@@ -21,6 +21,7 @@ namespace OnlineShop.Application.Features.Auth.Commands.VerifyOtp
 
         public async Task<Result<OtpResponseDto>> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
         {
+            var receivedCode = request.Request.Code?.Trim() ?? string.Empty;
             var otp = await _otpRepository.GetValidOtpByPhoneAsync(request.Request.PhoneNumber, cancellationToken);
 
             if (otp == null)
@@ -35,13 +36,13 @@ namespace OnlineShop.Application.Features.Auth.Commands.VerifyOtp
                 return Result<OtpResponseDto>.Failure("تعداد تلاش‌های مجاز تمام شده است. لطفاً کد جدید درخواست کنید");
             }
 
-            if (otp.Code != request.Request.Code)
+            if (otp.Code != receivedCode)
             {
                 _logger.LogWarning(
                     "OTP verification failed for {PhoneNumber}. Expected: '{Expected}', Received: '{Received}'.",
                     request.Request.PhoneNumber,
                     otp.Code,
-                    request.Request.Code);
+                    receivedCode);
 
                 otp.IncrementAttempts();
                 await _otpRepository.UpdateAsync(otp, cancellationToken);

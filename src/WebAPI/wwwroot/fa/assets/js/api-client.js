@@ -8,7 +8,146 @@ class ApiClient {
         if (!this.refreshToken) localStorage.removeItem('refreshToken');
         this.tokenRefreshInterval = null;
         this.refreshPromise = null;
+        this.authDebugKey = 'baliga_auth_debug_logs';
+        this.authDebugEnabled = this.isAuthDebugEnabled();
+        window.showAuthDebug = () => this.showAuthDebugPanel(true);
+        window.copyAuthDebugLogs = () => this.copyAuthDebugLogs();
+        this.logAuthDebug('api-client:init', {
+            baseURL: this.baseURL,
+            page: window.location.href,
+            accessToken: this.getTokenDebugInfo(this.token),
+            refreshToken: this.getTokenDebugInfo(this.refreshToken)
+        });
         this.setupTokenRefresh();
+    }
+
+    isAuthDebugEnabled() {
+        const params = new URLSearchParams(window.location.search || '');
+        if (params.get('authdebug') === '1') {
+            localStorage.setItem('authDebug', '1');
+            return true;
+        }
+        return localStorage.getItem('authDebug') === '1';
+    }
+
+    getTokenDebugInfo(token) {
+        const normalized = this.normalizeToken(token);
+        if (!normalized) {
+            return { exists: false };
+        }
+
+        const info = {
+            exists: true,
+            length: normalized.length,
+            parts: normalized.split('.').length
+        };
+
+        const payload = this.parseJwt(normalized);
+        if (payload?.exp) {
+            info.exp = payload.exp;
+            info.expIso = new Date(payload.exp * 1000).toISOString();
+            info.secondsLeft = Math.round((payload.exp * 1000 - Date.now()) / 1000);
+        }
+        if (payload?.iat) {
+            info.iatIso = new Date(payload.iat * 1000).toISOString();
+        }
+        if (payload?.iss) info.issuer = payload.iss;
+        if (payload?.aud) info.audience = payload.aud;
+
+        return info;
+    }
+
+    logAuthDebug(event, details = {}) {
+        const entry = {
+            time: new Date().toISOString(),
+            event,
+            details
+        };
+
+        try {
+            const logs = JSON.parse(localStorage.getItem(this.authDebugKey) || '[]');
+            logs.push(entry);
+            localStorage.setItem(this.authDebugKey, JSON.stringify(logs.slice(-120)));
+        } catch (_) { /* ignore storage errors */ }
+
+        if (this.authDebugEnabled || event.includes('refresh') || event.includes('clearTokens')) {
+            console.warn('[AuthDebug]', entry);
+        }
+
+        if (this.authDebugEnabled || event === 'auth:refresh:failed') {
+            this.showAuthDebugPanel(event === 'auth:refresh:failed');
+        }
+    }
+
+    showAuthDebugPanel(forceOpen = false) {
+        if (!this.authDebugEnabled && !forceOpen) return;
+        if (!document.body) {
+            window.addEventListener('DOMContentLoaded', () => this.showAuthDebugPanel(forceOpen), { once: true });
+            return;
+        }
+
+        let panel = document.getElementById('auth-debug-panel');
+        if (!panel) {
+            panel = document.createElement('div');
+            panel.id = 'auth-debug-panel';
+            panel.style.cssText = [
+                'position:fixed',
+                'left:12px',
+                'bottom:12px',
+                'z-index:99999',
+                'width:min(520px,calc(100vw - 24px))',
+                'max-height:55vh',
+                'overflow:auto',
+                'direction:ltr',
+                'text-align:left',
+                'font:12px/1.45 Consolas,monospace',
+                'background:#111827',
+                'color:#e5e7eb',
+                'border:1px solid #f97316',
+                'border-radius:8px',
+                'box-shadow:0 16px 40px rgba(0,0,0,.35)',
+                'padding:10px'
+            ].join(';');
+            document.body.appendChild(panel);
+        }
+
+        let logs = [];
+        try {
+            logs = JSON.parse(localStorage.getItem(this.authDebugKey) || '[]');
+        } catch (_) { /* ignore */ }
+
+        const latest = logs.slice(-30);
+        panel.innerHTML = [
+            '<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px">',
+            '<strong>Baliga Auth Debug</strong>',
+            '<div style="display:flex;gap:6px">',
+            '<button type="button" onclick="window.copyAuthDebugLogs && window.copyAuthDebugLogs()" style="background:#f97316;color:white;border:0;border-radius:4px;padding:4px 8px;cursor:pointer">Copy</button>',
+            "<button type=\"button\" onclick=\"localStorage.removeItem('baliga_auth_debug_logs');window.showAuthDebug&&window.showAuthDebug()\" style=\"background:#374151;color:white;border:0;border-radius:4px;padding:4px 8px;cursor:pointer\">Clear</button>",
+            "<button type=\"button\" onclick=\"document.getElementById('auth-debug-panel').remove()\" style=\"background:#4b5563;color:white;border:0;border-radius:4px;padding:4px 8px;cursor:pointer\">Close</button>",
+            '</div>',
+            '</div>',
+            '<pre style="white-space:pre-wrap;margin:0">' +
+                this.escapeHtml(JSON.stringify(latest, null, 2)) +
+            '</pre>'
+        ].join('');
+    }
+
+    async copyAuthDebugLogs() {
+        const logs = localStorage.getItem(this.authDebugKey) || '[]';
+        try {
+            await navigator.clipboard.writeText(logs);
+        } catch (_) {
+            console.warn('[AuthDebug] Clipboard copy failed. Logs:', logs);
+        }
+    }
+
+    escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     resolveBaseURL(explicitBaseURL = null) {
@@ -96,6 +235,13 @@ class ApiClient {
 
             // Handle token refresh
             if (response.status === 401 && this.refreshToken) {
+                this.logAuthDebug('api:401-before-refresh', {
+                    endpoint,
+                    url,
+                    method: config.method || 'GET',
+                    accessToken: this.getTokenDebugInfo(this.token),
+                    refreshToken: this.getTokenDebugInfo(this.refreshToken)
+                });
                 const refreshed = await this.refreshAccessToken();
                 if (refreshed) {
                     // Retry the original request
@@ -103,6 +249,11 @@ class ApiClient {
                     config.credentials = 'include';
                     config.mode = 'cors';
                     const retryResponse = await fetch(url, config);
+                    this.logAuthDebug('api:retry-after-refresh', {
+                        endpoint,
+                        status: retryResponse.status,
+                        ok: retryResponse.ok
+                    });
                     
                     // Parse retry response - handle empty responses
                     let retryData;
@@ -330,10 +481,19 @@ class ApiClient {
 
     async refreshAccessTokenCore() {
         if (!this.refreshToken) {
+            this.logAuthDebug('auth:refresh:skip-no-token');
             return false;
         }
 
         try {
+            this.logAuthDebug('auth:refresh:start', {
+                url: `${this.baseURL}/auth/refresh`,
+                page: window.location.href,
+                refreshToken: this.getTokenDebugInfo(this.refreshToken),
+                accessToken: this.getTokenDebugInfo(this.token),
+                hasExistingRefreshPromise: !!this.refreshPromise
+            });
+
             const response = await fetch(`${this.baseURL}/auth/refresh`, {
                 method: 'POST',
                 headers: {
@@ -354,7 +514,11 @@ class ApiClient {
                 const refreshToken = this.normalizeToken(data?.refreshToken || data?.RefreshToken);
 
                 if (!accessToken) {
-                    this.clearTokens();
+                    this.logAuthDebug('auth:refresh:missing-access-token', {
+                        status: response.status,
+                        responseShape: Object.keys(data || {})
+                    });
+                    this.clearTokens('refresh-missing-access-token');
                     return false;
                 }
 
@@ -366,16 +530,34 @@ class ApiClient {
                 }
                 // Restart token refresh check with new token
                 this.setupTokenRefresh();
+                this.logAuthDebug('auth:refresh:success', {
+                    accessToken: this.getTokenDebugInfo(accessToken),
+                    refreshToken: this.getTokenDebugInfo(this.refreshToken)
+                });
                 return true;
             } else {
+                let responseText = '';
+                try {
+                    responseText = await response.text();
+                } catch (_) { /* ignore */ }
+                this.logAuthDebug('auth:refresh:failed', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    contentType: response.headers.get('content-type'),
+                    bodyPreview: responseText.slice(0, 700),
+                    url: response.url
+                });
                 // Refresh failed, redirect to login
-                this.clearTokens();
+                this.clearTokens(`refresh-failed-${response.status}`);
                 if (window.location.pathname.includes('user-panel')) {
                     window.location.href = '/fa/login.html';
                 }
                 return false;
             }
         } catch (error) {
+            this.logAuthDebug('auth:refresh:exception', {
+                message: error?.message || String(error)
+            });
             window.logger?.error('Token refresh failed:', error);
             // Don't clear tokens on network error, just return false
             // The interval will try again in 30 seconds
@@ -584,6 +766,10 @@ class ApiClient {
             this.refreshToken = normalizedRefreshToken;
             localStorage.setItem('refreshToken', normalizedRefreshToken);
         }
+        this.logAuthDebug('auth:setToken', {
+            accessToken: this.getTokenDebugInfo(normalizedToken),
+            refreshToken: this.getTokenDebugInfo(this.refreshToken)
+        });
 
         // Try to cache minimal user info from JWT
         try {
@@ -611,7 +797,13 @@ class ApiClient {
     }
 
     // Clear tokens
-    clearTokens() {
+    clearTokens(reason = 'clearTokens') {
+        this.logAuthDebug('auth:clearTokens', {
+            reason,
+            accessToken: this.getTokenDebugInfo(this.token),
+            refreshToken: this.getTokenDebugInfo(this.refreshToken),
+            page: window.location.href
+        });
         this.token = null;
         this.refreshToken = null;
         localStorage.removeItem('accessToken');

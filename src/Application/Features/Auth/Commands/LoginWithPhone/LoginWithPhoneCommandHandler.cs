@@ -27,9 +27,10 @@ namespace OnlineShop.Application.Features.Auth.Commands.LoginWithPhone
 
         public async Task<Result<AuthResponseDto>> Handle(LoginWithPhoneCommand request, CancellationToken cancellationToken)
         {
+            var receivedCode = request.Request.Code?.Trim() ?? string.Empty;
             var otp = await _otpRepository.GetValidOtpByPhoneAsync(request.Request.PhoneNumber, cancellationToken);
 
-            if (otp == null || otp.Code != request.Request.Code)
+            if (otp == null || otp.Code != receivedCode)
             {
                 return Result<AuthResponseDto>.Failure("کد تایید نامعتبر یا منقضی شده است");
             }

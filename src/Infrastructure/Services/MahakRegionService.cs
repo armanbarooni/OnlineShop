@@ -45,8 +45,11 @@ namespace OnlineShop.Infrastructure.Services
 
             if (!IsConfigured())
             {
-                _logger.LogWarning("Mahak regions requested but Mahak credentials are not configured.");
-                return Array.Empty<MahakRegionDto>();
+                _logger.LogWarning(
+                    "Mahak regions requested but Mahak credentials are not configured. UsernameConfigured={UsernameConfigured}, PasswordConfigured={PasswordConfigured}",
+                    !string.IsNullOrWhiteSpace(_configuration["Mahak:Username"]),
+                    !string.IsNullOrWhiteSpace(_configuration["Mahak:Password"]));
+                throw new InvalidOperationException("Mahak credentials are not configured.");
             }
 
             var token = await LoginAsync(cancellationToken);
@@ -59,6 +62,10 @@ namespace OnlineShop.Infrastructure.Services
 
             if (!response.IsSuccessStatusCode)
             {
+                _logger.LogWarning(
+                    "Mahak regions request failed. Status={StatusCode}, Body={Body}",
+                    response.StatusCode,
+                    Truncate(responseText, 1000));
                 throw new InvalidOperationException($"Mahak regions request failed. Status: {response.StatusCode}");
             }
 
@@ -86,7 +93,16 @@ namespace OnlineShop.Infrastructure.Services
                 .ThenBy(region => region.CityName)
                 .ToList() ?? new List<MahakRegionDto>();
 
-            _cache.Set(CacheKey, regions, TimeSpan.FromHours(12));
+            _logger.LogInformation(
+                "Mahak regions loaded. Count={Count}, ResponsePreview={ResponsePreview}",
+                regions.Count,
+                Truncate(responseText, 500));
+
+            if (regions.Count > 0)
+            {
+                _cache.Set(CacheKey, regions, TimeSpan.FromHours(12));
+            }
+
             return regions;
         }
 
@@ -133,6 +149,16 @@ namespace OnlineShop.Infrastructure.Services
                 .Replace('\u064A', '\u06CC')
                 .Replace('\u0643', '\u06A9')
                 .Trim();
+        }
+
+        private static string Truncate(string value, int maxLength)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length <= maxLength)
+            {
+                return value;
+            }
+
+            return value[..maxLength];
         }
     }
 }
