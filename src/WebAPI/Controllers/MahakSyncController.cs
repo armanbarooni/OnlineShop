@@ -71,6 +71,31 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         /// <summary>
+        /// Force sync inventory from Mahak (resets ProductDetailStoreAsset version to 0)
+        /// </summary>
+        [HttpPost("force-sync-inventory")]
+        public async Task<IActionResult> ForceSyncInventory(CancellationToken cancellationToken)
+        {
+            try
+            {
+                _logger.LogInformation("Force syncing inventory from Mahak...");
+
+                await _mahakSyncLogRepository.ResetRowVersionAsync("ProductDetailStoreAsset", cancellationToken);
+
+                _logger.LogInformation("Reset ProductDetailStoreAsset version to 0");
+
+                await _mahakSyncService.SyncAsync(cancellationToken);
+
+                return Ok(new { message = "Force inventory sync completed successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during force inventory sync");
+                return StatusCode(500, new { message = "Force inventory sync failed", error = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Get sync status
         /// </summary>
         [HttpGet("status")]

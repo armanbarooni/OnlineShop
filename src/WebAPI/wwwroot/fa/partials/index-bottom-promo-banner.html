@@ -1,53 +1,49 @@
-﻿<!-- ================= start banner section ================= -->
-    <section
-      class="py-5"
-      aria-label="تبلیغات ویژه"
-      itemscope
-      itemtype="https://schema.org/ItemList"
-      id="advertisementsTwo"
-    >
-      <h2 class="sr-only" itemprop="name">تبلیغات و پیشنهادات ویژه</h2>
-      <div class="container">
-        <div
-          class="lg:col-span-1 col-span-2"
-          itemprop="itemListElement"
-          itemscope
-          itemtype="https://schema.org/Promotion"
-          itemid="#summer-promo"
-        >
-          <a
-            href="https://example.com/offers/summer-sale"
-            aria-label="مشاهده پیشنهادات تابستانی"
-            itemprop="url"
-          >
-            <img
-              src="assets/images/slider/slider-2-3.webp"
-              class="rounded-lg transition block duration-300 hover:-translate-y-2"
-              alt=""
-              loading="lazy"
-              decoding="async"
-              itemprop="image"
-            />
-            <meta itemprop="name" content="تخفیف تابستانی" />
-            <meta
-              itemprop="description"
-              content="تا ۵۰% تخفیف روی محصولات منتخب فصل تابستان"
-            />
-            <div itemprop="validFrom" content="2024-06-01T00:00:00+03:30"></div>
-            <div
-              itemprop="validThrough"
-              content="2024-09-22T23:59:59+03:30"
-            ></div>
-            <div
-              itemprop="publisher"
-              itemscope
-              itemtype="https://schema.org/Organization"
-            >
-              <meta itemprop="name" content="نام سایت شما" />
-              <meta itemprop="url" content="https://example.com" />
-            </div>
-          </a>
-        </div>
+<!-- ================= start bottom slider banners ================= -->
+<style>
+  .bottom-slider-banner-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.35rem, 1.2vw, 0.75rem);
+  }
+
+  .bottom-slider-banner-card {
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 1.55rem;
+    -webkit-clip-path: inset(0 round 1.55rem);
+    clip-path: inset(0 round 1.55rem);
+    background: rgb(24 24 27);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+    transform: translateZ(0);
+  }
+
+  .bottom-slider-banner-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    border-radius: inherit;
+  }
+</style>
+<section class="py-5" aria-label="بنرهای فروشگاه">
+  <div class="container">
+    <div class="home-panel home-panel--hero p-1.5 md:p-2">
+      <div class="bottom-slider-banner-grid">
+        <a href="shop.html" class="bottom-slider-banner-card" aria-label="بنر فروشگاه 1">
+          <img src="assets/images/slider/1.webp" alt="بنر فروشگاه 1" loading="lazy" decoding="async" />
+        </a>
+        <a href="shop.html" class="bottom-slider-banner-card" aria-label="بنر فروشگاه 2">
+          <img src="assets/images/slider/2.webp" alt="بنر فروشگاه 2" loading="lazy" decoding="async" />
+        </a>
+        <a href="shop.html" class="bottom-slider-banner-card" aria-label="بنر فروشگاه 3">
+          <img src="assets/images/slider/3.webp" alt="بنر فروشگاه 3" loading="lazy" decoding="async" />
+        </a>
+        <a href="shop.html" class="bottom-slider-banner-card" aria-label="بنر فروشگاه 4">
+          <img src="assets/images/slider/4.webp" alt="بنر فروشگاه 4" loading="lazy" decoding="async" />
+        </a>
       </div>
-    </section>
-    <!-- ================= end banner section ================= -->
+    </div>
+  </div>
+</section>
+<!-- ================= end bottom slider banners ================= -->

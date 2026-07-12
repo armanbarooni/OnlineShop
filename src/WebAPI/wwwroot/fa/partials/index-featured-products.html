@@ -1,38 +1,54 @@
 ﻿<!-- ================= start product section ================= -->
+<style>
+  .index-products-kicker {
+    position: relative;
+    display: block !important;
+    overflow: hidden;
+    border-radius: 1.45rem;
+    background: #172334;
+    padding: clamp(1.05rem, 3vw, 1.65rem);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
+  }
+
+  .index-products-kicker::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 1.2rem;
+    inset-inline-end: clamp(1rem, 4vw, 2.5rem);
+    width: 5.2rem;
+    height: 4.1rem;
+    opacity: 0.34;
+    background-image: radial-gradient(currentColor 1.7px, transparent 1.7px);
+    background-size: 13px 13px;
+    color: #ffffff;
+  }
+
+  .index-products-kicker h2 {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    text-align: center;
+    font-size: clamp(1.35rem, 3vw, 2rem);
+    font-weight: 900;
+    line-height: 1.7;
+    color: #ffffff;
+  }
+
+  .index-products-kicker h2 span {
+    color: #ff6b21;
+  }
+</style>
     <section class="py-5">
       <div class="container">
         <div class="mb-5">
           <header
-            class="grid place-items-center grid-cols-6 gap-y-10"
+            class="index-products-kicker"
             itemscope
             itemtype="https://schema.org/CollectionPage"
           >
-            <div
-              class="ps-15 section-heading sm:col-span-4 w-full col-span-6 relative space-y-3 before:start-0"
-            >
-              <h2 class="font-black text-2xl">
-                <span itemprop="name" class="dark:text-white">جدیدترین</span>
-                <span class="text-primary font-bold">محصولات</span>
-              </h2>
-              <p
-                class="text-neutral-600 dark:text-white"
-                itemprop="description"
-              >
-                پربازدیدترین محصولات
-              </p>
-            </div>
-            <div class="w-full sm:col-span-2 col-span-6">
-              <div class="sm:text-end text-start">
-                <a
-                  href="/fa/shop.html"
-                  class="btn bg-transparent border-secondary border-2 hover:bg-secondary hover:text-white dark:text-white dark:border-white"
-                  title="مشاهده تمامی دسته‌بندی‌ها"
-                  itemprop="url"
-                >
-                  مشاهده همه
-                </a>
-              </div>
-            </div>
+            <h2 itemprop="name">&#1580;&#1583;&#1740;&#1583;&#1578;&#1585;&#1740;&#1606; <span>&#1605;&#1581;&#1589;&#1608;&#1604;&#1575;&#1578;</span></h2>
+            <meta itemprop="description" content="جدیدترین محصولات" />
+            <link itemprop="url" href="/fa/shop.html" />
             <!-- Breadcrumbs (hidden from users but still available for search engines) -->
             <div
               itemprop="breadcrumb"

@@ -1501,6 +1501,11 @@ function initializeLiveSearch() {
         return;
     }
 
+    if (searchInput.id === 'searchInput') {
+        initializeProductHeaderSearch(searchInput, searchResults);
+        return;
+    }
+
     let debounceTimer;
 
     // Sample product data
@@ -1609,6 +1614,177 @@ function initializeLiveSearch() {
             }
         }
     });
+}
+
+function initializeProductHeaderSearch(searchInput, searchResults) {
+    if (searchInput.dataset.productSearchBound === 'true') {
+        return;
+    }
+
+    searchInput.dataset.productSearchBound = 'true';
+    let debounceTimer;
+
+    searchInput.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        const searchTerm = this.value.trim();
+
+        if (searchTerm.length < 2) {
+            searchResults.classList.add('hidden');
+            return;
+        }
+
+        debounceTimer = setTimeout(function () {
+            performProductHeaderSearch(searchTerm, searchResults);
+        }, 350);
+    });
+
+    searchInput.addEventListener('focus', function () {
+        const searchTerm = this.value.trim();
+        if (searchTerm.length >= 2) {
+            performProductHeaderSearch(searchTerm, searchResults);
+        }
+    });
+
+    searchInput.addEventListener('keypress', function (e) {
+        if (e.key !== 'Enter') return;
+        const searchTerm = this.value.trim();
+        if (searchTerm) {
+            window.location.href = buildProductSearchUrl(searchTerm);
+        }
+    });
+
+    const searchButton = searchInput.nextElementSibling;
+    if (searchButton) {
+        searchButton.addEventListener('click', function () {
+            const searchTerm = searchInput.value.trim();
+            if (searchTerm) {
+                window.location.href = buildProductSearchUrl(searchTerm);
+            }
+        });
+    }
+
+    document.addEventListener('click', function (e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.add('hidden');
+        }
+    });
+}
+
+async function performProductHeaderSearch(searchTerm, searchResults) {
+    if (!window.productService || typeof window.productService.searchProducts !== 'function') {
+        return;
+    }
+
+    const criteria = {
+        searchTerm,
+        pageSize: 5
+    };
+    const categoryId = getCurrentShopCategoryId();
+    if (categoryId) {
+        criteria.categoryId = categoryId;
+    }
+
+    const result = await window.productService.searchProducts(criteria);
+    renderProductHeaderSearchResults(searchResults, extractProductSearchItems(result));
+}
+
+function extractProductSearchItems(result) {
+    let data = result?.data ?? result;
+    if (data?.data !== undefined) data = data.data;
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.products)) return data.products;
+    if (Array.isArray(data?.products?.items)) return data.products.items;
+    if (Array.isArray(data?.items)) return data.items;
+    return [];
+}
+
+function renderProductHeaderSearchResults(searchResults, products) {
+    if (!Array.isArray(products) || products.length === 0) {
+        searchResults.innerHTML = '<div class="p-4 text-center text-gray-500 dark:text-gray-300">محصولی یافت نشد</div>';
+        searchResults.classList.remove('hidden');
+        return;
+    }
+
+    searchResults.innerHTML = products.map(function (product) {
+        const name = product.name || product.productName || 'محصول';
+        const imageUrl = getProductSearchImage(product);
+        const hasStock = isProductSearchInStock(product);
+        const price = Number(product.price || product.unitPrice || 0);
+        return `
+            <a href="product.html?id=${encodeURIComponent(product.id)}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
+                <img src="${escapeSearchAttribute(imageUrl)}" alt="${escapeSearchAttribute(name)}" class="w-16 h-16 object-contain rounded me-3" onerror="this.onerror=null;this.src='assets/images/product/nophoto.png'">
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-semibold text-sm dark:text-white line-clamp-1">${escapeSearchHtml(name)}</h4>
+                    <p class="font-bold text-sm ${hasStock ? 'text-primary' : 'text-red-600'}">${hasStock ? `${formatHeaderSearchPrice(price)} ریال` : 'ناموجود'}</p>
+                </div>
+            </a>
+        `;
+    }).join('');
+    searchResults.classList.remove('hidden');
+}
+
+function getProductSearchImage(product) {
+    const primaryImage = Array.isArray(product?.images)
+        ? product.images.find(function (image) { return image && image.isPrimary; }) || product.images[0]
+        : null;
+    const galleryImage = Array.isArray(product?.productImages)
+        ? product.productImages.find(function (image) { return image && image.isPrimary; }) || product.productImages[0]
+        : null;
+
+    return primaryImage?.imageUrl ||
+        galleryImage?.imageUrl ||
+        product?.productImageUrl ||
+        product?.productImage ||
+        product?.imageUrl ||
+        'assets/images/product/nophoto.png';
+}
+
+function isProductSearchInStock(product) {
+    const variants = [
+        ...(Array.isArray(product?.productVariants) ? product.productVariants : []),
+        ...(Array.isArray(product?.variants) ? product.variants : [])
+    ];
+    if (variants.some(function (variant) {
+        return Number(variant?.stockQuantity ?? variant?.stock ?? variant?.quantity ?? 0) > 0;
+    })) {
+        return true;
+    }
+
+    return Number(product?.stockQuantity ?? product?.quantity ?? 0) > 0;
+}
+
+function buildProductSearchUrl(searchTerm) {
+    const params = new URLSearchParams();
+    const categoryId = getCurrentShopCategoryId();
+    if (categoryId) {
+        params.set('category', categoryId);
+    }
+    params.set('search', searchTerm);
+    params.set('q', searchTerm);
+    return `shop.html?${params.toString()}`;
+}
+
+function getCurrentShopCategoryId() {
+    const pageName = (window.location.pathname.split('/').pop() || '').toLowerCase();
+    if (pageName !== 'shop.html') return '';
+    return new URLSearchParams(window.location.search).get('category') || '';
+}
+
+function formatHeaderSearchPrice(price) {
+    return new Intl.NumberFormat('fa-IR').format(Math.round(Number(price) || 0));
+}
+
+function escapeSearchHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function escapeSearchAttribute(value) {
+    return escapeSearchHtml(value);
 }
 
 // Execute the function when the DOM is fully loaded

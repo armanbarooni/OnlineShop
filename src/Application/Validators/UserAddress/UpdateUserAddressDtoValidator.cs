@@ -53,11 +53,10 @@ namespace OnlineShop.Application.Validators.UserAddress
                 .WithMessage("State cannot exceed 100 characters");
 
             RuleFor(x => x.PostalCode)
-                .NotEmpty()
-                .WithMessage("Postal code is required")
                 .MaximumLength(20)
                 .WithMessage("Postal code cannot exceed 20 characters")
                 .Matches(@"^\d{10}$")
+                .When(x => !string.IsNullOrWhiteSpace(x.PostalCode))
                 .WithMessage("Postal code must be 10 digits for Iran");
 
             RuleFor(x => x.Country)

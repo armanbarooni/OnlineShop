@@ -436,6 +436,7 @@ function setupSearch() {
   const searchResults = document.getElementById("searchResults");
 
   if (!searchInput) return;
+  if (searchInput.dataset.productSearchBound === "true") return;
 
   let searchTimeout;
   searchInput.addEventListener("input", (e) => {
@@ -456,7 +457,7 @@ function setupSearch() {
     searchButton.addEventListener("click", async () => {
       const query = searchInput.value.trim();
       if (query) {
-        window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+        window.location.href = buildShopSearchUrl(query);
       }
     });
   }
@@ -465,10 +466,17 @@ function setupSearch() {
     if (e.key === "Enter") {
       const query = searchInput.value.trim();
       if (query) {
-        window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+        window.location.href = buildShopSearchUrl(query);
       }
     }
   });
+}
+
+function buildShopSearchUrl(query) {
+  const params = new URLSearchParams();
+  params.set("search", query);
+  params.set("q", query);
+  return `shop.html?${params.toString()}`;
 }
 
 // Perform search
@@ -496,7 +504,7 @@ function renderSearchResults(products) {
 
   if (visibleProducts.length === 0) {
     searchResults.innerHTML =
-      '<div class="p-4 text-center text-gray-500">?????? ???? ???</div>';
+      '<div class="p-4 text-center text-gray-500 dark:text-gray-300">محصولی یافت نشد</div>';
     searchResults.classList.remove("hidden");
     return;
   }
@@ -517,12 +525,13 @@ function renderSearchResults(products) {
           ? rawImageUrl
           : `/api/ImageProxy?url=${encodeURIComponent(rawImageUrl)}`
         : "assets/images/product/nophoto.png";
+      const name = product.name || product.productName || "محصول";
       return `
             <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
-                <img src="${imageUrl}" alt="${product.name || "?????"}" class="w-16 h-16 object-contain rounded me-3">
-                <div class="flex-1">
-                    <h4 class="font-semibold text-sm dark:text-white">${product.name || "?????"}</h4>
-                    <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} ????</p>
+                <img src="${imageUrl}" alt="${name}" class="w-16 h-16 object-contain rounded me-3" onerror="this.onerror=null;this.src='assets/images/product/nophoto.png'">
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-semibold text-sm dark:text-white line-clamp-1">${name}</h4>
+                    <p class="text-primary font-bold text-sm">${formatPrice(product.price || 0)} ریال</p>
                 </div>
             </a>
         `;

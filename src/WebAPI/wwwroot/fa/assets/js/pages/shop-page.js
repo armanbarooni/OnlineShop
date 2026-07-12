@@ -23,6 +23,7 @@
     sizes: [],
     minPrice: null,
     maxPrice: null,
+    inStockOnly: false,
   };
   let filterSearchTimer = null;
   let productRequestSequence = 0;
@@ -365,6 +366,7 @@
     const sizeContainer = document.getElementById("product-sizes-container");
     const mobileColorSelect = document.getElementById("mobile-color-select");
     const mobileSizeSelect = document.getElementById("mobile-size-select");
+    const inStockCheckbox = document.getElementById("shop-in-stock-checkbox");
 
     if (searchInput && searchInput.dataset.shopFilterEventsBound !== "true") {
       searchInput.dataset.shopFilterEventsBound = "true";
@@ -446,6 +448,17 @@
         applyFilters();
       });
     }
+
+    if (
+      inStockCheckbox &&
+      inStockCheckbox.dataset.shopFilterEventsBound !== "true"
+    ) {
+      inStockCheckbox.dataset.shopFilterEventsBound = "true";
+      inStockCheckbox.addEventListener("change", function () {
+        currentFilters.inStockOnly = inStockCheckbox.checked;
+        applyFilters();
+      });
+    }
   }
 
   function buildProductSearchCriteria(categoryId, searchQuery) {
@@ -469,6 +482,7 @@
     }
     if (minPrice !== null) criteria.minPrice = minPrice;
     if (maxPrice !== null) criteria.maxPrice = maxPrice;
+    if (currentFilters.inStockOnly) criteria.inStock = true;
 
     return criteria;
   }
@@ -505,6 +519,10 @@
     syncDesktopSizes(currentFilters.sizes);
     syncMobileColorSelect();
     syncMobileSizeSelect();
+    const inStockCheckbox = document.getElementById("shop-in-stock-checkbox");
+    if (inStockCheckbox) {
+      inStockCheckbox.checked = currentFilters.inStockOnly === true;
+    }
   }
 
   function syncDesktopColor(value) {

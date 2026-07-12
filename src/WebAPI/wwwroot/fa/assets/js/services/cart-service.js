@@ -182,22 +182,6 @@ class CartService {
         }
 
         try {
-            const cartResult = await this.getUserCart();
-            if (cartResult?.success) {
-                const existingItem = (cartResult.items || []).find(item => this.isSameCartItem(item, productId, variantId));
-                const availableStock = existingItem?.availableStock ?? this.getAvailableStock(productData, variantId);
-
-                if (existingItem && availableStock !== null && existingItem.quantity + quantity > availableStock) {
-                    this.notifyCartUpdated();
-                    return {
-                        success: true,
-                        data: cartResult.data,
-                        alreadyAtMaxStock: true,
-                        message: "این رنگ و سایز قبلا به سبد خرید اضافه شده و موجودی بیشتری ندارد"
-                    };
-                }
-            }
-
             const payload = {
                 productId,
                 quantity,

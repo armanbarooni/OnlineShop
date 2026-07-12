@@ -1,9 +1,46 @@
 <!-- ================= start category showcase ================= -->
 <style>
   .category-showcase-shell {
-    max-width: 72rem;
+    max-width: 58rem;
     margin-inline: auto;
     padding-inline: clamp(1rem, 3vw, 1.5rem);
+  }
+
+  .home-section-kicker {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.45rem;
+    background: #172334;
+    padding: clamp(1.05rem, 3vw, 1.65rem);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
+  }
+
+  .home-section-kicker::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 1.2rem;
+    inset-inline-end: clamp(1rem, 4vw, 2.5rem);
+    width: 5.2rem;
+    height: 4.1rem;
+    opacity: 0.34;
+    background-image: radial-gradient(currentColor 1.7px, transparent 1.7px);
+    background-size: 13px 13px;
+    color: #ffffff;
+  }
+
+  .home-section-kicker h2 {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    text-align: center;
+    font-size: clamp(1.35rem, 3vw, 2rem);
+    font-weight: 900;
+    line-height: 1.7;
+    color: #ffffff;
+  }
+
+  .home-section-kicker h2 span {
+    color: #ff6b21;
   }
 
   .category-showcase-grid {
@@ -29,6 +66,7 @@
 
   .category-showcase-card > img {
     border-radius: inherit;
+    object-fit: fill;
   }
 
   @media (max-width: 767.98px) {
@@ -44,20 +82,43 @@
       gap: 8px;
     }
   }
+  .category-showcase-divider {
+    max-width: 58rem;
+    margin: clamp(1.1rem, 3vw, 1.8rem) auto 0;
+    padding-inline: clamp(1rem, 3vw, 1.5rem);
+  }
+
+  .category-showcase-divider span {
+    display: block;
+    height: 1px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 107, 33, 0.65),
+      rgba(23, 35, 52, 0.42),
+      rgba(255, 107, 33, 0.65),
+      transparent
+    );
+    box-shadow: 0 10px 28px rgba(255, 107, 33, 0.18);
+  }
 </style>
 <section class="px-0 py-4 sm:py-6">
   <h2 class="sr-only">دسته‌بندی‌های منتخب</h2>
   <div class="category-showcase-shell">
+    <div class="home-section-kicker mb-4 sm:mb-5">
+      <h2>&#1583;&#1587;&#1578;&#1607; &#1576;&#1606;&#1583;&#1740; <span>&#1605;&#1581;&#1589;&#1608;&#1604;&#1575;&#1578;</span></h2>
+    </div>
     <div class="category-showcase-grid">
       <a
         href="shop.html"
         class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
-        style="aspect-ratio: 4 / 3;"
+        style="aspect-ratio: 1 / 1;"
       >
         <img
           src="assets/images/category/1.jpg"
           alt="خانه"
-          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          class="absolute inset-0 h-full w-full object-fill"
           loading="lazy"
         />
       </a>
@@ -65,12 +126,12 @@
       <a
         href="shop.html"
         class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
-        style="aspect-ratio: 4 / 3;"
+        style="aspect-ratio: 1 / 1;"
       >
         <img
           src="assets/images/category/2.jpg"
           alt="شخصی"
-          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          class="absolute inset-0 h-full w-full object-fill"
           loading="lazy"
         />
       </a>
@@ -78,12 +139,12 @@
       <a
         href="shop.html"
         class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
-        style="aspect-ratio: 4 / 3;"
+        style="aspect-ratio: 1 / 1;"
       >
         <img
           src="assets/images/category/3.jpg"
           alt="ورزشی"
-          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          class="absolute inset-0 h-full w-full object-fill"
           loading="lazy"
         />
       </a>
@@ -91,12 +152,12 @@
       <a
         href="shop.html"
         class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
-        style="aspect-ratio: 4 / 3;"
+        style="aspect-ratio: 1 / 1;"
       >
         <img
           src="assets/images/category/4.jpg"
           alt="اسپیکر"
-          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          class="absolute inset-0 h-full w-full object-fill"
           loading="lazy"
         />
       </a>
@@ -104,12 +165,12 @@
       <a
         href="shop.html"
         class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
-        style="aspect-ratio: 4 / 3;"
+        style="aspect-ratio: 1 / 1;"
       >
         <img
           src="assets/images/category/5.jpg"
           alt="هدفون"
-          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          class="absolute inset-0 h-full w-full object-fill"
           loading="lazy"
         />
       </a>
@@ -117,16 +178,19 @@
       <a
         href="shop.html"
         class="group category-showcase-card min-h-[148px] isolate transition-transform duration-300 hover:-translate-y-1 sm:min-h-[176px]"
-        style="aspect-ratio: 4 / 3;"
+        style="aspect-ratio: 1 / 1;"
       >
         <img
           src="assets/images/category/6.jpg"
           alt="گیمینگ"
-          class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          class="absolute inset-0 h-full w-full object-fill"
           loading="lazy"
         />
       </a>
     </div>
+  </div>
+  <div class="category-showcase-divider" aria-hidden="true">
+    <span></span>
   </div>
 </section>
 <!-- ================= end category showcase ================= -->

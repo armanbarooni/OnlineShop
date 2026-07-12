@@ -290,6 +290,8 @@
         const provinceInput = document.getElementById("checkout-address-state");
         const cityInput = document.getElementById("checkout-address-city");
         if (!provinceInput || !cityInput) return;
+        if (provinceInput.dataset.mahakBound === "true") return;
+        provinceInput.dataset.mahakBound = "true";
 
         const regionResult = await window.addressService.getMahakRegions();
         if (regionResult.success && Array.isArray(regionResult.data) && regionResult.data.length) {
@@ -310,6 +312,69 @@
 
         state.mahakRegions = state.mahakRegions
             .filter(region => !region.cityName.startsWith("\u0627\u0633\u062A\u0627\u0646 "));
+
+        const provinceListId = "checkout-mahak-province-options";
+        const cityListId = "checkout-mahak-city-options";
+        let provinceList = document.getElementById(provinceListId);
+        if (!provinceList) {
+            provinceList = document.createElement("datalist");
+            provinceList.id = provinceListId;
+            document.body.appendChild(provinceList);
+        }
+
+        let cityList = document.getElementById(cityListId);
+        if (!cityList) {
+            cityList = document.createElement("datalist");
+            cityList.id = cityListId;
+            document.body.appendChild(cityList);
+        }
+
+        provinceInput.setAttribute("list", provinceListId);
+        cityInput.setAttribute("list", cityListId);
+
+        const provinceNames = [...new Set(state.mahakRegions.map(region => region.provinceName).filter(Boolean))]
+            .sort((a, b) => a.localeCompare(b, "fa"));
+        provinceList.innerHTML = provinceNames.map(name => `<option value="${escapeHtml(name)}"></option>`).join("");
+
+        const getSelectedProvince = () => {
+            const province = normalizeLocationName(provinceInput.value);
+            return provinceNames.includes(province) ? province : "";
+        };
+
+        const refreshCities = () => {
+            const selectedProvince = getSelectedProvince();
+            const cities = state.mahakRegions
+                .filter(region => region.provinceName === selectedProvince)
+                .sort((a, b) => a.cityName.localeCompare(b.cityName, "fa"));
+
+            cityInput.disabled = !selectedProvince;
+            cityInput.placeholder = selectedProvince ? "شهر را انتخاب کنید" : "ابتدا استان را انتخاب کنید";
+            if (!selectedProvince) {
+                cityInput.value = "";
+            }
+
+            cityList.innerHTML = cities
+                .map(region => `<option value="${escapeHtml(region.cityName)}" data-city-id="${region.cityId}"></option>`)
+                .join("");
+
+            state.province = selectedProvince;
+            state.city = normalizeLocationName(cityInput.value);
+            state.mahakCityId = resolveMahakCityId(selectedProvince, cityInput.value);
+        };
+
+        provinceInput.addEventListener("input", () => {
+            state.mahakCityId = null;
+            cityInput.value = "";
+            refreshCities();
+        });
+
+        cityInput.addEventListener("input", () => {
+            state.city = normalizeLocationName(cityInput.value);
+            state.mahakCityId = resolveMahakCityId(state.province, state.city);
+        });
+
+        refreshCities();
+        return;
 
         const provinces = () => [...new Set(state.mahakRegions.map(region => region.provinceName).filter(Boolean))]
             .sort((a, b) => a.localeCompare(b, "fa"));

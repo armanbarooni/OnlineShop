@@ -2,6 +2,7 @@
   "use strict";
 
   const CONTAINER_ID = "featuredProducts";
+  const MAX_VISIBLE_PRODUCTS = 5;
   const MAHAK_CONTENT_BASE_URL =
     window.config?.content?.mahakBaseURL ||
     window.resolveMahakContentBaseURL?.() ||
@@ -316,9 +317,10 @@
     const container = findContainer();
     if (!container) return;
 
-    const visibleProducts = (Array.isArray(products) ? products : []).filter(
-      isVisibleProduct,
-    );
+    const visibleProducts = (Array.isArray(products) ? products : [])
+      .filter(isVisibleProduct)
+      .filter(isProductInStock)
+      .slice(0, MAX_VISIBLE_PRODUCTS);
     if (visibleProducts.length === 0) {
       renderState("محصولی برای نمایش وجود ندارد");
       return;
@@ -386,7 +388,7 @@
     }
 
     try {
-      const result = await window.productService.getNewProducts(8);
+      const result = await window.productService.getNewProducts(20);
       const products = extractProducts(result);
       if (products.length > 0) {
         renderProducts(products);
@@ -394,7 +396,7 @@
       }
 
       const fallback = await window.apiClient.get(
-        "/Product/search?sortBy=CreatedAt&sortDescending=true&pageNumber=1&pageSize=8",
+        "/Product/search?sortBy=CreatedAt&sortDescending=true&pageNumber=1&pageSize=20",
       );
       const fallbackProducts = extractProducts(fallback);
       if (fallbackProducts.length > 0) {

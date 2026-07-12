@@ -22,7 +22,8 @@ class HeaderComponent {
   setupEventListeners() {
     // Search functionality
     const searchInput = document.getElementById("searchInput");
-    if (searchInput) {
+    if (searchInput && searchInput.dataset.productSearchBound !== "true") {
+      searchInput.dataset.productSearchBound = "true";
       let searchTimeout;
       searchInput.addEventListener("input", (e) => {
         clearTimeout(searchTimeout);
@@ -43,7 +44,7 @@ class HeaderComponent {
         if (e.key === "Enter") {
           const query = searchInput.value.trim();
           if (query) {
-            window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+            window.location.href = this.buildShopSearchUrl(query);
           }
         }
       });
@@ -54,7 +55,7 @@ class HeaderComponent {
         searchButton.addEventListener("click", () => {
           const query = searchInput.value.trim();
           if (query) {
-            window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+            window.location.href = this.buildShopSearchUrl(query);
           }
         });
       }
@@ -96,21 +97,115 @@ class HeaderComponent {
     try {
       if (!window.productService) return;
 
-      const result = await window.productService.searchProducts({
+      const criteria = {
         searchTerm: query,
         pageSize: 5,
-      });
+      };
+      const categoryId = this.getCurrentShopCategoryId();
+      if (categoryId) {
+        criteria.categoryId = categoryId;
+      }
+
+      const result = await window.productService.searchProducts(criteria);
 
       if (result.success && result.data) {
-        const products =
-          result.data.products ||
-          result.data.items ||
-          (Array.isArray(result.data) ? result.data : []);
-        this.renderSearchResults(Array.isArray(products) ? products : []);
+        const products = this.extractSearchProducts(result.data);
+        this.renderApiSearchResults(Array.isArray(products) ? products : []);
       }
     } catch (error) {
       window.logger.error("Error searching:", error);
     }
+  }
+
+  buildShopSearchUrl(query) {
+    const params = new URLSearchParams();
+    const categoryId = this.getCurrentShopCategoryId();
+    if (categoryId) {
+      params.set("category", categoryId);
+    }
+    params.set("search", query);
+    params.set("q", query);
+    return `shop.html?${params.toString()}`;
+  }
+
+  getCurrentShopCategoryId() {
+    const pageName = (window.location.pathname.split("/").pop() || "").toLowerCase();
+    if (pageName !== "shop.html") return "";
+
+    const params = new URLSearchParams(window.location.search);
+    return params.get("category") || "";
+  }
+
+  extractSearchProducts(data) {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data.products)) return data.products;
+    if (Array.isArray(data.products?.items)) return data.products.items;
+    if (Array.isArray(data.items)) return data.items;
+    if (Array.isArray(data.data)) return data.data;
+    return [];
+  }
+
+  renderApiSearchResults(products) {
+    const searchResults = document.getElementById("searchResults");
+    if (!searchResults) return;
+
+    if (!Array.isArray(products) || products.length === 0) {
+      searchResults.innerHTML =
+        '<div class="p-4 text-center text-gray-500 dark:text-gray-300">محصولی یافت نشد</div>';
+      searchResults.classList.remove("hidden");
+      return;
+    }
+
+    searchResults.innerHTML = products
+      .map((product) => {
+        const imageUrl = this.getProductImageUrl(product);
+        const hasStock = this.isProductInStock(product);
+        const price = hasStock ? Number(product.price || product.unitPrice || 0) : null;
+        const name = product.name || product.productName || "محصول";
+        return `
+                <a href="product.html?id=${encodeURIComponent(product.id)}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
+                    <img src="${this.escapeAttribute(imageUrl)}" alt="${this.escapeAttribute(name)}" class="w-16 h-16 object-contain rounded me-3" onerror="this.onerror=null;this.src='assets/images/product/nophoto.png'">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-semibold text-sm dark:text-white line-clamp-1">${this.escapeHtml(name)}</h4>
+                        <p class="font-bold text-sm ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${this.formatPrice(price)} ریال` : "ناموجود"}</p>
+                    </div>
+                </a>
+            `;
+      })
+      .join("");
+    searchResults.classList.remove("hidden");
+  }
+
+  getProductImageUrl(product) {
+    const primaryImage = Array.isArray(product?.images)
+      ? product.images.find((image) => image && image.isPrimary) || product.images[0]
+      : null;
+    const galleryImage = Array.isArray(product?.productImages)
+      ? product.productImages.find((image) => image && image.isPrimary) || product.productImages[0]
+      : null;
+
+    return (
+      primaryImage?.imageUrl ||
+      galleryImage?.imageUrl ||
+      product?.productImageUrl ||
+      product?.productImage ||
+      product?.imageUrl ||
+      "assets/images/product/nophoto.png"
+    );
+  }
+
+  escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  escapeAttribute(value) {
+    return this.escapeHtml(value);
   }
 
   renderSearchResults(products) {

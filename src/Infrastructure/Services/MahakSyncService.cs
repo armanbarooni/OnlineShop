@@ -842,7 +842,9 @@ namespace OnlineShop.Infrastructure.Services
                         .OrderByDescending(i => i.RowVersion)
                         .First()
                         .ProductDetailStoreAssetId,
-                    Quantity = (int)group.Sum(i => i.Count1),
+                    Quantity = NormalizeMahakStockQuantity(
+                        group.Key,
+                        group.Sum(i => i.Count1)),
                     UpdateDate = group.Max(i => i.UpdateDate ?? i.CreateDate)
                 })
                 .ToList();
@@ -922,7 +924,6 @@ namespace OnlineShop.Infrastructure.Services
                     {
                         if (ShouldApplyMahakInventory(
                                 variant.UpdatedAt ?? variant.CreatedAt,
-                                variant.CreatedAt,
                                 mahakUpdatedAt,
                                 variant.StockQuantity,
                                 inv.Quantity))
@@ -950,7 +951,6 @@ namespace OnlineShop.Infrastructure.Services
                         {
                             if (ShouldApplyMahakInventory(
                                     variantBySku.UpdatedAt ?? variantBySku.CreatedAt,
-                                    variantBySku.CreatedAt,
                                     mahakUpdatedAt,
                                     variantBySku.StockQuantity,
                                     inv.Quantity))
@@ -1036,7 +1036,6 @@ namespace OnlineShop.Infrastructure.Services
 
                         if (!ShouldApplyMahakInventory(
                                 product.UpdatedAt ?? product.CreatedAt,
-                                product.CreatedAt,
                                 mahakUpdatedAt,
                                 product.StockQuantity,
                                 totalQuantity))
@@ -1081,7 +1080,6 @@ namespace OnlineShop.Infrastructure.Services
 
         private static bool ShouldApplyMahakInventory(
             DateTime localUpdatedAt,
-            DateTime localCreatedAt,
             DateTime mahakUpdatedAt,
             int localQuantity,
             int mahakQuantity)
@@ -1097,9 +1095,10 @@ namespace OnlineShop.Infrastructure.Services
                 return true;
             }
 
-            return localQuantity == 0 &&
-                   mahakQuantity > 0 &&
-                   normalizedLocalUpdatedAt <= NormalizeLocalDate(localCreatedAt).AddMinutes(2);
+            // ProductDetailStoreAsset is the inventory source of truth. RowVersion already decides
+            // whether Mahak sent this inventory row in the sync window, so a stale or timezone-shifted
+            // UpdateDate must not leave a variant stuck at an older quantity.
+            return true;
         }
 
         private static DateTime NormalizeMahakDate(DateTime value)
@@ -1115,6 +1114,30 @@ namespace OnlineShop.Infrastructure.Services
         private static DateTime NormalizeLocalDate(DateTime value)
         {
             return value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
+        }
+
+        private int NormalizeMahakStockQuantity(int productDetailId, decimal quantity)
+        {
+            if (quantity < 0)
+            {
+                _logger.LogWarning(
+                    "Mahak returned negative inventory {Quantity} for ProductDetailId {ProductDetailId}; clamping to 0",
+                    quantity,
+                    productDetailId);
+                return 0;
+            }
+
+            if (quantity > int.MaxValue)
+            {
+                _logger.LogWarning(
+                    "Mahak returned too large inventory {Quantity} for ProductDetailId {ProductDetailId}; clamping to {MaxQuantity}",
+                    quantity,
+                    productDetailId,
+                    int.MaxValue);
+                return int.MaxValue;
+            }
+
+            return (int)quantity;
         }
 
         private static void SetMaxUpdateDate(Dictionary<Guid, DateTime> updates, Guid productId, DateTime updateDate)

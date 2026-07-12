@@ -116,9 +116,7 @@ namespace OnlineShop.Domain.Entities
 
         public void SetPostalCode(string postalCode)
         {
-            if (string.IsNullOrWhiteSpace(postalCode))
-                throw new ArgumentException("کد پستی نباید خالی باشد");
-            PostalCode = postalCode.Trim();
+            PostalCode = postalCode?.Trim() ?? string.Empty;
             UpdatedAt = DateTime.UtcNow;
         }
 

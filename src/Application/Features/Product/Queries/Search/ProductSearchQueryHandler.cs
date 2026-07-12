@@ -56,8 +56,11 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
                     criteria.PageSize
                 );
 
-                // Generate facets
-                var facets = await GenerateFacets(visibleProducts, criteria, cancellationToken);
+                // Generate facets from the current browsing context (category/search/stock),
+                // not from the whole catalog. Selected facet values and price range are excluded
+                // so users can still switch filters inside the same category.
+                var facetProducts = ApplyFacetScope(visibleProducts.AsQueryable(), criteria).ToList();
+                var facets = await GenerateFacets(facetProducts, criteria, cancellationToken);
 
                 var searchResult = new ProductSearchResultDto
                 {
@@ -83,14 +86,8 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
             // Search by term (Name, Description, SKU, Barcode, Brand.Name, Material.Name)
             if (!string.IsNullOrWhiteSpace(criteria.SearchTerm))
             {
-                var searchTerm = criteria.SearchTerm.ToLower();
-                query = query.Where(p =>
-                    p.Name.ToLower().Contains(searchTerm) ||
-                    (p.Description != null && p.Description.ToLower().Contains(searchTerm)) ||
-                    (p.Sku != null && p.Sku.ToLower().Contains(searchTerm)) ||
-                    (p.Barcode != null && p.Barcode.ToLower().Contains(searchTerm)) ||
-                    (p.Brand != null && p.Brand.Name.ToLower().Contains(searchTerm)) ||
-                    p.ProductMaterials.Any(pm => pm.Material.Name.ToLower().Contains(searchTerm)));
+                var searchTerm = NormalizeSearchText(criteria.SearchTerm);
+                query = query.Where(p => ProductMatchesSearch(p, searchTerm));
             }
 
             // Filter by category
@@ -181,6 +178,121 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
             }
 
             return query;
+        }
+
+        private IQueryable<Domain.Entities.Product> ApplyFacetScope(IQueryable<Domain.Entities.Product> query, ProductSearchCriteriaDto criteria)
+        {
+            if (!string.IsNullOrWhiteSpace(criteria.SearchTerm))
+            {
+                var searchTerm = NormalizeSearchText(criteria.SearchTerm);
+                query = query.Where(p => ProductMatchesSearch(p, searchTerm));
+            }
+
+            if (criteria.CategoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == criteria.CategoryId.Value);
+            }
+
+            if (criteria.BrandId.HasValue)
+            {
+                query = query.Where(p => p.BrandId == criteria.BrandId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(criteria.Gender))
+            {
+                query = query.Where(p => p.Gender == criteria.Gender);
+            }
+
+            if (criteria.MaterialIds != null && criteria.MaterialIds.Any())
+            {
+                query = query.Where(p => p.ProductMaterials.Any(pm => criteria.MaterialIds.Contains(pm.MaterialId)));
+            }
+
+            if (criteria.SeasonIds != null && criteria.SeasonIds.Any())
+            {
+                query = query.Where(p => p.ProductSeasons.Any(ps => criteria.SeasonIds.Contains(ps.SeasonId)));
+            }
+
+            if (criteria.NewArrivals.HasValue && criteria.NewArrivals.Value)
+            {
+                var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
+                query = query.Where(p => p.CreatedAt >= thirtyDaysAgo);
+            }
+
+            if (criteria.OnSale.HasValue && criteria.OnSale.Value)
+            {
+                var now = DateTime.UtcNow;
+                query = query.Where(p => p.SalePrice.HasValue &&
+                    (!p.SaleStartDate.HasValue || p.SaleStartDate.Value <= now) &&
+                    (!p.SaleEndDate.HasValue || p.SaleEndDate.Value >= now));
+            }
+
+            if (criteria.IsActive.HasValue)
+            {
+                query = query.Where(p => p.IsActive == criteria.IsActive.Value);
+            }
+
+            if (criteria.IsFeatured.HasValue)
+            {
+                query = query.Where(p => p.IsFeatured == criteria.IsFeatured.Value);
+            }
+
+            if (criteria.InStock.HasValue && criteria.InStock.Value)
+            {
+                query = query.Where(p => p.StockQuantity > 0);
+            }
+
+            return query;
+        }
+
+        private static bool ProductMatchesSearch(Domain.Entities.Product product, string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return true;
+            }
+
+            return TextContains(product.Name, searchTerm) ||
+                   TextContains(product.Description, searchTerm) ||
+                   TextContains(product.Sku, searchTerm) ||
+                   TextContains(product.Barcode, searchTerm) ||
+                   TextContains(product.Brand?.Name, searchTerm) ||
+                   product.ProductVariants.Any(v =>
+                       TextContains(v.Size, searchTerm) ||
+                       TextContains(v.Color, searchTerm) ||
+                       TextContains(v.SKU, searchTerm) ||
+                       TextContains(v.Barcode, searchTerm)) ||
+                   product.ProductMaterials.Any(pm => TextContains(pm.Material.Name, searchTerm));
+        }
+
+        private static bool TextContains(string? value, string normalizedSearchTerm)
+        {
+            return NormalizeSearchText(value).Contains(normalizedSearchTerm);
+        }
+
+        private static string NormalizeSearchText(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            return value
+                .Trim()
+                .ToLowerInvariant()
+                .Replace('ي', 'ی')
+                .Replace('ك', 'ک')
+                .Replace('ة', 'ه')
+                .Replace("\u200c", " ")
+                .Replace("\u0640", string.Empty)
+                .Replace("\u064B", string.Empty)
+                .Replace("\u064C", string.Empty)
+                .Replace("\u064D", string.Empty)
+                .Replace("\u064E", string.Empty)
+                .Replace("\u064F", string.Empty)
+                .Replace("\u0650", string.Empty)
+                .Replace("\u0651", string.Empty)
+                .Replace("\u0652", string.Empty);
         }
 
         private IQueryable<Domain.Entities.Product> ApplySorting(IQueryable<Domain.Entities.Product> query, ProductSearchCriteriaDto criteria)
