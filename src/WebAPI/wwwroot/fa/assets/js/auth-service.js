@@ -146,6 +146,13 @@ class AuthService {
 
             // Extract message from response data structure
             // Response structure: { isSuccess: true, data: { success: true, message: "...", expiresAt: "..." } }
+            if (response?.isSuccess === false || response?.success === false) {
+                return {
+                    success: false,
+                    error: response.errorMessage || response.message || 'خطا در ارسال کد تایید'
+                };
+            }
+
             const message = response?.data?.message || response?.message || 'کد تایید ارسال شد';
 
             return {

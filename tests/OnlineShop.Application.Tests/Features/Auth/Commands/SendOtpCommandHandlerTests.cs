@@ -2,6 +2,7 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Identity;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Features.Auth.Commands.SendOtp;
 using OnlineShop.Application.DTOs.Auth;
@@ -15,6 +16,7 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
     {
         private readonly Mock<IOtpRepository> _mockOtpRepository;
         private readonly Mock<ISmsService> _mockSmsService;
+        private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
         private readonly Mock<Microsoft.Extensions.Logging.ILogger<SendOtpCommandHandler>> _mockLogger;
         private readonly IOptions<SmsSettings> _smsSettings;
         private readonly SendOtpCommandHandler _handler;
@@ -23,6 +25,18 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
         {
             _mockOtpRepository = new Mock<IOtpRepository>();
             _mockSmsService = new Mock<ISmsService>();
+            var userStore = new Mock<IUserStore<ApplicationUser>>();
+            _mockUserManager = new Mock<UserManager<ApplicationUser>>(
+                userStore.Object,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+            _mockUserManager.Setup(m => m.Users).Returns(Array.Empty<ApplicationUser>().AsQueryable());
             _mockLogger = new Mock<Microsoft.Extensions.Logging.ILogger<SendOtpCommandHandler>>();
 
             _smsSettings = Options.Create(new SmsSettings
@@ -34,6 +48,7 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
             _handler = new SendOtpCommandHandler(
                 _mockOtpRepository.Object,
                 _mockSmsService.Object,
+                _mockUserManager.Object,
                 _smsSettings,
                 _mockLogger.Object
             );
@@ -213,7 +228,7 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
         }
 
         [Fact]
-        public async Task Handle_LoginPurpose_ShouldSendOtpEvenIfUserDoesNotExist()
+        public async Task Handle_LoginPurpose_WhenUserDoesNotExist_ShouldReturnFailureAndNotSendOtp()
         {
             // Arrange
             var command = new SendOtpCommand
@@ -224,6 +239,62 @@ namespace OnlineShop.Application.Tests.Features.Auth.Commands
                     Purpose = "Login"
                 }
             };
+
+            _mockOtpRepository.Setup(r => r.GetLatestOtpAsync(
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Otp?)null);
+
+            _mockOtpRepository.Setup(r => r.InvalidatePreviousOtpsAsync(
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            _mockOtpRepository.Setup(r => r.AddAsync(
+                It.IsAny<Otp>(),
+                It.IsAny<CancellationToken>()))
+                .Returns((Otp otp, CancellationToken ct) => Task.FromResult(otp));
+
+            _mockSmsService.Setup(s => s.SendOtpAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.ErrorMessage.Should().Be("کاربری با این شماره یافت نشد");
+            _mockOtpRepository.Verify(r => r.AddAsync(
+                It.IsAny<Otp>(),
+                It.IsAny<CancellationToken>()),
+                Times.Never);
+            _mockSmsService.Verify(s => s.SendOtpAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task Handle_LoginPurpose_WhenUserExists_ShouldSendOtpSuccessfully()
+        {
+            // Arrange
+            var command = new SendOtpCommand
+            {
+                Request = new SendOtpDto
+                {
+                    PhoneNumber = "09123456789",
+                    Purpose = "Login"
+                }
+            };
+
+            _mockUserManager.Setup(m => m.Users).Returns(new[]
+            {
+                new ApplicationUser { PhoneNumber = "09123456789" }
+            }.AsQueryable());
 
             _mockOtpRepository.Setup(r => r.GetLatestOtpAsync(
                 It.IsAny<string>(),

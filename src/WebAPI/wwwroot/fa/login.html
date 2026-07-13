@@ -9,7 +9,7 @@
     <title>قالب فرشگاهی آرینو</title>
     <meta name="description"
         content="قالب فرشگاهی آرینو، بهترین قالب برای فروشگاه‌های اینترنتی با طراحی مدرن و واکنش‌گرا.">
-    <meta name="keywords" content="قالب فروشگاهی, قالب آرینو, فروشگاه اینترنتی, طراحی واکنش‌گرا">
+    <meta name="keywords" content="قالب فروشگاهی, فروشگاه بالیگا, فروشگاه اینترنتی, طراحی واکنش‌گرا">
     <meta name="robots" content="index, follow">
     <meta name="author" content="آرینو">
     <meta name="copyright" content="تمامی حقوق متعلق به آرینو است.">
@@ -462,11 +462,11 @@
                     window.utils?.showToast('کد تایید به کنسول سرور ارسال شد (Mock Mode)', 'success');
                     showLoginSuccess(result.message || 'کد تایید ارسال شد');
                 } else {
-                    showLoginError(result.error?.errorMessage || 'خطا در ارسال کد تایید');
+                    showLoginError(result.error?.errorMessage || result.error || 'خطا در ارسال کد تایید');
                 }
             } catch (error) {
                 console.error('Send OTP error:', error);
-                showLoginError(error.error?.errorMessage || 'خطا در اتصال به سرور. لطفا دوباره تلاش کنید.');
+                showLoginError(error.error?.errorMessage || error.message || 'خطا در اتصال به سرور. لطفا دوباره تلاش کنید.');
             } finally {
                 // Reset button state
                 sendOtpBtn.disabled = false;

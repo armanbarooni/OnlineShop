@@ -95,6 +95,19 @@ namespace OnlineShop.Infrastructure.Services
                 return false;
             }
         }
+
+        public Task<bool> SendTemplateAsync(
+            string phoneNumber,
+            int templateId,
+            IReadOnlyDictionary<string, string> parameters,
+            CancellationToken cancellationToken = default)
+        {
+            var message = string.Join(
+                " ",
+                parameters.Select(parameter => $"{parameter.Key}:{parameter.Value}"));
+
+            return SendSmsAsync(phoneNumber, message, cancellationToken);
+        }
     }
 }
 

@@ -149,6 +149,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             // In Mock/Sadad, Authority is usually the TransactionId during processing.
             
             return await _context.UserOrders
+                .Include(o => o.User)
                 .Include(o => o.Payments)
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.Payments.Any(p => p.TransactionId == authority), cancellationToken);

@@ -37,6 +37,21 @@ namespace OnlineShop.Infrastructure.Services
             // Simulate successful send
             return Task.FromResult(true);
         }
+
+        public Task<bool> SendTemplateAsync(
+            string phoneNumber,
+            int templateId,
+            IReadOnlyDictionary<string, string> parameters,
+            CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation(
+                "[MOCK TEMPLATE SMS] To: {PhoneNumber} | TemplateId: {TemplateId} | Parameters: {@Parameters}",
+                phoneNumber,
+                templateId,
+                parameters);
+
+            return Task.FromResult(true);
+        }
     }
 }
 

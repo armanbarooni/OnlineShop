@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using OnlineShop.Application.Common.Models;
 using OnlineShop.Application.Contracts.Services;
@@ -15,6 +16,7 @@ namespace OnlineShop.Application.Features.Payment.Commands.InitiatePayment
         private readonly IUserPaymentRepository _paymentRepository;
         private readonly IPaymentGatewayService _paymentGateway;
         private readonly IInventoryService _inventoryService;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<InitiatePaymentCommandHandler> _logger;
 
         public InitiatePaymentCommandHandler(
@@ -22,12 +24,14 @@ namespace OnlineShop.Application.Features.Payment.Commands.InitiatePayment
             IUserPaymentRepository paymentRepository,
             IPaymentGatewayService paymentGateway,
             IInventoryService inventoryService,
+            UserManager<ApplicationUser> userManager,
             ILogger<InitiatePaymentCommandHandler> logger)
         {
             _orderRepository = orderRepository;
             _paymentRepository = paymentRepository;
             _paymentGateway = paymentGateway;
             _inventoryService = inventoryService;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -60,7 +64,15 @@ namespace OnlineShop.Application.Features.Payment.Commands.InitiatePayment
             
             // Call Gateway before saving to avoid multiple DbContext updates or tracking issues
             long amount = (long)order.TotalAmount;
-            var gatewayResult = await _paymentGateway.InitiatePaymentAsync(order.Id, amount, "09123456789", $"Payment for Order {order.OrderNumber}");
+            var user = await _userManager.FindByIdAsync(request.UserId.ToString());
+            var payerMobile = NormalizeMobile(user?.PhoneNumber) ?? string.Empty;
+
+            _logger.LogInformation(
+                "Initiating payment for order {OrderId}. Payer mobile is {PayerMobileStatus}.",
+                order.Id,
+                string.IsNullOrWhiteSpace(payerMobile) ? "not provided" : "provided");
+
+            var gatewayResult = await _paymentGateway.InitiatePaymentAsync(order.Id, amount, payerMobile, $"Payment for Order {order.OrderNumber}");
 
             if (!gatewayResult.Success)
             {
@@ -86,6 +98,19 @@ namespace OnlineShop.Application.Features.Payment.Commands.InitiatePayment
                 Authority = gatewayResult.Authority,
                 Message = "آماده انتقال به درگاه پرداخت"
             });
+        }
+
+        private static string? NormalizeMobile(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            var digits = new string(value.Where(char.IsDigit).ToArray());
+            return digits.Length == 11 && digits.StartsWith("09", StringComparison.Ordinal)
+                ? digits
+                : null;
         }
     }
 }

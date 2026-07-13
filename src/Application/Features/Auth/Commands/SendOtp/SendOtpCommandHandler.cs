@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OnlineShop.Application.Common.Models;
@@ -37,9 +36,7 @@ namespace OnlineShop.Application.Features.Auth.Commands.SendOtp
         {
             if (string.Equals(request.Request.Purpose, "Login", StringComparison.OrdinalIgnoreCase))
             {
-                var userExists = await _userManager.Users.AnyAsync(
-                    u => u.PhoneNumber == request.Request.PhoneNumber,
-                    cancellationToken);
+                var userExists = _userManager.Users.Any(u => u.PhoneNumber == request.Request.PhoneNumber);
 
                 if (!userExists)
                 {

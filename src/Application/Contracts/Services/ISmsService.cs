@@ -19,6 +19,20 @@ namespace OnlineShop.Application.Contracts.Services
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>True if OTP sent successfully, false otherwise</returns>
         Task<bool> SendOtpAsync(string phoneNumber, string code, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Send SMS using a provider template and named parameters.
+        /// </summary>
+        /// <param name="phoneNumber">Recipient phone number</param>
+        /// <param name="templateId">Provider template identifier</param>
+        /// <param name="parameters">Template parameter names and values</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>True if SMS sent successfully, false otherwise</returns>
+        Task<bool> SendTemplateAsync(
+            string phoneNumber,
+            int templateId,
+            IReadOnlyDictionary<string, string> parameters,
+            CancellationToken cancellationToken = default);
     }
 }
 

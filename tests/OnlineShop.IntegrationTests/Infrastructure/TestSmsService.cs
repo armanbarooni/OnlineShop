@@ -64,6 +64,21 @@ namespace OnlineShop.IntegrationTests.Infrastructure
             return Task.FromResult(true).Result;
         }
 
+        public Task<bool> SendTemplateAsync(
+            string phoneNumber,
+            int templateId,
+            IReadOnlyDictionary<string, string> parameters,
+            CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation(
+                "[TEST TEMPLATE SMS] To: {PhoneNumber} | TemplateId: {TemplateId} | Parameters: {@Parameters}",
+                phoneNumber,
+                templateId,
+                parameters);
+
+            return Task.FromResult(true);
+        }
+
         /// <summary>
         /// Get the last OTP code sent to a phone number
         /// </summary>

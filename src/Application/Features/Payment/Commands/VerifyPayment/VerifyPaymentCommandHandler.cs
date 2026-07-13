@@ -15,7 +15,10 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
         private readonly IInventoryService _inventoryService;
         private readonly IMahakOrderSyncService _mahakOrderSyncService;
         private readonly IMahakInventorySyncService _mahakInventorySyncService;
+        private readonly ISmsService _smsService;
         private readonly ILogger<VerifyPaymentCommandHandler> _logger;
+        private const int OrderPaidSmsTemplateId = 461054;
+        private const string OrderPaidFactorIdParameter = "FACTORID";
 
         public VerifyPaymentCommandHandler(
             IUserOrderRepository orderRepository,
@@ -23,6 +26,7 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
             IInventoryService inventoryService,
             IMahakOrderSyncService mahakOrderSyncService,
             IMahakInventorySyncService mahakInventorySyncService,
+            ISmsService smsService,
             ILogger<VerifyPaymentCommandHandler> logger)
         {
             _orderRepository = orderRepository;
@@ -30,6 +34,7 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
             _inventoryService = inventoryService;
             _mahakOrderSyncService = mahakOrderSyncService;
             _mahakInventorySyncService = mahakInventorySyncService;
+            _smsService = smsService;
             _logger = logger;
         }
 
@@ -116,6 +121,7 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
             }
 
             await _orderRepository.UpdateAsync(order, cancellationToken);
+            await SendPaymentConfirmedSmsAsync(order, cancellationToken);
 
             var orderSyncedToMahak = false;
             try
@@ -149,6 +155,41 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
                 Message = "پرداخت با موفقیت انجام شد",
                 OrderId = order.Id
             });
+        }
+
+        private async Task SendPaymentConfirmedSmsAsync(Domain.Entities.UserOrder order, CancellationToken cancellationToken)
+        {
+            var phoneNumber = order.User?.PhoneNumber;
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+            {
+                _logger.LogWarning(
+                    "Payment for order {OrderNumber} was confirmed but customer phone number is missing. Confirmation SMS was not sent.",
+                    order.OrderNumber);
+                return;
+            }
+
+            var sent = await _smsService.SendTemplateAsync(
+                phoneNumber,
+                OrderPaidSmsTemplateId,
+                new Dictionary<string, string>
+                {
+                    [OrderPaidFactorIdParameter] = order.OrderNumber
+                },
+                cancellationToken);
+
+            if (sent)
+            {
+                _logger.LogInformation(
+                    "Payment confirmation SMS sent for order {OrderNumber} to customer {UserId}.",
+                    order.OrderNumber,
+                    order.UserId);
+                return;
+            }
+
+            _logger.LogWarning(
+                "Payment confirmation SMS failed for order {OrderNumber} to customer {UserId}.",
+                order.OrderNumber,
+                order.UserId);
         }
     }
 }

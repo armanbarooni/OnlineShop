@@ -45,6 +45,15 @@ namespace OnlineShop.Infrastructure.Services
             {
                 var gatewayAmount = ConvertRialToToman(amount);
                 var callbackUrl = _configuration["ZarinPal:CallbackUrl"] ?? "https://localhost:5000/api/Payment/verify";
+                var metadata = new Dictionary<string, string>
+                {
+                    ["order_id"] = orderId.ToString()
+                };
+
+                if (!string.IsNullOrWhiteSpace(mobile))
+                {
+                    metadata["mobile"] = mobile;
+                }
 
                 var requestData = new
                 {
@@ -53,11 +62,7 @@ namespace OnlineShop.Infrastructure.Services
                     currency = "IRT",
                     callback_url = callbackUrl,
                     description = description,
-                    metadata = new
-                    {
-                        mobile = mobile,
-                        order_id = orderId.ToString()
-                    }
+                    metadata
                 };
 
                 var json = JsonSerializer.Serialize(requestData);

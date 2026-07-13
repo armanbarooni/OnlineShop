@@ -10,8 +10,6 @@ class ApiClient {
         this.refreshPromise = null;
         this.authDebugKey = 'baliga_auth_debug_logs';
         this.authDebugEnabled = this.isAuthDebugEnabled();
-        window.showAuthDebug = () => this.showAuthDebugPanel(true);
-        window.copyAuthDebugLogs = () => this.copyAuthDebugLogs();
         this.logAuthDebug('api-client:init', {
             baseURL: this.baseURL,
             page: window.location.href,
@@ -73,81 +71,6 @@ class ApiClient {
         if (this.authDebugEnabled || event.includes('refresh') || event.includes('clearTokens')) {
             console.warn('[AuthDebug]', entry);
         }
-
-        if (this.authDebugEnabled || event === 'auth:refresh:failed') {
-            this.showAuthDebugPanel(event === 'auth:refresh:failed');
-        }
-    }
-
-    showAuthDebugPanel(forceOpen = false) {
-        if (!this.authDebugEnabled && !forceOpen) return;
-        if (!document.body) {
-            window.addEventListener('DOMContentLoaded', () => this.showAuthDebugPanel(forceOpen), { once: true });
-            return;
-        }
-
-        let panel = document.getElementById('auth-debug-panel');
-        if (!panel) {
-            panel = document.createElement('div');
-            panel.id = 'auth-debug-panel';
-            panel.style.cssText = [
-                'position:fixed',
-                'left:12px',
-                'bottom:12px',
-                'z-index:99999',
-                'width:min(520px,calc(100vw - 24px))',
-                'max-height:55vh',
-                'overflow:auto',
-                'direction:ltr',
-                'text-align:left',
-                'font:12px/1.45 Consolas,monospace',
-                'background:#111827',
-                'color:#e5e7eb',
-                'border:1px solid #f97316',
-                'border-radius:8px',
-                'box-shadow:0 16px 40px rgba(0,0,0,.35)',
-                'padding:10px'
-            ].join(';');
-            document.body.appendChild(panel);
-        }
-
-        let logs = [];
-        try {
-            logs = JSON.parse(localStorage.getItem(this.authDebugKey) || '[]');
-        } catch (_) { /* ignore */ }
-
-        const latest = logs.slice(-30);
-        panel.innerHTML = [
-            '<div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px">',
-            '<strong>Baliga Auth Debug</strong>',
-            '<div style="display:flex;gap:6px">',
-            '<button type="button" onclick="window.copyAuthDebugLogs && window.copyAuthDebugLogs()" style="background:#f97316;color:white;border:0;border-radius:4px;padding:4px 8px;cursor:pointer">Copy</button>',
-            "<button type=\"button\" onclick=\"localStorage.removeItem('baliga_auth_debug_logs');window.showAuthDebug&&window.showAuthDebug()\" style=\"background:#374151;color:white;border:0;border-radius:4px;padding:4px 8px;cursor:pointer\">Clear</button>",
-            "<button type=\"button\" onclick=\"document.getElementById('auth-debug-panel').remove()\" style=\"background:#4b5563;color:white;border:0;border-radius:4px;padding:4px 8px;cursor:pointer\">Close</button>",
-            '</div>',
-            '</div>',
-            '<pre style="white-space:pre-wrap;margin:0">' +
-                this.escapeHtml(JSON.stringify(latest, null, 2)) +
-            '</pre>'
-        ].join('');
-    }
-
-    async copyAuthDebugLogs() {
-        const logs = localStorage.getItem(this.authDebugKey) || '[]';
-        try {
-            await navigator.clipboard.writeText(logs);
-        } catch (_) {
-            console.warn('[AuthDebug] Clipboard copy failed. Logs:', logs);
-        }
-    }
-
-    escapeHtml(value) {
-        return String(value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
     }
 
     resolveBaseURL(explicitBaseURL = null) {

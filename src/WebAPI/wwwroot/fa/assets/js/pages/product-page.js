@@ -610,9 +610,9 @@ function extractVariantAttributes(row, product) {
   return {
     color,
     size,
-    feature8Title: feature8Title || "عرض سینه/کمر",
+    feature8Title: feature8Title || "قد",
     feature8Value,
-    feature9Title: feature9Title || "قد",
+    feature9Title: feature9Title || "عرض سینه/کمر",
     feature9Value,
   };
 }
@@ -892,8 +892,8 @@ function renderSpecifications(product) {
 
   const variants = buildSizeVariants(product);
   const rowsBySize = new Map();
-  let column8Title = "عرض سینه/کمر";
-  let column9Title = "قد";
+  let column8Title = "قد";
+  let column9Title = "عرض سینه/کمر";
 
   variants.forEach((variant) => {
     if (variant.feature8Title && variant.feature8Title !== "ویژگی ۸") {
@@ -914,8 +914,8 @@ function renderSpecifications(product) {
     }
 
     const row = rowsBySize.get(sizeLabel);
-    if (variant.feature8Value) row.feature8Values.add(variant.feature8Value);
-    if (variant.feature9Value) row.feature9Values.add(variant.feature9Value);
+    if (variant.feature9Value) row.feature8Values.add(variant.feature9Value);
+    if (variant.feature8Value) row.feature9Values.add(variant.feature8Value);
   });
 
   const sizeTableDto = {

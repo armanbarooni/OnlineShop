@@ -76,6 +76,50 @@ public class SmsIrSmsService : ISmsService
         return false;
     }
 
+    public async Task<bool> SendTemplateAsync(
+        string phoneNumber,
+        int templateId,
+        IReadOnlyDictionary<string, string> parameters,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_options.ApiKey))
+        {
+            _logger.LogWarning("SmsIr ApiKey is not configured. Skipping SendTemplateAsync.");
+            return false;
+        }
+
+        if (templateId <= 0)
+        {
+            _logger.LogWarning("SmsIr template id is invalid: {TemplateId}", templateId);
+            return false;
+        }
+
+        try
+        {
+            var client = new SmsIr(_options.ApiKey);
+            var verifyParameters = parameters
+                .Where(p => !string.IsNullOrWhiteSpace(p.Key))
+                .Select(p => new VerifySendParameter(p.Key, p.Value ?? string.Empty))
+                .ToArray();
+
+            var result = await client.VerifySendAsync(Normalize(phoneNumber), templateId, verifyParameters);
+            var ok = result?.Status == 1;
+            _logger.LogInformation(
+                "SmsIr template send status={Status} message={Msg} messageId={Id} templateId={TemplateId}",
+                result?.Status,
+                result?.Message,
+                result?.Data?.MessageId,
+                templateId);
+
+            return ok;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "SmsIr template send failed for template {TemplateId}", templateId);
+            return false;
+        }
+    }
+
     private static string Normalize(string phone)
     {
 		// Normalize to Iranian local format: 09xxxxxxxxx

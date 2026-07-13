@@ -349,19 +349,24 @@ namespace OnlineShop.WebAPI.Controllers
 				return BadRequest(new { message = "Ø´Ù…Ø§Ø±Ù‡ ØªÙ„ÙÙ† Ø§Ù„Ø²Ø§Ù…ÛŒ Ø§Ø³Øª" });
 			}
 
-			// Check if user exists with this phone number
-			var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == dto.PhoneNumber);
+			var phoneCandidates = BuildIranianMobileNumberCandidates(dto.PhoneNumber);
+			var normalizedPhoneNumber = phoneCandidates[0];
+
+			// Check if user exists with this phone number in any common stored format.
+			var user = await _userManager.Users.FirstOrDefaultAsync(u =>
+				(u.PhoneNumber != null && phoneCandidates.Contains(u.PhoneNumber)) ||
+				(u.UserName != null && phoneCandidates.Contains(u.UserName)),
+				cancellationToken);
 			if (user == null)
 			{
-				// Don't reveal that user doesn't exist for security reasons
 				_logger.LogWarning("Forgot password request for non-existent phone: {PhoneNumber}", dto.PhoneNumber);
-				return Ok(new { message = "Ø¯Ø± ØµÙˆØ±Øª ÙˆØ¬ÙˆØ¯ Ø­Ø³Ø§Ø¨ Ú©Ø§Ø±Ø¨Ø±ÛŒ Ø¨Ø§ Ø§ÛŒÙ† Ø´Ù…Ø§Ø±Ù‡ØŒ Ú©Ø¯ Ø¨Ø§Ø²ÛŒØ§Ø¨ÛŒ Ø§Ø±Ø³Ø§Ù„ Ø´Ø¯" });
+				return BadRequest(new { message = "کاربری با این شماره موبایل یافت نشد" });
 			}
 
 			// Send OTP for password reset
 			var sendOtpDto = new SendOtpDto
 			{
-				PhoneNumber = dto.PhoneNumber,
+				PhoneNumber = normalizedPhoneNumber,
 				Purpose = "PasswordReset"
 			};
 
@@ -393,10 +398,13 @@ namespace OnlineShop.WebAPI.Controllers
 				return BadRequest(new { message = "Ø´Ù…Ø§Ø±Ù‡ ØªÙ„ÙÙ†ØŒ Ú©Ø¯ ØªØ§ÛŒÛŒØ¯ Ùˆ Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ø¬Ø¯ÛŒØ¯ Ø§Ù„Ø²Ø§Ù…ÛŒ Ø§Ø³Øª" });
 			}
 
+			var phoneCandidates = BuildIranianMobileNumberCandidates(dto.PhoneNumber);
+			var normalizedPhoneNumber = phoneCandidates[0];
+
 			// Verify OTP
 			var verifyOtpDto = new VerifyOtpDto
 			{
-				PhoneNumber = dto.PhoneNumber,
+				PhoneNumber = normalizedPhoneNumber,
 				Code = dto.OtpCode
 			};
 
@@ -410,7 +418,10 @@ namespace OnlineShop.WebAPI.Controllers
 			}
 
 			// Find user by phone number
-			var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == dto.PhoneNumber);
+			var user = await _userManager.Users.FirstOrDefaultAsync(u =>
+				(u.PhoneNumber != null && phoneCandidates.Contains(u.PhoneNumber)) ||
+				(u.UserName != null && phoneCandidates.Contains(u.UserName)),
+				cancellationToken);
 			if (user == null)
 			{
 				_logger.LogWarning("User not found for phone number: {PhoneNumber}", dto.PhoneNumber);
@@ -478,7 +489,100 @@ namespace OnlineShop.WebAPI.Controllers
 		return Ok(userProfile);
 	}
 
-	private async Task<ApplicationUser?> EnsureDevelopmentUserAsync(string email, bool resetPassword = false, string? requestedPassword = null)
+		private static List<string> BuildIranianMobileNumberCandidates(string phoneNumber)
+		{
+			var cleaned = CleanPhoneNumber(phoneNumber);
+			var local = ToLocalIranianMobileNumber(cleaned);
+			var candidates = new List<string>();
+
+			AddCandidate(local);
+			AddCandidate(cleaned);
+
+			if (local.StartsWith("0") && local.Length > 1)
+			{
+				var withoutLeadingZero = local[1..];
+				AddCandidate("+98" + withoutLeadingZero);
+				AddCandidate("98" + withoutLeadingZero);
+				AddCandidate(withoutLeadingZero);
+			}
+
+			return candidates;
+
+			void AddCandidate(string candidate)
+			{
+				if (!string.IsNullOrWhiteSpace(candidate) && !candidates.Contains(candidate))
+				{
+					candidates.Add(candidate);
+				}
+			}
+		}
+
+		private static string ToLocalIranianMobileNumber(string phoneNumber)
+		{
+			if (phoneNumber.StartsWith("+98", StringComparison.Ordinal) && phoneNumber.Length >= 13)
+			{
+				return "0" + phoneNumber[3..];
+			}
+
+			if (phoneNumber.StartsWith("0098", StringComparison.Ordinal) && phoneNumber.Length >= 14)
+			{
+				return "0" + phoneNumber[4..];
+			}
+
+			if (phoneNumber.StartsWith("98", StringComparison.Ordinal) && phoneNumber.Length == 12)
+			{
+				return "0" + phoneNumber[2..];
+			}
+
+			if (phoneNumber.StartsWith("9", StringComparison.Ordinal) && phoneNumber.Length == 10)
+			{
+				return "0" + phoneNumber;
+			}
+
+			return phoneNumber;
+		}
+
+		private static string CleanPhoneNumber(string phoneNumber)
+		{
+			var chars = new List<char>();
+
+			foreach (var ch in phoneNumber.Trim())
+			{
+				if (ch is ' ' or '-' or '_' or '(' or ')' or '\u200c')
+				{
+					continue;
+				}
+
+				chars.Add(ch switch
+				{
+					'۰' => '0',
+					'۱' => '1',
+					'۲' => '2',
+					'۳' => '3',
+					'۴' => '4',
+					'۵' => '5',
+					'۶' => '6',
+					'۷' => '7',
+					'۸' => '8',
+					'۹' => '9',
+					'٠' => '0',
+					'١' => '1',
+					'٢' => '2',
+					'٣' => '3',
+					'٤' => '4',
+					'٥' => '5',
+					'٦' => '6',
+					'٧' => '7',
+					'٨' => '8',
+					'٩' => '9',
+					_ => ch
+				});
+			}
+
+			return new string(chars.ToArray());
+		}
+
+		private async Task<ApplicationUser?> EnsureDevelopmentUserAsync(string email, bool resetPassword = false, string? requestedPassword = null)
 		{
 			if (!_environment.IsDevelopment())
 			{
