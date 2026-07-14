@@ -459,7 +459,6 @@
                     startCountdown();
 
                     // Show success message
-                    window.utils?.showToast('کد تایید به کنسول سرور ارسال شد (Mock Mode)', 'success');
                     showLoginSuccess(result.message || 'کد تایید ارسال شد');
                 } else {
                     showLoginError(result.error?.errorMessage || result.error || 'خطا در ارسال کد تایید');

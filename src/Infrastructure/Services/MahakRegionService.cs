@@ -5,9 +5,12 @@ using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using OnlineShop.Application.Contracts.Services;
 using OnlineShop.Application.DTOs.Mahak;
+using OnlineShop.Domain.Entities;
 using OnlineShop.Infrastructure.Mahak.Models;
+using OnlineShop.Infrastructure.Persistence;
 
 namespace OnlineShop.Infrastructure.Services
 {
@@ -21,17 +24,20 @@ namespace OnlineShop.Infrastructure.Services
         private readonly IConfiguration _configuration;
         private readonly ILogger<MahakRegionService> _logger;
         private readonly IMemoryCache _cache;
+        private readonly ApplicationDbContext _dbContext;
 
         public MahakRegionService(
             HttpClient httpClient,
             IConfiguration configuration,
             ILogger<MahakRegionService> logger,
-            IMemoryCache cache)
+            IMemoryCache cache,
+            ApplicationDbContext dbContext)
         {
             _httpClient = httpClient;
             _configuration = configuration;
             _logger = logger;
             _cache = cache;
+            _dbContext = dbContext;
             _httpClient.BaseAddress = new Uri(BaseUrl);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
@@ -43,6 +49,19 @@ namespace OnlineShop.Infrastructure.Services
                 return cached;
             }
 
+            var localRegions = await GetLocalRegionsAsync(cancellationToken);
+            if (localRegions.Count > 0)
+            {
+                _cache.Set(CacheKey, localRegions, TimeSpan.FromHours(12));
+                return localRegions;
+            }
+
+            _logger.LogInformation("No Mahak regions found in local database. Loading once from Mahak and persisting locally.");
+            return await SyncRegionsFromMahakAsync(cancellationToken);
+        }
+
+        public async Task<IReadOnlyList<MahakRegionDto>> SyncRegionsFromMahakAsync(CancellationToken cancellationToken)
+        {
             if (!IsConfigured())
             {
                 _logger.LogWarning(
@@ -55,7 +74,7 @@ namespace OnlineShop.Infrastructure.Services
             var token = await LoginAsync(cancellationToken);
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var request = new RequestAllDataModel { FromRegionVersion = 0 };
+            var request = new { FromRegionVersion = 0 };
             using var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json-patch+json");
             var response = await _httpClient.PostAsync("GetAllData", content, cancellationToken);
             var responseText = Encoding.UTF8.GetString(await response.Content.ReadAsByteArrayAsync(cancellationToken));
@@ -93,8 +112,10 @@ namespace OnlineShop.Infrastructure.Services
                 .ThenBy(region => region.CityName)
                 .ToList() ?? new List<MahakRegionDto>();
 
+            await PersistRegionsAsync(regions, result.Data?.Objects?.Regions ?? new List<RegionModel>(), cancellationToken);
+
             _logger.LogInformation(
-                "Mahak regions loaded. Count={Count}, ResponsePreview={ResponsePreview}",
+                "Mahak regions synced to local database. Count={Count}, ResponsePreview={ResponsePreview}",
                 regions.Count,
                 Truncate(responseText, 500));
 
@@ -104,6 +125,67 @@ namespace OnlineShop.Infrastructure.Services
             }
 
             return regions;
+        }
+
+        private async Task<IReadOnlyList<MahakRegionDto>> GetLocalRegionsAsync(CancellationToken cancellationToken)
+        {
+            return await _dbContext.MahakRegions
+                .AsNoTracking()
+                .OrderBy(region => region.ProvinceName)
+                .ThenBy(region => region.CityName)
+                .Select(region => new MahakRegionDto
+                {
+                    CityId = region.CityId,
+                    CityName = region.CityName,
+                    ProvinceId = region.ProvinceId,
+                    ProvinceName = region.ProvinceName,
+                    RowVersion = region.MahakRowVersion
+                })
+                .ToListAsync(cancellationToken);
+        }
+
+        private async Task PersistRegionsAsync(
+            IReadOnlyList<MahakRegionDto> normalizedRegions,
+            IReadOnlyList<RegionModel> sourceRegions,
+            CancellationToken cancellationToken)
+        {
+            if (normalizedRegions.Count == 0)
+            {
+                return;
+            }
+
+            var sourceByCityId = sourceRegions
+                .Where(region => region.CityID > 0)
+                .GroupBy(region => region.CityID)
+                .ToDictionary(group => group.Key, group => group.First());
+
+            var cityIds = normalizedRegions.Select(region => region.CityId).ToList();
+            var existingRegions = await _dbContext.MahakRegions
+                .IgnoreQueryFilters()
+                .Where(region => cityIds.Contains(region.CityId))
+                .ToDictionaryAsync(region => region.CityId, cancellationToken);
+
+            foreach (var region in normalizedRegions)
+            {
+                sourceByCityId.TryGetValue(region.CityId, out var source);
+                var mapCode = source?.MapCode;
+
+                if (existingRegions.TryGetValue(region.CityId, out var existing))
+                {
+                    existing.Update(region.CityName, region.ProvinceId, region.ProvinceName, mapCode, region.RowVersion);
+                    continue;
+                }
+
+                _dbContext.MahakRegions.Add(MahakRegion.Create(
+                    region.CityId,
+                    region.CityName,
+                    region.ProvinceId,
+                    region.ProvinceName,
+                    mapCode,
+                    region.RowVersion));
+            }
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
         private bool IsConfigured()

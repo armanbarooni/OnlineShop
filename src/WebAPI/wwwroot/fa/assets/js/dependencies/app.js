@@ -525,7 +525,12 @@ function normalizeLocalizedStorefrontHref(rawHref) {
         "/privacy": "/fa/index.html",
         "/terms": "/fa/index.html",
         "/faq": "/fa/index.html",
-        "/contact": "/fa/index.html"
+        "/about": "/fa/about-us.html",
+        "/about-us": "/fa/about-us.html",
+        "/about-us.html": "/fa/about-us.html",
+        "/contact": "/fa/contact-us.html",
+        "/contact-us": "/fa/contact-us.html",
+        "/contact-us.html": "/fa/contact-us.html"
     };
 
     let localizedPath = exactMap[path];

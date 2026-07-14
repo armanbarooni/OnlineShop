@@ -7,7 +7,6 @@ namespace OnlineShop.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [AllowAnonymous]
     public class MahakRegionsController : ControllerBase
     {
         private readonly IMahakRegionService _regionService;
@@ -22,6 +21,7 @@ namespace OnlineShop.WebAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             try
@@ -36,6 +36,31 @@ namespace OnlineShop.WebAPI.Controllers
                 return StatusCode(StatusCodes.Status503ServiceUnavailable, new
                 {
                     message = "Mahak regions could not be loaded.",
+                    detail = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("sync")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Sync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var regions = await _regionService.SyncRegionsFromMahakAsync(cancellationToken);
+                _logger.LogInformation("Mahak regions sync endpoint persisted {Count} regions.", regions.Count);
+                return Ok(new
+                {
+                    count = regions.Count,
+                    regions
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Mahak regions sync endpoint failed.");
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, new
+                {
+                    message = "Mahak regions could not be synced.",
                     detail = ex.Message
                 });
             }

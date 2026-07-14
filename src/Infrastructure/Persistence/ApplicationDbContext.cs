@@ -39,6 +39,7 @@ namespace OnlineShop.Infrastructure.Persistence
         public DbSet<MahakSyncLog> MahakSyncLogs { get; set; }
         public DbSet<MahakMapping> MahakMappings { get; set; }
         public DbSet<MahakQueue> MahakQueues { get; set; }
+        public DbSet<MahakRegion> MahakRegions { get; set; }
         public DbSet<SyncErrorLog> SyncErrorLogs { get; set; }
         
         // Authentication Entities

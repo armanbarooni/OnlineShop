@@ -482,15 +482,11 @@
 
         // Send OTP for registration
         async function sendOTPForRegistration() {
-            console.log('🔔 sendOTPForRegistration called!');
             const mobile = document.getElementById('mobile').value;
             const nextBtn = document.getElementById('step2-next-btn');
             const originalBtnContent = nextBtn ? nextBtn.innerHTML : '';
 
-            console.log('📱 Mobile number:', mobile);
-
             if (!mobile || !/^09\d{9}$/.test(mobile)) {
-                console.error('❌ Invalid mobile number:', mobile);
                 window.utils?.showToast('شماره موبایل معتبر نیست', 'error') || alert('شماره موبایل معتبر نیست');
                 return;
             }
@@ -507,11 +503,7 @@
                      `;
                 }
 
-                console.log('📤 Calling authService.sendOTP...');
-                console.log('authService exists?', !!window.authService);
-
                 const result = await window.authService.sendOTP(mobile, 'registration');
-                console.log('✅ OTP Result:', result);
 
                 if (result.success) {
                     // Show OTP step
@@ -526,15 +518,12 @@
                     // Start timer
                     startOTPTimer();
 
-                    window.utils?.showToast('کد تایید به کنسول سرور ارسال شد (Mock Mode)', 'success');
-                    // Also show regular success
-                    setTimeout(() => window.utils?.showToast('کد تایید ارسال شد', 'success'), 500);
+                    window.utils?.showToast('کد تایید ارسال شد', 'success');
                 } else {
-                    console.error('❌ OTP failed:', result.error);
                     window.utils?.showToast(result.error || 'خطا در ارسال کد تایید', 'error');
                 }
             } catch (error) {
-                console.error('💥 Error sending OTP:', error);
+                console.error('Error sending OTP:', error);
                 window.utils?.showToast('خطا در ارسال کد تایید', 'error');
             } finally {
                 if (nextBtn) {
@@ -805,7 +794,6 @@
             // Ensure authService is initialized
             if (!window.authService && typeof AuthService !== 'undefined') {
                 window.authService = new AuthService();
-                console.log('AuthService initialized manually');
             }
 
             // Clear all form fields on page load to prevent caching

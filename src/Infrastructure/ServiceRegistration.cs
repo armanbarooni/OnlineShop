@@ -111,7 +111,7 @@ public static class ServiceRegistration
         services.AddScoped<IMahakTrafficLogger, MahakTrafficFileLogger>();
 
         var mahakTimeoutSeconds = configuration.GetValue<int?>("BackgroundSync:MahakHttpTimeoutSeconds") ?? 20;
-        mahakTimeoutSeconds = Math.Clamp(mahakTimeoutSeconds, 5, 120);
+        mahakTimeoutSeconds = Math.Clamp(mahakTimeoutSeconds, 5, 300);
 
         services.AddHttpClient<MahakSyncService>(client =>
         {

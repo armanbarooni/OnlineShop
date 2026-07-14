@@ -154,6 +154,9 @@ function renderProduct(product) {
 
   // Setup add-to-cart button
   setupAddToCartButton(product);
+
+  // Setup wishlist button
+  setupWishlistButton(product);
 }
 
 // Setup add-to-cart button handler
@@ -239,6 +242,98 @@ function setupAddToCartButton(product) {
       addToCartBtn.textContent = originalText;
     }
   };
+}
+
+function setupWishlistButton(product) {
+  const wishlistBtn = document.getElementById("product-wishlist-btn");
+  if (!wishlistBtn || !product?.id) return;
+
+  wishlistBtn.dataset.wishlistProductId = product.id;
+  wishlistBtn.onclick = (event) => {
+    event.preventDefault();
+    toggleProductWishlist(product.id);
+  };
+
+  syncProductWishlistButton(product.id);
+}
+
+async function syncProductWishlistButton(productId) {
+  if (!window.authService?.isAuthenticated() || !window.wishlistService) return;
+
+  try {
+    const result = await window.wishlistService.getWishlistProductIds();
+    if (!result.success || !Array.isArray(result.data)) return;
+
+    const wishlistProductIds = new Set(result.data.map((id) => String(id).toLowerCase()));
+    setProductWishlistButtonActive(wishlistProductIds.has(String(productId).toLowerCase()));
+  } catch (error) {
+    window.logger?.error("Error syncing product wishlist button:", error);
+  }
+}
+
+async function toggleProductWishlist(productId) {
+  if (!window.authService?.isAuthenticated()) {
+    const returnUrl =
+      window.location.pathname.split("/").pop() +
+      window.location.search +
+      window.location.hash;
+    localStorage.setItem("intendedUrl", returnUrl || "product.html");
+    window.location.href =
+      "login.html?returnUrl=" + encodeURIComponent(returnUrl || "product.html");
+    return;
+  }
+
+  if (!window.wishlistService) {
+    showToast("سرویس علاقه‌مندی‌ها در دسترس نیست", "error");
+    return;
+  }
+
+  const wishlistBtn = document.getElementById("product-wishlist-btn");
+  const isActive = wishlistBtn?.classList.contains("text-red-500");
+
+  try {
+    const result = isActive
+      ? await window.wishlistService.removeProductFromWishlist(productId)
+      : await window.wishlistService.addToWishlist(productId);
+
+    if (result.success) {
+      setProductWishlistButtonActive(!isActive);
+      showToast(
+        result.message ||
+          (isActive
+            ? "محصول از علاقه‌مندی‌ها حذف شد"
+            : "محصول به علاقه‌مندی‌ها اضافه شد"),
+        "success",
+      );
+      return;
+    }
+
+    if (!isActive && String(result.error || "").toLowerCase().includes("already in wishlist")) {
+      setProductWishlistButtonActive(true);
+      showToast("محصول در علاقه‌مندی‌ها قرار دارد", "info");
+      return;
+    }
+
+    showToast(result.error || "خطا در ثبت علاقه‌مندی", "error");
+  } catch (error) {
+    window.logger?.error("Error toggling product wishlist:", error);
+    showToast("خطا در ثبت علاقه‌مندی", "error");
+  }
+}
+
+function setProductWishlistButtonActive(isActive) {
+  const wishlistBtn = document.getElementById("product-wishlist-btn");
+  if (!wishlistBtn) return;
+
+  wishlistBtn.classList.toggle("text-red-500", isActive);
+  wishlistBtn.classList.toggle("dark:text-white", !isActive);
+  wishlistBtn.setAttribute(
+    "aria-label",
+    isActive ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها",
+  );
+
+  const icon = wishlistBtn.querySelector("svg");
+  if (icon) icon.setAttribute("fill", isActive ? "currentColor" : "none");
 }
 
 // Resolve variant ID from product data based on selected color/size
@@ -677,7 +772,90 @@ function extractUniqueValues(items, key) {
     const value = stringOrEmpty(item[key]);
     if (value) set.add(value);
   });
-  return Array.from(set);
+  const values = Array.from(set);
+  return key === "size" ? sortSizeValues(values) : values;
+}
+
+function sortSizeValues(values) {
+  return [...values].sort(compareSizeValues);
+}
+
+function compareSizeValues(a, b) {
+  const rankA = getSizeRank(a);
+  const rankB = getSizeRank(b);
+
+  if (rankA !== rankB) return rankA - rankB;
+  return String(a).localeCompare(String(b), "fa");
+}
+
+function getSizeRank(size) {
+  const normalized = normalizeSizeForSort(size);
+  if (!normalized) return Number.MAX_SAFE_INTEGER;
+
+  const namedRanks = new Map([
+    ["xxs", 10],
+    ["2xs", 10],
+    ["xs", 20],
+    ["s", 30],
+    ["small", 30],
+    ["m", 40],
+    ["medium", 40],
+    ["l", 50],
+    ["large", 50],
+    ["x", 60],
+    ["xl", 60],
+    ["1xl", 60],
+    ["xx", 70],
+    ["xxl", 70],
+    ["2xl", 70],
+    ["xxx", 80],
+    ["xxxl", 80],
+    ["3xl", 80],
+    ["xxxx", 90],
+    ["xxxxl", 90],
+    ["4xl", 90],
+    ["xxxxx", 100],
+    ["xxxxxl", 100],
+    ["5xl", 100],
+    ["free", 1000],
+    ["onesize", 1000],
+    ["one-size", 1000],
+  ]);
+
+  if (namedRanks.has(normalized)) return namedRanks.get(normalized);
+
+  const numericMatch = normalized.match(/\d+/);
+  if (numericMatch) return 200 + Number(numericMatch[0]);
+
+  return 5000;
+}
+
+function normalizeSizeForSort(size) {
+  return String(size ?? "")
+    .trim()
+    .replace(/\u200c/g, "")
+    .replace(/\s+/g, "")
+    .replace(/[۰٠]/g, "0")
+    .replace(/[۱١]/g, "1")
+    .replace(/[۲٢]/g, "2")
+    .replace(/[۳٣]/g, "3")
+    .replace(/[۴٤]/g, "4")
+    .replace(/[۵٥]/g, "5")
+    .replace(/[۶٦]/g, "6")
+    .replace(/[۷٧]/g, "7")
+    .replace(/[۸٨]/g, "8")
+    .replace(/[۹٩]/g, "9")
+    .replace(/ایکس/gi, "x")
+    .replace(/لارج/gi, "l")
+    .replace(/مدیوم/gi, "m")
+    .replace(/اسمال|کوچک/gi, "s")
+    .replace(/یکx|1x/gi, "x")
+    .replace(/دوx|2x/gi, "xx")
+    .replace(/سهx|3x/gi, "xxx")
+    .replace(/چهارx|4x/gi, "xxxx")
+    .replace(/پنجx|5x/gi, "xxxxx")
+    .replace(/بزرگ/gi, "l")
+    .toLowerCase();
 }
 
 function fillSelect(selectEl, values, defaultLabel) {
@@ -851,21 +1029,7 @@ function renderDescription(product) {
     introContainer.innerHTML = introHtml;
   }
 
-  // Update features list
-  const featuresList = document.getElementById("product-features-list");
   const features = descText.split("\n").filter((f) => f.trim());
-  if (featuresList) {
-    featuresList.innerHTML = features
-      .map(
-        (feature) => `
-              <li class="flex items-start gap-2">
-                  <span class="inline-block text-base leading-7 break-words">${escapeHtml(feature.trim())}</span>
-              </li>
-          `,
-      )
-      .join("");
-  }
-
   if (descriptionContainer) {
     descriptionContainer.innerHTML = features.length > 1
       ? features
@@ -921,11 +1085,13 @@ function renderSpecifications(product) {
   const sizeTableDto = {
     column8Title,
     column9Title,
-    rows: Array.from(rowsBySize.values()).map((row) => ({
-      size: row.size,
-      feature8Values: Array.from(row.feature8Values),
-      feature9Values: Array.from(row.feature9Values),
-    })),
+    rows: Array.from(rowsBySize.values())
+      .sort((a, b) => compareSizeValues(a.size, b.size))
+      .map((row) => ({
+        size: row.size,
+        feature8Values: Array.from(row.feature8Values),
+        feature9Values: Array.from(row.feature9Values),
+      })),
   };
   const sizeRows = sizeTableDto.rows;
   const hasData = sizeRows.length > 0;

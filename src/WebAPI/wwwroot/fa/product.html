@@ -184,6 +184,8 @@
                     class="flex flex-col bg-white absolute top-1 start-0 p-1 rounded space-y-3 dark:bg-transparent"
                   >
                     <button
+                      id="product-wishlist-btn"
+                      type="button"
                       class="hover:text-gray-400 relative group cursor-pointer"
                       aria-label="افزودن به علاقه‌مندی‌ها"
                     >
@@ -236,33 +238,6 @@
                           class="absolute end-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"
                         ></span>
                         اشتراک گذاری
-                      </span>
-                    </button>
-                    <button
-                      class="hover:text-gray-400 cursor-pointer relative group"
-                      aria-label="مقایسه محصول"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="size-6 dark:text-white"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
-                        />
-                      </svg>
-                      <span
-                        class="absolute text-nowrap start-full ms-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-gray-900 text-white text-sm py-1 px-2 rounded-md shadow-lg"
-                      >
-                        <span
-                          class="absolute end-full top-1/2 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"
-                        ></span>
-                        مقایسه محصول
                       </span>
                     </button>
                   </div>
@@ -349,15 +324,8 @@
                         class="my-3 text-sm font-semibold hidden"
                       ></div>
                     </div>
-                    <!-- feature -->
+                    <!-- description -->
                     <div class="space-y-5">
-                      <div class="space-y-3">
-                        <h4 class="font-bold text-lg">ویژگی‌های محصول:</h4>
-                        <ul
-                          id="product-features-list"
-                          class="flex flex-col items-start items-baseline flex-wrap space-x-3 space-y-3"
-                        ></ul>
-                      </div>
                       <div class="space-y-3">
                         <h4 class="font-bold text-lg">توضیحات محصول:</h4>
                         <div
@@ -1720,7 +1688,7 @@
     <script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
     <script src="assets/js/dependencies/swiper-script.js"></script>
     <script src="assets/js/dependencies/app.js?v=20260627-1"></script>
-    <script src="assets/js/pages/product-page.js?v=guest-cart-20260627c"></script>
+    <script src="assets/js/pages/product-page.js?v=product-fixes-20260714"></script>
     <script src="assets/js/components/cart-badge.js"></script>
 </body>
 </html>
