@@ -465,6 +465,8 @@
     const criteria = {
       pageNumber: 1,
       pageSize: DEFAULT_PAGE_SIZE,
+      sortBy: "CreatedAt",
+      sortDescending: true,
     };
     const searchTerm = normalizeFilterText(
       currentFilters.searchTerm || searchQuery,

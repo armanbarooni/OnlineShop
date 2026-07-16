@@ -1169,18 +1169,21 @@ namespace OnlineShop.Infrastructure.Services
                  return;
             }
 
-            var pictureMap = pictures.ToDictionary(p => p.PictureId, p => p.Url);
+            var pictureMap = pictures.ToDictionary(p => p.PictureId);
             int newImages = 0;
+            int deletedImages = 0;
             int errors = 0;
 
             foreach (var gallery in galleries)
             {
                 if (gallery.EntityType != 102) continue; // Only Products
 
-                if (pictureMap.TryGetValue(gallery.PictureId, out var url) && !string.IsNullOrEmpty(url))
+                if (pictureMap.TryGetValue(gallery.PictureId, out var picture) && !string.IsNullOrEmpty(picture.Url))
                 {
                     try
                     {
+                        var url = picture.Url;
+
                         // Find product by Mahak ItemCode
                         var productMapping = await _mahakMappingRepository.GetByMahakEntityIdAsync(
                             "Product", gallery.ItemCode, cancellationToken);
@@ -1200,6 +1203,24 @@ namespace OnlineShop.Infrastructure.Services
 
                         // Check if image already exists
                         var existingImages = await _productImageRepository.GetByProductIdAsync(product.Id, cancellationToken);
+                        if (gallery.Deleted || picture.Deleted)
+                        {
+                            var deletedImage = existingImages.FirstOrDefault(i => i.ImageUrl == url);
+                            if (deletedImage != null)
+                            {
+                                await _productImageRepository.DeleteAsync(deletedImage.Id, cancellationToken);
+                                deletedImages++;
+                                _logger.LogInformation(
+                                    "Deleted image for product {ProductName} (MahakId: {ItemCode}, PictureId: {PictureId}): {Url}",
+                                    product.Name,
+                                    gallery.ItemCode,
+                                    gallery.PictureId,
+                                    url);
+                            }
+
+                            continue;
+                        }
+
                         if (existingImages.Any(i => i.ImageUrl == url))
                         {
                             _logger.LogDebug("Image {Url} already exists for product {ProductId}", url, product.Id);
@@ -1254,7 +1275,7 @@ namespace OnlineShop.Infrastructure.Services
                 }
             }
             
-            _logger.LogInformation("Image sync completed: {NewImages} new, {Errors} errors", newImages, errors);
+            _logger.LogInformation("Image sync completed: {NewImages} new, {DeletedImages} deleted, {Errors} errors", newImages, deletedImages, errors);
         }
 
         private async Task ProcessPeopleAsync(List<PersonModel>? people, CancellationToken cancellationToken)

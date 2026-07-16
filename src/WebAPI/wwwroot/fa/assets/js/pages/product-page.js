@@ -705,9 +705,9 @@ function extractVariantAttributes(row, product) {
   return {
     color,
     size,
-    feature8Title: feature8Title || "قد",
+      feature8Title: feature8Title || "عرض سینه/کمر",
     feature8Value,
-    feature9Title: feature9Title || "عرض سینه/کمر",
+    feature9Title: feature9Title || "قد",
     feature9Value,
   };
 }

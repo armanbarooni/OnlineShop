@@ -297,21 +297,23 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
 
         private IQueryable<Domain.Entities.Product> ApplySorting(IQueryable<Domain.Entities.Product> query, ProductSearchCriteriaDto criteria)
         {
+            var orderedQuery = query.OrderBy(p => p.StockQuantity <= 0);
+
             return criteria.SortBy?.ToLower() switch
             {
                 "name" => criteria.SortDescending
-                    ? query.OrderByDescending(p => p.Name)
-                    : query.OrderBy(p => p.Name),
+                    ? orderedQuery.ThenByDescending(p => p.Name)
+                    : orderedQuery.ThenBy(p => p.Name),
                 "price" => criteria.SortDescending
-                    ? query.OrderByDescending(p => p.Price)
-                    : query.OrderBy(p => p.Price),
+                    ? orderedQuery.ThenByDescending(p => p.Price)
+                    : orderedQuery.ThenBy(p => p.Price),
                 "viewcount" => criteria.SortDescending
-                    ? query.OrderByDescending(p => p.ViewCount)
-                    : query.OrderBy(p => p.ViewCount),
+                    ? orderedQuery.ThenByDescending(p => p.ViewCount)
+                    : orderedQuery.ThenBy(p => p.ViewCount),
                 "createdat" => criteria.SortDescending
-                    ? query.OrderByDescending(p => p.CreatedAt)
-                    : query.OrderBy(p => p.CreatedAt),
-                _ => query.OrderByDescending(p => p.CreatedAt) // Default sort by newest
+                    ? orderedQuery.ThenByDescending(p => p.CreatedAt)
+                    : orderedQuery.ThenBy(p => p.CreatedAt),
+                _ => orderedQuery.ThenByDescending(p => p.CreatedAt)
             };
         }
 
