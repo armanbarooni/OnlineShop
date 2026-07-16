@@ -466,15 +466,6 @@ app.Use(async (context, next) =>
 // Inject global RTL CSS/meta for Farsi pages
 app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RtlLocalizationMiddleware>();
 
-app.MapGet("/api/health", () =>
-{
-    return Results.Ok(new
-    {
-        status = "ok",
-        utc = DateTimeOffset.UtcNow
-    });
-});
-
 app.MapControllers();
 
 
