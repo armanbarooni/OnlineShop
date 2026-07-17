@@ -254,7 +254,9 @@
   }
 
   function renderProducts(products, container) {
-    const visibleProducts = extractArray(products).filter(isVisibleProduct);
+    const visibleProducts = sortProductsForListing(
+      extractArray(products).filter(isVisibleProduct),
+    );
     currentProductsById = new Map(
       visibleProducts.map(function (product) {
         return [String(product.id), product];
@@ -268,6 +270,31 @@
 
     container.innerHTML = visibleProducts.map(createProductCard).join("");
     syncWishlistButtons();
+  }
+
+  function sortProductsForListing(products) {
+    return products.slice().sort(function (first, second) {
+      const firstOutOfStock = isProductInStock(first) ? 0 : 1;
+      const secondOutOfStock = isProductInStock(second) ? 0 : 1;
+
+      if (firstOutOfStock !== secondOutOfStock) {
+        return firstOutOfStock - secondOutOfStock;
+      }
+
+      return getProductCreatedTime(second) - getProductCreatedTime(first);
+    });
+  }
+
+  function getProductCreatedTime(product) {
+    const value =
+      product?.createdAt ??
+      product?.CreatedAt ??
+      product?.insertedAt ??
+      product?.InsertedAt ??
+      product?.createdDate ??
+      product?.CreatedDate;
+    const time = Date.parse(value);
+    return Number.isFinite(time) ? time : 0;
   }
 
   function isVisibleProduct(product) {
@@ -298,11 +325,12 @@
 
     return `
       <div class="lg:col-span-4 md:col-span-6 col-span-12 w-full">
-        <article class="bg-white product-box-item drop-shadow-md rounded-xl p-3 sm:p-4 dark:bg-gray-800 dark:border-white dark:border-1 h-full flex flex-col" itemscope itemtype="http://schema.org/Product">
+        <article class="bg-white product-box-item rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20 h-full flex flex-col" itemscope itemtype="http://schema.org/Product">
           <figure class="relative overflow-hidden rounded-lg mb-3">
             <a href="${productUrl}" class="block" itemprop="url">
               <img src="${escapeAttribute(image.src)}" alt="${escapeAttribute(name)}" class="w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" itemprop="image" onerror="${imageErrorHandler}">
             </a>
+            ${!hasStock ? `<span class="absolute top-2 end-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-20 shadow-sm">ناموجود</span>` : ""}
             ${
               discount > 0
                 ? `<span class="absolute top-2 end-2 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">${discount}%</span>`
@@ -315,13 +343,13 @@
             </button>
           </figure>
           <a href="${productUrl}" class="block flex-1">
-            <h3 class="text-xs sm:text-sm font-bold mb-2 line-clamp-2 dark:text-white" itemprop="name">${escapeHtml(name)}</h3>
+            <h3 class="text-sm sm:text-sm font-extrabold leading-6 mb-2 line-clamp-2 text-gray-900 dark:text-white" itemprop="name">${escapeHtml(name)}</h3>
           </a>
           <div class="flex items-center justify-between mt-auto" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
             <meta itemprop="priceCurrency" content="IRR">
             <div class="flex flex-col">
               ${hasStock && discount > 0 ? `<span class="text-[11px] sm:text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-              <span class="text-base sm:text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}" itemprop="price"${hasStock ? ` content="${price}"` : ""}>${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
+              <span class="text-base sm:text-lg font-extrabold ${hasStock ? "text-gray-900 dark:text-gray-100" : "text-red-600 dark:text-white"}" itemprop="price"${hasStock ? ` content="${price}"` : ""}>${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
             </div>
             <button type="button" data-add-to-cart-product-id="${escapeAttribute(id)}" class="bg-primary text-white p-1.5 sm:p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" aria-label="افزودن به سبد خرید" ${hasStock ? "" : "disabled"}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5 pointer-events-none">

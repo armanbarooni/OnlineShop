@@ -1,17 +1,30 @@
 ﻿<!-- ================= start header ================= -->
+    <style>
+      .desktop-mega-menu {
+        display: none;
+      }
+
+      @media (min-width: 1280px) {
+        .desktop-mega-menu {
+          display: block;
+        }
+      }
+    </style>
     <header
       id="topHeader"
-      class="py-2 md:py-3 dark:shadow-primary-600 dark:shadow dark:bg-gray-800 sticky top-0 start-0 end-0 z-20 shadow-md bg-white"
+      class="py-2 md:py-3 dark:shadow-none dark:bg-gray-900 sticky top-0 start-0 end-0 z-20 shadow-sm bg-white border-b border-gray-100 dark:border-white/20"
     >
       <div class="container">
         <!-- row top header -->
 
         <div class="grid place-items-center gap-3 grid-cols-12">
-          <!-- respnsive menu -->
-          <div class="lg:hidden col-span-4 w-full">
-            <a
-              href="javascript:void(0)"
+          <!-- mobile menu -->
+          <div class="lg:hidden order-1 col-span-2 w-full">
+            <button
+              type="button"
               onclick="toggleOffcanvas('offcanvas-right')"
+              class="flex size-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm transition hover:text-primary dark:border-white/20 dark:bg-gray-900 dark:text-white"
+              aria-label="باز کردن منو"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -19,22 +32,24 @@
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
                 stroke="currentColor"
-              class="size-5 md:size-6 dark:text-white"
+                class="size-6"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12H12m-8.25 5.25h16.5"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                 />
               </svg>
-            </a>
+            </button>
           </div>
           <!-- logo -->
           <div class="lg:col-span-2 lg:order-1 order-2 col-span-4 w-full">
             <a href="index.html">
               <div class="lg:text-start text-center">
                 <img
-                  class="h-8 sm:h-10 md:h-12"
+                  class="h-12"
+                  style="height: 3.25rem;"
                   src="assets/images/logo.webp"
                   loading="eager"
                   fetchpriority="high"
@@ -46,9 +61,9 @@
           </div>
           <!-- search and filter -->
           <div
-            class="lg:col-span-6 lg:block lg:order-2 order-4 hidden col-span-4 w-full"
+            class="lg:col-span-6 lg:order-2 order-4 col-span-12 w-full"
           >
-            <div class="flex items-center w-full justify-between">
+            <div class="mx-auto flex w-full items-center justify-between" style="max-width: 36rem;">
               <!-- search -->
               <div class="flex w-full items-center">
                 <!--Search component-->
@@ -56,12 +71,13 @@
                   <input
                     type="search"
                     id="searchInput"
-                    class="w-full appearance-none dark:text-white rounded-3xl border border-gray-300 dark:border-gray-600 py-3 ps-16 pe-4 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 shadow-sm"
+                    class="w-full appearance-none dark:text-white rounded-2xl border border-gray-300 dark:border-white/20 pe-4 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-900 shadow-sm"
+                    style="padding-top: .625rem; padding-bottom: .625rem; padding-inline-start: 3.5rem;"
                     placeholder="جستجوی محصولات ...."
                   />
                   <button
                     type="button"
-                    class="bg-primary-grad p-2 text-white rounded-3xl absolute start-1 hover:opacity-90 transition-opacity"
+                    class="bg-primary p-2 text-white rounded-2xl absolute start-1 hover:opacity-90 transition-opacity"
                     aria-label="Search"
                   >
                     <svg
@@ -93,7 +109,7 @@
             </div>
           </div>
           <!-- login and basket and call and darkmode -->
-          <div class="lg:col-span-4 col-span-4 order-3 w-full">
+          <div class="lg:col-span-4 col-span-6 order-3 lg:order-3 w-full">
             <div class="flex items-baseline justify-end">
               <!-- basket and call and darkmode -->
               <div class="flex items-baseline md:me-5 me-2">
@@ -191,13 +207,14 @@
         <!-- mega menu -->
         <div
           id="megaMenu"
-          class="xl:grid hidden relative grid-cols-12 place-items-center"
+          class="desktop-mega-menu relative border-t border-gray-100 dark:border-white/20 mt-3 pt-2"
         >
-          <div class="col-span-10 place-self-start">
-            <nav class="flex gap-x-9 mt-10 items-center">
+          <div class="w-full">
+            <nav class="flex items-center justify-center">
               <!-- menu -->
               <ul
-                class="flex dark:text-white items-center space-x-8 tracking-tight"
+                class="flex dark:text-white items-center text-sm font-semibold"
+                style="column-gap: 2.25rem;"
               >
                 <li id="mega-menu-fire" class="py-2 relative">
                   <button
@@ -205,7 +222,8 @@
                     aria-haspopup="true"
                     aria-expanded="false"
                     aria-controls="mega-menu-fire-target"
-                    class="flex font-bold hover:text-primary transition"
+                    class="flex items-center font-bold hover:text-primary transition"
+                    style="gap: .6rem;"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -213,7 +231,7 @@
                       viewBox="0 0 24 24"
                       stroke-width="1.5"
                       stroke="currentColor"
-                      class="size-6 me-2"
+                      class="size-6"
                     >
                       <path
                         stroke-linecap="round"
@@ -235,8 +253,9 @@
                 </li>
                 <li class="py-2">
                   <a
-                    href="about-us.html"
-                    class="flex space-x-3 hover:text-primary transition"
+                    href="index.html"
+                    class="flex items-center hover:text-primary transition"
+                    style="gap: .6rem;"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -258,7 +277,8 @@
                 <li class="py-2">
                   <a
                     href="shop.html"
-                    class="flex space-x-3 hover:text-primary transition"
+                    class="flex items-center hover:text-primary transition"
+                    style="gap: .6rem;"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -279,8 +299,9 @@
                 </li>
                 <li class="py-2">
                   <a
-                    href="index.html"
-                    class="flex space-x-3 hover:text-primary transition"
+                    href="about-us.html"
+                    class="flex items-center hover:text-primary transition"
+                    style="gap: .6rem;"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -303,7 +324,8 @@
                 <li class="py-2">
                   <a
                     href="contact-us.html"
-                    class="flex space-x-3 hover:text-primary transition"
+                    class="flex items-center hover:text-primary transition"
+                    style="gap: .6rem;"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

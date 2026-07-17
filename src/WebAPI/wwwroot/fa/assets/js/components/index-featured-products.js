@@ -210,7 +210,7 @@
 
     return `
       <div class="swiper-slide px-1.5 py-2">
-        <article class="bg-white product-box-item drop-shadow-md rounded-xl p-3 sm:p-4 dark:bg-gray-800 dark:border-white dark:border-1">
+        <article class="bg-white product-box-item rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20">
           <header class="flex items-center relative justify-between">
             ${discount > 0 ? `<span class="absolute top-1 end-1 bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ""}
           </header>
@@ -218,19 +218,20 @@
             <a href="${productUrl}" class="block">
               <img src="${imageUrl}" alt="${name}" class="w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" onerror="${imageErrorHandler}">
             </a>
-            <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="\u0627\u0641\u0632\u0648\u062f\u0646 \u0628\u0647 \u0639\u0644\u0627\u0642\u0647\u200c\u0645\u0646\u062f\u06cc\u200c\u0647\u0627">
+            ${!hasStock ? `<span class="absolute top-2 end-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-20 shadow-sm">\u0646\u0627\u0645\u0648\u062c\u0648\u062f</span>` : ""}
+            <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-1.5 sm:p-2 bg-white rounded-full shadow-sm hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="\u0627\u0641\u0632\u0648\u062f\u0646 \u0628\u0647 \u0639\u0644\u0627\u0642\u0647\u200c\u0645\u0646\u062f\u06cc\u200c\u0647\u0627">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5 pointer-events-none">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
               </svg>
             </button>
           </figure>
                 <a href="${productUrl}">
-                    <h3 class="text-xs sm:text-sm font-bold mb-2 line-clamp-2 dark:text-white">${name}</h3>
+                    <h3 class="text-sm sm:text-sm font-extrabold leading-6 mb-2 line-clamp-2 text-gray-900 dark:text-white">${name}</h3>
                 </a>
                 <div class="flex items-center justify-between mt-3">
                     <div class="flex flex-col">
                         ${hasStock && discount > 0 ? `<span class="text-[11px] sm:text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-                        <span class="text-base sm:text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${formatPrice(price)} \u0631\u06cc\u0627\u0644` : "\u0646\u0627\u0645\u0648\u062c\u0648\u062f"}</span>
+                        <span class="text-base sm:text-lg font-extrabold ${hasStock ? "text-gray-900 dark:text-gray-100" : "text-red-600 dark:text-white"}">${hasStock ? `${formatPrice(price)} \u0631\u06cc\u0627\u0644` : "\u0646\u0627\u0645\u0648\u062c\u0648\u062f"}</span>
                     </div>
           </div>
         </article>
@@ -332,7 +333,7 @@
 
     container.innerHTML = `
       <div class="swiper-slide px-1.5 py-2">
-        <article class="bg-white product-box-item drop-shadow-md rounded-xl p-3 sm:p-4 dark:bg-gray-800 dark:border-white dark:border-1">
+        <article class="bg-white product-box-item rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20">
           <p class="text-center text-gray-500 dark:text-gray-300 py-12 sm:py-16">${message}</p>
         </article>
       </div>

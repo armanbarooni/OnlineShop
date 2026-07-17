@@ -46,44 +46,6 @@
       type="font/woff2"
       crossorigin
     />
-    <style>
-      .home-section-break {
-        width: min(72rem, calc(100% - 2rem));
-        margin: clamp(1.2rem, 3vw, 2.2rem) auto;
-        display: flex;
-        align-items: center;
-        gap: clamp(0.75rem, 2vw, 1.4rem);
-      }
-
-      .home-section-break::before,
-      .home-section-break::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        border-radius: 999px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 107, 33, 0.75),
-          rgba(23, 35, 52, 0.46)
-        );
-        box-shadow: 0 10px 24px rgba(255, 107, 33, 0.16);
-      }
-
-      .home-section-break::after {
-        transform: scaleX(-1);
-      }
-
-      .home-section-break span {
-        width: 0.5rem;
-        height: 0.5rem;
-        border-radius: 999px;
-        background: #ff6b21;
-        box-shadow:
-          0 0 0 0.35rem rgba(255, 107, 33, 0.11),
-          0 0 1.25rem rgba(255, 107, 33, 0.45);
-      }
-    </style>
   </head>
 
   <body
@@ -95,22 +57,14 @@
       data-layout-script="assets/js/components/index-slider.js?v=20260627-8"
     ></div>
 
-    <div class="home-section-break" aria-hidden="true"><span></span></div>
-
     <div data-layout-partial="index-features"></div>
-
-    <div class="home-section-break" aria-hidden="true"><span></span></div>
 
     <div data-layout-partial="index-promo-banners"></div>
 
-    <div class="home-section-break" aria-hidden="true"><span></span></div>
-
     <div
       data-layout-partial="index-featured-products"
-      data-layout-script="assets/js/components/index-featured-products.js?v=20260714-no-card-cart"
+      data-layout-script="assets/js/components/index-featured-products.js?v=20260717-visual-polish"
     ></div>
-
-    <div class="home-section-break" aria-hidden="true"><span></span></div>
 
     <div data-layout-partial="index-bottom-promo-banner"></div>
     <div data-layout-partial="site-footer"></div>
@@ -126,7 +80,7 @@
 
     <div data-layout-partial="site-mobile-nav"></div>
 
-    <script src="assets/js/components/layout-loader.js?v=20260712-7"></script>
+    <script src="assets/js/components/layout-loader.js?v=20260719-1"></script>
     <script src="config.js"></script>
     <script src="assets/js/utils/logger.js"></script>
     <script src="assets/js/dependencies/app.js?v=20260712-1"></script>

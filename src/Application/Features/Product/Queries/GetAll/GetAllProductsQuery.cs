@@ -26,8 +26,8 @@ namespace OnlineShop.Application.Features.Product.Queries.GetAll
         public bool? InStockOnly { get; set; }
         
         // Sorting
-        public string? SortBy { get; set; } // "name", "price", "newest", "popular"
-        public bool SortDescending { get; set; }
+        public string? SortBy { get; set; } = "CreatedAt"; // "name", "price", "newest", "popular"
+        public bool SortDescending { get; set; } = true;
         
         // Pagination
         public int PageNumber { get; set; } = 1;

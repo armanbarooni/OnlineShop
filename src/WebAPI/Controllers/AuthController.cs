@@ -346,7 +346,7 @@ namespace OnlineShop.WebAPI.Controllers
 
 			if (string.IsNullOrWhiteSpace(dto.PhoneNumber))
 			{
-				return BadRequest(new { message = "Ø´Ù…Ø§Ø±Ù‡ ØªÙ„ÙÙ† Ø§Ù„Ø²Ø§Ù…ÛŒ Ø§Ø³Øª" });
+				return BadRequest(new { isSuccess = false, message = "شماره تلفن الزامی است" });
 			}
 
 			var phoneCandidates = BuildIranianMobileNumberCandidates(dto.PhoneNumber);
@@ -360,7 +360,7 @@ namespace OnlineShop.WebAPI.Controllers
 			if (user == null)
 			{
 				_logger.LogWarning("Forgot password request for non-existent phone: {PhoneNumber}", dto.PhoneNumber);
-				return BadRequest(new { message = "کاربری با این شماره موبایل یافت نشد" });
+				return BadRequest(new { isSuccess = false, message = "کاربر مورد نظر وجود ندارد" });
 			}
 
 			// Send OTP for password reset

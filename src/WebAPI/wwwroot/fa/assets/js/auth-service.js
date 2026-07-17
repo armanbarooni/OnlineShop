@@ -559,7 +559,7 @@ class AuthService {
             };
         } catch (error) {
             window.logger.error('Forgot password error:', error);
-            let errorMessage = error.message || 'خطا در اتصال به سرور';
+            let errorMessage = this.extractErrorMessage(error, 'خطا در ارسال کد بازیابی');
             
             // Try to extract errorMessage from JSON string if error.message is a serialized JSON
             try {
@@ -569,6 +569,14 @@ class AuthService {
                 }
             } catch (parseErr) {
                 // If it's not JSON, keep original message
+            }
+
+            if (
+                errorMessage.includes('کاربری با این شماره') ||
+                errorMessage.includes('User not found') ||
+                errorMessage.includes('not found')
+            ) {
+                errorMessage = 'کاربر مورد نظر وجود ندارد';
             }
             
             return {

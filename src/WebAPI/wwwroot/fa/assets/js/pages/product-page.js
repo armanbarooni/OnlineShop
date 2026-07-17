@@ -165,6 +165,8 @@ function setupAddToCartButton(product) {
   if (!addToCartBtn) return;
 
   addToCartBtn.onclick = async function() {
+    hideCartConfirmation();
+
     if (availableVariants.length === 0) {
       showToast("این کالا ناموجود است", "warning");
       return;
@@ -230,6 +232,7 @@ function setupAddToCartButton(product) {
 
         // Update cart count in header if available
         updateCartBadge(response.data);
+        showCartConfirmation();
       } else {
         const errorMsg = response?.data?.errorMessage || response?.error || "خطا در افزودن به سبد خرید";
         showToast(errorMsg, "error");
@@ -242,6 +245,21 @@ function setupAddToCartButton(product) {
       addToCartBtn.textContent = originalText;
     }
   };
+}
+
+function showCartConfirmation() {
+  const confirmation = document.getElementById("product-cart-confirmation");
+  if (!confirmation) return;
+
+  confirmation.classList.remove("hidden");
+  confirmation.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function hideCartConfirmation() {
+  const confirmation = document.getElementById("product-cart-confirmation");
+  if (!confirmation) return;
+
+  confirmation.classList.add("hidden");
 }
 
 function setupWishlistButton(product) {

@@ -92,22 +92,9 @@ namespace OnlineShop.Application.Features.Product.Queries.GetAll
                 query = query.Where(p => p.StockQuantity > 0);
             }
 
-            // Sorting: available products first, then newest by default.
-            var orderedQuery = query.OrderBy(p => p.StockQuantity <= 0);
-            query = request.SortBy?.ToLower() switch
-            {
-                "price" => request.SortDescending 
-                    ? orderedQuery.ThenByDescending(p => p.Price) 
-                    : orderedQuery.ThenBy(p => p.Price),
-                "newest" => orderedQuery.ThenByDescending(p => p.CreatedAt),
-                "createdat" => request.SortDescending
-                    ? orderedQuery.ThenByDescending(p => p.CreatedAt)
-                    : orderedQuery.ThenBy(p => p.CreatedAt),
-                "name" => request.SortDescending 
-                    ? orderedQuery.ThenByDescending(p => p.Name) 
-                    : orderedQuery.ThenBy(p => p.Name),
-                _ => orderedQuery.ThenByDescending(p => p.CreatedAt)
-            };
+            query = query
+                .OrderBy(p => p.StockQuantity <= 0)
+                .ThenByDescending(p => p.CreatedAt);
 
             // Get total count before pagination (support async and sync providers)
             int totalCount;

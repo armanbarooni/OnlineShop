@@ -297,24 +297,9 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
 
         private IQueryable<Domain.Entities.Product> ApplySorting(IQueryable<Domain.Entities.Product> query, ProductSearchCriteriaDto criteria)
         {
-            var orderedQuery = query.OrderBy(p => p.StockQuantity <= 0);
-
-            return criteria.SortBy?.ToLower() switch
-            {
-                "name" => criteria.SortDescending
-                    ? orderedQuery.ThenByDescending(p => p.Name)
-                    : orderedQuery.ThenBy(p => p.Name),
-                "price" => criteria.SortDescending
-                    ? orderedQuery.ThenByDescending(p => p.Price)
-                    : orderedQuery.ThenBy(p => p.Price),
-                "viewcount" => criteria.SortDescending
-                    ? orderedQuery.ThenByDescending(p => p.ViewCount)
-                    : orderedQuery.ThenBy(p => p.ViewCount),
-                "createdat" => criteria.SortDescending
-                    ? orderedQuery.ThenByDescending(p => p.CreatedAt)
-                    : orderedQuery.ThenBy(p => p.CreatedAt),
-                _ => orderedQuery.ThenByDescending(p => p.CreatedAt)
-            };
+            return query
+                .OrderBy(p => p.StockQuantity <= 0)
+                .ThenByDescending(p => p.CreatedAt);
         }
 
         private Task<FacetData> GenerateFacets(IEnumerable<Domain.Entities.Product> allProducts, ProductSearchCriteriaDto criteria, CancellationToken cancellationToken)

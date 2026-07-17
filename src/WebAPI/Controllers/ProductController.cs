@@ -36,7 +36,7 @@ namespace OnlineShop.WebAPI.Controllers
             [FromQuery] decimal? maxPrice = null,
             [FromQuery] bool? inStockOnly = null,
             [FromQuery] string? sortBy = null,
-            [FromQuery] bool sortDescending = false,
+            [FromQuery] bool sortDescending = true,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 20,
             CancellationToken cancellationToken = default)
@@ -86,7 +86,7 @@ namespace OnlineShop.WebAPI.Controllers
             [FromQuery] decimal? maxPrice = null,
             [FromQuery] bool? inStock = null,
             [FromQuery] string? sortBy = null,
-            [FromQuery] bool sortDescending = false,
+            [FromQuery] bool sortDescending = true,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 20,
             CancellationToken cancellationToken = default)
