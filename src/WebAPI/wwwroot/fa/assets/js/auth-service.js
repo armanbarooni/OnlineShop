@@ -558,7 +558,7 @@ class AuthService {
                 message: 'کد بازیابی رمز عبور به شماره موبایل شما ارسال شد'
             };
         } catch (error) {
-            window.logger.error('Forgot password error:', error);
+            window.logger?.error?.('Forgot password error:', error);
             let errorMessage = this.extractErrorMessage(error, 'خطا در ارسال کد بازیابی');
             
             // Try to extract errorMessage from JSON string if error.message is a serialized JSON
@@ -573,6 +573,7 @@ class AuthService {
 
             if (
                 errorMessage.includes('کاربری با این شماره') ||
+                errorMessage.includes('کاربر مورد نظر') ||
                 errorMessage.includes('User not found') ||
                 errorMessage.includes('not found')
             ) {
@@ -630,4 +631,3 @@ window.authService = new AuthService();
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AuthService;
 }
-
