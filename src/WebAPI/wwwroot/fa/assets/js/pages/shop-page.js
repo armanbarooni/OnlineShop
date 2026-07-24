@@ -24,6 +24,13 @@
     minPrice: null,
     maxPrice: null,
     inStockOnly: false,
+    sortBy: "CreatedAt",
+    sortDescending: true,
+  };
+  let appliedFilters = {
+    ...currentFilters,
+    colors: [],
+    sizes: [],
   };
   let filterSearchTimer = null;
   let productRequestSequence = 0;
@@ -89,6 +96,7 @@
 
       currentQuery = { categoryId: resolvedCategoryId, searchQuery: productSearchQuery };
       currentFilters.searchTerm = productSearchQuery;
+      appliedFilters.searchTerm = productSearchQuery;
       syncSearchInput(productSearchQuery);
 
       await updateShopCategoryContext(resolvedCategoryId, productSearchQuery);
@@ -281,6 +289,10 @@
         return firstOutOfStock - secondOutOfStock;
       }
 
+      if (currentFilters.sortBy !== "CreatedAt") {
+        return 0;
+      }
+
       return getProductCreatedTime(second) - getProductCreatedTime(first);
     });
   }
@@ -324,11 +336,11 @@
         : 0;
 
     return `
-      <div class="lg:col-span-4 md:col-span-6 col-span-12 w-full">
-        <article class="bg-white product-box-item rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20 h-full flex flex-col" itemscope itemtype="http://schema.org/Product">
-          <figure class="relative overflow-hidden rounded-lg mb-3">
+      <div class="shop-product-grid-item lg:col-span-4 md:col-span-6 col-span-12 w-full">
+        <article class="shop-product-card bg-white product-box-item rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20 h-full flex flex-col" itemscope itemtype="http://schema.org/Product">
+          <figure class="shop-product-figure relative overflow-hidden rounded-lg mb-3">
             <a href="${productUrl}" class="block" itemprop="url">
-              <img src="${escapeAttribute(image.src)}" alt="${escapeAttribute(name)}" class="w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" itemprop="image" onerror="${imageErrorHandler}">
+              <img src="${escapeAttribute(image.src)}" alt="${escapeAttribute(name)}" class="shop-product-image w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" itemprop="image" onerror="${imageErrorHandler}">
             </a>
             ${!hasStock ? `<span class="absolute top-2 end-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-20 shadow-sm">ناموجود</span>` : ""}
             ${
@@ -343,13 +355,13 @@
             </button>
           </figure>
           <a href="${productUrl}" class="block flex-1">
-            <h3 class="text-sm sm:text-sm font-extrabold leading-6 mb-2 line-clamp-2 text-gray-900 dark:text-white" itemprop="name">${escapeHtml(name)}</h3>
+            <h3 class="shop-product-name text-sm sm:text-sm font-extrabold leading-6 mb-2 line-clamp-2 text-gray-900 dark:text-white" itemprop="name">${escapeHtml(name)}</h3>
           </a>
-          <div class="flex items-center justify-between mt-auto" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+          <div class="shop-product-meta flex items-center justify-between mt-auto" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
             <meta itemprop="priceCurrency" content="IRR">
             <div class="flex flex-col">
               ${hasStock && discount > 0 ? `<span class="text-[11px] sm:text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-              <span class="text-base sm:text-lg font-extrabold ${hasStock ? "text-gray-900 dark:text-gray-100" : "text-red-600 dark:text-white"}" itemprop="price"${hasStock ? ` content="${price}"` : ""}>${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
+              <span class="shop-product-price text-base sm:text-lg font-extrabold ${hasStock ? "text-gray-900 dark:text-gray-100" : "text-red-600 dark:text-white"}" itemprop="price"${hasStock ? ` content="${price}"` : ""}>${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
             </div>
             <button type="button" data-add-to-cart-product-id="${escapeAttribute(id)}" class="bg-primary text-white p-1.5 sm:p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" aria-label="افزودن به سبد خرید" ${hasStock ? "" : "disabled"}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5 pointer-events-none">
@@ -395,6 +407,94 @@
     const mobileColorSelect = document.getElementById("mobile-color-select");
     const mobileSizeSelect = document.getElementById("mobile-size-select");
     const inStockCheckbox = document.getElementById("shop-in-stock-checkbox");
+    const mobileFilterButton = document.getElementById("shop-mobile-filter-button");
+    const mobileFilterClose = document.getElementById("shop-mobile-filter-close");
+    const filterSidebar = document.getElementById("shop-filter-sidebar");
+    const filterBackdrop = document.getElementById("shop-filter-backdrop");
+    const mobileSortButton = document.getElementById("shop-mobile-sort-button");
+    const sortMenu = document.getElementById("shop-sort-menu");
+    const mobileSortLabel = document.getElementById("shop-mobile-sort-label");
+    const mobileApplyFilters = document.getElementById("shop-mobile-apply-filters");
+
+    const setFilterPanelOpen = function (isOpen) {
+      filterSidebar?.classList.toggle("is-open", isOpen);
+      filterBackdrop?.classList.toggle("is-open", isOpen);
+      mobileFilterButton?.setAttribute("aria-expanded", String(isOpen));
+      document.body.style.overflow = isOpen ? "hidden" : "";
+    };
+
+    if (mobileFilterButton && mobileFilterButton.dataset.bound !== "true") {
+      mobileFilterButton.dataset.bound = "true";
+      mobileFilterButton.addEventListener("click", function () {
+        setFilterPanelOpen(true);
+      });
+      mobileFilterClose?.addEventListener("click", function () {
+        setFilterPanelOpen(false);
+      });
+      filterBackdrop?.addEventListener("click", function () {
+        setFilterPanelOpen(false);
+      });
+    }
+
+    if (mobileSortButton && mobileSortButton.dataset.bound !== "true") {
+      mobileSortButton.dataset.bound = "true";
+      mobileSortButton.addEventListener("click", function (event) {
+        event.stopPropagation();
+        const isOpen = sortMenu?.classList.toggle("is-open") === true;
+        mobileSortButton.setAttribute("aria-expanded", String(isOpen));
+      });
+    }
+
+    if (sortMenu && sortMenu.dataset.bound !== "true") {
+      sortMenu.dataset.bound = "true";
+      sortMenu.addEventListener("click", function (event) {
+        event.stopPropagation();
+        const option = event.target.closest("[data-sort-value]");
+        if (!option) return;
+        const [sortBy, direction] = option.dataset.sortValue.split(":");
+        currentFilters.sortBy = sortBy || "CreatedAt";
+        currentFilters.sortDescending = direction !== "asc";
+        appliedFilters.sortBy = currentFilters.sortBy;
+        appliedFilters.sortDescending = currentFilters.sortDescending;
+        if (mobileSortLabel) {
+          mobileSortLabel.textContent = option.textContent.trim();
+        }
+        sortMenu
+          .querySelectorAll("[data-sort-value]")
+          .forEach(function (button) {
+            button.classList.toggle("is-active", button === option);
+          });
+        sortMenu.classList.remove("is-open");
+        mobileSortButton?.setAttribute("aria-expanded", "false");
+        applyFilters();
+      });
+      document.addEventListener("click", function (event) {
+        if (
+          sortMenu.contains(event.target) ||
+          mobileSortButton?.contains(event.target)
+        ) {
+          return;
+        }
+        sortMenu.classList.remove("is-open");
+        mobileSortButton?.setAttribute("aria-expanded", "false");
+      });
+    }
+
+    if (mobileApplyFilters && mobileApplyFilters.dataset.bound !== "true") {
+      mobileApplyFilters.dataset.bound = "true";
+      mobileApplyFilters.addEventListener("click", async function () {
+        clearTimeout(filterSearchTimer);
+        currentFilters.searchTerm = normalizeFilterText(searchInput?.value);
+        commitPendingFilters();
+        mobileApplyFilters.disabled = true;
+        try {
+          await applyFilters();
+          setFilterPanelOpen(false);
+        } finally {
+          mobileApplyFilters.disabled = false;
+        }
+      });
+    }
 
     if (searchInput && searchInput.dataset.shopFilterEventsBound !== "true") {
       searchInput.dataset.shopFilterEventsBound = "true";
@@ -402,7 +502,7 @@
         currentFilters.searchTerm = normalizeFilterText(searchInput.value);
         clearTimeout(filterSearchTimer);
         filterSearchTimer = setTimeout(function () {
-          applyFilters();
+          applyFiltersIfDesktop();
         }, FILTER_SEARCH_DEBOUNCE_MS);
       });
       searchInput.addEventListener("keydown", function (event) {
@@ -410,7 +510,7 @@
         event.preventDefault();
         clearTimeout(filterSearchTimer);
         currentFilters.searchTerm = normalizeFilterText(searchInput.value);
-        applyFilters();
+        applyFiltersIfDesktop();
       });
     }
 
@@ -419,7 +519,7 @@
       searchButton.addEventListener("click", function () {
         clearTimeout(filterSearchTimer);
         currentFilters.searchTerm = normalizeFilterText(searchInput?.value);
-        applyFilters();
+        applyFiltersIfDesktop();
       });
     }
 
@@ -433,7 +533,7 @@
           ? [normalizeFilterText(input.value)]
           : [];
         syncMobileColorSelect();
-        applyFilters();
+        applyFiltersIfDesktop();
       });
     }
 
@@ -445,7 +545,7 @@
 
         currentFilters.sizes = getSelectedDesktopSizes();
         syncMobileSizeSelect();
-        applyFilters();
+        applyFiltersIfDesktop();
       });
     }
 
@@ -459,7 +559,7 @@
           ? [normalizeFilterText(mobileColorSelect.value)]
           : [];
         syncDesktopColor(currentFilters.colors[0] || "");
-        applyFilters();
+        applyFiltersIfDesktop();
       });
     }
 
@@ -473,7 +573,7 @@
           ? [normalizeFilterText(mobileSizeSelect.value)]
           : [];
         syncDesktopSizes(currentFilters.sizes);
-        applyFilters();
+        applyFiltersIfDesktop();
       });
     }
 
@@ -484,7 +584,7 @@
       inStockCheckbox.dataset.shopFilterEventsBound = "true";
       inStockCheckbox.addEventListener("change", function () {
         currentFilters.inStockOnly = inStockCheckbox.checked;
-        applyFilters();
+        applyFiltersIfDesktop();
       });
     }
   }
@@ -493,26 +593,26 @@
     const criteria = {
       pageNumber: 1,
       pageSize: DEFAULT_PAGE_SIZE,
-      sortBy: "CreatedAt",
-      sortDescending: true,
+      sortBy: appliedFilters.sortBy,
+      sortDescending: appliedFilters.sortDescending,
     };
     const searchTerm = normalizeFilterText(
-      currentFilters.searchTerm || searchQuery,
+      appliedFilters.searchTerm || searchQuery,
     );
-    const minPrice = parseFilterNumber(currentFilters.minPrice);
-    const maxPrice = parseFilterNumber(currentFilters.maxPrice);
+    const minPrice = parseFilterNumber(appliedFilters.minPrice);
+    const maxPrice = parseFilterNumber(appliedFilters.maxPrice);
 
     if (searchTerm) criteria.searchTerm = searchTerm;
     if (categoryId) criteria.categoryId = categoryId;
-    if (currentFilters.colors.length > 0) {
-      criteria.colors = currentFilters.colors;
+    if (appliedFilters.colors.length > 0) {
+      criteria.colors = appliedFilters.colors;
     }
-    if (currentFilters.sizes.length > 0) {
-      criteria.sizes = currentFilters.sizes;
+    if (appliedFilters.sizes.length > 0) {
+      criteria.sizes = appliedFilters.sizes;
     }
     if (minPrice !== null) criteria.minPrice = minPrice;
     if (maxPrice !== null) criteria.maxPrice = maxPrice;
-    if (currentFilters.inStockOnly) criteria.inStock = true;
+    if (appliedFilters.inStockOnly) criteria.inStock = true;
 
     return criteria;
   }
@@ -534,6 +634,22 @@
 
   function applyFilters() {
     return loadProducts(currentQuery.categoryId, currentQuery.searchQuery);
+  }
+
+  function commitPendingFilters() {
+    appliedFilters = {
+      ...currentFilters,
+      colors: currentFilters.colors.slice(),
+      sizes: currentFilters.sizes.slice(),
+    };
+  }
+
+  function applyFiltersIfDesktop() {
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      commitPendingFilters();
+      return applyFilters();
+    }
+    return Promise.resolve();
   }
 
   function syncSearchInput(value) {
@@ -1192,7 +1308,7 @@
         document.removeEventListener("touchmove", onMove);
         document.removeEventListener("touchend", onUp);
         setPriceFilter(minVal, maxVal, min, max);
-        applyFilters();
+        applyFiltersIfDesktop();
       }
 
       onMove(startEvent);

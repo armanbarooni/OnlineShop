@@ -64,7 +64,8 @@ class CartService {
         const badges = document.querySelectorAll('.cart-count, #cart-count');
         badges.forEach(badge => {
             badge.textContent = count;
-            badge.style.display = count > 0 ? 'block' : 'none';
+            const isMobileNavBadge = Boolean(badge.closest('.site-mobile-nav'));
+            badge.style.display = count > 0 || isMobileNavBadge ? 'flex' : 'none';
         });
     }
 

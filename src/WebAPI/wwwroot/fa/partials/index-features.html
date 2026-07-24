@@ -6,29 +6,28 @@
     padding-inline: clamp(1rem, 3vw, 1.5rem);
   }
 
-  .home-section-kicker {
-    position: relative;
-    overflow: hidden;
-    border-radius: 1rem;
-    background: #111827;
-    padding: clamp(1.05rem, 3vw, 1.65rem);
-    box-shadow: 0 14px 34px rgba(17, 24, 39, 0.18);
+  .category-section-divider {
+    width: min(72%, 28rem);
+    height: 1px;
+    margin: 0 auto 1rem;
+    border: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(100, 116, 139, 0.45) 18%,
+      rgba(100, 116, 139, 0.45) 82%,
+      transparent
+    );
   }
 
-  .home-section-kicker h2 {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    text-align: center;
-    font-size: clamp(1.35rem, 3vw, 2rem);
-    font-weight: 900;
-    line-height: 1.7;
-    letter-spacing: 0;
-    color: #ffffff;
-  }
-
-  .home-section-kicker h2 span {
-    color: #ff6b21;
+  .dark .category-section-divider {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.22) 18%,
+      rgba(255, 255, 255, 0.22) 82%,
+      transparent
+    );
   }
 
   .category-showcase-grid {
@@ -74,9 +73,7 @@
 <section class="px-0 py-4 sm:py-6">
   <h2 class="sr-only">&#1583;&#1587;&#1578;&#1607;&#8204;&#1576;&#1606;&#1583;&#1740;&#8204;&#1607;&#1575;&#1740; &#1605;&#1606;&#1578;&#1582;&#1576;</h2>
   <div class="category-showcase-shell">
-    <div class="home-section-kicker mb-4 sm:mb-5">
-      <h2>&#1583;&#1587;&#1578;&#1607; &#1576;&#1606;&#1583;&#1740; <span>&#1605;&#1581;&#1589;&#1608;&#1604;&#1575;&#1578;</span></h2>
-    </div>
+    <hr class="category-section-divider" aria-hidden="true" />
     <div class="category-showcase-grid">
       <a
         href="shop.html"

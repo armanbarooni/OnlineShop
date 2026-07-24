@@ -436,7 +436,8 @@ class CartService {
             badges.forEach(badge => {
                 badge.textContent = totalItems;
                 if ("classList" in badge) {
-                    badge.classList.toggle("hidden", totalItems === 0);
+                    const isMobileNavBadge = Boolean(badge.closest(".site-mobile-nav"));
+                    badge.classList.toggle("hidden", totalItems === 0 && !isMobileNavBadge);
                 }
             });
         };

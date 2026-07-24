@@ -209,14 +209,14 @@
       "')";
 
     return `
-      <div class="swiper-slide px-1.5 py-2">
-        <article class="bg-white product-box-item rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20">
+      <div class="swiper-slide index-featured-slide px-1.5 py-2">
+        <article class="index-featured-card bg-white product-box-item rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20">
           <header class="flex items-center relative justify-between">
             ${discount > 0 ? `<span class="absolute top-1 end-1 bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ""}
           </header>
-          <figure class="relative overflow-hidden rounded-lg mb-3">
+          <figure class="index-featured-figure relative overflow-hidden rounded-lg mb-3">
             <a href="${productUrl}" class="block">
-              <img src="${imageUrl}" alt="${name}" class="w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" onerror="${imageErrorHandler}">
+              <img src="${imageUrl}" alt="${name}" class="index-featured-image w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" onerror="${imageErrorHandler}">
             </a>
             ${!hasStock ? `<span class="absolute top-2 end-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-20 shadow-sm">\u0646\u0627\u0645\u0648\u062c\u0648\u062f</span>` : ""}
             <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-1.5 sm:p-2 bg-white rounded-full shadow-sm hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="\u0627\u0641\u0632\u0648\u062f\u0646 \u0628\u0647 \u0639\u0644\u0627\u0642\u0647\u200c\u0645\u0646\u062f\u06cc\u200c\u0647\u0627">
@@ -226,12 +226,12 @@
             </button>
           </figure>
                 <a href="${productUrl}">
-                    <h3 class="text-sm sm:text-sm font-extrabold leading-6 mb-2 line-clamp-2 text-gray-900 dark:text-white">${name}</h3>
+                    <h3 class="index-featured-name text-sm sm:text-sm font-extrabold leading-6 mb-2 line-clamp-2 text-gray-900 dark:text-white">${name}</h3>
                 </a>
-                <div class="flex items-center justify-between mt-3">
+                <div class="index-featured-meta flex items-center justify-between mt-3">
                     <div class="flex flex-col">
                         ${hasStock && discount > 0 ? `<span class="text-[11px] sm:text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-                        <span class="text-base sm:text-lg font-extrabold ${hasStock ? "text-gray-900 dark:text-gray-100" : "text-red-600 dark:text-white"}">${hasStock ? `${formatPrice(price)} \u0631\u06cc\u0627\u0644` : "\u0646\u0627\u0645\u0648\u062c\u0648\u062f"}</span>
+                        <span class="index-featured-price text-base sm:text-lg font-extrabold ${hasStock ? "text-gray-900 dark:text-gray-100" : "text-red-600 dark:text-white"}">${hasStock ? `${formatPrice(price)} \u0631\u06cc\u0627\u0644` : "\u0646\u0627\u0645\u0648\u062c\u0648\u062f"}</span>
                     </div>
           </div>
         </article>
@@ -260,7 +260,7 @@
         prevEl: carousel.querySelector(".swiper-button-prev"),
       },
       breakpoints: {
-        100: { slidesPerView: 1 },
+        100: { slidesPerView: 2, spaceBetween: 4 },
         576: { slidesPerView: 2 },
         768: { slidesPerView: 3 },
         1024: { slidesPerView: 4 },

@@ -19,6 +19,46 @@
     <link rel="stylesheet" href="assets/js/plugin/swiper/swiper-bundle.min.css">
     <link rel="stylesheet" href="assets/css/app.css">
     <link rel="preload" href="assets/fonts/payda/PeydaWebFaNum-Medium.woff2" as="font" type="font/woff2" crossorigin>
+    <style>
+        .about-story-media {
+            width: 100%;
+            max-width: 380px;
+            margin-inline: auto;
+        }
+
+        .about-story-image {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .about-team-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .about-team-image {
+            display: block;
+            width: 100%;
+            height: 300px;
+            flex: 0 0 300px;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        @media (min-width: 768px) {
+            .about-story-copy {
+                width: calc(100% - 410px);
+            }
+
+            .about-story-media {
+                width: 380px;
+                flex: 0 0 380px;
+            }
+        }
+    </style>
 </head>
 <body class="bg-light dark:bg-zinc-900 text-text-primary-light dark:text-text-primary-dark transition-colors duration-200">
     <div data-layout-partial="site-header"></div>
@@ -29,30 +69,36 @@
         <!-- Our Story -->
         <section class="mb-20">
             <div class="flex flex-col md:flex-row items-center gap-8">
-                <div class="md:w-1/2">
+                <div class="about-story-copy md:w-1/2">
                     <h2 class="font-bold dark:text-light text-3xl mb-4 relative pb-4 before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg">
                         داستان ما
                     </h2>
                     <p class="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
-                        فروشگاه اینترنتی ما در سال ۱۳۹۰ با هدف ارائه محصولات با کیفیت و خدمات ممتاز به مشتریان عزیز
-                        تأسیس شد. از آن زمان تاکنون، همواره در تلاش بوده‌ایم تا با بهره‌گیری از فناوری‌های روز و نیروی
-                        انسانی متخصص، تجربه‌ای لذت‌بخش از خرید آنلاین را برای شما به ارمغان بیاوریم.
+                        همکاری ما در حوزه فروش پوشاک از سال ۱۳۹۹ آغاز شد. شروع این مسیر از یک فروشگاه در یکی از
+                        شهرستان‌های استان چهارمحال و بختیاری بود و در ادامه، فعالیت ما در پیج اینستاگرام‌مان نیز شکل
+                        گرفت و گسترش پیدا کرد.
                     </p>
-                    <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-                        امروز با افتخار می‌توانیم ادعا کنیم که یکی از معتبرترین فروشگاه‌های اینترنتی در سطح کشور هستیم و
-                        هزاران مشتری راضی گواه این ادعای ما هستند.
+                    <p class="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                        با استفاده از ظرفیت‌های تیم، به‌کارگیری روش‌های نوین در ارائه محصولات و تلاش برای تامین کالا با
+                        بهترین کیفیت و مناسب‌ترین قیمت، توانستیم به فروش بیش از ۷۰۰ محصول در هفته برسیم؛ بخشی عمده از
+                        این فروش نیز از طریق پیج اینستاگرام ما انجام می‌شد. همین رشد و استقبال، انگیزه‌ای شد تا با نگاه
+                        بزرگ‌تر و حرفه‌ای‌تر، قدم‌های تازه‌ای در این مسیر برداریم.
                     </p>
-                    <a href="#"
-                       class="inline-flex items-center px-6 py-3 bg-primary-light dark:bg-primary-dark text-white rounded-lg hover:bg-opacity-90 transition font-medium">
-                        بیشتر بخوانید
-                        <svg class="w-4 h-4 ms-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </a>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                        امروز با همراهی یک تیم متخصص نرم‌افزار و با تکیه بر ایده‌هایی که برای توسعه کسب‌وکارمان داریم،
+                        هم در زمینه پخش عمده پوشاک در بازار بزرگ تهران فعالیت می‌کنیم و هم در حال توسعه فروش تکی از طریق
+                        سایت هستیم؛ سایتی که با هدف ثبت سریع و آسان سفارش‌ها، بسته‌بندی دقیق و ارسال به‌موقع راه‌اندازی
+                        شده تا تجربه‌ای راحت و مطمئن از خرید برای شما فراهم کند.
+                    </p>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        هدف ما این است که برندمان را به یکی از بزرگ‌ترین تولیدکنندگان لباس تبدیل کنیم. ما باور داریم که
+                        با اجرای ایده‌های نو، استفاده از ابزارهای روز دنیا و بهره‌گیری از فناوری‌هایی مانند هوش مصنوعی،
+                        می‌توانیم خریدی راحت، باکیفیت و قابل اعتماد را برای شما مشتریان ارزشمند فراهم کنیم.
+                    </p>
                 </div>
-                <div class="md:w-1/2 relative">
+                <div class="about-story-media md:w-1/2 relative">
                     <div class="relative rounded-2xl overflow-hidden shadow-xl">
-                        <img src="assets/images/about/about.jpg" alt="تیم ما" class="w-full h-auto">
+                        <img src="assets/images/about/about.jpg" alt="تیم ما" class="about-story-image">
                         <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-50"></div>
                     </div>
                 </div>
@@ -109,28 +155,6 @@
             </div>
         </section>
 
-        <!-- Statistics -->
-        <section class="mb-20">
-            <div class="grid md:grid-cols-4 gap-6 text-center">
-                <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm">
-                    <div class="text-4xl font-bold text-primary-light dark:text-primary-dark mb-2">۱۰+</div>
-                    <div class="text-gray-600 dark:text-gray-400">سال تجربه</div>
-                </div>
-                <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm">
-                    <div class="text-4xl font-bold text-primary-light dark:text-primary-dark mb-2">۵۰۰۰+</div>
-                    <div class="text-gray-600 dark:text-gray-400">مشتری راضی</div>
-                </div>
-                <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm">
-                    <div class="text-4xl font-bold text-primary-light dark:text-primary-dark mb-2">۲۰۰+</div>
-                    <div class="text-gray-600 dark:text-gray-400">محصول متنوع</div>
-                </div>
-                <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm">
-                    <div class="text-4xl font-bold text-primary-light dark:text-primary-dark mb-2">۹۸%</div>
-                    <div class="text-gray-600 dark:text-gray-400">رضایت مشتریان</div>
-                </div>
-            </div>
-        </section>
-
         <!-- Our Team -->
         <section>
             <div class="text-center mb-12">
@@ -139,33 +163,26 @@
                     شوید</p>
             </div>
 
-            <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
-                <div class="bg-white dark:bg-zinc-800 rounded-4xl overflow-hidden shadow-sm hover:shadow-md transition">
-                    <img src="assets/images/about/4.jpg" alt="عضو تیم" class="w-full h-auto object-cover">
+            <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="about-team-card bg-white dark:bg-zinc-800 rounded-4xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <img src="assets/images/about/1.jpg" alt="عرشیا محمدی، مدیر فروش" class="about-team-image">
                     <div class="p-4">
-                        <h3 class="font-bold text-lg dark:text-white">سارا محمدی</h3>
+                        <h3 class="font-bold text-lg dark:text-white">عرشیا محمدی</h3>
                         <p class="text-gray-600 dark:text-gray-400 text-sm">مدیر فروش</p>
                     </div>
                 </div>
-                <div class="bg-white dark:bg-zinc-800 rounded-4xl overflow-hidden shadow-sm hover:shadow-md transition">
-                    <img src="assets/images/about/2.jpg" alt="عضو تیم" class="w-full h-auto object-cover">
+                <div class="about-team-card bg-white dark:bg-zinc-800 rounded-4xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <img src="assets/images/about/2.jpg" alt="سهیل مهمدی، مدیر مارکتینگ" class="about-team-image">
                     <div class="p-4">
-                        <h3 class="font-bold text-lg dark:text-white">علی رضایی</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm">توسعه دهنده وب</p>
+                        <h3 class="font-bold text-lg dark:text-white">سهیل مهمدی</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">مدیر مارکتینگ</p>
                     </div>
                 </div>
-                <div class="bg-white dark:bg-zinc-800 rounded-4xl overflow-hidden shadow-sm hover:shadow-md transition">
-                    <img src="assets/images/about/3.jpg" alt="عضو تیم" class="w-full h-auto object-cover">
+                <div class="about-team-card bg-white dark:bg-zinc-800 rounded-4xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <img src="assets/images/about/3.jpg" alt="آرمان بارونی، مدیر فنی" class="about-team-image">
                     <div class="p-4">
-                        <h3 class="font-bold text-lg dark:text-white">نرگس حسینی</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm">طراح UI/UX</p>
-                    </div>
-                </div>
-                <div class="bg-white dark:bg-zinc-800 rounded-4xl overflow-hidden shadow-sm hover:shadow-md transition">
-                    <img src="assets/images/about/1.jpg" alt="عضو تیم" class="w-full h-auto object-cover">
-                    <div class="p-4">
-                        <h3 class="font-bold text-lg dark:text-white">محمد جوادی</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm">پشتیبانی مشتریان</p>
+                        <h3 class="font-bold text-lg dark:text-white">آرمان بارونی</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">مدیر فنی</p>
                     </div>
                 </div>
             </div>

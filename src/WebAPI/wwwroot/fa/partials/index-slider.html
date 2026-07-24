@@ -1,10 +1,67 @@
 ﻿<!-- ================= start slider section ================= -->
+    <style>
+      .desktop-home-slider-wrap {
+        display: none;
+      }
+
+      @media (min-width: 768px) {
+        .desktop-home-slider-wrap {
+          display: block !important;
+        }
+      }
+    </style>
     <section class="py-2 md:py-3">
       <h2 class="sr-only">اسلایدر فروشگاه</h2>
       <!-- for seo -->
       <div class="container">
         <div class="home-panel home-panel--hero p-1.5 md:p-2">
-          <div class="w-full overflow-hidden">
+          <div class="w-full overflow-hidden md:hidden">
+          <div
+            class="swiper mobile-home-slider mx-auto !relative default-carousel"
+            aria-label="اسلایدر موبایل فروشگاه"
+            style="height: 14rem;"
+          >
+          <div class="swiper-wrapper" style="padding-bottom: 0 !important">
+            <div class="swiper-slide" role="group" aria-roledescription="slide">
+              <a
+                href="#"
+                aria-label="تصویر 1 از اسلایدر موبایل فروشگاه"
+                class="block h-full w-full overflow-hidden rounded-2xl"
+              >
+                <img
+                  src="assets/images/category/phone/1.png"
+                  class="block h-full w-full object-cover"
+                  loading="eager"
+                  fetchpriority="high"
+                  alt="تصویر تبلیغاتی موبایل فروشگاه - مجموعه ویژه 1"
+                />
+              </a>
+            </div>
+            <div class="swiper-slide" role="group" aria-roledescription="slide">
+              <a
+                href="#"
+                aria-label="تصویر 2 از اسلایدر موبایل فروشگاه"
+                class="block h-full w-full overflow-hidden rounded-2xl"
+              >
+                <img
+                  src="assets/images/category/phone/2.png"
+                  class="block h-full w-full object-cover"
+                  loading="lazy"
+                  alt="تصویر تبلیغاتی موبایل فروشگاه - مجموعه ویژه 2"
+                />
+              </a>
+            </div>
+          </div>
+          <div
+            class="swiper-pagination !z-30 !bottom-0"
+            aria-label="صفحه بندی اسلایدر موبایل"
+          ></div>
+          <div
+            class="slider-pagination-bg absolute w-40 h-10 -translate-x-1/2 -mb-3 pt-1 end-1/2 bottom-0 z-10"
+          ></div>
+          </div>
+          </div>
+          <div class="desktop-home-slider-wrap hidden w-full overflow-hidden md:block">
           <div
             class="swiper max-w-[1920px] mx-auto !relative default-carousel swiper-container"
             aria-label="اسلایدر فروشگاه"

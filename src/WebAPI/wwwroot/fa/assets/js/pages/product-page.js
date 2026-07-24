@@ -407,7 +407,8 @@ function updateCartBadge(cartData) {
   const totalItems = cartData?.data?.totalItems || cartData?.totalItems || 0;
   badgeEls.forEach(el => {
     el.textContent = totalItems;
-    el.classList.toggle("hidden", totalItems === 0);
+    const isMobileNavBadge = Boolean(el.closest(".site-mobile-nav"));
+    el.classList.toggle("hidden", totalItems === 0 && !isMobileNavBadge);
   });
 }
 

@@ -33,7 +33,8 @@
       badge.style.insetInlineEnd = "-24px";
       badge.style.transform = "none";
       badge.textContent = count;
-      badge.classList.toggle("hidden", count === 0);
+      const isMobileNavBadge = Boolean(badge.closest(".site-mobile-nav"));
+      badge.classList.toggle("hidden", count === 0 && !isMobileNavBadge);
     });
   };
 
