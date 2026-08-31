@@ -114,7 +114,7 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ValidateCheckout
                     continue;
                 }
 
-                subtotal += item.TotalPrice;
+                subtotal += product.GetCurrentPrice() * item.Quantity;
             }
 
             // 5. Validate coupon if provided

@@ -59,7 +59,7 @@ namespace OnlineShop.Application.Features.Cart.Commands.UpdateCart
                 {
                      return Result<CartDto>.Failure("تنوع محصول نامعتبر است");
                 }
-                availableStock = variant.StockQuantity;
+                availableStock = variant.GetAvailableStock();
             }
             else
             {
@@ -72,6 +72,7 @@ namespace OnlineShop.Application.Features.Cart.Commands.UpdateCart
             }
 
             item.UpdateQuantity(request.Item.Quantity);
+            item.UpdatePrice(product.GetCurrentPrice());
             await _cartRepository.UpdateAsync(cart, cancellationToken);
 
             return await _mediator.Send(new GetCartQuery { UserId = request.UserId }, cancellationToken);

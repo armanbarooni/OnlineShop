@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using OnlineShop.Domain.Interfaces.Repositories;
 using OnlineShop.Domain.Entities;
 using OnlineShop.Infrastructure.Persistence;
@@ -9,13 +10,17 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
     public class ProductInventoryRepository : IProductInventoryRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<ProductInventoryRepository> _logger;
         // per-product locks to serialize updates and avoid oversell when running against the InMemory provider
         private static readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, System.Threading.SemaphoreSlim> _locks
             = new System.Collections.Concurrent.ConcurrentDictionary<Guid, System.Threading.SemaphoreSlim>();
 
-        public ProductInventoryRepository(ApplicationDbContext context)
+        public ProductInventoryRepository(
+            ApplicationDbContext context,
+            ILogger<ProductInventoryRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<ProductInventory?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -116,7 +121,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             await semaphore.WaitAsync(cancellationToken);
             try
             {
-                var inventoryMap = await LoadOrCreateInventoriesAsync(new[] { (productId, quantity) }, cancellationToken);
+                var inventoryMap = await LoadOrCreateInventoriesAsync(Guid.Empty, new[] { (productId, quantity) }, cancellationToken);
                 if (!inventoryMap.TryGetValue(productId, out var inventories) || inventories.Count == 0)
                     return false;
 
@@ -133,7 +138,63 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             }
         }
 
-        public async Task<bool> TryReserveMultipleAsync(IEnumerable<(Guid ProductId, int Quantity)> items, CancellationToken cancellationToken)
+        public async Task<bool> TryReserveMultipleAsync(
+            Guid orderId,
+            IEnumerable<(Guid ProductId, Guid? VariantId, int Quantity)> items,
+            CancellationToken cancellationToken)
+        {
+            var requests = items.ToList();
+            var variantRequests = requests
+                .Where(i => i.VariantId.HasValue && i.VariantId.Value != Guid.Empty)
+                .GroupBy(i => i.VariantId!.Value)
+                .Select(g => (VariantId: g.Key, Quantity: g.Sum(i => i.Quantity)))
+                .ToList();
+
+            if (variantRequests.Count > 0)
+            {
+                var variantIds = variantRequests.Select(i => i.VariantId).ToList();
+                var variants = await _context.ProductVariants
+                    .Where(v => variantIds.Contains(v.Id) && !v.Deleted)
+                    .ToDictionaryAsync(v => v.Id, cancellationToken);
+                var cutoff = DateTime.UtcNow.AddMinutes(-10);
+                var activeReservations = await _context.UserOrderItems.AsNoTracking()
+                    .Where(i => i.VariantId.HasValue && variantIds.Contains(i.VariantId.Value)
+                        && i.OrderId != orderId
+                        && i.Order.OrderStatus == "Pending" && i.Order.CreatedAt >= cutoff)
+                    .GroupBy(i => i.VariantId!.Value)
+                    .Select(g => new { VariantId = g.Key, Quantity = g.Sum(i => i.Quantity) })
+                    .ToDictionaryAsync(i => i.VariantId, i => i.Quantity, cancellationToken);
+
+                foreach (var request in variantRequests)
+                {
+                    if (!variants.TryGetValue(request.VariantId, out var variant))
+                        return false;
+                    variant.ReconcileReservedQuantity(activeReservations.GetValueOrDefault(request.VariantId));
+                    if (!variant.IsAvailable || variant.GetAvailableStock() < request.Quantity)
+                    {
+                        _logger.LogError("Variant reservation rejected for {VariantId}. Requested: {Requested}, stock: {Stock}, reserved: {Reserved}",
+                            request.VariantId, request.Quantity, variant.StockQuantity, variant.ReservedQuantity);
+                        return false;
+                    }
+                }
+
+                foreach (var request in variantRequests)
+                    variants[request.VariantId].ReserveQuantity(request.Quantity);
+            }
+
+            var productRequests = requests
+                .Where(i => !i.VariantId.HasValue || i.VariantId.Value == Guid.Empty)
+                .Select(i => (i.ProductId, i.Quantity))
+                .ToList();
+            if (productRequests.Count > 0 && !await TryReserveProductsAsync(orderId, productRequests, cancellationToken))
+                return false;
+
+            if (productRequests.Count == 0)
+                await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+
+        private async Task<bool> TryReserveProductsAsync(Guid orderId, IEnumerable<(Guid ProductId, int Quantity)> items, CancellationToken cancellationToken)
         {
             var grouped = items
                 .GroupBy(i => i.ProductId)
@@ -155,15 +216,30 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
 
             try
             {
-                var inventoryMap = await LoadOrCreateInventoriesAsync(grouped, cancellationToken);
+                var inventoryMap = await LoadOrCreateInventoriesAsync(orderId, grouped, cancellationToken);
 
                 foreach (var (productId, quantity) in grouped)
                 {
                     if (!inventoryMap.TryGetValue(productId, out var inventories) || inventories.Count == 0)
+                    {
+                        _logger.LogError(
+                            "Inventory reservation rejected because product {ProductId} has no inventory source. Requested: {RequestedQuantity}",
+                            productId,
+                            quantity);
                         return false;
+                    }
 
                     if (!HasSufficientStock(inventories, quantity))
+                    {
+                        _logger.LogError(
+                            "Inventory reservation rejected for product {ProductId}. Requested: {RequestedQuantity}, physical: {PhysicalQuantity}, reserved: {ReservedQuantity}, available: {AvailableQuantity}",
+                            productId,
+                            quantity,
+                            inventories.Sum(i => i.AvailableQuantity),
+                            inventories.Sum(i => i.ReservedQuantity),
+                            inventories.Sum(i => i.GetAvailableStock()));
                         return false;
+                    }
                 }
 
                 foreach (var (productId, quantity) in grouped)
@@ -184,7 +260,52 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task CommitReservationsAsync(
+            IEnumerable<(Guid ProductId, Guid? VariantId, int Quantity)> items,
+            DateTime soldAt,
+            CancellationToken cancellationToken)
+        {
+            var requests = items.ToList();
+            foreach (var group in requests.Where(i => i.VariantId.HasValue && i.VariantId.Value != Guid.Empty)
+                         .GroupBy(i => i.VariantId!.Value))
+            {
+                var variant = await _context.ProductVariants.FirstAsync(v => v.Id == group.Key, cancellationToken);
+                variant.CommitReservedQuantity(group.Sum(i => i.Quantity), soldAt);
+            }
+
+            foreach (var group in requests.Where(i => !i.VariantId.HasValue || i.VariantId.Value == Guid.Empty)
+                         .GroupBy(i => i.ProductId))
+            {
+                var inventory = await _context.ProductInventories.FirstAsync(i => i.ProductId == group.Key, cancellationToken);
+                inventory.CommitSale(group.Sum(i => i.Quantity), soldAt);
+            }
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task ReleaseReservationsAsync(
+            IEnumerable<(Guid ProductId, Guid? VariantId, int Quantity)> items,
+            CancellationToken cancellationToken)
+        {
+            var requests = items.ToList();
+            foreach (var group in requests.Where(i => i.VariantId.HasValue && i.VariantId.Value != Guid.Empty)
+                         .GroupBy(i => i.VariantId!.Value))
+            {
+                var variant = await _context.ProductVariants.FirstOrDefaultAsync(v => v.Id == group.Key, cancellationToken);
+                variant?.ReleaseReservedQuantity(group.Sum(i => i.Quantity));
+            }
+
+            foreach (var group in requests.Where(i => !i.VariantId.HasValue || i.VariantId.Value == Guid.Empty)
+                         .GroupBy(i => i.ProductId))
+            {
+                var inventory = await _context.ProductInventories.FirstOrDefaultAsync(i => i.ProductId == group.Key, cancellationToken);
+                if (inventory != null)
+                    inventory.SetReservedQuantity(Math.Max(0, inventory.ReservedQuantity - group.Sum(i => i.Quantity)));
+            }
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         private async Task<Dictionary<Guid, List<ProductInventory>>> LoadOrCreateInventoriesAsync(
+            Guid orderId,
             IEnumerable<(Guid ProductId, int Quantity)> requests,
             CancellationToken cancellationToken)
         {
@@ -198,22 +319,62 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .GroupBy(pi => pi.ProductId)
                 .ToDictionary(g => g.Key, g => g.OrderBy(inv => inv.CreatedAt).ToList());
 
+            var products = await _context.Products
+                .AsNoTracking()
+                .Where(p => productIds.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id, cancellationToken);
+
+            // Only pending orders inside the payment window represent real reservations.
+            // Rebuilding this value removes reservations left behind when checkout failed
+            // after reserving stock but before creating its order and items.
+            var reservationCutoff = DateTime.UtcNow.AddMinutes(-10);
+            var activeReservations = await _context.UserOrderItems
+                .AsNoTracking()
+                .Where(item => productIds.Contains(item.ProductId)
+                    && item.OrderId != orderId
+                    && item.Order.OrderStatus == "Pending"
+                    && item.Order.CreatedAt >= reservationCutoff)
+                .GroupBy(item => item.ProductId)
+                .Select(group => new
+                {
+                    ProductId = group.Key,
+                    Quantity = group.Sum(item => item.Quantity)
+                })
+                .ToDictionaryAsync(item => item.ProductId, item => item.Quantity, cancellationToken);
+
             foreach (var (productId, _) in requests)
             {
-                if (inventoryMap.ContainsKey(productId))
-                    continue;
-
-                var product = await _context.Products
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
-
-                if (product == null)
+                if (!products.TryGetValue(productId, out var product))
                 {
                     inventoryMap[productId] = new List<ProductInventory>();
                     continue;
                 }
 
-                var newInventory = ProductInventory.Create(productId, product.StockQuantity);
+                var reservedQuantity = activeReservations.GetValueOrDefault(productId);
+
+                if (inventoryMap.TryGetValue(productId, out var inventories) && inventories.Count > 0)
+                {
+                    var canonicalInventory = inventories[0];
+                    canonicalInventory.SetAvailableQuantity(product.StockQuantity);
+                    canonicalInventory.SetReservedQuantity(reservedQuantity);
+
+                    // Older data may contain more than one inventory row for a product. Keep one
+                    // authoritative row so stale duplicates cannot inflate or block stock checks.
+                    foreach (var duplicate in inventories.Skip(1))
+                    {
+                        duplicate.SetAvailableQuantity(0);
+                        duplicate.SetReservedQuantity(0);
+                        duplicate.Delete(null);
+                    }
+
+                    inventoryMap[productId] = new List<ProductInventory> { canonicalInventory };
+                    continue;
+                }
+
+                var newInventory = ProductInventory.Create(
+                    productId,
+                    product.StockQuantity,
+                    reservedQuantity);
                 await _context.ProductInventories.AddAsync(newInventory, cancellationToken);
                 inventoryMap[productId] = new List<ProductInventory> { newInventory };
             }

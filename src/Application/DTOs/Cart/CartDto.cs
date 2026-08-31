@@ -36,7 +36,9 @@ namespace OnlineShop.Application.DTOs.Cart
         public string? ProductImage { get; set; }
         public Guid? VariantId { get; set; }
         public string? VariantInfo { get; set; }  // "Size: L, Color: Black"
+        public decimal OriginalUnitPrice { get; set; }
         public decimal UnitPrice { get; set; }
+        public bool HasDiscount { get; set; }
         public int Quantity { get; set; }
         public decimal TotalPrice { get; set; }
         public int AvailableStock { get; set; }

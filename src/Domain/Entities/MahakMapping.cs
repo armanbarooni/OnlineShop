@@ -55,6 +55,15 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void SetLocalEntityId(Guid localEntityId)
+        {
+            if (localEntityId == Guid.Empty)
+                throw new ArgumentException("شناسه موجودیت محلی نباید خالی باشد");
+
+            LocalEntityId = localEntityId;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         public void SetNotes(string? notes)
         {
             Notes = notes?.Trim();

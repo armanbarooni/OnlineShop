@@ -115,6 +115,8 @@
 
     function getItemOriginalUnitPrice(item) {
         return Number(
+            item.originalUnitPrice ??
+            item.OriginalUnitPrice ??
             item.originalPrice ??
             item.OriginalPrice ??
             item.productOriginalPrice ??
@@ -596,6 +598,9 @@
         container.innerHTML = state.items.map(item => {
             const quantity = getItemQuantity(item);
             const total = getItemTotal(item);
+            const unitPrice = getItemUnitPrice(item);
+            const originalUnitPrice = getItemOriginalUnitPrice(item);
+            const hasDiscount = Boolean(item.hasDiscount ?? item.HasDiscount) || originalUnitPrice > unitPrice;
             const variantInfo = getItemVariantInfo(item);
 
             return `
@@ -606,6 +611,10 @@
                     <div class="ms-3 flex-1">
                         <h3 class="font-medium text-gray-700 dark:text-white">${escapeHtml(getItemName(item))}</h3>
                         <p class="text-sm text-gray-500 dark:text-gray-300">تعداد: ${formatPrice(quantity)}</p>
+                        <p class="mt-1 text-sm">
+                            ${hasDiscount ? `<span class="me-2 text-xs text-gray-400 line-through opacity-70">${formatPrice(originalUnitPrice)} ریال</span>` : ""}
+                            <span class="font-bold ${hasDiscount ? "text-green-600 dark:text-green-400" : "text-gray-600 dark:text-gray-300"}">${formatPrice(unitPrice)} ریال</span>
+                        </p>
                         ${variantInfo ? `<p class="text-xs text-gray-500 dark:text-gray-300">${escapeHtml(variantInfo)}</p>` : ""}
                     </div>
                     <div class="text-end">

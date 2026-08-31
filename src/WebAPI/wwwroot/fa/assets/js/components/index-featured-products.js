@@ -2,6 +2,8 @@
   "use strict";
 
   const CONTAINER_ID = "featuredProducts";
+  const BEST_SELLING_CONTAINER_ID = "bestSellingProducts";
+  const NEWEST_CONTAINER_ID = "newProducts";
   const MAX_VISIBLE_PRODUCTS = 5;
   const MAHAK_CONTENT_BASE_URL =
     window.config?.content?.mahakBaseURL ||
@@ -35,11 +37,11 @@
     return isDevelopmentHost() ? proxiedImageUrl(absoluteUrl) : absoluteUrl;
   }
 
-  function findContainer() {
+  function findContainer(containerId = CONTAINER_ID) {
     return (
-      document.getElementById(CONTAINER_ID) ||
-      document.querySelector('[data-products="featuredProducts"]') ||
-      document.querySelector(".product-carousel .swiper-wrapper")
+      document.getElementById(containerId) ||
+      document.querySelector(`[data-products="${containerId}"]`) ||
+      document.querySelector(`.${containerId === BEST_SELLING_CONTAINER_ID ? "best-selling-carousel" : containerId === NEWEST_CONTAINER_ID ? "newest-products-carousel" : "product-carousel"} .swiper-wrapper`)
     );
   }
 
@@ -105,8 +107,9 @@
   }
 
   function isProductInStock(product) {
-    if (getProductVariantList(product).some((variant) => getVariantStock(variant) > 0)) {
-      return true;
+    const variants = getProductVariantList(product);
+    if (variants.length > 0) {
+      return variants.some((variant) => getVariantStock(variant) > 0);
     }
 
     const stock = Number(
@@ -195,12 +198,9 @@
       ? `this.onerror=function(){this.onerror=null; this.src='assets/images/product/nophoto.png'}; this.src='${fallbackImageUrl}'`
       : "this.onerror=null; this.src='assets/images/product/nophoto.png'";
     const hasStock = isProductInStock(product);
-    const price = hasStock ? (product.price || 0) : null;
-    const originalPrice = hasStock ? (product.originalPrice || price) : null;
+    const prices = hasStock ? getProductDisplayPrices(product) : null;
     const discount =
-      hasStock && originalPrice > price
-        ? Math.round(((originalPrice - price) / originalPrice) * 100)
-        : 0;
+      hasStock && prices?.hasDiscount ? prices.discountPercent : 0;
     const productUrl = "product.html?id=" + product.id;
     const name = product.name || "\u0645\u062d\u0635\u0648\u0644";
     const wishlistClick =
@@ -212,11 +212,10 @@
       <div class="swiper-slide index-featured-slide px-1.5 py-2">
         <article class="index-featured-card bg-white product-box-item rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20">
           <header class="flex items-center relative justify-between">
-            ${discount > 0 ? `<span class="absolute top-1 end-1 bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ""}
           </header>
-          <figure class="index-featured-figure relative overflow-hidden rounded-lg mb-3">
-            <a href="${productUrl}" class="block">
-              <img src="${imageUrl}" alt="${name}" class="index-featured-image w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" onerror="${imageErrorHandler}">
+                <figure class="index-featured-figure relative overflow-hidden rounded-lg mb-2 p-1 bg-gray-50 dark:bg-gray-800" style="aspect-ratio: 4 / 5;">
+            <a href="${productUrl}" class="block h-full">
+              <img src="${imageUrl}" alt="${name}" class="index-featured-image w-full h-full object-contain rounded-md" loading="lazy" decoding="async" onerror="${imageErrorHandler}">
             </a>
             ${!hasStock ? `<span class="absolute top-2 end-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-20 shadow-sm">\u0646\u0627\u0645\u0648\u062c\u0648\u062f</span>` : ""}
             <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-1.5 sm:p-2 bg-white rounded-full shadow-sm hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="\u0627\u0641\u0632\u0648\u062f\u0646 \u0628\u0647 \u0639\u0644\u0627\u0642\u0647\u200c\u0645\u0646\u062f\u06cc\u200c\u0647\u0627">
@@ -225,13 +224,13 @@
               </svg>
             </button>
           </figure>
-                <a href="${productUrl}">
-                    <h3 class="index-featured-name text-sm sm:text-sm font-extrabold leading-6 mb-2 line-clamp-2 text-gray-900 dark:text-white">${name}</h3>
-                </a>
-                <div class="index-featured-meta flex items-center justify-between mt-3">
+                <div class="index-featured-meta product-price-panel flex items-center justify-between mt-2 border border-gray-200 dark:border-gray-700 rounded-xl p-3" style="height: 132px;">
                     <div class="flex flex-col">
-                        ${hasStock && discount > 0 ? `<span class="text-[11px] sm:text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-                        <span class="index-featured-price text-base sm:text-lg font-extrabold ${hasStock ? "text-gray-900 dark:text-gray-100" : "text-red-600 dark:text-white"}">${hasStock ? `${formatPrice(price)} \u0631\u06cc\u0627\u0644` : "\u0646\u0627\u0645\u0648\u062c\u0648\u062f"}</span>
+                        <a href="${productUrl}" class="block">
+                            <h3 class="index-featured-name text-sm sm:text-sm font-extrabold leading-6 mb-3 line-clamp-2 text-gray-900 dark:text-white">${name}</h3>
+                        </a>
+                        ${hasStock && prices?.hasDiscount ? `<div class="flex items-center gap-2"><span class="text-[11px] sm:text-xs text-gray-400 opacity-60 line-through">${formatPrice(prices.basePrice)}</span>${discount > 0 ? `<span class="bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ""}</div>` : ""}
+                        <span class="index-featured-price text-base sm:text-lg font-extrabold ${hasStock ? "text-gray-900 dark:text-gray-100" : "text-red-600 dark:text-white"}">${hasStock && prices ? `${formatPrice(prices.finalPrice)} \u0631\u06cc\u0627\u0644` : "\u0646\u0627\u0645\u0648\u062c\u0648\u062f"}</span>
                     </div>
           </div>
         </article>
@@ -239,22 +238,48 @@
     `;
   }
 
+  function getProductDisplayPrices(product) {
+    const basePrice = Number(
+      product?.price1 ??
+      product?.originalPrice ??
+      product?.price ??
+      product?.unitPrice ??
+      0,
+    ) || 0;
+    const candidateFinalPrice = Number(
+      product?.price2 ??
+      product?.salePrice ??
+      product?.discountPrice ??
+      0,
+    ) || 0;
+    const finalPrice = candidateFinalPrice > 0 ? candidateFinalPrice : basePrice;
+    const hasDiscount = basePrice > 0 && candidateFinalPrice > 0;
+    const discountPercent = hasDiscount
+      ? Math.round(((basePrice - finalPrice) / basePrice) * 100)
+      : 0;
+
+    return { basePrice, finalPrice, hasDiscount, discountPercent };
+  }
+
   function initializeCarousel() {
-    const carousel = document.querySelector(".product-carousel");
-    if (!carousel || typeof window.Swiper === "undefined") return;
+    if (typeof window.Swiper === "undefined") return;
 
     window.swiperInstances = window.swiperInstances || {};
+    document.querySelectorAll(".product-carousel").forEach((carousel) => {
+      const containerId = carousel.querySelector("[data-products]")?.id || CONTAINER_ID;
+      const instanceKey = containerId === BEST_SELLING_CONTAINER_ID ? BEST_SELLING_CONTAINER_ID : containerId === NEWEST_CONTAINER_ID ? NEWEST_CONTAINER_ID : CONTAINER_ID;
 
-    if (carousel.swiper) {
-      window.swiperInstances.featuredProducts = carousel.swiper;
-      carousel.swiper.update();
-      carousel.setAttribute("data-component-ready", "index-featured-products");
-      return;
-    }
+      if (carousel.swiper) {
+        window.swiperInstances[instanceKey] = carousel.swiper;
+        carousel.swiper.update();
+        carousel.setAttribute("data-component-ready", "index-featured-products");
+        return;
+      }
 
-    window.swiperInstances.featuredProducts = new Swiper(carousel, {
+      window.swiperInstances[instanceKey] = new Swiper(carousel, {
       slidesPerView: 5,
       spaceBetween: 10,
+      centerInsufficientSlides: false,
       navigation: {
         nextEl: carousel.querySelector(".swiper-button-next"),
         prevEl: carousel.querySelector(".swiper-button-prev"),
@@ -266,8 +291,9 @@
         1024: { slidesPerView: 4 },
         1400: { slidesPerView: 5 },
       },
+      });
+      carousel.setAttribute("data-component-ready", "index-featured-products");
     });
-    carousel.setAttribute("data-component-ready", "index-featured-products");
   }
 
   function setWishlistButtonElementActive(button, isActive) {
@@ -309,8 +335,8 @@
     }
   }
 
-  function renderProducts(products) {
-    const container = findContainer();
+  function renderProducts(products, containerId = CONTAINER_ID) {
+    const container = findContainer(containerId);
     if (!container) return;
 
     const visibleProducts = (Array.isArray(products) ? products : [])
@@ -318,7 +344,7 @@
       .filter(isProductInStock)
       .slice(0, MAX_VISIBLE_PRODUCTS);
     if (visibleProducts.length === 0) {
-      renderState("\u0645\u062d\u0635\u0648\u0644\u06cc \u0628\u0631\u0627\u06cc \u0646\u0645\u0627\u06cc\u0634 \u0648\u062c\u0648\u062f \u0646\u062f\u0627\u0631\u062f");
+      renderState("\u0645\u062d\u0635\u0648\u0644\u06cc \u0628\u0631\u0627\u06cc \u0646\u0645\u0627\u06cc\u0634 \u0648\u062c\u0648\u062f \u0646\u062f\u0627\u0631\u062f", containerId);
       return;
     }
 
@@ -327,8 +353,8 @@
     syncWishlistButtons();
   }
 
-  function renderState(message) {
-    const container = findContainer();
+  function renderState(message, containerId = CONTAINER_ID) {
+    const container = findContainer(containerId);
     if (!container) return;
 
     container.innerHTML = `
@@ -352,6 +378,7 @@
       window.apiClient &&
       window.productService &&
       typeof window.productService.getNewProducts === "function" &&
+      typeof window.productService.getSaleProducts === "function" &&
       typeof window.Swiper === "function"
     );
   }
@@ -373,43 +400,85 @@
 
     const dependenciesReady = await waitForProductDependencies();
     if (!dependenciesReady) {
-      renderState("\u0633\u0631\u0648\u06cc\u0633 \u0645\u062d\u0635\u0648\u0644\u0627\u062a \u062f\u0631 \u062f\u0633\u062a\u0631\u0633 \u0646\u06cc\u0633\u062a");
+      renderState("\u0633\u0631\u0648\u06cc\u0633 \u0645\u062d\u0635\u0648\u0644\u0627\u062a \u062f\u0631 \u062f\u0633\u062a\u0631\u0633 \u0646\u06cc\u0633\u062a", CONTAINER_ID);
       return;
     }
 
     hasLoadedProducts = true;
 
     if (!window.productService || !window.apiClient) {
-      renderState("\u0633\u0631\u0648\u06cc\u0633 \u0645\u062d\u0635\u0648\u0644\u0627\u062a \u062f\u0631 \u062f\u0633\u062a\u0631\u0633 \u0646\u06cc\u0633\u062a");
+      renderState("\u0633\u0631\u0648\u06cc\u0633 \u0645\u062d\u0635\u0648\u0644\u0627\u062a \u062f\u0631 \u062f\u0633\u062a\u0631\u0633 \u0646\u06cc\u0633\u062a", CONTAINER_ID);
       return;
     }
 
     try {
-      const result = await window.productService.getNewProducts(20);
-      const products = extractProducts(result);
+      const result = await window.productService.getSaleProducts(MAX_VISIBLE_PRODUCTS);
+      const products = extractProducts(result)
+        .filter((product) => getProductDisplayPrices(product).hasDiscount)
+        .slice(0, MAX_VISIBLE_PRODUCTS);
       if (products.length > 0) {
-        renderProducts(products);
+        renderProducts(products, CONTAINER_ID);
         return;
       }
-
-      const fallback = await window.apiClient.get(
-        "/Product/search?sortBy=CreatedAt&sortDescending=true&pageNumber=1&pageSize=20",
-      );
-      const fallbackProducts = extractProducts(fallback);
-      if (fallbackProducts.length > 0) {
-        renderProducts(fallbackProducts);
-        return;
-      }
-
-      renderState("\u0645\u062d\u0635\u0648\u0644\u06cc \u0628\u0631\u0627\u06cc \u0646\u0645\u0627\u06cc\u0634 \u0648\u062c\u0648\u062f \u0646\u062f\u0627\u0631\u062f");
+      renderState("\u0645\u062d\u0635\u0648\u0644 \u062a\u062e\u0641\u06cc\u0641 \u062f\u0627\u0631\u06cc \u0628\u0631\u0627\u06cc \u0646\u0645\u0627\u06cc\u0634 \u0648\u062c\u0648\u062f \u0646\u062f\u0627\u0631\u062f", CONTAINER_ID);
     } catch (error) {
       if (window.logger && typeof window.logger.error === "function") {
         window.logger.error("Error loading featured products:", error);
       }
-      renderState("\u062e\u0637\u0627 \u062f\u0631 \u062f\u0631\u06cc\u0627\u0641\u062a \u0645\u062d\u0635\u0648\u0644\u0627\u062a");
+      renderState("\u062e\u0637\u0627 \u062f\u0631 \u062f\u0631\u06cc\u0627\u0641\u062a \u0645\u062d\u0635\u0648\u0644\u0627\u062a", CONTAINER_ID);
+    }
+  }
+
+  async function loadBestSellingProducts() {
+    const container = findContainer(BEST_SELLING_CONTAINER_ID);
+    if (!container) return;
+
+    try {
+      if (!(await waitForProductDependencies())) {
+        renderState("\u0633\u0631\u0648\u06cc\u0633 \u0645\u062d\u0635\u0648\u0644\u0627\u062a \u062f\u0631 \u062f\u0633\u062a\u0631\u0633 \u0646\u06cc\u0633\u062a", BEST_SELLING_CONTAINER_ID);
+        return;
+      }
+      const result = await window.productService.getBestSellingProducts(MAX_VISIBLE_PRODUCTS);
+      let products = extractProducts(result).slice(0, MAX_VISIBLE_PRODUCTS);
+      if (products.length === 0) {
+        const fallback = await window.productService.getNewProducts(MAX_VISIBLE_PRODUCTS);
+        products = extractProducts(fallback).slice(0, MAX_VISIBLE_PRODUCTS);
+      }
+      if (products.length > 0) {
+        renderProducts(products, BEST_SELLING_CONTAINER_ID);
+      } else {
+        renderState("محصولی برای نمایش وجود ندارد", BEST_SELLING_CONTAINER_ID);
+      }
+    } catch (error) {
+      window.logger?.error("Error loading best selling products:", error);
+      renderState("محصولی برای نمایش وجود ندارد", BEST_SELLING_CONTAINER_ID);
+    }
+  }
+
+  async function loadNewestProducts() {
+    const container = findContainer(NEWEST_CONTAINER_ID);
+    if (!container) return;
+
+    try {
+      if (!(await waitForProductDependencies())) {
+        renderState("\u0633\u0631\u0648\u06cc\u0633 \u0645\u062d\u0635\u0648\u0644\u0627\u062a \u062f\u0631 \u062f\u0633\u062aر\u0633 \u0646\u06cc\u0633\u062a", NEWEST_CONTAINER_ID);
+        return;
+      }
+      const result = await window.productService.getNewProducts(MAX_VISIBLE_PRODUCTS);
+      const products = extractProducts(result).slice(0, MAX_VISIBLE_PRODUCTS);
+      if (products.length > 0) {
+        renderProducts(products, NEWEST_CONTAINER_ID);
+      } else {
+        renderState("محصولی برای نمایش وجود ندارد", NEWEST_CONTAINER_ID);
+      }
+    } catch (error) {
+      window.logger?.error("Error loading newest products:", error);
+      renderState("خطا در دریافت محصولات", NEWEST_CONTAINER_ID);
     }
   }
 
   initializeCarousel();
   loadFeaturedProducts();
+  loadBestSellingProducts();
+  loadNewestProducts();
 })();

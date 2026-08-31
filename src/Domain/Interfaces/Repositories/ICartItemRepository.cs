@@ -7,6 +7,11 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         Task<CartItem?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<IEnumerable<CartItem>> GetByCartIdAsync(Guid cartId, CancellationToken cancellationToken);
         Task<CartItem?> GetByCartAndProductAsync(Guid cartId, Guid productId, CancellationToken cancellationToken);
+        Task<CartItem?> GetByCartProductAndVariantIncludingDeletedAsync(
+            Guid cartId,
+            Guid productId,
+            Guid? variantId,
+            CancellationToken cancellationToken);
         Task<IEnumerable<CartItem>> GetByProductIdAsync(Guid productId, CancellationToken cancellationToken);
         Task<IEnumerable<CartItem>> GetAllAsync(CancellationToken cancellationToken);
         Task AddAsync(CartItem cartItem, CancellationToken cancellationToken);

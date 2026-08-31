@@ -68,7 +68,7 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
                 {
                     return Result<CartDto>.Failure("تنوع محصول یافت نشد");
                 }
-                availableStock = variant.StockQuantity;
+                availableStock = variant.GetAvailableStock();
             }
             else
             {
@@ -79,9 +79,6 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
             {
                 return Result<CartDto>.Failure($"موجودی کافی نیست. موجودی فعلی: {availableStock}");
             }
-
-            const int maxRetries = 3;
-
 
             try
             {
@@ -109,20 +106,43 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
                     }
 
                     existingItem.UpdateQuantity(newQuantity);
+                    existingItem.UpdatePrice(product.GetCurrentPrice());
                     await _cartItemRepository.UpdateAsync(existingItem, cancellationToken);
                 }
                 else
                 {
-                    var cartItem = CartItem.Create(
+                    var unitPrice = product.GetCurrentPrice();
+                    var deletedItem = await _cartItemRepository.GetByCartProductAndVariantIncludingDeletedAsync(
                         cart.Id,
                         request.Item.ProductId,
                         request.Item.VariantId,
-                        request.Item.Quantity,
-                        product.Price,
-                        product.Price * request.Item.Quantity);
+                        cancellationToken);
 
-                    await _cartItemRepository.AddAsync(cartItem, cancellationToken);
-                    cart.AddItem(cartItem); // Just for mapping the DTO properly in memory
+                    if (deletedItem?.Deleted == true)
+                    {
+                        deletedItem.Restore(request.Item.Quantity, unitPrice, request.UserId.ToString());
+                        await _cartItemRepository.UpdateAsync(deletedItem, cancellationToken);
+                        if (cart.CartItems.All(item => item.Id != deletedItem.Id))
+                        {
+                            cart.AddItem(deletedItem);
+                        }
+                    }
+                    else
+                    {
+                        var cartItem = CartItem.Create(
+                            cart.Id,
+                            request.Item.ProductId,
+                            request.Item.VariantId,
+                            request.Item.Quantity,
+                            unitPrice,
+                            unitPrice * request.Item.Quantity);
+
+                        await _cartItemRepository.AddAsync(cartItem, cancellationToken);
+                        if (cart.CartItems.All(item => item.Id != cartItem.Id))
+                        {
+                            cart.AddItem(cartItem);
+                        }
+                    }
                 }
 
                 // No _cartRepository.UpdateAsync(cart) anymore! 
@@ -143,20 +163,28 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
 
         private CartDto MapToDto(OnlineShop.Domain.Entities.Cart cart, Domain.Entities.Product product)
         {
-            var items = cart.CartItems.Select(item => new CartItemDto
+            var items = cart.CartItems.Select(item =>
             {
-                Id = item.Id,
-                ProductId = item.ProductId,
-                ProductName = item.Product?.Name ?? product.Name,
-                ProductImage = item.Product?.ProductImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl
-                    ?? product.ProductImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl,
-                VariantId = item.VariantId,
-                VariantInfo = GetVariantInfo(item.Product ?? product, item.VariantId),
-                UnitPrice = item.UnitPrice,
-                Quantity = item.Quantity,
-                TotalPrice = item.TotalPrice,
-                AvailableStock = GetAvailableStock(item.Product ?? product, item.VariantId),
-                IsAvailable = GetAvailableStock(item.Product ?? product, item.VariantId) >= item.Quantity
+                var itemProduct = item.Product ?? product;
+                var currentPrice = itemProduct.GetCurrentPrice();
+
+                return new CartItemDto
+                {
+                    Id = item.Id,
+                    ProductId = item.ProductId,
+                    ProductName = item.Product?.Name ?? product.Name,
+                    ProductImage = item.Product?.ProductImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl
+                        ?? product.ProductImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl,
+                    VariantId = item.VariantId,
+                    VariantInfo = GetVariantInfo(itemProduct, item.VariantId),
+                    OriginalUnitPrice = itemProduct.Price,
+                    UnitPrice = currentPrice,
+                    HasDiscount = itemProduct.Price2 is > 0 || currentPrice < itemProduct.Price,
+                    Quantity = item.Quantity,
+                    TotalPrice = currentPrice * item.Quantity,
+                    AvailableStock = GetAvailableStock(itemProduct, item.VariantId),
+                    IsAvailable = GetAvailableStock(itemProduct, item.VariantId) >= item.Quantity
+                };
             }).ToList();
 
             var subtotal = items.Sum(i => i.TotalPrice);
@@ -196,7 +224,7 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
             if (variantId.HasValue && product.ProductVariants != null)
             {
                 var variant = product.ProductVariants.FirstOrDefault(v => v.Id == variantId.Value);
-                return variant?.StockQuantity ?? 0;
+                return variant?.GetAvailableStock() ?? 0;
             }
 
             return product.StockQuantity;

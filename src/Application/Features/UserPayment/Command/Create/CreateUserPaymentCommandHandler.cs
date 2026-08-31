@@ -12,17 +12,20 @@ namespace OnlineShop.Application.Features.UserPayment.Command.Create
     public class CreateUserPaymentCommandHandler : IRequestHandler<CreateUserPaymentCommand, Result<UserPaymentDto>>
     {
         private readonly IUserPaymentRepository _repository;
+        private readonly IUserOrderRepository _orderRepository;
         private readonly IMapper _mapper;
         private readonly IPaymentGateway _paymentGateway;
         private readonly IConfiguration _configuration;
 
         public CreateUserPaymentCommandHandler(
             IUserPaymentRepository repository, 
+            IUserOrderRepository orderRepository,
             IMapper mapper,
             IPaymentGateway paymentGateway,
             IConfiguration configuration)
         {
             _repository = repository;
+            _orderRepository = orderRepository;
             _mapper = mapper;
             _paymentGateway = paymentGateway;
             _configuration = configuration;
@@ -30,12 +33,24 @@ namespace OnlineShop.Application.Features.UserPayment.Command.Create
 
         public async Task<Result<UserPaymentDto>> Handle(CreateUserPaymentCommand request, CancellationToken cancellationToken)
         {
+            if (!request.UserPayment.OrderId.HasValue)
+                return Result<UserPaymentDto>.Failure("سفارش برای پرداخت مشخص نشده است");
+
+            var order = await _orderRepository.GetByIdAsync(request.UserPayment.OrderId.Value, cancellationToken);
+            if (order == null)
+                return Result<UserPaymentDto>.Failure("سفارش یافت نشد");
+
+            if (order.UserId != request.UserPayment.UserId)
+                return Result<UserPaymentDto>.Failure("دسترسی به این سفارش مجاز نیست");
+
+            var payableAmount = order.TotalAmount;
+
             var userPayment = Domain.Entities.UserPayment.Create(
                 request.UserPayment.UserId,
                 request.UserPayment.OrderId,
                 request.UserPayment.PaymentMethod,
-                request.UserPayment.Amount,
-                request.UserPayment.Currency
+                payableAmount,
+                order.Currency
             );
 
             await _repository.AddAsync(userPayment, cancellationToken);
@@ -54,7 +69,7 @@ namespace OnlineShop.Application.Features.UserPayment.Command.Create
                     {
                         PaymentId = userPayment.Id,
                         OrderId = request.UserPayment.OrderId ?? Guid.Empty,
-                        Amount = request.UserPayment.Amount,
+                        Amount = payableAmount,
                         CallbackUrl = callbackUrl,
                         Description = $"پرداخت سفارش {request.UserPayment.OrderId}"
                     };

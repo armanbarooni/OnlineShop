@@ -22,6 +22,9 @@ namespace OnlineShop.Infrastructure.DbConfigurations
                 .IsRequired()
                 .HasColumnType("decimal(18,2)");
 
+            builder.Property(p => p.Price2)
+                .HasColumnType("decimal(18,2)");
+
             builder.Property(p => p.StockQuantity)
                 .IsRequired()
                 .HasDefaultValue(0);

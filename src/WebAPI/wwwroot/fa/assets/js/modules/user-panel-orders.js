@@ -306,7 +306,7 @@ class UserPanelOrders {
                     <div class="space-y-4">
                         ${orderItems.map(item => `
                             <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                <img src="${item.productImage || 'assets/images/product/product-1.jpeg'}" alt="${item.productName || item.name}" class="w-16 h-16 object-cover rounded">
+                                <img src="${item.productImage || 'assets/images/product/product-1.webp'}" alt="${item.productName || item.name}" class="w-16 h-16 object-cover rounded">
                                 <div class="flex-1">
                                     <h5 class="font-medium text-gray-900 dark:text-white">${item.productName || item.name}</h5>
                                     <p class="text-sm text-gray-500 dark:text-gray-400">تعداد: ${item.quantity}</p>

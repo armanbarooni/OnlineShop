@@ -16,7 +16,7 @@
 
   let cachedCategories = [];
   let currentProductsById = new Map();
-  let currentQuery = { categoryId: null, searchQuery: "" };
+  let currentQuery = { categoryId: null, searchQuery: "", onSaleOnly: false };
   let currentFilters = {
     searchTerm: "",
     colors: [],
@@ -34,6 +34,8 @@
   };
   let filterSearchTimer = null;
   let productRequestSequence = 0;
+  let currentPage = 1;
+  let totalPages = 1;
 
   function ready(callback) {
     if (document.readyState === "loading") {
@@ -71,6 +73,7 @@
     const gridContainer = document.getElementById("shop-products-grid");
     bindProductGridEvents();
     bindShopFilterEvents();
+    bindPaginationEvents();
     showLoading(gridContainer);
 
     const dependenciesReady = await waitForDependencies();
@@ -89,14 +92,27 @@
       const urlParams = new URLSearchParams(window.location.search);
       const categoryId = urlParams.get("category");
       const searchQuery = urlParams.get("search") || urlParams.get("q") || "";
+      const onSaleOnly = /^(1|true)$/i.test(urlParams.get("onSale") || "");
+      currentPage = Math.max(
+        1,
+        Number.parseInt(urlParams.get("page") || urlParams.get("pageNumber"), 10) || 1,
+      );
       const resolvedCategoryId =
         categoryId || (await resolveCategoryIdFromSearch(searchQuery));
       const categoryResolvedFromSearch = !categoryId && !!resolvedCategoryId;
       const productSearchQuery = categoryResolvedFromSearch ? "" : searchQuery;
 
-      currentQuery = { categoryId: resolvedCategoryId, searchQuery: productSearchQuery };
+      currentQuery = {
+        categoryId: resolvedCategoryId,
+        searchQuery: productSearchQuery,
+        onSaleOnly,
+      };
       currentFilters.searchTerm = productSearchQuery;
       appliedFilters.searchTerm = productSearchQuery;
+      if (onSaleOnly) {
+        currentFilters.inStockOnly = true;
+        appliedFilters.inStockOnly = true;
+      }
       syncSearchInput(productSearchQuery);
 
       await updateShopCategoryContext(resolvedCategoryId, productSearchQuery);
@@ -125,6 +141,11 @@
       "shop-current-category-name",
     );
     if (!categoryNameElement) return;
+
+    if (currentQuery.onSaleOnly) {
+      categoryNameElement.textContent = "محصولات تخفیف‌دار موجود";
+      return;
+    }
 
     if (categoryId && window.categoryService) {
       try {
@@ -232,6 +253,7 @@
       renderAvailableFilters(payload);
       restoreFilterControls();
       renderProducts(extractProducts(payload), gridContainer);
+      updatePagination(payload);
     } catch (error) {
       if (requestSequence !== productRequestSequence) {
         return;
@@ -263,7 +285,14 @@
 
   function renderProducts(products, container) {
     const visibleProducts = sortProductsForListing(
-      extractArray(products).filter(isVisibleProduct),
+      extractArray(products)
+        .filter(isVisibleProduct)
+        .filter(function (product) {
+          return (
+            !currentQuery.onSaleOnly ||
+            (isProductInStock(product) && getProductDisplayPrices(product).hasDiscount)
+          );
+        }),
     );
     currentProductsById = new Map(
       visibleProducts.map(function (product) {
@@ -328,40 +357,32 @@
     const name = product.name || product.productName || "محصول بدون نام";
     const productUrl = `product.html?id=${encodeURIComponent(id)}`;
     const hasStock = isProductInStock(product);
-    const price = hasStock ? getProductPrice(product) : null;
-    const originalPrice = hasStock ? getProductOriginalPrice(product, price) : null;
+    const prices = hasStock ? getProductDisplayPrices(product) : null;
     const discount =
-      hasStock && originalPrice > price
-        ? Math.round(((originalPrice - price) / originalPrice) * 100)
-        : 0;
+      hasStock && prices?.hasDiscount ? prices.discountPercent : 0;
 
     return `
-      <div class="shop-product-grid-item lg:col-span-4 md:col-span-6 col-span-12 w-full">
+      <div class="shop-product-grid-item lg:col-span-3 md:col-span-6 col-span-12 w-full">
         <article class="shop-product-card bg-white product-box-item rounded-lg p-3 sm:p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20 h-full flex flex-col" itemscope itemtype="http://schema.org/Product">
-          <figure class="shop-product-figure relative overflow-hidden rounded-lg mb-3">
-            <a href="${productUrl}" class="block" itemprop="url">
-              <img src="${escapeAttribute(image.src)}" alt="${escapeAttribute(name)}" class="shop-product-image w-full h-40 sm:h-48 object-contain" loading="lazy" decoding="async" itemprop="image" onerror="${imageErrorHandler}">
+          <figure class="shop-product-figure relative overflow-hidden rounded-lg mb-2 p-1 bg-gray-50 dark:bg-gray-800" style="aspect-ratio: 4 / 5;">
+            <a href="${productUrl}" class="block h-full" itemprop="url">
+              <img src="${escapeAttribute(image.src)}" alt="${escapeAttribute(name)}" class="shop-product-image w-full h-full object-contain rounded-md" loading="lazy" decoding="async" itemprop="image" onerror="${imageErrorHandler}">
             </a>
             ${!hasStock ? `<span class="absolute top-2 end-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-20 shadow-sm">ناموجود</span>` : ""}
-            ${
-              discount > 0
-                ? `<span class="absolute top-2 end-2 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">${discount}%</span>`
-                : ""
-            }
             <button type="button" data-wishlist-product-id="${escapeAttribute(id)}" class="absolute top-2 start-2 z-30 p-1.5 sm:p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5 pointer-events-none">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"></path>
               </svg>
             </button>
           </figure>
-          <a href="${productUrl}" class="block flex-1">
-            <h3 class="shop-product-name text-sm sm:text-sm font-extrabold leading-6 mb-2 line-clamp-2 text-gray-900 dark:text-white" itemprop="name">${escapeHtml(name)}</h3>
-          </a>
-          <div class="shop-product-meta flex items-center justify-between mt-auto" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+          <div class="shop-product-meta product-price-panel flex items-center justify-between mt-2 border border-gray-200 dark:border-gray-700 rounded-xl p-3" style="height: 132px;" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
             <meta itemprop="priceCurrency" content="IRR">
             <div class="flex flex-col">
-              ${hasStock && discount > 0 ? `<span class="text-[11px] sm:text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-              <span class="shop-product-price text-base sm:text-lg font-extrabold ${hasStock ? "text-gray-900 dark:text-gray-100" : "text-red-600 dark:text-white"}" itemprop="price"${hasStock ? ` content="${price}"` : ""}>${hasStock ? `${formatPrice(price)} ریال` : "ناموجود"}</span>
+              <a href="${productUrl}" class="block">
+                <h3 class="shop-product-name text-sm sm:text-sm font-extrabold leading-6 mb-3 line-clamp-2 text-gray-900 dark:text-white" itemprop="name">${escapeHtml(name)}</h3>
+              </a>
+              ${hasStock && prices?.hasDiscount ? `<div class="flex items-center gap-2"><span class="text-[11px] sm:text-xs text-gray-400 opacity-60 line-through">${formatPrice(prices.basePrice)}</span>${discount > 0 ? `<span class="bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ""}</div>` : ""}
+              <span class="shop-product-price text-base sm:text-lg font-extrabold ${hasStock ? "text-gray-900 dark:text-gray-100" : "text-red-600 dark:text-white"}" itemprop="price"${hasStock && prices ? ` content="${prices.finalPrice}"` : ""}>${hasStock && prices ? `${formatPrice(prices.finalPrice)} ریال` : "ناموجود"}</span>
             </div>
             <button type="button" data-add-to-cart-product-id="${escapeAttribute(id)}" class="bg-primary text-white p-1.5 sm:p-2 rounded-lg hover:bg-primary/90 transition ${hasStock ? "" : "opacity-60 cursor-not-allowed"}" aria-label="افزودن به سبد خرید" ${hasStock ? "" : "disabled"}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 sm:size-5 pointer-events-none">
@@ -589,9 +610,32 @@
     }
   }
 
+  function getProductDisplayPrices(product) {
+    const basePrice = Number(
+      product?.price1 ??
+      product?.originalPrice ??
+      product?.price ??
+      product?.unitPrice ??
+      0,
+    ) || 0;
+    const candidateFinalPrice = Number(
+      product?.price2 ??
+      product?.salePrice ??
+      product?.discountPrice ??
+      0,
+    ) || 0;
+    const finalPrice = candidateFinalPrice > 0 ? candidateFinalPrice : basePrice;
+    const hasDiscount = basePrice > 0 && candidateFinalPrice > 0;
+    const discountPercent = hasDiscount
+      ? Math.round(((basePrice - finalPrice) / basePrice) * 100)
+      : 0;
+
+    return { basePrice, finalPrice, hasDiscount, discountPercent };
+  }
+
   function buildProductSearchCriteria(categoryId, searchQuery) {
     const criteria = {
-      pageNumber: 1,
+      pageNumber: currentPage,
       pageSize: DEFAULT_PAGE_SIZE,
       sortBy: appliedFilters.sortBy,
       sortDescending: appliedFilters.sortDescending,
@@ -613,6 +657,10 @@
     if (minPrice !== null) criteria.minPrice = minPrice;
     if (maxPrice !== null) criteria.maxPrice = maxPrice;
     if (appliedFilters.inStockOnly) criteria.inStock = true;
+    if (currentQuery.onSaleOnly) {
+      criteria.onSale = true;
+      criteria.inStock = true;
+    }
 
     return criteria;
   }
@@ -633,7 +681,118 @@
   }
 
   function applyFilters() {
+    currentPage = 1;
+    updatePageQueryString();
     return loadProducts(currentQuery.categoryId, currentQuery.searchQuery);
+  }
+
+  function bindPaginationEvents() {
+    const pagination = document.querySelector("[data-shop-pagination]");
+    if (!pagination || pagination.dataset.paginationBound === "true") return;
+
+    pagination.dataset.paginationBound = "true";
+    pagination
+      .querySelector("[data-shop-page-previous]")
+      ?.addEventListener("click", function () {
+        goToPage(currentPage - 1);
+      });
+    pagination
+      .querySelector("[data-shop-page-next]")
+      ?.addEventListener("click", function () {
+        goToPage(currentPage + 1);
+      });
+    pagination
+      .querySelector("[data-shop-page-numbers]")
+      ?.addEventListener("click", function (event) {
+        const button = event.target.closest("[data-shop-page]");
+        if (!button) return;
+
+        goToPage(Number.parseInt(button.dataset.shopPage, 10));
+      });
+  }
+
+  async function goToPage(pageNumber) {
+    const nextPage = Math.min(totalPages, Math.max(1, Number(pageNumber) || 1));
+    if (nextPage === currentPage) return;
+
+    currentPage = nextPage;
+    updatePageQueryString();
+    await loadProducts(currentQuery.categoryId, currentQuery.searchQuery);
+    document.getElementById("shop-products-grid")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+
+  function updatePagination(payload) {
+    const pagination = document.querySelector("[data-shop-pagination]");
+    if (!pagination) return;
+
+    const pageData = extractPagination(payload);
+    currentPage = pageData.pageNumber;
+    totalPages = pageData.totalPages;
+
+    const previousButton = pagination.querySelector("[data-shop-page-previous]");
+    const nextButton = pagination.querySelector("[data-shop-page-next]");
+    if (previousButton) previousButton.disabled = currentPage <= 1;
+    if (nextButton) nextButton.disabled = currentPage >= totalPages;
+
+    const numbersContainer = pagination.querySelector("[data-shop-page-numbers]");
+    if (numbersContainer) {
+      numbersContainer.innerHTML = getVisiblePageNumbers(currentPage, totalPages)
+        .map(function (pageNumber) {
+          const isCurrent = pageNumber === currentPage;
+          return `
+            <button
+              type="button"
+              data-shop-page="${pageNumber}"
+              class="min-h-9.5 min-w-9.5 flex justify-center items-center ${isCurrent ? "bg-gray-200 dark:bg-neutral-600" : "hover:bg-gray-100 dark:hover:bg-white/10"} text-gray-800 py-2 px-3 text-sm rounded-lg focus:outline-hidden disabled:opacity-50 dark:text-white"
+              ${isCurrent ? 'aria-current="page" disabled' : ""}
+            >${pageNumber}</button>
+          `;
+        })
+        .join("");
+    }
+  }
+
+  function extractPagination(payload) {
+    const data = unwrapData(payload);
+    const pagedData = data?.products || data || {};
+    const pageSize = Number(pagedData.pageSize) || DEFAULT_PAGE_SIZE;
+    const totalCount = Math.max(0, Number(pagedData.totalCount) || 0);
+    const resolvedTotalPages = Math.max(
+      1,
+      Number(pagedData.totalPages) || Math.ceil(totalCount / pageSize),
+    );
+    const resolvedPage = Math.min(
+      resolvedTotalPages,
+      Math.max(1, Number(pagedData.pageNumber) || currentPage),
+    );
+
+    return { pageNumber: resolvedPage, totalPages: resolvedTotalPages };
+  }
+
+  function getVisiblePageNumbers(pageNumber, pageCount) {
+    const firstPage = Math.max(1, Math.min(pageNumber - 2, pageCount - 4));
+    const lastPage = Math.min(pageCount, firstPage + 4);
+    const pages = [];
+
+    for (let page = firstPage; page <= lastPage; page += 1) {
+      pages.push(page);
+    }
+
+    return pages;
+  }
+
+  function updatePageQueryString() {
+    const url = new URL(window.location.href);
+    if (currentPage > 1) {
+      url.searchParams.set("page", String(currentPage));
+    } else {
+      url.searchParams.delete("page");
+      url.searchParams.delete("pageNumber");
+    }
+    window.history.replaceState({}, "", url);
   }
 
   function commitPendingFilters() {
@@ -794,9 +953,8 @@
   }
 
   function isProductInStock(product) {
-    if (getProductVariantList(product).some((variant) => getVariantStock(variant) > 0)) {
-      return true;
-    }
+    const variants = getProductVariantList(product);
+    if (variants.length > 0) return variants.some((variant) => getVariantStock(variant) > 0);
 
     const stock = Number(
       product?.stockQuantity ??
@@ -1076,7 +1234,7 @@
                 <span class="text-xs font-light text-neutral-500">${escapeHtml(category.description || "")}</span>
               </section>
               <figure>
-                <img src="${escapeAttribute(category.imageUrl || "assets/images/category/digitall.png")}" class="size-20" loading="lazy" alt="${escapeAttribute(name)}">
+                <img src="${escapeAttribute(category.imageUrl || "assets/images/category/digitall.webp")}" class="size-20" loading="lazy" alt="${escapeAttribute(name)}">
               </figure>
             </article>
           </a>
@@ -1391,7 +1549,7 @@
 
   function showEmpty(container) {
     container.innerHTML = `
-      <div class="col-span-full w-full rounded-xl border border-gray-200 bg-white p-8 text-center dark:bg-gray-800 dark:border-gray-700">
+      <div class="shop-products-message rounded-xl border border-gray-200 bg-white p-8 text-center dark:bg-gray-800 dark:border-gray-700">
         <h2 class="text-lg font-bold text-gray-800 dark:text-white">محصولی برای نمایش پیدا نشد.</h2>
         <p class="mt-2 text-sm text-gray-500 dark:text-gray-300">فیلترها یا عبارت جستجو را تغییر دهید و دوباره تلاش کنید.</p>
       </div>
@@ -1402,7 +1560,7 @@
     if (!container) return;
 
     container.innerHTML = `
-      <div class="col-span-full w-full rounded-xl border border-red-200 bg-red-50 p-8 text-center dark:bg-red-950/30 dark:border-red-900" role="alert">
+      <div class="shop-products-message rounded-xl border border-red-200 bg-red-50 p-8 text-center dark:bg-red-950/30 dark:border-red-900" role="alert">
         <h2 class="text-lg font-bold text-red-700 dark:text-red-300">لیست محصولات بارگذاری نشد.</h2>
         <p class="mt-2 text-sm text-red-600 dark:text-red-200">${escapeHtml(message)}</p>
         <button type="button" data-shop-retry class="mt-5 rounded-lg bg-primary px-5 py-2 text-white hover:bg-primary/90">تلاش دوباره</button>

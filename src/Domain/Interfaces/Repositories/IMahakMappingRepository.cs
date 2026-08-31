@@ -7,6 +7,7 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         Task<MahakMapping?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<MahakMapping?> GetByLocalEntityIdAsync(string entityType, Guid localEntityId, CancellationToken cancellationToken);
         Task<MahakMapping?> GetByMahakEntityIdAsync(string entityType, int mahakEntityId, CancellationToken cancellationToken);
+        Task<MahakMapping?> GetByMahakEntityIdIgnoreStatusAsync(string entityType, int mahakEntityId, CancellationToken cancellationToken);
         Task<IEnumerable<MahakMapping>> GetByEntityTypeAsync(string entityType, CancellationToken cancellationToken);
         Task<IEnumerable<MahakMapping>> GetActiveMappingsAsync(CancellationToken cancellationToken);
         Task<IEnumerable<MahakMapping>> GetAllAsync(CancellationToken cancellationToken);

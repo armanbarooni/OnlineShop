@@ -11,6 +11,7 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         Task<Product?> GetByIdTrackedAsync(Guid id, CancellationToken cancellationToken);
         Task<Product?> GetByIdIgnoreFiltersAsync(Guid id, CancellationToken cancellationToken);
         Task<Product?> GetByMahakIdIgnoreFiltersAsync(int mahakId, CancellationToken cancellationToken);
+        Task<IReadOnlyList<Guid>> GetBestSellingProductIdsAsync(int limit, CancellationToken cancellationToken);
         Task<Product?> GetByIdWithIncludesAsync(Guid id, CancellationToken cancellationToken);
         Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken);
         Task<IEnumerable<Product>> GetAllWithIncludesAsync(CancellationToken cancellationToken);

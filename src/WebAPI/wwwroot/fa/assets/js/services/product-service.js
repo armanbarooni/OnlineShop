@@ -69,6 +69,7 @@ class ProductService {
             if (searchCriteria.minPrice) params.append('minPrice', searchCriteria.minPrice);
             if (searchCriteria.maxPrice) params.append('maxPrice', searchCriteria.maxPrice);
             if (searchCriteria.inStock !== undefined && searchCriteria.inStock !== null) params.append('inStock', searchCriteria.inStock);
+            if (searchCriteria.onSale !== undefined && searchCriteria.onSale !== null) params.append('onSale', searchCriteria.onSale);
             if (searchCriteria.sortBy) params.append('sortBy', searchCriteria.sortBy);
             if (searchCriteria.sortDescending !== undefined) params.append('sortDescending', searchCriteria.sortDescending);
             if (searchCriteria.pageNumber) params.append('pageNumber', searchCriteria.pageNumber);
@@ -351,28 +352,17 @@ class ProductService {
      */
     async getSaleProducts(limit = 8) {
         try {
-            const result = await this.searchProducts({
+            // The homepage validates variant stock once more before rendering.
+            // Fetch enough recent sale candidates so an unavailable variant does not leave the five-item row incomplete.
+            const candidatePageSize = Math.max(limit * 10, 50);
+            return await this.searchProducts({
+                onSale: true,
+                inStock: true,
+                sortBy: 'CreatedAt',
+                sortDescending: true,
                 pageNumber: 1,
-                pageSize: limit
+                pageSize: candidatePageSize
             });
-            
-            if (result.success && result.data && result.data.products) {
-                // Filter products that have discount
-                const saleProducts = result.data.products.filter(p => 
-                    p.discountPercent > 0 || 
-                    (p.originalPrice && p.price && p.originalPrice > p.price)
-                );
-                
-                return {
-                    success: true,
-                    data: {
-                        ...result.data,
-                        products: saleProducts.slice(0, limit)
-                    }
-                };
-            }
-            
-            return result;
         } catch (error) {
             window.logger.error('Error getting sale products:', error);
             return {

@@ -16,6 +16,8 @@ namespace OnlineShop.Domain.Interfaces.Repositories
         // Attempt to reserve quantity for a product atomically. Returns true when reservation succeeded, false when insufficient stock.
         Task<bool> TryReserveAsync(Guid productId, int quantity, CancellationToken cancellationToken);
         // Attempt to reserve multiple items atomically. Returns true when all reservations succeeded; false if any item has insufficient stock.
-        Task<bool> TryReserveMultipleAsync(IEnumerable<(Guid ProductId, int Quantity)> items, CancellationToken cancellationToken);
+        Task<bool> TryReserveMultipleAsync(Guid orderId, IEnumerable<(Guid ProductId, Guid? VariantId, int Quantity)> items, CancellationToken cancellationToken);
+        Task CommitReservationsAsync(IEnumerable<(Guid ProductId, Guid? VariantId, int Quantity)> items, DateTime soldAt, CancellationToken cancellationToken);
+        Task ReleaseReservationsAsync(IEnumerable<(Guid ProductId, Guid? VariantId, int Quantity)> items, CancellationToken cancellationToken);
     }
 }

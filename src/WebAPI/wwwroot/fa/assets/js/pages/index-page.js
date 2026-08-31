@@ -29,10 +29,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       await window.categoryService.renderMegaMenu("mega-menu-list-container");
     }
 
-    // Load optional sections if corresponding containers exist
-    await loadNewProducts();
-    await loadBestSellingProducts();
-
     // Load brands
     await loadBrands();
 
@@ -83,7 +79,7 @@ function renderCategories(categories) {
                     <span class="text-xs font-light text-neutral-500">${category.description || ""}</span>
                 </section>
                 <figure>
-                    <img src="${category.imageUrl || "assets/images/category/digitall.png"}" 
+                    <img src="${category.imageUrl || "assets/images/category/digitall.webp"}"
                          class="size-20" loading="lazy" alt="${category.name || "?????????"}">
                 </figure>
             </article>
@@ -232,9 +228,8 @@ function getVariantStock(variant) {
 }
 
 function isProductInStock(product) {
-  if (getProductVariantList(product).some((variant) => getVariantStock(variant) > 0)) {
-    return true;
-  }
+  const variants = getProductVariantList(product);
+  if (variants.length > 0) return variants.some((variant) => getVariantStock(variant) > 0);
 
   const stock = Number(
     product?.stockQuantity ??
@@ -307,12 +302,9 @@ function createProductCard(product) {
       : `/api/ImageProxy?url=${encodeURIComponent(rawImageUrl)}`
     : "assets/images/product/nophoto.png";
   const hasStock = isProductInStock(product);
-  const price = hasStock ? (product.price || 0) : null;
-  const originalPrice = hasStock ? (product.originalPrice || price) : null;
+  const prices = hasStock ? getProductDisplayPrices(product) : null;
   const discount =
-    hasStock && originalPrice > price
-      ? Math.round(((originalPrice - price) / originalPrice) * 100)
-      : 0;
+    hasStock && prices?.hasDiscount ? prices.discountPercent : 0;
   const productUrl = `product.html?id=${product.id}`;
   const name = product.name || "??? ?????";
   const wishlistClick =
@@ -324,11 +316,10 @@ function createProductCard(product) {
         <div class="swiper-slide px-1.5 py-2">
             <article class="bg-white product-box-item drop-shadow-md rounded-xl p-4 dark:bg-gray-800 dark:border-white dark:border-1">
                 <header class="flex items-center relative justify-between">
-                    ${discount > 0 ? `<span class="absolute top-1 end-1 bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ""}
                 </header>
-                <figure class="relative overflow-hidden rounded-lg mb-3">
-                    <a href="${productUrl}" class="block">
-                        <img src="${imageUrl}" alt="${name}" class="w-full h-48 object-contain">
+                <figure class="index-featured-figure relative overflow-hidden rounded-lg mb-2 p-1 bg-gray-50 dark:bg-gray-900" style="aspect-ratio: 4 / 5;">
+                    <a href="${productUrl}" class="block h-full">
+                        <img src="${imageUrl}" alt="${name}" class="index-featured-image w-full h-full object-contain rounded-md">
                     </a>
                     <button type="button" data-wishlist-product-id="${product.id}" onclick="${wishlistClick}" class="absolute top-2 start-2 z-30 p-2 bg-white rounded-full shadow-md hover:bg-primary hover:text-white transition dark:bg-gray-800 dark:text-white" aria-label="افزودن به علاقه‌مندی‌ها">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 pointer-events-none">
@@ -336,18 +327,41 @@ function createProductCard(product) {
                         </svg>
                     </button>
                 </figure>
-                <a href="${productUrl}">
-                    <h3 class="text-sm font-bold mb-2 line-clamp-2 dark:text-white">${name}</h3>
-                </a>
-                <div class="flex items-center justify-between mt-3">
+                <div class="product-price-panel border border-gray-200 dark:border-gray-700 rounded-xl p-3 mt-2" style="height: 132px;">
+                    <a href="${productUrl}" class="block">
+                        <h3 class="text-sm font-bold mb-3 line-clamp-2 dark:text-white">${name}</h3>
+                    </a>
                     <div class="flex flex-col">
-                        ${hasStock && discount > 0 ? `<span class="text-xs text-gray-400 line-through">${formatPrice(originalPrice)}</span>` : ""}
-                        <span class="text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${formatPrice(price)} ????` : "Ù†Ø§Ù…ÙˆØ¬ÙˆØ¯"}</span>
+                        ${hasStock && prices?.hasDiscount ? `<div class="flex items-center gap-2"><span class="text-xs text-gray-400 opacity-60 line-through">${formatPrice(prices.basePrice)}</span>${discount > 0 ? `<span class="bg-red-500 text-white text-xs px-2 py-1 rounded">${discount}%</span>` : ""}</div>` : ""}
+                        <span class="text-lg font-bold ${hasStock ? "text-primary" : "text-red-600"}">${hasStock && prices ? `${formatPrice(prices.finalPrice)} ریال` : "ناموجود"}</span>
                     </div>
                 </div>
             </article>
         </div>
     `;
+}
+
+function getProductDisplayPrices(product) {
+  const basePrice = Number(
+    product?.price1 ??
+    product?.originalPrice ??
+    product?.price ??
+    product?.unitPrice ??
+    0,
+  ) || 0;
+  const candidateFinalPrice = Number(
+    product?.price2 ??
+    product?.salePrice ??
+    product?.discountPrice ??
+    0,
+  ) || 0;
+  const finalPrice = candidateFinalPrice > 0 ? candidateFinalPrice : basePrice;
+  const hasDiscount = basePrice > 0 && candidateFinalPrice > 0;
+  const discountPercent = hasDiscount
+    ? Math.round(((basePrice - finalPrice) / basePrice) * 100)
+    : 0;
+
+  return { basePrice, finalPrice, hasDiscount, discountPercent };
 }
 
 function isProductInStock(product) {
@@ -370,7 +384,7 @@ function isProductInStock(product) {
     );
     return Number.isFinite(stock) && stock > 0;
   });
-  if (variantStock) return true;
+  if (variants.length > 0) return variantStock;
 
   const stock = Number(product?.stockQuantity ?? product?.StockQuantity ?? product?.quantity ?? product?.Quantity ?? 0);
   return Number.isFinite(stock) && stock > 0;

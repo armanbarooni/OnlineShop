@@ -8,10 +8,14 @@ namespace OnlineShop.Application.Features.Checkout.Commands.RemoveCouponFromChec
     public class RemoveCouponFromCheckoutCommandHandler : IRequestHandler<RemoveCouponFromCheckoutCommand, Result<RemoveCouponFromCheckoutResultDto>>
     {
         private readonly ICartRepository _cartRepository;
+        private readonly IProductRepository _productRepository;
 
-        public RemoveCouponFromCheckoutCommandHandler(ICartRepository cartRepository)
+        public RemoveCouponFromCheckoutCommandHandler(
+            ICartRepository cartRepository,
+            IProductRepository productRepository)
         {
             _cartRepository = cartRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<Result<RemoveCouponFromCheckoutResultDto>> Handle(RemoveCouponFromCheckoutCommand request, CancellationToken cancellationToken)
@@ -41,7 +45,12 @@ namespace OnlineShop.Application.Features.Checkout.Commands.RemoveCouponFromChec
 
             // Calculate cart total without coupon
             var cartItems = await _cartRepository.GetCartItemsAsync(cart.Id, cancellationToken);
-            decimal subtotal = cartItems.Sum(item => item.TotalPrice);
+            decimal subtotal = 0;
+            foreach (var item in cartItems)
+            {
+                var product = await _productRepository.GetByIdAsync(item.ProductId, cancellationToken);
+                subtotal += (product?.GetCurrentPrice() ?? item.UnitPrice) * item.Quantity;
+            }
 
             var result = new RemoveCouponFromCheckoutResultDto
             {

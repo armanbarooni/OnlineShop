@@ -9,6 +9,9 @@ namespace OnlineShop.Application.Mapping
         public ProductProfile()
         {
             CreateMap<Product, ProductDto>()
+                .ForMember(d => d.StockQuantity, opt => opt.MapFrom(s => s.ProductVariants.Any()
+                    ? s.ProductVariants.Sum(v => Math.Max(0, v.StockQuantity - v.ReservedQuantity))
+                    : s.StockQuantity))
                 .ForMember(d => d.Images, opt => opt.MapFrom(s => s.ProductImages.OrderBy(i => i.DisplayOrder)))
                 .ForMember(d => d.Variants, opt => opt.MapFrom(s => s.ProductVariants.OrderBy(v => v.DisplayOrder)))
                 .ForMember(d => d.Materials, opt => opt.MapFrom(s => s.ProductMaterials.Select(pm => pm.Material)))
@@ -18,6 +21,9 @@ namespace OnlineShop.Application.Mapping
                     s.ProductReviews.Any() ? s.ProductReviews.Average(r => r.Rating) : 0));
 
             CreateMap<Product, ProductDetailsDto>()
+                .ForMember(d => d.StockQuantity, opt => opt.MapFrom(s => s.ProductVariants.Any()
+                    ? s.ProductVariants.Sum(v => Math.Max(0, v.StockQuantity - v.ReservedQuantity))
+                    : s.StockQuantity))
                 .ForMember(d => d.CategoryName, opt => opt.MapFrom(s => s.Category != null ? s.Category.Name : null))
                 .ForMember(d => d.BrandName, opt => opt.MapFrom(s => s.Brand != null ? s.Brand.Name : null))
                 .ForMember(d => d.Images, opt => opt.MapFrom(s => s.ProductImages.Where(i => !i.Deleted).OrderBy(i => i.DisplayOrder)))
@@ -27,7 +33,8 @@ namespace OnlineShop.Application.Mapping
                 .ForMember(d => d.Seasons, opt => opt.MapFrom(s => s.ProductSeasons.Where(ps => !ps.Deleted).Select(ps => ps.Season.Name)));
             
             CreateMap<ProductImage, ProductImageDto>();
-            CreateMap<ProductVariant, ProductVariantDto>();
+            CreateMap<ProductVariant, ProductVariantDto>()
+                .ForMember(d => d.StockQuantity, opt => opt.MapFrom(s => s.GetAvailableStock()));
 
             CreateMap<CreateProductDto, Product>()
                 .ForMember(d => d.Id, opt => opt.Ignore())
@@ -42,6 +49,7 @@ namespace OnlineShop.Application.Mapping
                 .ForMember(d => d.IsActive, opt => opt.Ignore())
                 .ForMember(d => d.IsFeatured, opt => opt.Ignore())
                 .ForMember(d => d.ViewCount, opt => opt.Ignore())
+                .ForMember(d => d.Price2, opt => opt.Ignore())
                 .ForMember(d => d.SalePrice, opt => opt.Ignore())
                 .ForMember(d => d.SaleStartDate, opt => opt.Ignore())
                 .ForMember(d => d.SaleEndDate, opt => opt.Ignore())
@@ -82,6 +90,7 @@ namespace OnlineShop.Application.Mapping
                 .ForMember(d => d.IsActive, opt => opt.Ignore())
                 .ForMember(d => d.IsFeatured, opt => opt.Ignore())
                 .ForMember(d => d.ViewCount, opt => opt.Ignore())
+                .ForMember(d => d.Price2, opt => opt.Ignore())
                 .ForMember(d => d.SalePrice, opt => opt.Ignore())
                 .ForMember(d => d.SaleStartDate, opt => opt.Ignore())
                 .ForMember(d => d.SaleEndDate, opt => opt.Ignore())

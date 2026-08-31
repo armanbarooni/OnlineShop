@@ -16,6 +16,7 @@ namespace OnlineShop.Domain.Entities
         public string? Feature8Value { get; private set; }
         public string? Feature9Value { get; private set; }
         public int StockQuantity { get; private set; }
+        public int ReservedQuantity { get; private set; }
         public decimal? AdditionalPrice { get; private set; } // Extra cost for this variant (e.g., +$5 for XL)
         public bool IsAvailable { get; private set; } = true;
         public int DisplayOrder { get; private set; }
@@ -190,7 +191,38 @@ namespace OnlineShop.Domain.Entities
 
         public bool IsInStock()
         {
-            return IsAvailable && StockQuantity > 0;
+            return IsAvailable && GetAvailableStock() > 0;
+        }
+
+        public int GetAvailableStock() => Math.Max(0, StockQuantity - ReservedQuantity);
+
+        public void ReconcileReservedQuantity(int quantity)
+        {
+            ReservedQuantity = Math.Max(0, quantity);
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void ReserveQuantity(int quantity)
+        {
+            if (quantity <= 0 || GetAvailableStock() < quantity)
+                throw new InvalidOperationException("موجودی این رنگ و سایز کافی نیست");
+            ReservedQuantity += quantity;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void ReleaseReservedQuantity(int quantity)
+        {
+            ReservedQuantity = Math.Max(0, ReservedQuantity - quantity);
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void CommitReservedQuantity(int quantity, DateTime updatedAt)
+        {
+            if (ReservedQuantity < quantity || StockQuantity < quantity)
+                throw new InvalidOperationException("رزرو موجودی این رنگ و سایز معتبر نیست");
+            ReservedQuantity -= quantity;
+            StockQuantity -= quantity;
+            UpdatedAt = updatedAt;
         }
 
         public decimal GetFinalPrice(decimal basePrice)

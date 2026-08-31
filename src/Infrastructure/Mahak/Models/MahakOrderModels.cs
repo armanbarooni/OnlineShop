@@ -23,6 +23,11 @@ namespace OnlineShop.Infrastructure.Mahak.Models
         public int? PersonId { get; set; }
 
         /// <summary>
+        /// Client ID of the receipt linked to this order
+        /// </summary>
+        public long? ReceiptClientId { get; set; }
+
+        /// <summary>
         /// Order type: 201 = Sales Invoice, 299 = Proforma, 202 = Return
         /// </summary>
         public int OrderType { get; set; } = 201; // Sales Invoice

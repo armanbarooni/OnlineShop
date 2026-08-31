@@ -87,6 +87,15 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void Restore(int quantity, decimal unitPrice, string? updatedBy)
+        {
+            if (!Deleted)
+                throw new InvalidOperationException("این آیتم سبد خرید حذف نشده است.");
+
+            Deleted = false;
+            Update(quantity, unitPrice, Notes, updatedBy);
+        }
+
         public void Delete(string? updatedBy)
         {
             if (Deleted)

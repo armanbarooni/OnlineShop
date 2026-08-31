@@ -149,7 +149,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
 
             await InvokePrivateAsync(service, "ProcessImagesAsync", new List<PhotoGalleryModel>
             {
-                new() { EntityType = 102, ItemCode = product.MahakId!.Value, PictureId = 10, IsMain = true, RowVersion = 10 }
+                new() { PhotoGalleryId = 10, EntityType = 102, ItemCode = product.MahakId!.Value, PictureId = 10, IsMain = true, RowVersion = 10 }
             }, new List<PictureModel>
             {
                 new() { PictureId = 10, Url = "/new.jpg", RowVersion = 10 }
@@ -238,6 +238,127 @@ namespace OnlineShop.IntegrationTests.Scenarios
             var variant = await db.ProductVariants.AsNoTracking().SingleOrDefaultAsync(v => v.ProductId == product.Id);
             variant.Should().NotBeNull();
             variant!.Size.Should().Be("XL");
+        }
+
+        [Fact]
+        public async Task D9_MahakSync_WhenPictureAndGalleryArriveSeparately_ShouldAttachImage()
+        {
+            using var scope = _factory.Services.CreateScope();
+            var service = scope.ServiceProvider.GetRequiredService<MahakSyncService>();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var product = await CreateMappedProductAsync(db);
+            var pictureId = Random.Shared.Next(1000000, 1999999);
+            var galleryId = Random.Shared.Next(2000000, 2999999);
+
+            await InvokePrivateAsync(service, "ProcessImagesAsync",
+                new List<PhotoGalleryModel>(),
+                new List<PictureModel>
+                {
+                    new() { PictureId = pictureId, Url = $"/pic-{pictureId}-new.jpg", RowVersion = 10 }
+                },
+                CancellationToken.None);
+
+            await InvokePrivateAsync(service, "ProcessImagesAsync",
+                new List<PhotoGalleryModel>
+                {
+                    new()
+                    {
+                        PhotoGalleryId = galleryId,
+                        EntityType = 102,
+                        ItemCode = product.MahakId!.Value,
+                        PictureId = pictureId,
+                        IsMain = true,
+                        RowVersion = 11
+                    }
+                },
+                new List<PictureModel>(),
+                CancellationToken.None);
+
+            var image = await db.ProductImages.AsNoTracking()
+                .SingleOrDefaultAsync(item => item.ProductId == product.Id && !item.Deleted);
+            image.Should().NotBeNull();
+            image!.MahakId.Should().Be(pictureId);
+            image.ImageUrl.Should().Be($"/pic-{pictureId}-new.jpg");
+            image.IsPrimary.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task D10_MahakSync_WhenOldGalleryIsDeleted_ShouldReplaceOldMahakImage()
+        {
+            using var scope = _factory.Services.CreateScope();
+            var service = scope.ServiceProvider.GetRequiredService<MahakSyncService>();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var product = await CreateMappedProductAsync(db);
+            var oldPictureId = Random.Shared.Next(3000000, 3999999);
+            var newPictureId = Random.Shared.Next(4000000, 4999999);
+            var oldGalleryId = Random.Shared.Next(5000000, 5999999);
+            var newGalleryId = Random.Shared.Next(6000000, 6999999);
+
+            await InvokePrivateAsync(service, "ProcessImagesAsync",
+                new List<PhotoGalleryModel>
+                {
+                    new() { PhotoGalleryId = oldGalleryId, EntityType = 102, ItemCode = product.MahakId!.Value, PictureId = oldPictureId, IsMain = true, RowVersion = 10 }
+                },
+                new List<PictureModel>
+                {
+                    new() { PictureId = oldPictureId, Url = $"/pic-{oldPictureId}-old.jpg", RowVersion = 10 }
+                },
+                CancellationToken.None);
+
+            await InvokePrivateAsync(service, "ProcessImagesAsync",
+                new List<PhotoGalleryModel>
+                {
+                    new() { PhotoGalleryId = oldGalleryId, EntityType = 102, ItemCode = product.MahakId!.Value, PictureId = oldPictureId, IsMain = true, Deleted = true, RowVersion = 20 },
+                    new() { PhotoGalleryId = newGalleryId, EntityType = 102, ItemCode = product.MahakId.Value, PictureId = newPictureId, IsMain = true, RowVersion = 21 }
+                },
+                new List<PictureModel>
+                {
+                    new() { PictureId = newPictureId, Url = $"/pic-{newPictureId}-new.jpg", RowVersion = 20 }
+                },
+                CancellationToken.None);
+
+            var activeImages = await db.ProductImages.AsNoTracking()
+                .Where(item => item.ProductId == product.Id && !item.Deleted)
+                .ToListAsync();
+            activeImages.Should().ContainSingle();
+            activeImages.Single().MahakId.Should().Be(newPictureId);
+            activeImages.Single().ImageUrl.Should().Be($"/pic-{newPictureId}-new.jpg");
+        }
+
+        [Fact]
+        public async Task D11_MahakSync_WhenOlderProductPayloadArrivesLater_ShouldKeepNewestName()
+        {
+            using var scope = _factory.Services.CreateScope();
+            var service = scope.ServiceProvider.GetRequiredService<MahakSyncService>();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var product = await CreateMappedProductAsync(db, name: "Initial name");
+
+            await InvokePrivateAsync(service, "ProcessProductsAsync", new List<ProductModel>
+            {
+                new()
+                {
+                    ProductId = product.MahakId!.Value,
+                    ProductClientId = (int)product.MahakClientId!.Value,
+                    ProductCode = product.MahakId.Value + 10,
+                    Name = "Newest Mahak name",
+                    RowVersion = 200
+                }
+            }, CancellationToken.None);
+
+            await InvokePrivateAsync(service, "ProcessProductsAsync", new List<ProductModel>
+            {
+                new()
+                {
+                    ProductId = product.MahakId.Value,
+                    ProductClientId = (int)product.MahakClientId.Value,
+                    ProductCode = product.MahakId.Value + 10,
+                    Name = "Stale deleted-product name",
+                    RowVersion = 100
+                }
+            }, CancellationToken.None);
+
+            var reloaded = await db.Products.AsNoTracking().SingleAsync(item => item.Id == product.Id);
+            reloaded.Name.Should().Be("Newest Mahak name");
         }
 
         private static async Task InvokePrivateAsync(object target, string methodName, params object[] args)

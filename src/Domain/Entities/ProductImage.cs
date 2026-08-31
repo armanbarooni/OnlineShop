@@ -111,6 +111,13 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void ApplyMahakIdentity(int pictureId, int photoGalleryId, long pictureClientId)
+        {
+            MahakId = pictureId;
+            MahakClientId = pictureClientId > 0 ? pictureClientId : photoGalleryId;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         public void Delete(string? updatedBy)
         {
             if (Deleted)

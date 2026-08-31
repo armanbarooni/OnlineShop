@@ -10,6 +10,7 @@
     sliders.forEach((slider) => {
       if (slider.classList.contains("swiper-initialized")) return;
 
+      const slideCount = slider.querySelectorAll(".swiper-slide").length;
       const nextButton =
         slider.querySelector(".custom-swiper-next") ||
         slider.querySelector(".swiper-button-next");
@@ -18,9 +19,17 @@
         slider.querySelector(".swiper-button-prev");
 
       const swiper = new Swiper(slider, {
-        loop: true,
+        loop: slideCount > 1,
         initialSlide: 0,
         speed: 600,
+        autoplay:
+          slideCount > 1
+            ? {
+                delay: 4500,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }
+            : false,
         grabCursor: true,
         allowTouchMove: true,
         simulateTouch: true,
@@ -37,7 +46,9 @@
           prevEl: prevButton,
         },
       });
-      swiper.slideToLoop(0, 0, false);
+      if (slideCount > 1) {
+        swiper.slideToLoop(0, 0, false);
+      }
 
       slider.setAttribute("data-component-ready", "index-slider");
       slider.swiper = swiper;

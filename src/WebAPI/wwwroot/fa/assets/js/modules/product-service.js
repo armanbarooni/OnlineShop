@@ -8,11 +8,11 @@ class ProductService {
 
         // Placeholder images (5 rotating images)
         this.placeholderImages = [
-            '/fa/assets/images/products/placeholders/product-1.webp',
-            '/fa/assets/images/products/placeholders/product-2.webp',
-            '/fa/assets/images/products/placeholders/product-3.webp',
-            '/fa/assets/images/products/placeholders/product-4.webp',
-            '/fa/assets/images/products/placeholders/product-5.webp'
+            '/fa/assets/images/product/product-1.webp',
+            '/fa/assets/images/product/product-2.webp',
+            '/fa/assets/images/product/product-3.webp',
+            '/fa/assets/images/product/product-4.webp',
+            '/fa/assets/images/product/product-5.webp'
         ];
     }
 
@@ -146,28 +146,60 @@ class ProductService {
     }
 
     /**
+     * Resolve display prices for products that may expose multiple price fields.
+     * price2 is treated as the discounted/final price when it exists and is non-zero.
+     * @param {Object} product - Product object
+     * @returns {{ basePrice: number, finalPrice: number, hasDiscount: boolean, discountPercent: number }}
+     */
+    getDisplayPrices(product) {
+        const basePrice = Number(
+            product?.price1 ??
+            product?.originalPrice ??
+            product?.price ??
+            product?.unitPrice ??
+            0
+        ) || 0;
+        const candidateFinalPrice = Number(
+            product?.price2 ??
+            product?.salePrice ??
+            product?.discountPrice ??
+            0
+        ) || 0;
+        const finalPrice = candidateFinalPrice > 0 ? candidateFinalPrice : basePrice;
+        const hasDiscount = basePrice > 0 && candidateFinalPrice > 0;
+        const discountPercent = hasDiscount
+            ? Math.round(((basePrice - finalPrice) / basePrice) * 100)
+            : 0;
+
+        return { basePrice, finalPrice, hasDiscount, discountPercent };
+    }
+
+    /**
      * Render product card
      * @param {Object} product - Product object
      * @returns {string} HTML string
      */
     renderProductCard(product) {
         const image = this.getProductImage(product);
-        const price = this.formatPrice(product.price || product.unitPrice);
+        const prices = this.getDisplayPrices(product);
         const name = product.name || product.title || 'محصول بدون نام';
         const productId = product.id;
 
         return `
             <div class="product-card bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-xl transition-all duration-300">
                 <a href="product.html?id=${productId}" class="block">
-                    <div class="relative overflow-hidden rounded-t-lg">
-                        <img src="${image}" alt="${name}" class="w-full h-64 object-cover hover:scale-110 transition-transform duration-300" loading="lazy" onerror="this.src='${this.getPlaceholderImage(productId)}'">
+                    <div class="relative aspect-square overflow-hidden rounded-t-lg mb-2 p-1" style="aspect-ratio: 1 / 1;">
+                        <img src="${image}" alt="${name}" class="w-full h-full object-cover rounded-md hover:scale-110 transition-transform duration-300" loading="lazy" onerror="this.src='${this.getPlaceholderImage(productId)}'">
                         ${product.discount ? `<span class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-sm">${product.discount}% تخفیف</span>` : ''}
                     </div>
                     <div class="p-4">
-                        <h3 class="text-lg font-bold mb-2 line-clamp-2 dark:text-white">${name}</h3>
                         ${product.description ? `<p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">${product.description}</p>` : ''}
                         <div class="flex items-center justify-between">
-                            <span class="text-xl font-bold text-primary">${price}</span>
+                            <div class="product-price-panel flex flex-col leading-6 border border-gray-200 dark:border-gray-700 rounded-xl p-3 mt-2" style="height: 132px;">
+                                <h3 class="text-lg font-bold mb-3 line-clamp-2 dark:text-white">${name}</h3>
+                                ${prices.hasDiscount ? `<div class="flex items-center gap-2"><span class="text-sm text-gray-400 opacity-60 line-through">${this.formatPrice(prices.basePrice)}</span>${prices.discountPercent > 0 ? `<span class="bg-red-500 text-white text-xs px-2 py-1 rounded">${prices.discountPercent}%</span>` : ""}</div>` : ""}
+                                <span class="text-xl font-bold text-primary">${this.formatPrice(prices.finalPrice)}</span>
+                            </div>
                             <button onclick="window.cartService?.addToCart(${productId}, 1)" class="bg-primary-grad text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
                                 افزودن به سبد
                             </button>

@@ -129,9 +129,18 @@
             <a href="index.html">
               <div class="lg:text-start text-center">
                 <img
-                  class="h-12"
+                  class="h-12 dark:hidden"
                   style="height: 3.25rem;"
                   src="assets/images/logo.webp"
+                  loading="eager"
+                  fetchpriority="high"
+                  decoding="async"
+                  alt=""
+                />
+                <img
+                  class="hidden h-12 dark:block"
+                  style="height: 3.25rem;"
+                  src="assets/images/logo_white.png"
                   loading="eager"
                   fetchpriority="high"
                   decoding="async"

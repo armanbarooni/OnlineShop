@@ -43,6 +43,35 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(p => p.MahakId == mahakId, cancellationToken);
         }
 
+        public async Task<IReadOnlyList<Guid>> GetBestSellingProductIdsAsync(
+            int limit,
+            CancellationToken cancellationToken)
+        {
+            if (limit <= 0)
+                return Array.Empty<Guid>();
+
+            return await _context.UserOrderItems
+                .AsNoTracking()
+                .Where(item =>
+                    !item.Deleted &&
+                    !item.Order.Deleted &&
+                    item.Order.OrderStatus != "Pending" &&
+                    item.Order.OrderStatus != "Cancelled" &&
+                    item.Order.OrderStatus != "Returned")
+                .GroupBy(item => item.ProductId)
+                .Select(group => new
+                {
+                    ProductId = group.Key,
+                    QuantitySold = group.Sum(item => item.Quantity),
+                    LastSoldAt = group.Max(item => item.Order.CreatedAt)
+                })
+                .OrderByDescending(item => item.QuantitySold)
+                .ThenByDescending(item => item.LastSoldAt)
+                .Take(limit)
+                .Select(item => item.ProductId)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<Product?> GetByIdWithIncludesAsync(Guid id, CancellationToken cancellationToken)
         {
             return await _context.Products

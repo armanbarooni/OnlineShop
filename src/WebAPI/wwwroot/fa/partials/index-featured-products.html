@@ -6,7 +6,7 @@
     overflow: hidden;
     border-radius: 1rem;
     background: #111827;
-    padding: clamp(1.05rem, 3vw, 1.65rem);
+    padding: clamp(0.55rem, 1.5vw, 0.9rem);
     box-shadow: 0 14px 34px rgba(17, 24, 39, 0.18);
   }
 
@@ -15,7 +15,7 @@
     z-index: 1;
     margin: 0;
     text-align: center;
-    font-size: clamp(1.35rem, 3vw, 2rem);
+    font-size: clamp(1.15rem, 2.4vw, 1.65rem);
     font-weight: 900;
     line-height: 1.7;
     letter-spacing: 0;
@@ -26,11 +26,226 @@
     color: #ff6b21;
   }
 
+  .index-featured-products-wrap {
+    padding-block: 0.75rem !important;
+  }
+
+  .index-featured-products-wrap > .container {
+    width: calc(100% - 4rem);
+    max-width: none;
+    margin-inline: auto;
+    padding-inline: 0;
+  }
+
+  .index-featured-products-wrap .product-carousel {
+    padding-inline: 0.25rem !important;
+  }
+
+  .index-featured-products-wrap .index-featured-slide {
+    padding: 0.3rem !important;
+  }
+
+  .index-featured-products-wrap .index-featured-card {
+    padding: 0.7rem 0.75rem 0.85rem !important;
+  }
+
+  .index-featured-products-wrap .index-featured-figure {
+    display: flex;
+    height: auto;
+    aspect-ratio: 4 / 5 !important;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.55rem;
+  }
+
+  .index-featured-products-wrap .index-featured-figure > a {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .index-featured-products-wrap .index-featured-image {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center;
+  }
+
+  .index-featured-products-wrap .index-featured-meta {
+    height: 7.5rem !important;
+    margin-top: 0.125rem !important;
+    padding: 0.65rem !important;
+  }
+
+  .index-featured-products-wrap > .container > .mb-5 {
+    margin-bottom: 0.75rem !important;
+  }
+
+  .daily-deals-shell {
+    position: relative;
+  }
+
+  .daily-deals-header {
+    position: relative;
+    z-index: 2;
+    isolation: isolate;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(254, 202, 202, 0.24);
+    border-radius: 1.35rem;
+    padding: clamp(0.65rem, 1.6vw, 1rem) clamp(0.8rem, 2vw, 1.35rem);
+    background:
+      radial-gradient(circle at 8% 0%, rgba(251, 191, 36, 0.3), transparent 24rem),
+      linear-gradient(135deg, #7f1d1d 0%, #b91c1c 48%, #991b1b 100%);
+    box-shadow: 0 12px 28px rgba(127, 29, 29, 0.22);
+  }
+
+  .daily-deals-header::before,
+  .daily-deals-header::after {
+    position: absolute;
+    z-index: -1;
+    content: "";
+    pointer-events: none;
+  }
+
+  .daily-deals-header::before {
+    inset: 0;
+    opacity: 0.18;
+    background-image:
+      linear-gradient(30deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px),
+      linear-gradient(150deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .daily-deals-header::after {
+    content: "%";
+    inset-inline-end: clamp(1rem, 9vw, 8rem);
+    bottom: -2.4rem;
+    color: rgba(255, 255, 255, 0.065);
+    font-family: Georgia, serif;
+    font-size: clamp(6rem, 11vw, 10rem);
+    font-weight: 900;
+    line-height: 1;
+    transform: rotate(-10deg);
+  }
+
+  .daily-deals-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #fff;
+  }
+
+  .daily-deals-icon {
+    display: inline-flex;
+    width: 3.25rem;
+    height: 3.25rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(254, 240, 138, 0.55);
+    border-radius: 1rem;
+    color: #fef08a;
+    background: rgba(69, 10, 10, 0.34);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    transform: rotate(-4deg);
+  }
+
+  .daily-deals-eyebrow {
+    margin: 0 0 0.05rem;
+    color: #fecaca;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .daily-deals-title {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(1.15rem, 2.5vw, 1.65rem);
+    font-weight: 900;
+    line-height: 1.55;
+  }
+
+  .daily-deals-title span {
+    color: #fde68a;
+  }
+
+  .daily-deals-link {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    padding: 0.55rem 0.85rem;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 0.75rem;
+    font-weight: 800;
+    backdrop-filter: blur(8px);
+    transition: background-color 180ms ease, transform 180ms ease;
+  }
+
+  .daily-deals-link:hover {
+    color: #7f1d1d;
+    background: #fff;
+    transform: translateX(-2px);
+  }
+
+  .daily-deals-carousel {
+    position: relative;
+    z-index: 1;
+  }
+
   @media (max-width: 575.98px) {
+    .daily-deals-header {
+      margin: 0 0.2rem 0.4rem;
+      border-radius: 1rem;
+      padding: 0.55rem 0.65rem;
+      box-shadow: 0 8px 20px rgba(127, 29, 29, 0.2);
+    }
+
+    .daily-deals-title-group {
+      gap: 0.55rem;
+    }
+
+    .daily-deals-icon {
+      width: 2.55rem;
+      height: 2.55rem;
+      border-radius: 0.8rem;
+    }
+
+    .daily-deals-eyebrow {
+      font-size: 0.62rem;
+    }
+
+    .daily-deals-title {
+      font-size: 1.05rem;
+    }
+
+    .daily-deals-link {
+      padding: 0.45rem 0.65rem;
+      font-size: 0.68rem;
+    }
+
+    .daily-deals-header::after {
+      inset-inline-end: -0.75rem;
+      bottom: -1.25rem;
+      font-size: 6rem;
+    }
+
     .index-featured-products-wrap .container {
-      width: 100%;
-      max-width: none;
-      padding-inline: 0.375rem;
+      width: calc(100% - 2rem);
+      max-width: 32rem;
+      padding-inline: 0;
     }
 
     .index-featured-products-wrap .product-carousel {
@@ -55,27 +270,30 @@
 
     .index-featured-products-wrap .index-featured-figure {
       display: flex;
+      align-items: center;
       justify-content: center;
-      height: 10rem;
-      padding: 0.25rem;
-      margin-inline: -0.125rem;
-      margin-bottom: 0.875rem;
+      height: auto;
+      aspect-ratio: 4 / 5 !important;
+      padding: 0.3rem;
+      margin-inline: 0;
+      margin-bottom: 0.45rem;
       border-radius: 0.625rem;
     }
 
     .index-featured-products-wrap .index-featured-figure > a {
       display: flex;
-      width: 75%;
+      width: 100%;
       height: 100%;
       align-items: center;
       justify-content: center;
     }
 
     .index-featured-products-wrap .index-featured-image {
+      display: block;
       width: 100% !important;
       height: 100% !important;
       margin: auto;
-      object-fit: fill !important;
+      object-fit: contain !important;
       object-position: center;
       transform: none;
     }
@@ -95,7 +313,9 @@
     }
 
     .index-featured-products-wrap .index-featured-meta {
+      height: 7.5rem !important;
       margin-top: 0.125rem;
+      padding: 0.5rem !important;
     }
 
     .index-featured-products-wrap .index-featured-price {
@@ -116,16 +336,32 @@
     }
   }
 </style>
-    <section class="index-featured-products-wrap py-5">
+    <section class="index-featured-products-wrap daily-deals-section py-5">
       <div class="container">
-        <div class="mb-5">
+        <div class="daily-deals-shell">
           <header
-            class="index-products-kicker"
+            class="daily-deals-header"
             itemscope
             itemtype="https://schema.org/CollectionPage"
           >
-            <h2 itemprop="name">&#1580;&#1583;&#1740;&#1583;&#1578;&#1585;&#1740;&#1606; <span>&#1605;&#1581;&#1589;&#1608;&#1604;&#1575;&#1578;</span></h2>
-            <meta itemprop="description" content="&#1580;&#1583;&#1740;&#1583;&#1578;&#1585;&#1740;&#1606; &#1605;&#1581;&#1589;&#1608;&#1604;&#1575;&#1578;" />
+            <div class="daily-deals-title-group">
+              <span class="daily-deals-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-7">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9Z" />
+                </svg>
+              </span>
+              <div>
+                <p class="daily-deals-eyebrow">فرصت ویژه خرید</p>
+                <h2 class="daily-deals-title" itemprop="name">خوش قیمت های <span>امروز</span></h2>
+              </div>
+            </div>
+            <a class="daily-deals-link" href="/fa/shop.html?onSale=true&amp;inStock=true">
+              <span>مشاهده همه</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-4" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6" />
+              </svg>
+            </a>
+            <meta itemprop="description" content="خوش قیمت های امروز" />
             <link itemprop="url" href="/fa/shop.html" />
             <!-- Breadcrumbs (hidden from users but still available for search engines) -->
             <div
@@ -157,39 +393,58 @@
               </span>
             </div>
           </header>
-        </div>
-      </div>
-      <div
-        class="relative"
-      >
-        <div class="container">
-          <div class="swiper !px-2 product-carousel">
-            <div
-              class="swiper-wrapper items-center"
-              id="featuredProducts"
-              data-products="featuredProducts"
-              style="padding-bottom: 0 !important"
-            >
-              <div class="swiper-slide px-1.5 py-2">
-                <article
-                  class="bg-white product-box-item rounded-lg p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20"
-                >
-                  <p class="text-center text-gray-500 dark:text-gray-300 py-16">
-                    &#1583;&#1585; &#1581;&#1575;&#1604; &#1576;&#1575;&#1585;&#1711;&#1584;&#1575;&#1585;&#1740; &#1605;&#1581;&#1589;&#1608;&#1604;&#1575;&#1578;...
-                  </p>
-                </article>
+          <div class="daily-deals-carousel">
+            <div class="swiper !px-2 product-carousel">
+              <div
+                class="swiper-wrapper items-center"
+                id="featuredProducts"
+                data-products="featuredProducts"
+                style="padding-bottom: 0 !important"
+              >
+                <div class="swiper-slide px-1.5 py-2">
+                  <article
+                    class="bg-white product-box-item rounded-lg p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20"
+                  >
+                    <p class="text-center text-gray-500 dark:text-gray-300 py-16">
+                      &#1583;&#1585; &#1581;&#1575;&#1604; &#1576;&#1575;&#1585;&#1711;&#1584;&#1575;&#1585;&#1740; &#1605;&#1581;&#1589;&#1608;&#1604;&#1575;&#1578;...
+                    </p>
+                  </article>
+                </div>
               </div>
+              <div
+                class="swiper-button-next bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+                aria-label="&#1575;&#1587;&#1604;&#1575;&#1740;&#1583; &#1576;&#1593;&#1583;&#1740;"
+              ></div>
+              <div
+                class="swiper-button-prev bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
+                aria-label="&#1575;&#1587;&#1604;&#1575;&#1740;&#1583; &#1602;&#1576;&#1604;&#1740;"
+              ></div>
             </div>
-            <div
-              class="swiper-button-next bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
-              aria-label="&#1575;&#1587;&#1604;&#1575;&#1740;&#1583; &#1576;&#1593;&#1583;&#1740;"
-            ></div>
-            <div
-              class="swiper-button-prev bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"
-              aria-label="&#1575;&#1587;&#1604;&#1575;&#1740;&#1583; &#1602;&#1576;&#1604;&#1740;"
-            ></div>
           </div>
         </div>
       </div>
+    </section>
+    <section class="index-featured-products-wrap py-5">
+      <div class="container">
+        <div class="mb-5">
+          <header class="index-products-kicker" itemscope itemtype="https://schema.org/CollectionPage">
+            <h2 itemprop="name">جدیدترین <span>محصولات</span></h2>
+            <meta itemprop="description" content="جدیدترین محصولات" />
+          </header>
+        </div>
+        <div class="relative">
+          <div class="swiper product-carousel newest-products-carousel !px-2">
+            <div class="swiper-wrapper items-center" id="newProducts" data-products="newProducts" style="padding-bottom: 0 !important">
+              <div class="swiper-slide px-1.5 py-2">
+                <article class="bg-white product-box-item rounded-lg p-4 shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-white/20">
+                  <p class="text-center text-gray-500 dark:text-gray-300 py-16">در حال بارگذاری محصولات...</p>
+                </article>
+              </div>
+            </div>
+            <div class="swiper-button-next bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary" aria-label="اسلاید بعدی"></div>
+            <div class="swiper-button-prev bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary" aria-label="اسلاید قبلی"></div>
+          </div>
+          </div>
+        </div>
     </section>
     <!-- ================= end product section ================= -->

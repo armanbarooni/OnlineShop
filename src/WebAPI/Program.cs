@@ -19,14 +19,20 @@ using Microsoft.Extensions.Hosting;
 
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
 var isDevelopmentEnvironment = environmentName.Equals(Environments.Development, StringComparison.OrdinalIgnoreCase);
-var minimumLogLevel = isDevelopmentEnvironment ? LogEventLevel.Debug : LogEventLevel.Information;
+var isProductionEnvironment = environmentName.Equals(Environments.Production, StringComparison.OrdinalIgnoreCase);
+var minimumLogLevel = isDevelopmentEnvironment
+    ? LogEventLevel.Debug
+    : isProductionEnvironment
+        ? LogEventLevel.Error
+        : LogEventLevel.Information;
+var frameworkLogLevel = isProductionEnvironment ? LogEventLevel.Error : LogEventLevel.Warning;
 
 LoggerConfiguration BuildLoggerConfiguration(LogEventLevel minimumLevel, string? postgresConnectionString = null)
 {
     var loggerConfiguration = new LoggerConfiguration()
         .MinimumLevel.Is(minimumLevel)
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-        .MinimumLevel.Override("System", LogEventLevel.Warning)
+        .MinimumLevel.Override("Microsoft", frameworkLogLevel)
+        .MinimumLevel.Override("System", frameworkLogLevel)
         .Enrich.FromLogContext()
         .Enrich.WithEnvironmentName()
         .Enrich.WithProcessId()
@@ -34,6 +40,7 @@ LoggerConfiguration BuildLoggerConfiguration(LogEventLevel minimumLevel, string?
         .WriteTo.File("logs/log-.txt",
             rollingInterval: RollingInterval.Day,
             retainedFileCountLimit: 30,
+            restrictedToMinimumLevel: LogEventLevel.Error,
             outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}");
 
     if (!string.IsNullOrEmpty(postgresConnectionString))
@@ -392,6 +399,19 @@ app.UseMiddleware<OnlineShop.WebAPI.Middlewares.RequestLoggingMiddleware>();
 
 // Apply request localization
 app.UseRequestLocalization();
+
+// Send the root URL straight to the localized storefront instead of showing
+// the static redirect placeholder page first.
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/" || context.Request.Path == "/index.html")
+    {
+        context.Response.Redirect("/fa/index.html");
+        return;
+    }
+
+    await next();
+});
 
 // Serve default files (index.html) for SPA routing - MUST be before UseStaticFiles
 app.UseDefaultFiles();

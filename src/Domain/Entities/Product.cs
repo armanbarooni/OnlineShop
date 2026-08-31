@@ -7,6 +7,7 @@ namespace OnlineShop.Domain.Entities
         public string Name { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
         public decimal Price { get; private set; }
+        public decimal? Price2 { get; private set; }
         public int StockQuantity { get; private set; }
         public Guid? CategoryId { get; private set; }
         public Guid? UnitId { get; private set; }
@@ -75,6 +76,15 @@ namespace OnlineShop.Domain.Entities
             if (price < 0)
                 throw new ArgumentException("Ù‚ÛŒÙ…Øª Ù…Ø­ØµÙˆÙ„ Ù†Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ø¯ Ù…Ù†ÙÛŒ Ø¨Ø§Ø´Ø¯");
             Price = price;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void SetPrice2(decimal? price2)
+        {
+            if (price2.HasValue && price2.Value < 0)
+                throw new ArgumentException("قیمت دوم محصول نمی‌تواند منفی باشد");
+
+            Price2 = price2 is > 0 ? price2 : null;
             UpdatedAt = DateTime.UtcNow;
         }
 
@@ -231,6 +241,9 @@ namespace OnlineShop.Domain.Entities
 
         public decimal GetCurrentPrice()
         {
+            if (Price2 is > 0)
+                return Price2.Value;
+
             return IsOnSale() && SalePrice.HasValue ? SalePrice.Value : Price;
         }
 

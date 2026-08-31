@@ -42,7 +42,8 @@ namespace OnlineShop.Application.Features.Checkout.Commands.ApplyCouponToCheckou
             decimal subtotal = 0;
             foreach (var item in cartItems)
             {
-                subtotal += item.TotalPrice;
+                var product = await _productRepository.GetByIdAsync(item.ProductId, cancellationToken);
+                subtotal += (product?.GetCurrentPrice() ?? item.UnitPrice) * item.Quantity;
             }
 
             // 3. Get and validate coupon

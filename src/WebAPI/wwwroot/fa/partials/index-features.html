@@ -41,10 +41,10 @@
     display: block;
     height: 100%;
     overflow: hidden;
-    border-radius: 1.1rem;
-    -webkit-clip-path: inset(0 round 1.1rem);
-    clip-path: inset(0 round 1.1rem);
-    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 10px;
+    -webkit-clip-path: none;
+    clip-path: none;
+    border: 0;
     background: #ffffff;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
     transition: transform 300ms ease;
@@ -52,21 +52,33 @@
   }
 
   .category-showcase-card > img {
-    border-radius: inherit;
+    border-radius: 10px;
     object-fit: cover;
   }
 
   @media (max-width: 767.98px) {
+    .category-showcase-shell {
+      padding-inline: 0.75rem;
+    }
+
     .category-showcase-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .category-showcase-card {
+      min-height: 0 !important;
+      border-radius: 10px;
+      -webkit-clip-path: none;
+      clip-path: none;
+      box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08);
     }
   }
 
   @media (max-width: 479.98px) {
     .category-showcase-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
     }
   }
 </style>
@@ -110,7 +122,7 @@
         style="aspect-ratio: 1 / 1;"
       >
         <img
-          src="assets/images/category/3.jpg"
+          src="assets/images/category/3.webp"
           alt="تیشرت"
           class="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
@@ -124,7 +136,7 @@
         style="aspect-ratio: 1 / 1;"
       >
         <img
-          src="assets/images/category/4.jpg"
+          src="assets/images/category/4.webp"
           alt="شلوار"
           class="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
@@ -138,7 +150,7 @@
         style="aspect-ratio: 1 / 1;"
       >
         <img
-          src="assets/images/category/5.jpg"
+          src="assets/images/category/5.webp"
           alt="شلوارک"
           class="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
@@ -152,7 +164,7 @@
         style="aspect-ratio: 1 / 1;"
       >
         <img
-          src="assets/images/category/6.jpg"
+          src="assets/images/category/6.webp"
           alt="پیراهن"
           class="absolute inset-0 h-full w-full object-cover"
           loading="lazy"

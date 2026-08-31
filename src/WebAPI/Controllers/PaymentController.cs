@@ -49,7 +49,15 @@ namespace OnlineShop.WebAPI.Controllers
                 return Ok(result);
             }
 
-            return BadRequest(result);
+            _logger.LogError(
+                "Payment initiation failed for user {UserId}, order {OrderId}. Error: {Error}",
+                userId,
+                dto.OrderId,
+                result.ErrorMessage);
+
+            // The production CDN replaces non-2xx API bodies with an HTML error page.
+            // Keep the Result envelope so the frontend can display the real gateway error.
+            return Ok(result);
         }
 
         /// <summary>

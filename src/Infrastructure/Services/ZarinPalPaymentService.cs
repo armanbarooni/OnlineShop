@@ -106,7 +106,7 @@ namespace OnlineShop.Infrastructure.Services
                         errorCode = errCodeElement.GetInt32();
                 }
 
-                _logger.LogWarning("Payment initiation failed. Code: {Code}, Message: {Message}", errorCode, errorMessage);
+                _logger.LogError("Payment initiation failed. Code: {Code}, Message: {Message}", errorCode, errorMessage);
                 return (false, string.Empty, string.Empty, errorMessage);
             }
             catch (Exception ex)

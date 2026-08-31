@@ -220,16 +220,28 @@ namespace OnlineShop.Infrastructure.Services
                 .Where(p => string.Equals(p.PaymentStatus, "Paid", StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(p => p.PaidAt ?? p.CreatedAt)
                 .FirstOrDefault();
+            var productDiscountAmount = order.OrderItems.Sum(GetItemDiscountAmount);
+            var mahakInvoiceDiscount = order.DiscountAmount + productDiscountAmount;
+
+            _logger.LogInformation(
+                "Mahak invoice totals for order {OrderId}: line discount {ProductDiscount}, coupon discount {OrderDiscount}, invoice discount {InvoiceDiscount}, payable amount {PayableAmount}, recorded payment {RecordedPayment}",
+                order.Id,
+                productDiscountAmount,
+                order.DiscountAmount,
+                mahakInvoiceDiscount,
+                order.TotalAmount,
+                paidPayment?.Amount);
 
             var mahakOrder = new MahakOrderModel
             {
                 OrderClientId = orderClientId,
                 VisitorId = _visitorId,
                 PersonId = mahakPersonId,
+                ReceiptClientId = paidPayment != null ? orderClientId : null,
                 OrderType = 201, // Sales invoice
                 OrderDate = order.CreatedAt,
                 DeliveryDate = order.CreatedAt,
-                Discount = order.DiscountAmount,
+                Discount = mahakInvoiceDiscount,
                 DiscountType = 0, // Amount
                 SendCost = order.ShippingAmount,
                 OtherCost = 0,
@@ -281,6 +293,9 @@ namespace OnlineShop.Infrastructure.Services
                     storeId = 31940; // Default fallback
                 }
 
+                var itemDiscount = GetItemDiscountAmount(item);
+                var originalUnitPrice = GetOriginalUnitPrice(item, itemDiscount);
+
                 mahakOrderDetails.Add(new MahakOrderDetailModel
                 {
                     OrderDetailClientId = item.Id.GetHashCode(),
@@ -288,10 +303,10 @@ namespace OnlineShop.Infrastructure.Services
                     OrderClientId = mahakOrder.OrderClientId,
                     ProductDetailId = productDetailMapping.MahakEntityId,
                     StoreId = storeId, // REQUIRED by Mahak
-                    Price = item.UnitPrice,
+                    Price = originalUnitPrice,
                     Count1 = item.Quantity,
                     Count2 = 0,
-                    Discount = item.DiscountAmount ?? 0,
+                    Discount = itemDiscount,
                     DiscountType = 0,
                     TaxPercent = 0,
                     ChargePercent = 0,
@@ -317,6 +332,7 @@ namespace OnlineShop.Infrastructure.Services
                         ReceiptCode = null,
                         PersonId = mahakPersonId,
                         VisitorId = _visitorId,
+                        // Send the exact amount settled by the gateway, which already includes discounts.
                         CashAmount = paidPayment.Amount,
                         CashCode = null,
                         Description = $"Payment for order {order.OrderNumber}",
@@ -461,9 +477,57 @@ namespace OnlineShop.Infrastructure.Services
                 return null;
             }
 
-            return string.Join(
+            var normalizedWhitespace = string.Join(
                 " ",
                 value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+
+            return NormalizeDigits(normalizedWhitespace);
+        }
+
+        private static string NormalizeDigits(string value)
+        {
+            return value
+                .Replace('۰', '0')
+                .Replace('۱', '1')
+                .Replace('۲', '2')
+                .Replace('۳', '3')
+                .Replace('۴', '4')
+                .Replace('۵', '5')
+                .Replace('۶', '6')
+                .Replace('۷', '7')
+                .Replace('۸', '8')
+                .Replace('۹', '9')
+                .Replace('٠', '0')
+                .Replace('١', '1')
+                .Replace('٢', '2')
+                .Replace('٣', '3')
+                .Replace('٤', '4')
+                .Replace('٥', '5')
+                .Replace('٦', '6')
+                .Replace('٧', '7')
+                .Replace('٨', '8')
+                .Replace('٩', '9');
+        }
+
+        private static decimal GetItemDiscountAmount(UserOrderItem item)
+        {
+            if (item.DiscountAmount is > 0)
+            {
+                return item.DiscountAmount.Value;
+            }
+
+            var originalUnitPrice = item.Product?.Price ?? item.UnitPrice;
+            return Math.Max(0m, originalUnitPrice - item.UnitPrice) * item.Quantity;
+        }
+
+        private static decimal GetOriginalUnitPrice(UserOrderItem item, decimal itemDiscount)
+        {
+            if (itemDiscount <= 0 || item.Quantity <= 0)
+            {
+                return item.UnitPrice;
+            }
+
+            return item.UnitPrice + (itemDiscount / item.Quantity);
         }
 
         private static string BuildOrderItemDescription(UserOrderItem item)

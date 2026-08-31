@@ -1,4 +1,38 @@
 ﻿<!-- ================= start banner section ================= -->
+    <style>
+      #advertisements .promo-banners-grid {
+        gap: 0.65rem;
+      }
+
+      #advertisements > .container {
+        width: calc(100% - 4rem);
+        max-width: none;
+        margin-inline: auto;
+        padding-inline: 0;
+      }
+
+      #advertisements .home-panel--banner,
+      #advertisements .home-panel--banner > a,
+      #advertisements .home-panel--banner img {
+        border-radius: 0 !important;
+      }
+
+      #advertisements .home-panel--banner {
+        border: 0;
+        box-shadow: none;
+      }
+
+      @media (max-width: 575.98px) {
+        #advertisements > .container {
+          width: calc(100% - 1.5rem);
+          max-width: 32rem;
+        }
+
+        #advertisements .promo-banners-grid {
+          gap: 0.4rem;
+        }
+      }
+    </style>
     <section
       class="py-2 md:py-3"
       aria-label="تبلیغات ویژه"
@@ -8,7 +42,7 @@
     >
       <h2 class="sr-only" itemprop="name">تبلیغات و پیشنهادات ویژه</h2>
       <div class="container">
-        <div class="grid grid-cols-2 gap-1.5 md:gap-3 place-items-stretch">
+        <div class="promo-banners-grid grid grid-cols-2 place-items-stretch">
           <div
             class="lg:col-span-1 col-span-1 home-panel home-panel--banner"
             itemprop="itemListElement"
@@ -21,11 +55,11 @@
               aria-label="مشاهده پیشنهادات تابستانی"
               itemprop="url"
               onclick="event.preventDefault(); return false;"
-              class="block h-full w-full overflow-hidden rounded-2xl"
+              class="block h-full w-full overflow-hidden"
             >
               <img
                 src="assets/images/advert/banner-2.webp"
-                class="transition block h-full w-full object-cover duration-300 hover:-translate-y-1"
+                class="block h-full w-full object-cover"
                 alt="تابستانه ویژه - تا ۵۰% تخفیف روی محصولات منتخب"
                 loading="lazy"
                 decoding="async"
@@ -66,11 +100,11 @@
               aria-label="مشاهده مجموعه جدید"
               itemprop="url"
               onclick="event.preventDefault(); return false;"
-              class="block h-full w-full overflow-hidden rounded-2xl"
+              class="block h-full w-full overflow-hidden"
             >
               <img
                 src="assets/images/advert/banner-1.webp"
-                class="transition block h-full w-full object-cover duration-300 hover:-translate-y-1"
+                class="block h-full w-full object-cover"
                 alt="مجموعه جدید پاییزه - آخرین مدل‌های روز دنیا"
                 loading="lazy"
                 decoding="async"

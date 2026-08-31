@@ -54,16 +54,18 @@ namespace OnlineShop.Application.Features.Checkout.Queries.GetCheckoutSummary
             {
                 var product = await _productRepository.GetByIdAsync(item.ProductId, cancellationToken);
                 var productName = product?.Name ?? "Unknown Product";
+                var unitPrice = product?.GetCurrentPrice() ?? item.UnitPrice;
+                var totalPrice = unitPrice * item.Quantity;
                 
-                subtotal += item.TotalPrice;
+                subtotal += totalPrice;
 
                 itemSummaries.Add(new OrderItemSummaryDto
                 {
                     ProductId = item.ProductId,
                     ProductName = productName,
                     Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice,
-                    TotalPrice = item.TotalPrice
+                    UnitPrice = unitPrice,
+                    TotalPrice = totalPrice
                 });
             }
 

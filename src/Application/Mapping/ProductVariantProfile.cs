@@ -8,11 +8,13 @@ namespace OnlineShop.Application.Mapping
     {
         public ProductVariantProfile()
         {
-            CreateMap<ProductVariant, ProductVariantDto>();
+            CreateMap<ProductVariant, ProductVariantDto>()
+                .ForMember(d => d.StockQuantity, opt => opt.MapFrom(s => s.GetAvailableStock()));
             
             CreateMap<CreateProductVariantDto, ProductVariant>()
                 .ForMember(d => d.Id, opt => opt.Ignore())
                 .ForMember(d => d.IsAvailable, opt => opt.Ignore())
+                .ForMember(d => d.ReservedQuantity, opt => opt.Ignore())
                 .ForMember(d => d.Product, opt => opt.Ignore())
                 .ForMember(d => d.MahakId, opt => opt.Ignore())
                 .ForMember(d => d.MahakClientId, opt => opt.Ignore())
@@ -27,6 +29,7 @@ namespace OnlineShop.Application.Mapping
             
             CreateMap<UpdateProductVariantDto, ProductVariant>()
                 .ForMember(d => d.ProductId, opt => opt.Ignore())
+                .ForMember(d => d.ReservedQuantity, opt => opt.Ignore())
                 .ForMember(d => d.Product, opt => opt.Ignore())
                 .ForMember(d => d.MahakId, opt => opt.Ignore())
                 .ForMember(d => d.MahakClientId, opt => opt.Ignore())

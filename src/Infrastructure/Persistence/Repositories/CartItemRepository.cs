@@ -36,6 +36,21 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(ci => ci.CartId == cartId && ci.ProductId == productId, cancellationToken);
         }
 
+        public async Task<CartItem?> GetByCartProductAndVariantIncludingDeletedAsync(
+            Guid cartId,
+            Guid productId,
+            Guid? variantId,
+            CancellationToken cancellationToken)
+        {
+            return await _context.CartItems
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(
+                    ci => ci.CartId == cartId &&
+                          ci.ProductId == productId &&
+                          ci.VariantId == variantId,
+                    cancellationToken);
+        }
+
         public async Task<IEnumerable<CartItem>> GetByProductIdAsync(Guid productId, CancellationToken cancellationToken)
         {
             return await _context.CartItems

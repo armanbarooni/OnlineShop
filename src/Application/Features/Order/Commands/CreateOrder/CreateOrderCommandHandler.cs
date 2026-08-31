@@ -44,7 +44,7 @@ namespace OnlineShop.Application.Features.Order.Commands.CreateOrder
             }
 
             // 2. Calculate totals
-            decimal subTotal = cart.CartItems.Sum(i => i.TotalPrice);
+            decimal subTotal = cart.CartItems.Sum(i => (i.Product?.GetCurrentPrice() ?? i.UnitPrice) * i.Quantity);
             decimal shippingAmount = subTotal >= 10_000_000 ? 0 : 500_000;
             decimal taxAmount = 0; // Assuming tax inclusive or 0 for now
             decimal discountAmount = 0;
@@ -115,15 +115,24 @@ namespace OnlineShop.Application.Features.Order.Commands.CreateOrder
             // 5. Add Order Items
             foreach (var cartItem in cart.CartItems)
             {
+                var unitPrice = cartItem.Product?.GetCurrentPrice() ?? cartItem.UnitPrice;
                 var orderItem = UserOrderItem.Create(
                     order.Id,
                     cartItem.ProductId,
                     cartItem.VariantId,
                     cartItem.Product?.Name ?? "Unknown Product",
                     cartItem.Quantity,
-                    cartItem.UnitPrice,
-                    cartItem.TotalPrice
+                    unitPrice,
+                    unitPrice * cartItem.Quantity
                 );
+
+                var regularUnitPrice = cartItem.Product?.Price ?? unitPrice;
+                var productDiscount = Math.Max(0m, regularUnitPrice - unitPrice) * cartItem.Quantity;
+                if (productDiscount > 0)
+                {
+                    orderItem.SetDiscountAmount(productDiscount);
+                }
+
                 order.OrderItems.Add(orderItem);
                 
                 // Note: Stock reduction usually happens here or after payment success.

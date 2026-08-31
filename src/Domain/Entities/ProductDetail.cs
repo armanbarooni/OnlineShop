@@ -82,6 +82,15 @@ namespace OnlineShop.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public void ReassignToProduct(Guid productId)
+        {
+            if (productId == Guid.Empty)
+                throw new ArgumentException("شناسه محصول معتبر نیست");
+
+            ProductId = productId;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         public void Delete(string? updatedBy)
         {
             if (Deleted)

@@ -161,14 +161,14 @@ class HeaderComponent {
       .map((product) => {
         const imageUrl = this.getProductImageUrl(product);
         const hasStock = this.isProductInStock(product);
-        const price = hasStock ? Number(product.price || product.unitPrice || 0) : null;
+        const prices = hasStock ? this.getProductDisplayPrices(product) : null;
         const name = product.name || product.productName || "محصول";
         return `
                 <a href="product.html?id=${encodeURIComponent(product.id)}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
                     <img src="${this.escapeAttribute(imageUrl)}" alt="${this.escapeAttribute(name)}" class="w-16 h-16 object-contain rounded me-3" onerror="this.onerror=null;this.src='assets/images/product/nophoto.png'">
                     <div class="flex-1 min-w-0">
                         <h4 class="font-semibold text-sm dark:text-white line-clamp-1">${this.escapeHtml(name)}</h4>
-                        <p class="font-bold text-sm ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${this.formatPrice(price)} ریال` : "ناموجود"}</p>
+                        <p class="font-bold text-sm ${hasStock ? "text-primary" : "text-red-600"}">${hasStock && prices ? (prices.hasDiscount ? `<span class="block text-[11px] text-gray-400 line-through">${this.formatPrice(prices.basePrice)} ریال</span><span class="block">${this.formatPrice(prices.finalPrice)} ریال</span>` : `${this.formatPrice(prices.finalPrice)} ریال`) : "ناموجود"}</p>
                     </div>
                 </a>
             `;
@@ -226,13 +226,13 @@ class HeaderComponent {
             ? product.productImages[0].imageUrl
             : "assets/images/product/nophoto.png";
         const hasStock = this.isProductInStock(product);
-        const price = hasStock ? (product.price || 0) : null;
+        const prices = hasStock ? this.getProductDisplayPrices(product) : null;
         return `
                 <a href="product.html?id=${product.id}" class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-600 border-b border-gray-200 dark:border-gray-600">
                     <img src="${imageUrl}" alt="${product.name || "?????"}" class="w-16 h-16 object-contain rounded me-3">
                     <div class="flex-1">
                         <h4 class="font-semibold text-sm dark:text-white">${product.name || "?????"}</h4>
-                        <p class="font-bold text-sm ${hasStock ? "text-primary" : "text-red-600"}">${hasStock ? `${this.formatPrice(price)} ????` : "Ù†Ø§Ù…ÙˆØ¬ÙˆØ¯"}</p>
+                        <p class="font-bold text-sm ${hasStock ? "text-primary" : "text-red-600"}">${hasStock && prices ? (prices.hasDiscount ? `<span class="block text-[11px] text-gray-400 line-through">${this.formatPrice(prices.basePrice)}</span><span class="block">${this.formatPrice(prices.finalPrice)} ریال</span>` : `${this.formatPrice(prices.finalPrice)} ریال`) : "ناموجود"}</p>
                     </div>
                 </a>
             `;
@@ -264,7 +264,7 @@ class HeaderComponent {
       return Number.isFinite(stock) && stock > 0;
     });
 
-    if (variantStock) return true;
+    if (variants.length > 0) return variantStock;
 
     const stock = Number(
       product?.stockQuantity ??
@@ -370,6 +370,29 @@ class HeaderComponent {
 
   formatPrice(price) {
     return new Intl.NumberFormat("fa-IR").format(Math.round(price));
+  }
+
+  getProductDisplayPrices(product) {
+    const basePrice = Number(
+      product?.price1 ??
+      product?.originalPrice ??
+      product?.price ??
+      product?.unitPrice ??
+      0,
+    ) || 0;
+    const candidateFinalPrice = Number(
+      product?.price2 ??
+      product?.salePrice ??
+      product?.discountPrice ??
+      0,
+    ) || 0;
+    const finalPrice = candidateFinalPrice > 0 ? candidateFinalPrice : basePrice;
+    const hasDiscount = basePrice > 0 && candidateFinalPrice > 0;
+    const discountPercent = hasDiscount
+      ? Math.round(((basePrice - finalPrice) / basePrice) * 100)
+      : 0;
+
+    return { basePrice, finalPrice, hasDiscount, discountPercent };
   }
 
   /**

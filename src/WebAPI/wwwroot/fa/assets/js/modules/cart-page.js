@@ -125,6 +125,7 @@ class CartPage {
   renderCartItem(item) {
     const imageUrl = this.normalizeImageUrl(item.productImage);
     const unitPrice = this.formatPrice(item.unitPrice);
+    const originalUnitPrice = this.formatPrice(item.originalUnitPrice);
     const totalPrice = this.formatPrice(item.totalPrice);
     const variantInfo = item.variantInfo || "";
 
@@ -148,7 +149,11 @@ class CartPage {
                 <span class="line-clamp-2">${this.escapeHtml(item.productName)}</span>
               </a>
               ${variantInfo ? `<p class="inline-flex max-w-full rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-zinc-800 dark:text-gray-300">${this.escapeHtml(variantInfo)}</p>` : ""}
-              <p class="text-sm text-gray-500 dark:text-gray-400">قیمت واحد: ${unitPrice} ریال</p>
+              <div class="flex flex-wrap items-center gap-2 text-sm">
+                <span class="text-gray-500 dark:text-gray-400">قیمت واحد:</span>
+                ${item.hasDiscount ? `<span class="text-xs text-gray-400 line-through opacity-70">${originalUnitPrice} ریال</span>` : ""}
+                <span class="font-bold ${item.hasDiscount ? "text-green-600 dark:text-green-400" : "text-gray-600 dark:text-gray-300"}">${unitPrice} ریال</span>
+              </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">

@@ -172,7 +172,7 @@ The `.dockerignore` file excludes unnecessary files from the build context:
      - `VPS_APP_DIR`: Application directory (optional, default: /opt/onlineshop)
 
 2. **Workflow**
-   - The workflow (`.github/workflows/deploy.yml`) triggers on push to `main` branch
+   - The workflow (`.github/workflows/deploy.yml`) triggers on push to `master` branch
    - Builds Docker image with caching
    - Pushes to GitHub Container Registry
    - Deploys to VPS via SSH

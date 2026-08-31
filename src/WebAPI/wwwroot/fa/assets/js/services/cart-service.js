@@ -131,7 +131,8 @@ class CartService {
 
     async getUserCart() {
         if (!this.isAuthenticated()) {
-            const guestCart = this.buildGuestCart(this.getGuestCartItems());
+            const guestItems = await this.refreshGuestCartPrices();
+            const guestCart = this.buildGuestCart(guestItems);
             return {
                 success: true,
                 data: guestCart,
@@ -225,12 +226,7 @@ class CartService {
             const existingItem = items.find(item => String(item.productId) === productKey && String(item.variantId || "") === variantKey);
             const availableStock = this.getAvailableStock(resolvedProduct, variantId) ?? 999;
 
-            const unitPrice = Number(
-                resolvedProduct.salePrice ??
-                resolvedProduct.price ??
-                resolvedProduct.unitPrice ??
-                0
-            ) || 0;
+            const unitPrice = this.getProductPayablePrice(resolvedProduct);
 
             const productName = resolvedProduct.name || resolvedProduct.productName || "محصول";
             const productImage =
@@ -270,6 +266,8 @@ class CartService {
                     productImage,
                     variantId: variantId || null,
                     variantInfo: this.getVariantInfo(resolvedProduct, variantId),
+                    originalUnitPrice: Number(resolvedProduct.price ?? unitPrice) || unitPrice,
+                    hasDiscount: (Number(resolvedProduct.price2) || 0) > 0 || unitPrice < (Number(resolvedProduct.price) || unitPrice),
                     unitPrice,
                     quantity,
                     totalPrice: unitPrice * quantity,
@@ -634,6 +632,52 @@ class CartService {
             window.logger?.error("Error fetching product for guest cart:", error);
             return null;
         }
+    }
+
+    getProductPayablePrice(product) {
+        const discountedPrice = Number(
+            product?.price2 ??
+            product?.Price2 ??
+            product?.salePrice ??
+            product?.SalePrice ??
+            0
+        ) || 0;
+
+        if (discountedPrice > 0) return discountedPrice;
+
+        return Number(
+            product?.price ??
+            product?.Price ??
+            product?.unitPrice ??
+            product?.UnitPrice ??
+            0
+        ) || 0;
+    }
+
+    async refreshGuestCartPrices() {
+        const items = this.getGuestCartItems();
+        if (!items.length) return items;
+
+        const refreshedItems = await Promise.all(items.map(async item => {
+            const product = await this.fetchProduct(item.productId);
+            if (!product) return item;
+
+            const unitPrice = this.getProductPayablePrice(product);
+            const originalUnitPrice = Number(product.price ?? product.Price ?? unitPrice) || unitPrice;
+            const quantity = Number(item.quantity || 0);
+
+            return {
+                ...item,
+                productName: product.name ?? product.Name ?? item.productName,
+                originalUnitPrice,
+                unitPrice,
+                hasDiscount: (Number(product.price2 ?? product.Price2) || 0) > 0 || unitPrice < originalUnitPrice,
+                totalPrice: unitPrice * quantity
+            };
+        }));
+
+        localStorage.setItem(this.storageKey, JSON.stringify(refreshedItems));
+        return refreshedItems;
     }
 
     normalizeVariantKey(variantId) {

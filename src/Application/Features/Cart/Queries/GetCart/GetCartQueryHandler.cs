@@ -31,19 +31,27 @@ namespace OnlineShop.Application.Features.Cart.Queries.GetCart
                 });
             }
 
-            var items = cart.CartItems.Select(item => new CartItemDto
+            var items = cart.CartItems.Select(item =>
             {
-                Id = item.Id,
-                ProductId = item.ProductId,
-                ProductName = item.Product?.Name ?? "Unknown Product",
-                ProductImage = item.Product?.ProductImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl,
-                VariantId = item.VariantId,
-                VariantInfo = GetVariantInfo(item.Product, item.VariantId),
-                UnitPrice = item.UnitPrice,
-                Quantity = item.Quantity,
-                TotalPrice = item.TotalPrice,
-                AvailableStock = GetAvailableStock(item.Product, item.VariantId),
-                IsAvailable = GetAvailableStock(item.Product, item.VariantId) >= item.Quantity
+                var currentPrice = item.Product?.GetCurrentPrice() ?? item.UnitPrice;
+                var originalPrice = item.Product?.Price ?? currentPrice;
+
+                return new CartItemDto
+                {
+                    Id = item.Id,
+                    ProductId = item.ProductId,
+                    ProductName = item.Product?.Name ?? "Unknown Product",
+                    ProductImage = item.Product?.ProductImages.FirstOrDefault(i => i.IsPrimary)?.ImageUrl,
+                    VariantId = item.VariantId,
+                    VariantInfo = GetVariantInfo(item.Product, item.VariantId),
+                    OriginalUnitPrice = originalPrice,
+                    UnitPrice = currentPrice,
+                    HasDiscount = item.Product?.Price2 is > 0 || currentPrice < originalPrice,
+                    Quantity = item.Quantity,
+                    TotalPrice = currentPrice * item.Quantity,
+                    AvailableStock = GetAvailableStock(item.Product, item.VariantId),
+                    IsAvailable = GetAvailableStock(item.Product, item.VariantId) >= item.Quantity
+                };
             }).ToList();
 
             var cartDto = new CartDto
@@ -78,7 +86,7 @@ namespace OnlineShop.Application.Features.Cart.Queries.GetCart
             if (variantId.HasValue && product.ProductVariants != null)
             {
                 var variant = product.ProductVariants.FirstOrDefault(v => v.Id == variantId.Value);
-                return variant?.StockQuantity ?? 0;
+                return variant?.GetAvailableStock() ?? 0;
             }
             return product.StockQuantity;
         }

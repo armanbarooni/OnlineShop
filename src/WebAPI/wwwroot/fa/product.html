@@ -49,6 +49,77 @@
       type="font/woff2"
       crossorigin
     />
+    <style>
+      .product-variant-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+      }
+
+      .product-variant-option {
+        min-width: 3.75rem;
+        height: 2.8rem;
+        padding-inline: 0.9rem;
+        border: 1px solid #d4d4d8;
+        border-radius: 0.8rem;
+        color: #3f3f46;
+        background: #fff;
+        font-size: 0.9rem;
+        font-weight: 800;
+        transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, transform 160ms ease;
+      }
+
+      .product-variant-option:not(:disabled):hover {
+        border-color: #27272a;
+        transform: translateY(-1px);
+      }
+
+      .product-variant-option.is-selected {
+        border-color: #27272a;
+        color: #fff;
+        background: #27272a;
+        box-shadow: 0 4px 10px rgba(24, 24, 27, 0.2);
+      }
+
+      .product-variant-option:disabled {
+        cursor: not-allowed;
+        border-color: #e4e4e7;
+        color: #a1a1aa;
+        background: #fafafa;
+        opacity: 0.42;
+      }
+
+      .dark .product-variant-option {
+        border-color: #52525b;
+        color: #e4e4e7;
+        background: #27272a;
+      }
+
+      .dark .product-variant-option.is-selected {
+        border-color: #f4f4f5;
+        color: #18181b;
+        background: #f4f4f5;
+      }
+
+      .dark .product-variant-option:disabled {
+        border-color: #3f3f46;
+        color: #71717a;
+        background: #18181b;
+      }
+
+      @media (max-width: 575.98px) {
+        .product-variant-options {
+          gap: 0.5rem;
+        }
+
+        .product-variant-option {
+          min-width: 3.35rem;
+          height: 2.6rem;
+          padding-inline: 0.7rem;
+          font-size: 0.82rem;
+        }
+      }
+    </style>
   </head>
   <body
     class="bg-light dark:bg-zinc-900 text-text-primary-light dark:text-text-primary-dark transition-colors duration-200"
@@ -291,32 +362,17 @@
                   <!-- feature -->
                   <section class="lg:col-span-2 col-span-4 w-full">
                     <div id="product-variant-container" class="my-4 hidden">
-                      <div class="grid grid-cols-2 gap-3">
+                      <div class="space-y-5">
                         <div id="product-color-select-wrap">
-                          <label
-                            for="product-color-select"
-                            class="font-bold text-sm block mb-2"
-                            >رنگ</label
-                          >
-                          <select
-                            id="product-color-select"
-                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2"
-                          >
-                            <option value="">انتخاب رنگ</option>
-                          </select>
+                          <h3 class="mb-3 text-base font-black text-zinc-800 dark:text-white">رنگ</h3>
+                          <div id="product-color-options" class="product-variant-options" role="group" aria-label="انتخاب رنگ"></div>
+                          <input id="product-color-select" type="hidden" value="" />
                         </div>
                         <div id="product-size-select-wrap">
-                          <label
-                            for="product-size-select"
-                            class="font-bold text-sm block mb-2"
-                            >سایز</label
-                          >
-                          <select
-                            id="product-size-select"
-                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white px-3 py-2"
-                          >
-                            <option value="">انتخاب سایز</option>
-                          </select>
+                          <h3 class="mb-2 text-base font-black text-zinc-800 dark:text-white">سایز</h3>
+                          <p id="product-size-hint" class="text-xs leading-6 text-zinc-400 dark:text-zinc-500">لطفاً ابتدا رنگ را انتخاب کنید</p>
+                          <div id="product-size-options" class="product-variant-options hidden" role="group" aria-label="انتخاب سایز"></div>
+                          <input id="product-size-select" type="hidden" value="" />
                         </div>
                       </div>
                       <div
@@ -345,7 +401,7 @@
 
                       <!-- Prices -->
                       <div
-                        class="flex items-center space-x-4 justify-between mt-4 mb-2"
+                        class="mt-4 mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                       >
                         <div class="flex items-center">
                           <div
@@ -354,7 +410,7 @@
                             <div class="flex justify-between items-center">
                               <del
                                 id="product-old-price"
-                                class="text-zinc-400 hidden"
+                                class="text-sm text-zinc-400 opacity-60 line-through hidden"
                                 itemprop="priceSpecification"
                                 itemscope=""
                                 itemtype="http://schema.org/UnitPriceSpecification"
@@ -377,9 +433,28 @@
                           </div>
                           <span
                             class="text-xs font-bold -rotate-90 dark:text-zinc-300"
-                            >ریال</span
+                          >ریال</span
                           >
                         </div>
+                        <a
+                          id="product-whatsapp-btn"
+                          href="https://wa.me/989361869447"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="inline-flex max-w-full self-end items-center gap-2 text-sm leading-6 text-zinc-400 transition-colors hover:text-[#25D366] sm:self-auto dark:text-zinc-300 dark:hover:text-[#25D366]"
+                          aria-label="پرسش درباره این کالا در واتس‌اپ"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            class="size-4 text-[#25D366]"
+                            aria-hidden="true"
+                          >
+                            <path d="M12.04 2C6.51 2 2.02 6.49 2.02 12.02c0 1.77.46 3.5 1.34 5.02L2 22l5.1-1.34a10 10 0 0 0 4.94 1.3h.01c5.53 0 10.02-4.49 10.02-10.02S17.57 2 12.04 2Zm0 18.28h-.01a8.27 8.27 0 0 1-4.21-1.15l-.3-.18-3.03.8.81-2.95-.2-.31a8.25 8.25 0 1 1 6.94 3.79Zm4.54-6.19c-.25-.13-1.47-.73-1.7-.81-.23-.08-.39-.13-.56.13-.16.25-.64.81-.78.98-.14.17-.29.19-.54.06-.25-.13-1.05-.39-2-1.24-.74-.66-1.24-1.47-1.39-1.72-.15-.25-.02-.39.11-.52.11-.11.25-.29.37-.43.12-.15.16-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.48-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.87.85-.87 2.08s.89 2.41 1.02 2.58c.13.17 1.75 2.67 4.24 3.74.59.25 1.05.4 1.41.51.59.19 1.12.16 1.54.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.29Z" />
+                          </svg>
+                          <span>در مورد این کالا سوالی دارید؟</span>
+                        </a>
                       </div>
 
                       <!-- counter -->
@@ -417,58 +492,8 @@
                       class="col-span-4 w-full border-t border-t-gray-300"
                     >
                       <div
-                        class="grid gap-x-4 gap-y-3 lg:grid-cols-5 sm:grid-cols-2 grid-cols-1"
+                        class="grid gap-x-4 gap-y-3 lg:grid-cols-4 sm:grid-cols-2 grid-cols-1"
                       >
-                        <article
-                          itemscope=""
-                          itemtype="https://schema.org/Service"
-                          class="w-full"
-                        >
-                          <meta itemprop="name" content="پرداخت در محل" />
-                          <meta
-                            itemprop="description"
-                            content="پرداخت وجه پس از تحویل کالا"
-                          />
-                          <div
-                            class="w-full px-3 py-3 dark:bg-transparent cursor-pointer transition duration-300 flex bg-white rounded-lg lg:flex-col items-center lg:justify-center max-lg:space-x-3"
-                          >
-                            <div
-                              class="size-10 flex items-center justify-center rounded-lg bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-white"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="1.5"
-                                stroke="currentColor"
-                                class="size-6"
-                                aria-label="پرداخت در محل"
-                              >
-                                <path
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                ></path>
-                                <path
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
-                                ></path>
-                              </svg>
-                            </div>
-                            <div class="space-y-1 text-center lg:mt-4">
-                              <h3
-                                class="text-sm text-gray-600 font-bold dark:text-white"
-                              >
-                                پرداخت در محل
-                              </h3>
-                              <span
-                                class="text-xs text-gray-500 dark:text-gray-400"
-                                >پس از تحویل کالا</span
-                              >
-                            </div>
-                          </div>
-                        </article>
                         <article
                           itemscope=""
                           itemtype="https://schema.org/Service"
@@ -1698,13 +1723,13 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/services/category-service.js"></script>
     <script src="assets/js/services/product-service.js"></script>
-    <script src="assets/js/services/cart-service.js?v=guest-cart-20260531c"></script>
+    <script src="assets/js/services/cart-service.js?v=guest-price2-20260903b"></script>
     <script src="assets/js/services/wishlist-service.js"></script>
-    <script src="assets/js/components/header-component.js?v=guest-cart-20260531"></script>
+    <script src="assets/js/components/header-component.js?v=reserved-stock-20260905-1"></script>
     <script src="assets/js/plugin/swiper/swiper-bundle.min.js"></script>
     <script src="assets/js/dependencies/swiper-script.js"></script>
     <script src="assets/js/dependencies/app.js?v=20260627-1"></script>
-    <script src="assets/js/pages/product-page.js?v=cart-confirmation-20260718"></script>
+    <script src="assets/js/pages/product-page.js?v=reserved-stock-20260905-1"></script>
     <script src="assets/js/components/cart-badge.js"></script>
 </body>
 </html>

@@ -36,7 +36,7 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
                 query = ApplyFilters(query, criteria);
 
                 // Apply sorting
-                query = ApplySorting(query, criteria);
+                query = await ApplySortingAsync(query, criteria, cancellationToken);
 
                 // Get total count
                 var totalCount = query.Count();
@@ -142,10 +142,7 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
             // Filter by on sale
             if (criteria.OnSale.HasValue && criteria.OnSale.Value)
             {
-                var now = DateTime.UtcNow;
-                query = query.Where(p => p.SalePrice.HasValue && 
-                    (!p.SaleStartDate.HasValue || p.SaleStartDate.Value <= now) &&
-                    (!p.SaleEndDate.HasValue || p.SaleEndDate.Value >= now));
+                query = query.Where(p => p.Price2.HasValue && p.Price2.Value > 0);
             }
 
             // Filter by price range
@@ -174,7 +171,9 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
             // Filter by stock availability
             if (criteria.InStock.HasValue && criteria.InStock.Value)
             {
-                query = query.Where(p => p.StockQuantity > 0);
+                query = query.Where(p => p.ProductVariants.Any()
+                    ? p.ProductVariants.Any(v => v.IsAvailable && v.StockQuantity - v.ReservedQuantity > 0)
+                    : p.StockQuantity > 0);
             }
 
             return query;
@@ -221,10 +220,7 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
 
             if (criteria.OnSale.HasValue && criteria.OnSale.Value)
             {
-                var now = DateTime.UtcNow;
-                query = query.Where(p => p.SalePrice.HasValue &&
-                    (!p.SaleStartDate.HasValue || p.SaleStartDate.Value <= now) &&
-                    (!p.SaleEndDate.HasValue || p.SaleEndDate.Value >= now));
+                query = query.Where(p => p.Price2.HasValue && p.Price2.Value > 0);
             }
 
             if (criteria.IsActive.HasValue)
@@ -239,7 +235,9 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
 
             if (criteria.InStock.HasValue && criteria.InStock.Value)
             {
-                query = query.Where(p => p.StockQuantity > 0);
+                query = query.Where(p => p.ProductVariants.Any()
+                    ? p.ProductVariants.Any(v => v.IsAvailable && v.StockQuantity - v.ReservedQuantity > 0)
+                    : p.StockQuantity > 0);
             }
 
             return query;
@@ -295,10 +293,34 @@ namespace OnlineShop.Application.Features.Product.Queries.Search
                 .Replace("\u0652", string.Empty);
         }
 
-        private IQueryable<Domain.Entities.Product> ApplySorting(IQueryable<Domain.Entities.Product> query, ProductSearchCriteriaDto criteria)
+        private async Task<IQueryable<Domain.Entities.Product>> ApplySortingAsync(
+            IQueryable<Domain.Entities.Product> query,
+            ProductSearchCriteriaDto criteria,
+            CancellationToken cancellationToken)
         {
+            if (string.Equals(criteria.SortBy, "Sales", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(criteria.SortBy, "Popular", StringComparison.OrdinalIgnoreCase))
+            {
+                var products = query.ToList();
+                var bestSellingIds = await _repository.GetBestSellingProductIdsAsync(
+                    Math.Max(criteria.PageSize, 5),
+                    cancellationToken);
+                var bestSellingRank = bestSellingIds
+                    .Select((id, index) => new { id, index })
+                    .ToDictionary(item => item.id, item => item.index);
+
+                // Put sold products first, then fill the section with the newest products.
+                return products
+                    .OrderBy(product => bestSellingRank.TryGetValue(product.Id, out var rank) ? 0 : 1)
+                    .ThenBy(product => bestSellingRank.TryGetValue(product.Id, out var rank) ? rank : int.MaxValue)
+                    .ThenByDescending(product => product.CreatedAt)
+                    .AsQueryable();
+            }
+
             return query
-                .OrderBy(p => p.StockQuantity <= 0)
+                .OrderBy(p => p.ProductVariants.Any()
+                    ? !p.ProductVariants.Any(v => v.IsAvailable && v.StockQuantity - v.ReservedQuantity > 0)
+                    : p.StockQuantity <= 0)
                 .ThenByDescending(p => p.CreatedAt);
         }
 

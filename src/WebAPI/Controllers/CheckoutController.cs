@@ -52,8 +52,15 @@ namespace OnlineShop.WebAPI.Controllers
                 return Ok(result);
             }
 
-            _logger.LogWarning("Checkout failed for user: {UserId}. Error: {Error}", userGuid, result.ErrorMessage);
-            return BadRequest(result);
+            _logger.LogError(
+                "Checkout failed for user {UserId}, cart {CartId}. Error: {Error}",
+                userGuid,
+                request.CartId,
+                result.ErrorMessage);
+
+            // The production CDN replaces non-2xx API bodies with an HTML error page.
+            // Keep the Result envelope so the frontend can display the real business error.
+            return Ok(result);
         }
 
         [HttpGet("addresses")]

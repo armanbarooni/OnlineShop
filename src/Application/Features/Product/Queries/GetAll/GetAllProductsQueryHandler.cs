@@ -89,11 +89,15 @@ namespace OnlineShop.Application.Features.Product.Queries.GetAll
             // Stock filter
             if (request.InStockOnly == true)
             {
-                query = query.Where(p => p.StockQuantity > 0);
+                query = query.Where(p => p.ProductVariants.Any()
+                    ? p.ProductVariants.Any(v => v.IsAvailable && v.StockQuantity - v.ReservedQuantity > 0)
+                    : p.StockQuantity > 0);
             }
 
             query = query
-                .OrderBy(p => p.StockQuantity <= 0)
+                .OrderBy(p => p.ProductVariants.Any()
+                    ? !p.ProductVariants.Any(v => v.IsAvailable && v.StockQuantity - v.ReservedQuantity > 0)
+                    : p.StockQuantity <= 0)
                 .ThenByDescending(p => p.CreatedAt);
 
             // Get total count before pagination (support async and sync providers)

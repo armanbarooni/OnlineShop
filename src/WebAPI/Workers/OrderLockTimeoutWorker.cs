@@ -49,11 +49,12 @@ namespace OnlineShop.WebAPI.Workers
                             {
                                 _logger.LogInformation("Cancelling order {OrderId} due to payment timeout", order.Id);
 
+                                // Release first. If this fails, the order remains Pending and is
+                                // retried on the next worker pass instead of leaving a permanent lock.
+                                await inventoryService.ReleaseStockForCancelledOrder(order.Id, stoppingToken);
+
                                 order.Cancel("عدم پرداخت در مهلت مقرر (10 دقیقه)");
                                 await orderRepository.UpdateAsync(order, stoppingToken);
-
-                                // Release stock locks
-                                await inventoryService.ReleaseStockForCancelledOrder(order.Id, stoppingToken);
 
                                 _logger.LogInformation("Successfully cancelled order {OrderId} and released stock locks", order.Id);
                             }

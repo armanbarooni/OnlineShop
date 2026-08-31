@@ -245,6 +245,27 @@ namespace OnlineShop.Application.Tests.Domain
             Assert.True(cartItem.Deleted);
             Assert.Equal("user123", cartItem.UpdatedBy);
         }
+
+        [Fact]
+        public void Restore_DeletedItem_ReactivatesItemWithCurrentQuantityAndPrice()
+        {
+            var cartItem = OnlineShop.Domain.Entities.CartItem.Create(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                variantId: Guid.NewGuid(),
+                quantity: 2,
+                unitPrice: 1000,
+                totalPrice: 2000);
+            cartItem.Delete("user123");
+
+            cartItem.Restore(quantity: 1, unitPrice: 800, updatedBy: "user123");
+
+            Assert.False(cartItem.Deleted);
+            Assert.Equal(1, cartItem.Quantity);
+            Assert.Equal(800, cartItem.UnitPrice);
+            Assert.Equal(800, cartItem.TotalPrice);
+            Assert.Equal("user123", cartItem.UpdatedBy);
+        }
     }
 }
 

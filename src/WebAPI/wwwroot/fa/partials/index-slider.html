@@ -1,4 +1,4 @@
-﻿<!-- ================= start slider section ================= -->
+<!-- ================= start slider section ================= -->
     <style>
       .desktop-home-slider-wrap {
         display: none;
@@ -9,12 +9,22 @@
           display: block !important;
         }
       }
+
+      @media (max-width: 767.98px) {
+        .mobile-home-slider-panel,
+        .mobile-home-slider,
+        .mobile-home-slider .swiper-slide,
+        .mobile-home-slider .swiper-slide > a,
+        .mobile-home-slider .swiper-slide img {
+          border-radius: 0 !important;
+        }
+      }
     </style>
     <section class="py-2 md:py-3">
       <h2 class="sr-only">اسلایدر فروشگاه</h2>
       <!-- for seo -->
       <div class="container">
-        <div class="home-panel home-panel--hero p-1.5 md:p-2">
+        <div class="home-panel home-panel--hero mobile-home-slider-panel p-1.5 md:p-2">
           <div class="w-full overflow-hidden md:hidden">
           <div
             class="swiper mobile-home-slider mx-auto !relative default-carousel"
@@ -29,7 +39,7 @@
                 class="block h-full w-full overflow-hidden rounded-2xl"
               >
                 <img
-                  src="assets/images/category/phone/1.png"
+                  src="assets/images/category/phone/1.webp"
                   class="block h-full w-full object-cover"
                   loading="eager"
                   fetchpriority="high"
@@ -44,7 +54,7 @@
                 class="block h-full w-full overflow-hidden rounded-2xl"
               >
                 <img
-                  src="assets/images/category/phone/2.png"
+                  src="assets/images/category/phone/2.webp"
                   class="block h-full w-full object-cover"
                   loading="lazy"
                   alt="تصویر تبلیغاتی موبایل فروشگاه - مجموعه ویژه 2"
@@ -80,7 +90,8 @@
                 <img
                   src="assets/slider/1.jpg"
                   class="block h-full w-full object-contain"
-                  loading="lazy"
+                  loading="eager"
+                  fetchpriority="high"
                   alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 1"
                 />
               </a>
@@ -99,35 +110,6 @@
                 />
               </a>
             </div>
-            <div class="swiper-slide" role="group" aria-roledescription="slide">
-              <a
-                href="#"
-                aria-label="تصویر 3 از اسلایدر فروشگاه"
-                class="block h-full w-full overflow-hidden rounded-2xl"
-              >
-                <img
-                  src="assets/slider/3.jpg"
-                  class="block h-full w-full object-contain"
-                  loading="lazy"
-                  alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 4"
-                />
-              </a>
-            </div>
-            <div class="swiper-slide" role="group" aria-roledescription="slide">
-              <a
-                href="#"
-                aria-label="تصویر 4 از اسلایدر فروشگاه"
-                class="block h-full w-full overflow-hidden rounded-2xl"
-              >
-                <img
-                  src="assets/slider/4.jpg"
-                  class="block h-full w-full object-contain"
-                  loading="lazy"
-                  alt="تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 3"
-                />
-              </a>
-            </div>
-
           </div>
           <div
             class="swiper-button-next custom-swiper-next bg-white rounded-full dark:bg-zinc-800 border border-gray-200 !size-12 after:!text-xl px-3 after:text-primary"

@@ -45,6 +45,20 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                     cancellationToken);
         }
 
+        public async Task<MahakMapping?> GetByMahakEntityIdIgnoreStatusAsync(
+            string entityType,
+            int mahakEntityId,
+            CancellationToken cancellationToken)
+        {
+            return await _context.MahakMappings
+                .AsNoTracking()
+                .FirstOrDefaultAsync(mm =>
+                    mm.EntityType == entityType &&
+                    mm.MahakEntityId == mahakEntityId &&
+                    !mm.Deleted,
+                    cancellationToken);
+        }
+
         public async Task<IEnumerable<MahakMapping>> GetByEntityTypeAsync(string entityType, CancellationToken cancellationToken)
         {
             return await _context.MahakMappings
@@ -78,6 +92,13 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
 
         public async Task UpdateAsync(MahakMapping mahakMapping, CancellationToken cancellationToken)
         {
+            var trackedMapping = _context.MahakMappings.Local
+                .FirstOrDefault(mapping => mapping.Id == mahakMapping.Id);
+            if (trackedMapping != null && !ReferenceEquals(trackedMapping, mahakMapping))
+            {
+                _context.Entry(trackedMapping).State = EntityState.Detached;
+            }
+
             _context.MahakMappings.Update(mahakMapping);
             await _context.SaveChangesAsync(cancellationToken);
         }

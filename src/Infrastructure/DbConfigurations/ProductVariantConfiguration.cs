@@ -37,6 +37,10 @@ namespace OnlineShop.Infrastructure.DbConfigurations
                 .IsRequired()
                 .HasDefaultValue(0);
 
+            builder.Property(pv => pv.ReservedQuantity)
+                .IsRequired()
+                .HasDefaultValue(0);
+
             builder.Property(pv => pv.AdditionalPrice)
                 .HasColumnType("decimal(18,2)");
 
