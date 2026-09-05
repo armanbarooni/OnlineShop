@@ -29,7 +29,7 @@ namespace OnlineShop.Infrastructure.Persistence.Repositories
                 .OrderByDescending(c => c.CartItems.Any())
                 .ThenByDescending(c => c.UpdatedAt ?? c.CreatedAt)
                 .Include(c => c.CartItems.Where(ci => !ci.Deleted)).ThenInclude(ci => ci.Product).ThenInclude(p => p.ProductImages)
-                .Include(c => c.CartItems.Where(ci => !ci.Deleted)).ThenInclude(ci => ci.ProductVariant)
+                .Include(c => c.CartItems.Where(ci => !ci.Deleted)).ThenInclude(ci => ci.Product).ThenInclude(p => p.ProductVariants)
                 .FirstOrDefaultAsync(cancellationToken);
         }
 

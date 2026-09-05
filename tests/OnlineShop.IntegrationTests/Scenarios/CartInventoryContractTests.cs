@@ -280,6 +280,34 @@ namespace OnlineShop.IntegrationTests.Scenarios
             dto.Variants.Single(v => v.Id == variant.Id).StockQuantity.Should().Be(0);
         }
 
+        [Fact]
+        public async Task E12_Cart_ShouldExposeSelectedVariantSizeAndColor()
+        {
+            var userId = Guid.NewGuid();
+            var productId = await CreateProductWithInventoryAsync(stockQuantity: 2);
+            Guid variantId;
+
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var variant = ProductVariant.Create(productId, "2XL", "سبز", $"CART-{Guid.NewGuid():N}", 2);
+                await db.ProductVariants.AddAsync(variant);
+                await db.SaveChangesAsync();
+                variantId = variant.Id;
+            }
+
+            var addResult = await AddToCartAsync(userId, productId, quantity: 1, variantId: variantId);
+            addResult.IsSuccess.Should().BeTrue(addResult.ErrorMessage);
+            addResult.Data!.Items.Single().VariantInfo.Should().Be("سایز: 2XL، رنگ: سبز");
+
+            using var verificationScope = _factory.Services.CreateScope();
+            var mediator = verificationScope.ServiceProvider.GetRequiredService<IMediator>();
+            var cartResult = await mediator.Send(new GetCartQuery { UserId = userId });
+
+            cartResult.IsSuccess.Should().BeTrue(cartResult.ErrorMessage);
+            cartResult.Data!.Items.Single().VariantInfo.Should().Be("سایز: 2XL، رنگ: سبز");
+        }
+
         private async Task<Guid> AddProductToCartAndGetCartIdAsync(Guid userId, Guid productId, int quantity)
         {
             var result = await AddToCartAsync(userId, productId, quantity);
@@ -359,7 +387,8 @@ namespace OnlineShop.IntegrationTests.Scenarios
         private async Task<OnlineShop.Application.Common.Models.Result<OnlineShop.Application.DTOs.Cart.CartDto>> AddToCartAsync(
             Guid userId,
             Guid productId,
-            int quantity)
+            int quantity,
+            Guid? variantId = null)
         {
             using var scope = _factory.Services.CreateScope();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -370,6 +399,7 @@ namespace OnlineShop.IntegrationTests.Scenarios
                 Item = new AddToCartDto
                 {
                     ProductId = productId,
+                    VariantId = variantId ?? Guid.Empty,
                     Quantity = quantity
                 }
             });

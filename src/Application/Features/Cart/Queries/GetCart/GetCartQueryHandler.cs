@@ -76,7 +76,7 @@ namespace OnlineShop.Application.Features.Cart.Queries.GetCart
             var variant = product.ProductVariants.FirstOrDefault(v => v.Id == variantId.Value);
             if (variant == null) return null;
 
-            return $"سایز: {variant.Size}, رنگ: {variant.Color}";
+            return $"سایز: {variant.Size}، رنگ: {variant.Color}";
         }
 
         private int GetAvailableStock(Domain.Entities.Product? product, Guid? variantId)
