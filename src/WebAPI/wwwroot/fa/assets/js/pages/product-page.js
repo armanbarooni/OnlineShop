@@ -742,7 +742,7 @@ function extractVariantAttributes(row, product) {
   return {
     color,
     size,
-      feature8Title: feature8Title || "عرض سینه/کمر",
+    feature8Title: normalizeMeasurementTitle(feature8Title || "عرض کمر"),
     feature8Value,
     feature9Title: feature9Title || "قد",
     feature9Value,
@@ -1105,6 +1105,14 @@ function renderDescription(product) {
   }
 }
 
+function normalizeMeasurementTitle(title) {
+  const normalizedTitle = String(title || "")
+    .replace(/\s*\/\s*/g, "/")
+    .trim();
+
+  return normalizedTitle === "عرض سینه/کمر" ? "عرض کمر" : normalizedTitle;
+}
+
 // Render product specifications
 function renderSpecifications(product) {
   const specsDiv = document.getElementById("product-size-table-container");
@@ -1113,14 +1121,14 @@ function renderSpecifications(product) {
   const variants = buildSizeVariants(product);
   const rowsBySize = new Map();
   let column8Title = "قد";
-  let column9Title = "عرض سینه/کمر";
+  let column9Title = "عرض کمر";
 
   variants.forEach((variant) => {
     if (variant.feature8Title && variant.feature8Title !== "ویژگی ۸") {
-      column8Title = variant.feature8Title;
+      column8Title = normalizeMeasurementTitle(variant.feature8Title);
     }
     if (variant.feature9Title && variant.feature9Title !== "ویژگی ۹") {
-      column9Title = variant.feature9Title;
+      column9Title = normalizeMeasurementTitle(variant.feature9Title);
     }
 
     const sizeLabel = normalizeSizeLabel(variant.size);
@@ -1155,6 +1163,17 @@ function renderSpecifications(product) {
   specsDiv.innerHTML = `
     <div class="rounded-2xl border border-zinc-200/90 dark:border-zinc-700 bg-zinc-50/90 dark:bg-zinc-800/55 shadow-[0_10px_30px_rgba(0,0,0,0.06)] overflow-hidden">
       <div class="px-4 sm:px-5 pt-4 sm:pt-5 pb-3 border-b border-zinc-200/80 dark:border-zinc-700">
+        <button
+          type="button"
+          data-size-guide-video-open
+          class="mb-3 inline-flex items-center gap-2 text-sm font-bold text-primary transition hover:text-primary-600 hover:underline dark:text-primary-dark"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m14.752 11.168-3.197-2.132A1 1 0 0 0 10 9.868v4.264a1 1 0 0 0 1.555.832l3.197-2.132a1 1 0 0 0 0-1.664Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+          راهنمای استفاده از جدول سایز لطفا قبل از خرید مشاهده بفرمایید.
+        </button>
         <h2 class="text-xl sm:text-2xl font-black text-zinc-800 dark:text-white">جدول سایز</h2>
       </div>
       <div class="overflow-x-auto">
@@ -1193,7 +1212,40 @@ function renderSpecifications(product) {
       </div>
     </div>
   `;
+
+  specsDiv.querySelector("[data-size-guide-video-open]")?.addEventListener("click", openSizeGuideVideoModal);
 }
+
+function openSizeGuideVideoModal() {
+  const modal = document.getElementById("size-guide-video-modal");
+  const video = document.getElementById("size-guide-video");
+  if (!modal) return;
+
+  modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+  video?.play().catch(() => {});
+}
+
+function closeSizeGuideVideoModal() {
+  const modal = document.getElementById("size-guide-video-modal");
+  const video = document.getElementById("size-guide-video");
+  if (!modal) return;
+
+  video?.pause();
+  modal.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+}
+
+document.addEventListener("click", (event) => {
+  const modal = document.getElementById("size-guide-video-modal");
+  if (event.target === modal || event.target.closest("[data-size-guide-video-close]")) {
+    closeSizeGuideVideoModal();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeSizeGuideVideoModal();
+});
 
 function normalizeSizeLabel(size) {
   const label = String(size ?? "").trim();

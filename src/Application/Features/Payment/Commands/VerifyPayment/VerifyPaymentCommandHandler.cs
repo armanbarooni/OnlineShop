@@ -19,6 +19,10 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
         private readonly ILogger<VerifyPaymentCommandHandler> _logger;
         private const int OrderPaidSmsTemplateId = 461054;
         private const string OrderPaidFactorIdParameter = "FACTORID";
+        private const string AdminOrderNotificationPhoneNumber = "09129687381";
+        private const int AdminOrderNotificationSmsTemplateId = 890835;
+        private const string AdminOrderNotificationNameParameter = "contacts";
+        private const string AdminOrderNotificationPhoneParameter = "PHONE";
 
         public VerifyPaymentCommandHandler(
             IUserOrderRepository orderRepository,
@@ -122,6 +126,7 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
 
             await _orderRepository.UpdateAsync(order, cancellationToken);
             await SendPaymentConfirmedSmsAsync(order, cancellationToken);
+            await SendAdminOrderNotificationSmsAsync(order, cancellationToken);
 
             var orderSyncedToMahak = false;
             try
@@ -190,6 +195,60 @@ namespace OnlineShop.Application.Features.Payment.Commands.VerifyPayment
                 "Payment confirmation SMS failed for order {OrderNumber} to customer {UserId}.",
                 order.OrderNumber,
                 order.UserId);
+        }
+
+        private async Task SendAdminOrderNotificationSmsAsync(
+            Domain.Entities.UserOrder order,
+            CancellationToken cancellationToken)
+        {
+            var customerName = GetCustomerName(order);
+            var customerPhone = GetCustomerPhone(order);
+
+            var sent = await _smsService.SendTemplateAsync(
+                AdminOrderNotificationPhoneNumber,
+                AdminOrderNotificationSmsTemplateId,
+                new Dictionary<string, string>
+                {
+                    [AdminOrderNotificationNameParameter] = customerName,
+                    [AdminOrderNotificationPhoneParameter] = customerPhone
+                },
+                cancellationToken);
+
+            if (sent)
+            {
+                _logger.LogInformation(
+                    "Admin order notification SMS sent for paid order {OrderNumber}.",
+                    order.OrderNumber);
+                return;
+            }
+
+            _logger.LogWarning(
+                "Admin order notification SMS failed for paid order {OrderNumber}.",
+                order.OrderNumber);
+        }
+
+        private static string GetCustomerName(Domain.Entities.UserOrder order)
+        {
+            var accountName = $"{order.User?.FirstName} {order.User?.LastName}".Trim();
+            if (!string.IsNullOrWhiteSpace(accountName))
+            {
+                return accountName;
+            }
+
+            var shippingName = $"{order.ShippingAddress?.FirstName} {order.ShippingAddress?.LastName}".Trim();
+            return string.IsNullOrWhiteSpace(shippingName) ? "بدون نام" : shippingName;
+        }
+
+        private static string GetCustomerPhone(Domain.Entities.UserOrder order)
+        {
+            var accountPhone = order.User?.PhoneNumber;
+            if (!string.IsNullOrWhiteSpace(accountPhone))
+            {
+                return accountPhone;
+            }
+
+            var shippingPhone = order.ShippingAddress?.PhoneNumber;
+            return string.IsNullOrWhiteSpace(shippingPhone) ? "ثبت نشده" : shippingPhone;
         }
     }
 }

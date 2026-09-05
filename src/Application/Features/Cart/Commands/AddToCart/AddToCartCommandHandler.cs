@@ -216,7 +216,7 @@ namespace OnlineShop.Application.Features.Cart.Commands.AddToCart
                 return null;
             }
 
-            return $"Size: {variant.Size}, Color: {variant.Color}";
+            return $"سایز: {variant.Size}، رنگ: {variant.Color}";
         }
 
         private int GetAvailableStock(Domain.Entities.Product product, Guid? variantId)
