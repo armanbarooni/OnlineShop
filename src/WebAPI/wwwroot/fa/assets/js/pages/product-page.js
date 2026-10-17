@@ -648,6 +648,8 @@ function extractVariantAttributes(row, product) {
     ...toArray(row.ProductProperties),
     ...toPropertyArray(row.properties),
     ...toPropertyArray(row.Properties),
+    ...toPropertyArray(row.value),
+    ...toPropertyArray(row.Value),
   ];
   const productProperties = [
     ...toArray(product.productProperties),
@@ -660,8 +662,8 @@ function extractVariantAttributes(row, product) {
 
   let feature8Title = "";
   let feature8Value = stringOrEmpty(row.feature8Value ?? row.Feature8Value);
-  let feature9Title = "";
-  let feature9Value = stringOrEmpty(row.feature9Value ?? row.Feature9Value);
+  let waistValue = stringOrEmpty(row.feature9Value ?? row.Feature9Value);
+  let chestValue = stringOrEmpty(row.feature10Value ?? row.Feature10Value);
   [...rowProperties, ...productProperties].forEach((prop) => {
     const code = String(
       prop.propertyDescriptionCode ??
@@ -733,19 +735,19 @@ function extractVariantAttributes(row, product) {
       size = value || effectiveTitle;
     }
 
-    if (code === "8" && !feature8Title) feature8Title = effectiveTitle || "ویژگی ۸";
-    if (code === "9" && !feature9Title) feature9Title = effectiveTitle || "ویژگی ۹";
+    if (code === "8" && !feature8Title) feature8Title = effectiveTitle || "قد";
     if (code === "8" && !feature8Value) feature8Value = value || "";
-    if (code === "9" && !feature9Value) feature9Value = value || "";
+    if (code === "9" && !waistValue) waistValue = value || "";
+    if (code === "10" && !chestValue) chestValue = value || "";
   });
 
   return {
     color,
     size,
-    feature8Title: normalizeMeasurementTitle(feature8Title || "عرض کمر"),
+    feature8Title: feature8Title || "قد",
     feature8Value,
-    feature9Title: feature9Title || "قد",
-    feature9Value,
+    feature9Title: getSizeTableMeasurementTitle(product),
+    feature9Value: isWaistMeasurementCategory(product) ? waistValue : chestValue,
   };
 }
 
@@ -759,6 +761,10 @@ function resolveVariantStock(row, product) {
       row.Quantity,
   );
   if (directStock !== null) return directStock;
+
+  // The product stock is an aggregate across variants. It cannot be used as
+  // the stock of an individual size/color row when that row omits its stock.
+  if (row !== product) return 0;
 
   const fallbackStock = toNumber(
     product.stockQuantity ?? product.StockQuantity ?? product.quantity,
@@ -776,14 +782,19 @@ function getVariantsForColor(color) {
 }
 
 function buildSizeVariants(product) {
-  const rows = [
-    ...toArray(product.productDetails),
-    ...toArray(product.ProductDetails),
-    ...toArray(product.details),
+  const variantRows = [
     ...toArray(product.variants),
     ...toArray(product.Variants),
     ...toArray(product.productVariants),
     ...toArray(product.ProductVariants),
+  ];
+  // ProductDetails are descriptive key/value properties, not inventory
+  // variants. Only use them as a legacy fallback when no variant collection
+  // is present in the response.
+  const rows = variantRows.length > 0 ? variantRows : [
+    ...toArray(product.details),
+    ...toArray(product.productDetails),
+    ...toArray(product.ProductDetails),
   ];
   const sourceRows = rows.length > 0 ? rows : [product];
 
@@ -1105,12 +1116,23 @@ function renderDescription(product) {
   }
 }
 
-function normalizeMeasurementTitle(title) {
-  const normalizedTitle = String(title || "")
-    .replace(/\s*\/\s*/g, "/")
-    .trim();
+function getSizeTableMeasurementTitle(product) {
+  return isWaistMeasurementCategory(product) ? "عرض کمر" : "عرض سینه";
+}
 
-  return normalizedTitle === "عرض سینه/کمر" ? "عرض کمر" : normalizedTitle;
+function isWaistMeasurementCategory(product) {
+  const categoryNames = [
+    product?.category?.name,
+    product?.category?.Name,
+    product?.Category?.name,
+    product?.Category?.Name,
+    product?.categoryName,
+    product?.CategoryName,
+  ]
+    .map((name) => String(name || "").trim())
+    .filter(Boolean);
+
+  return categoryNames.some((name) => /شلوارک|شلوار/.test(name));
 }
 
 // Render product specifications
@@ -1120,17 +1142,10 @@ function renderSpecifications(product) {
 
   const variants = buildSizeVariants(product);
   const rowsBySize = new Map();
-  let column8Title = "قد";
-  let column9Title = "عرض کمر";
+  const column8Title = "قد";
+  const column9Title = getSizeTableMeasurementTitle(product);
 
   variants.forEach((variant) => {
-    if (variant.feature8Title && variant.feature8Title !== "ویژگی ۸") {
-      column8Title = normalizeMeasurementTitle(variant.feature8Title);
-    }
-    if (variant.feature9Title && variant.feature9Title !== "ویژگی ۹") {
-      column9Title = normalizeMeasurementTitle(variant.feature9Title);
-    }
-
     const sizeLabel = normalizeSizeLabel(variant.size);
     if (!sizeLabel) return;
     if (!rowsBySize.has(sizeLabel)) {
@@ -1142,8 +1157,8 @@ function renderSpecifications(product) {
     }
 
     const row = rowsBySize.get(sizeLabel);
-    if (variant.feature9Value) row.feature8Values.add(variant.feature9Value);
-    if (variant.feature8Value) row.feature9Values.add(variant.feature8Value);
+    if (variant.feature8Value) row.feature8Values.add(variant.feature8Value);
+    if (variant.feature9Value) row.feature9Values.add(variant.feature9Value);
   });
 
   const sizeTableDto = {
